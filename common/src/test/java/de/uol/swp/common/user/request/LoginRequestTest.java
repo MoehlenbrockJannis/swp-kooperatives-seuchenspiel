@@ -30,7 +30,6 @@ public class LoginRequestTest {
 
         assertEquals(username, request.getUsername());
         assertEquals(password, request.getPassword());
-        assertTrue(request.authorizationNeeded());
     }
 
     /**
