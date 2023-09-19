@@ -1,8 +1,9 @@
 package de.uol.swp.client;
 
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
@@ -31,7 +32,8 @@ import java.util.List;
  * @see javafx.application.Application
  * @since 2017-03-17
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class ClientApp extends Application implements ConnectionListener {
 
 	private static final Logger LOG = LogManager.getLogger(ClientApp.class);
@@ -185,21 +187,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	public void onRegistrationSuccessfulMessage(RegistrationSuccessfulResponse message) {
 		LOG.info("Registration successful.");
 		sceneManager.showLoginScreen();
-	}
-
-	/**
-	 * Handles errors produced by the EventBus
-	 *
-	 * If an DeadEvent object is detected on the EventBus, this method is called.
-	 * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-	 * object to the log, if the loglevel is set to ERROR or higher.
-	 *
-	 * @param deadEvent The DeadEvent object found on the EventBus
-	 * @since 2019-08-07
-	 */
-	@Subscribe
-	private void onDeadEvent(DeadEvent deadEvent){
-		LOG.error("DeadEvent detected {}", deadEvent);
 	}
 
 	@Override

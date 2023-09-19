@@ -1,6 +1,5 @@
 package de.uol.swp.server.usermanagement.lobby;
 
-import com.google.common.eventbus.EventBus;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
@@ -10,17 +9,23 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("UnstableApiUsage")
 class LobbyServiceTest {
 
     static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final UserDTO secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
 
-    final EventBus bus = new EventBus();
+    // Special version of event bus for testing
+    final EventBus bus = EventBus.builder()
+            .logNoSubscriberMessages(false)
+            .sendNoSubscriberEvent(false)
+            .throwSubscriberException(true)
+            .build();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     final LobbyManagement lobbyManagement = new LobbyManagement();
@@ -36,7 +41,7 @@ class LobbyServiceTest {
         // Check if Lobby was created
         assertNotNull(lobbyManagement.getLobby("Test"));
         // Checks whether it is also the correct owner
-        if(lobbyManagement.getLobby("Test").isPresent()){
+        if (lobbyManagement.getLobby("Test").isPresent()) {
             assertEquals(lobbyManagement.getLobby("Test").get().getOwner(), firstOwner);
         }
     }
@@ -47,13 +52,19 @@ class LobbyServiceTest {
         final CreateLobbyRequest request2 = new CreateLobbyRequest("Test", secondOwner);
 
         bus.post(request);
-        bus.post(request2);
+
+        // event bus throw exception
+        Exception e = assertThrows(EventBusException.class,
+                () -> bus.post(request2)
+        );
+        // Check if the nested exception is the right exception
+        assertTrue(e.getCause() instanceof IllegalArgumentException);
 
         // old lobby should be still in the LobbyManagement
         assertNotNull(lobbyManagement.getLobby("Test"));
 
         // old lobby should not be overwritten!
-        if(lobbyManagement.getLobby("Test").isPresent()) {
+        if (lobbyManagement.getLobby("Test").isPresent()) {
             assertNotEquals(lobbyManagement.getLobby("Test").get().getOwner(), secondOwner);
         }
     }
@@ -69,7 +80,7 @@ class LobbyServiceTest {
         bus.post(request);
 
         // Check if the user is listed in the lobby
-        if(lobbyManagement.getLobby("Test").isPresent()) {
+        if (lobbyManagement.getLobby("Test").isPresent()) {
             assertTrue(lobbyManagement.getLobby("Test").get().getUsers().contains(firstOwner));
             assertTrue(lobbyManagement.getLobby("Test").get().getUsers().contains(secondOwner));
         }
@@ -80,7 +91,7 @@ class LobbyServiceTest {
         // Create the lobby
         lobbyManagement.createLobby("Test", firstOwner);
         // Join User
-        if(lobbyManagement.getLobby("Test").isPresent()){
+        if (lobbyManagement.getLobby("Test").isPresent()) {
             lobbyManagement.getLobby("Test").get().joinUser(secondOwner);
         }
 
@@ -90,7 +101,7 @@ class LobbyServiceTest {
         bus.post(request);
 
         // Check if the user is no longer listed in the lobby
-        if(lobbyManagement.getLobby("Test").isPresent()){
+        if (lobbyManagement.getLobby("Test").isPresent()) {
             assertFalse(lobbyManagement.getLobby("Test").get().getUsers().contains(secondOwner));
         }
     }

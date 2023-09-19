@@ -1,8 +1,10 @@
 package de.uol.swp.client.user;
 
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+
+import de.uol.swp.client.EventBusBasedTest;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
@@ -21,62 +23,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marco Grawunder
  * @see de.uol.swp.client.user.UserService
  * @since 2019-10-10
- *
  */
-@SuppressWarnings("UnstableApiUsage")
-class UserServiceTest {
+
+
+public class UserServiceTest extends EventBusBasedTest {
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
-    final EventBus bus = new EventBus();
-    final CountDownLatch lock = new CountDownLatch(1);
-    Object event;
-
-    /**
-     * Handles DeadEvents detected on the EventBus
-     *
-     * If a DeadEvent is detected the event variable of this class gets updated
-     * to its event and its event is printed to the console output.
-     *
-     * @param e The DeadEvent detected on the EventBus
-     * @since 2019-10-10
-     */
-    @Subscribe
-    void onDeadEvent(DeadEvent e) {
-        this.event = e.getEvent();
-        System.out.print(e.getEvent());
-        lock.countDown();
-    }
-
-    /**
-     * Helper method run before each test case
-     *
-     * This method resets the variable event to null and registers the object of
-     * this class to the EventBus.
-     *
-     * @since 2019-10-10
-     */
-    @BeforeEach
-    void registerBus() {
-        event = null;
-        bus.register(this);
-    }
-
-    /**
-     * Helper method run after each test case
-     *
-     * This method only unregisters the object of this class from the EventBus.
-     *
-     * @since 2019-10-10
-     */
-    @AfterEach
-    void deregisterBus() {
-        bus.unregister(this);
-    }
 
     /**
      * Subroutine used for tests that need a logged in user
-     *
+     * <p>
      * This subroutine creates a new UserService object registered to the EventBus
      * of this test class and class the objects login method for the default user.
      *
@@ -84,14 +41,41 @@ class UserServiceTest {
      * @since 2019-10-10
      */
     private void loginUser() throws InterruptedException {
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.login(defaultUser.getUsername(), defaultUser.getPassword());
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        waitForLock();
+    }
+
+    // handlers for events
+    @Subscribe
+    public void onEvent(LoginRequest e) {
+        handleEvent(e);
+    }
+
+    @Subscribe
+    public void onEvent(LogoutRequest e) {
+        handleEvent(e);
+    }
+
+    @Subscribe
+    public void onEvent(RegisterUserRequest e) {
+        handleEvent(e);
+    }
+
+
+    @Subscribe
+    public void onEvent(UpdateUserRequest e) {
+        handleEvent(e);
+    }
+
+    @Subscribe
+    public void onEvent(RetrieveAllOnlineUsersRequest e) {
+        handleEvent(e);
     }
 
     /**
      * Test for the login method
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it checks if a
      * LoginRequest object got posted to the EventBus and if its content is the
      * default users information.
@@ -113,7 +97,7 @@ class UserServiceTest {
 
     /**
      * Test for the logout method
-     *
+     * <p>
      * This test first calls the loginUser subroutine. Afterwards it creates a new
      * UserService object registered to the EventBus of this test class. It then
      * calls the logout function of the object using the defaultUser as parameter
@@ -130,10 +114,10 @@ class UserServiceTest {
         loginUser();
         event = null;
 
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.logout(defaultUser);
 
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        waitForLock();
 
         assertTrue(event instanceof LogoutRequest);
 
@@ -144,7 +128,7 @@ class UserServiceTest {
 
     /**
      * Test for the createUser routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the createUser function of the object using
      * the defaultUser as parameter and waits for it to post an updateUserRequest
@@ -159,10 +143,10 @@ class UserServiceTest {
      */
     @Test
     void createUserTest() throws InterruptedException {
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.createUser(defaultUser);
 
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        waitForLock();
 
         assertTrue(event instanceof RegisterUserRequest);
 
@@ -177,7 +161,7 @@ class UserServiceTest {
 
     /**
      * Test for the updateUser routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the updateUser function of the object using
      * the defaultUser as parameter and waits for it to post an updateUserRequest
@@ -192,10 +176,10 @@ class UserServiceTest {
      */
     @Test
     void updateUserTest() throws InterruptedException {
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.updateUser(defaultUser);
 
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        waitForLock();
 
         assertTrue(event instanceof UpdateUserRequest);
 
@@ -209,7 +193,7 @@ class UserServiceTest {
 
     /**
      * Test for the dropUser routine
-     *
+     * <p>
      * This test case has to be implemented after the respective dropUser method
      * has been implemented
      *
@@ -217,7 +201,7 @@ class UserServiceTest {
      */
     @Test
     void dropUserTest() {
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.dropUser(defaultUser);
 
         // TODO: Add when method is implemented
@@ -225,7 +209,7 @@ class UserServiceTest {
 
     /**
      * Test for the retrieveAllUsers routine
-     *
+     * <p>
      * This Test creates a new UserService object registered to the EventBus of
      * this test class. It then calls the retrieveAllUsers function of the object
      * and waits for it to post a retrieveAllUsersRequest object on the EventBus.
@@ -236,12 +220,13 @@ class UserServiceTest {
      */
     @Test
     void retrieveAllUsersTest() throws InterruptedException {
-        UserService userService = new UserService(bus);
+        UserService userService = new UserService(getBus());
         userService.retrieveAllUsers();
 
-        lock.await(1000, TimeUnit.MILLISECONDS);
+        waitForLock();
 
         assertTrue(event instanceof RetrieveAllOnlineUsersRequest);
     }
+
 
 }

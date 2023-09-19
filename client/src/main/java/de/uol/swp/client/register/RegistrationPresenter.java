@@ -1,7 +1,7 @@
 package de.uol.swp.client.register;
 
 import com.google.common.base.Strings;
-import com.google.common.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;

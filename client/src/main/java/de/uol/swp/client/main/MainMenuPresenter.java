@@ -1,6 +1,7 @@
 package de.uol.swp.client.main;
 
-import com.google.common.eventbus.Subscribe;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.LobbyService;

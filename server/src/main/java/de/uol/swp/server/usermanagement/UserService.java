@@ -1,7 +1,8 @@
 package de.uol.swp.server.usermanagement;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.message.MessageContext;
@@ -23,7 +24,8 @@ import java.util.Optional;
  * @author Marco Grawunder
  * @since 2019-08-05
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 @Singleton
 public class UserService extends AbstractService {
 
@@ -61,7 +63,7 @@ public class UserService extends AbstractService {
      * @since 2019-09-02
      */
     @Subscribe
-    private void onRegisterUserRequest(RegisterUserRequest msg) {
+    public void onRegisterUserRequest(RegisterUserRequest msg) {
         if (LOG.isDebugEnabled()){
             LOG.debug("Got new registration message with {}", msg.getUser());
         }
