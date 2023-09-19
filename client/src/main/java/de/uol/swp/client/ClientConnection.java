@@ -1,8 +1,9 @@
 package de.uol.swp.client;
 
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.common.MyObjectDecoder;
@@ -35,7 +36,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Marco Grawunder
  * @since 2017-03-17
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class ClientConnection {
 
 	private static final Logger LOG = LogManager.getLogger(ClientConnection.class);
@@ -203,21 +205,6 @@ public class ClientConnection {
 		for (ConnectionListener l : connectionListener) {
 			l.exceptionOccurred(message.getException());
 		}
-	}
-
-	/**
-	 * Handles errors produced by the EventBus
-	 *
-	 * If an DeadEvent object is detected on the EventBus, this method is called.
-	 * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-	 * object to the log, if the loglevel is set to WARN or higher.
-	 *
-	 * @param deadEvent The DeadEvent object found on the EventBus
-	 * @since 2017-03-17
-	 */
-	@Subscribe
-	public void onDeadEvent(DeadEvent deadEvent){
-		LOG.warn("DeadEvent detected {}", deadEvent);
 	}
 
 	/**

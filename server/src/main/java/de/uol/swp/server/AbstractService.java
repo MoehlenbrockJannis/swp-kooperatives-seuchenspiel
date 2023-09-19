@@ -1,6 +1,9 @@
 package de.uol.swp.server;
 
-import com.google.common.eventbus.EventBus;
+import de.uol.swp.server.communication.ServerHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.ServerMessage;
 
@@ -15,9 +18,11 @@ import java.util.Collections;
  * @author Marco Grawunder
  * @since 2019-10-08
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class AbstractService {
 
+    private static final Logger LOG = LogManager.getLogger(AbstractService.class);
 
     private final EventBus bus;
 

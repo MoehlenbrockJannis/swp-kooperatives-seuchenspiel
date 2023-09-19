@@ -1,8 +1,9 @@
 package de.uol.swp.server.communication;
 
-import com.google.common.eventbus.DeadEvent;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import de.uol.swp.common.message.*;
 import de.uol.swp.common.user.Session;
@@ -25,7 +26,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Marco Grawunder
  * @since 2017-03-17
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class ServerHandler implements ServerHandlerDelegate {
 
     private static final Logger LOG = LogManager.getLogger(ServerHandler.class);
@@ -107,27 +109,11 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    private void onServerExceptionMessage(ServerExceptionMessage msg) {
+    public void onServerExceptionMessage(ServerExceptionMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         LOG.error(msg.getException());
         ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionMessage(msg.getException().getMessage())));
     }
-
-    /**
-     * Handles errors produced by the EventBus
-     *
-     * If an DeadEvent object is detected on the EventBus, this method is called.
-     * It writes "DeadEvent detected " and the error message of the detected DeadEvent
-     * object to the log, if the loglevel is set to WARN or higher.
-     *
-     * @param deadEvent The DeadEvent object found on the EventBus
-     * @since 2019-11-20
-     */
-    @Subscribe
-    private void onDeadEvent(DeadEvent deadEvent) {
-        LOG.error("DeadEvent detected {}", deadEvent);
-    }
-
 
     // -------------------------------------------------------------------------------
     // Handling of connected clients
@@ -168,7 +154,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    private void onClientAuthorizedMessage(ClientAuthorizedMessage msg) {
+    public void onClientAuthorizedMessage(ClientAuthorizedMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         final Optional<Session> session = msg.getSession();
         if (ctx.isPresent() && session.isPresent()) {
@@ -192,7 +178,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    private void onUserLoggedOutMessage(UserLoggedOutMessage msg) {
+    public void onUserLoggedOutMessage(UserLoggedOutMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         ctx.ifPresent(this::removeSession);
         sendMessage(msg);
@@ -214,7 +200,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    private void onResponseMessage(ResponseMessage msg) {
+    public void onResponseMessage(ResponseMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         if (ctx.isPresent()) {
             msg.setSession(null);
@@ -242,7 +228,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    private void onServerMessage(ServerMessage msg) {
+    public void onServerMessage(ServerMessage msg) {
         msg.setSession(null);
         msg.setMessageContext(null);
         if (LOG.isDebugEnabled()) {

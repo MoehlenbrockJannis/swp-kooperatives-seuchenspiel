@@ -1,6 +1,6 @@
 package de.uol.swp.client.di;
 
-import com.google.common.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uol.swp.client.ClientConnection;
@@ -18,9 +18,10 @@ import javafx.fxml.FXMLLoader;
  * @since 2019-09-18
  *
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class ClientModule extends AbstractModule {
-    final EventBus eventBus = new EventBus();
+    final EventBus eventBus = EventBus.getDefault();
 
     @Override
     protected void configure() {

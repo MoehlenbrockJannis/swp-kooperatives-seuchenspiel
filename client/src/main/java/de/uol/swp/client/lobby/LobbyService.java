@@ -1,6 +1,6 @@
 package de.uol.swp.client.lobby;
 
-import com.google.common.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
@@ -13,7 +13,8 @@ import de.uol.swp.common.user.UserDTO;
  * @since 2019-11-20
  *
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class LobbyService {
 
     private final EventBus eventBus;
@@ -28,7 +29,8 @@ public class LobbyService {
     @Inject
     public LobbyService(EventBus eventBus) {
         this.eventBus = eventBus;
-        this.eventBus.register(this);
+        // No @Subscribe, no need to register
+        // this.eventBus.register(this);
     }
 
     /**

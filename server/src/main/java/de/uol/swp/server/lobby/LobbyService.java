@@ -1,7 +1,8 @@
 package de.uol.swp.server.lobby;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
@@ -20,7 +21,8 @@ import java.util.Optional;
  * @author Marco Grawunder
  * @since 2019-10-08
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 @Singleton
 public class LobbyService extends AbstractService {
 

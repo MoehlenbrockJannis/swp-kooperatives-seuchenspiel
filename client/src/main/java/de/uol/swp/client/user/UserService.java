@@ -1,6 +1,6 @@
 package de.uol.swp.client.user;
 
-import com.google.common.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.request.*;
@@ -14,7 +14,8 @@ import de.uol.swp.common.user.request.*;
  * @since 2017-03-17
  *
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class UserService implements ClientUserService {
 
 	private final EventBus bus;

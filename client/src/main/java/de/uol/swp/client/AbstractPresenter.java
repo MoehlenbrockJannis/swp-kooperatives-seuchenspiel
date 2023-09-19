@@ -1,8 +1,10 @@
 package de.uol.swp.client;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.user.ClientUserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * This class is the base for creating a new Presenter.
@@ -13,8 +15,11 @@ import de.uol.swp.client.user.ClientUserService;
  * @author Marco Grawunder
  * @since 2019-08-29
  */
-@SuppressWarnings("UnstableApiUsage")
+
+
 public class AbstractPresenter {
+
+    private static final Logger LOG = LogManager.getLogger(AbstractPresenter.class);
 
     @Inject
     protected ClientUserService userService;
@@ -35,7 +40,12 @@ public class AbstractPresenter {
     @Inject
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
-        eventBus.register(this);
+        try {
+            eventBus.register(this);
+        }catch(Exception e){
+            // register looks for @Subscribe that is not available in all classes
+            LOG.warn("This class does not provide @Subscribe methods ..."+this.getClass());
+        }
     }
 
     /**
