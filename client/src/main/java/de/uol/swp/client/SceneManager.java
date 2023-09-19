@@ -1,10 +1,10 @@
 package de.uol.swp.client;
 
+import com.google.inject.Provider;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
@@ -47,13 +47,13 @@ public class SceneManager {
     private Scene lastScene = null;
     private Scene currentScene = null;
 
-    private final Injector injector;
+    private final Provider<FXMLLoader> loaderProvider;
 
     @Inject
-    public SceneManager(EventBus eventBus, Injector injected, @Assisted Stage primaryStage) throws IOException {
+    public SceneManager(EventBus eventBus, Provider<FXMLLoader> loaderProvider, @Assisted Stage primaryStage) throws IOException {
         eventBus.register(this);
         this.primaryStage = primaryStage;
-        this.injector = injected;
+        this.loaderProvider = loaderProvider;
         initViews();
     }
 
@@ -83,7 +83,7 @@ public class SceneManager {
      */
     private Parent initPresenter(String fxmlFile) throws IOException {
         Parent rootPane;
-        FXMLLoader loader = injector.getInstance(FXMLLoader.class);
+        FXMLLoader loader = loaderProvider.get();
         try {
             URL url = getClass().getResource(fxmlFile);
             LOG.debug("Loading {}", url);
