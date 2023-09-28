@@ -41,7 +41,15 @@ public class EventBusBasedTest {
 
     @AfterEach
     void deregisterBus() {
-        bus.unregister(this);
+        try {
+            if(bus.isRegistered(this)) {
+                bus.unregister(this);
+            }else{
+                LOG.warn("@Subscriber was not registered before --> @Subscriber cannot be unregistered!");
+            }
+        }catch(Exception e){
+            LOG.warn("@Subscriber was not registered before!");
+        }
     }
 
     protected void postAndWait(Object event) throws InterruptedException{
