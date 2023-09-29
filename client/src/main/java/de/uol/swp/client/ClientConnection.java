@@ -1,6 +1,7 @@
 package de.uol.swp.client;
 
 
+import java.net.ConnectException;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -89,7 +90,7 @@ public class ClientConnection {
 	 * @throws Exception Connection failed
 	 * @since 2017-03-17
 	 */
-	public void start() throws InterruptedException {
+	public void start() throws InterruptedException, ConnectException {
 		group = new NioEventLoopGroup();
 		try {
 			Bootstrap b = new Bootstrap();

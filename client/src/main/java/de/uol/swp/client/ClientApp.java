@@ -1,6 +1,7 @@
 package de.uol.swp.client;
 
 
+import java.net.ConnectException;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -103,7 +104,7 @@ public class ClientApp extends Application implements ConnectionListener {
 		Thread t = new Thread(() -> {
 			try {
 				clientConnection.start();
-			} catch (InterruptedException e) {
+			} catch (InterruptedException | ConnectException e) {
 				exceptionOccurred(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
