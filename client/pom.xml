@@ -8,7 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <properties>
-        <javafx.version>17.0.2</javafx.version>
+        <javafx.version>21</javafx.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -20,15 +20,16 @@
                  <plugin>
                     <groupId>org.openjfx</groupId>
                     <artifactId>javafx-maven-plugin</artifactId>
-                    <version>0.0.6</version>
+                    <version>0.0.8</version>
                     <configuration>
                         <mainClass>de.uol.swp.client.Main</mainClass>
                     </configuration>
                 </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.6.0</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -97,7 +98,7 @@
         <dependency>
             <groupId>com.gluonhq</groupId>
             <artifactId>ignite-guice</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.2</version>
         </dependency>
 
 
