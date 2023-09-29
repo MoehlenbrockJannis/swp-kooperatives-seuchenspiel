@@ -4,7 +4,8 @@ import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.usermanagement.store.UserStore;
 
-import jakarta.inject.Inject;
+import com.google.inject.Inject;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedMap;
