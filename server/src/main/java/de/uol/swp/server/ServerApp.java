@@ -44,7 +44,7 @@ class ServerApp {
 			try{
 				port = Integer.parseInt(args[0]);
 			}catch(Exception e){
-				// Ignore and use default value
+				//Ignore and use default value
 			}
 		}
 		if (port < 0){
