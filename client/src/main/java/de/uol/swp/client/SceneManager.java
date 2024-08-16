@@ -1,6 +1,7 @@
 package de.uol.swp.client;
 
 import com.google.inject.Provider;
+import javafx.scene.image.Image;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -54,6 +55,7 @@ public class SceneManager {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/pictures/Pandemielogo.jpeg")));
         initViews();
     }
 
