@@ -32,7 +32,7 @@ Um den Server zu bauen:
     </code>
 </pre>
 
-Der Server ist dann unter traget zu finden und kann z.B. wie folgt aufgerufen werden:
+Der Server ist dann unter target zu finden und kann z.B. wie folgt aufgerufen werden:
 
 <pre>
     <code>
@@ -52,7 +52,7 @@ Um den Client zu bauen:
     </code>
 </pre>
 
-Der Client ist dann unter traget zu finden und kann z.B. wie folgt aufgerufen werden:
+Der Client ist dann unter target zu finden und kann z.B. wie folgt aufgerufen werden:
 
 <pre>
     <code>
