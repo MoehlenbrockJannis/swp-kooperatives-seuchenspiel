@@ -55,7 +55,8 @@ public class SceneManager {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
-        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/pictures/Pandemielogo.jpeg")));
+        Image iconImage = new Image(getClass().getResourceAsStream("/pictures/PandemielogoSimpel.jpg"));
+        primaryStage.getIcons().add(iconImage);
         initViews();
     }
 
