@@ -1,11 +1,10 @@
-# SWP Basissystem	
-===============
+# SWP Basissystem
 
 Der folgende Code sollte als Basis für das Software Projekt verwendet werden.
 
 
 ## Setup - Maven
------
+
 Das Projekt kann mit Maven gebaut werden.
 Dafür müssen Java und Maven im Path des Systems hinterlegt sein.
 
@@ -70,19 +69,40 @@ Um in das Menü zum Hinzufügen zu gelangen, müssen folgende Aktionen durchgef�
 2. "Edit Configurations..." auswählen.
 3. +-Knopf ("Add New Configuration") drücken
 
-In diesem Menü wird ein Shell Script für den Server erstellt:
+#### Mit Batch-Dateien
+
+Im Menü wird ein Shell Script für den Server erstellt:
 - "Shell Script" auswählen:
     - Name: "Start Backend"
-    - Script path: "C:\Path\to\start-server.bat"
+    - Script path: "C:\Path\to\SWP\start-server.bat"
 
 Danach wird ein Shell Script für den Client erstellt:
 - "Shell Script" auswählen:
     - Name: "Start Frontend"
-    - Script path: "C:\Path\to\start-client.bat"
+    - Script path: "C:\Path\to\SWP\start-client.bat"
 
 Um sowohl Server als auch Client mit einem Knopfdruck zu starten, muss ein Compound erstellt werden:
 - "Compound" auswählen:
     - Name: "Start Backend and Frontend"
     - +-Knopf im Compound ("Add") drücken und "Start Backend" sowie "Start Frontend" in dieser Reihenfolge hinzufügen
+
+#### Mit JDK und Maven aus Intellij
+
+Alternativ dazu kann zur Verwendung des JDK und Maven aus Intellij ein anderes Compound aus folgenden Komponenten erstellt werden:
+1. JAR Application "Start Backend":
+   - Path to JAR: "C:\Path\to\SWP\server\target\server-1.0.0-jar-with-dependencies.jar"
+   - Before launch:
+     1. Maven "Base [clean,install]":
+        - Run: "clean install"
+        - Working directory: "C:\Path\to\SWP"
+     2. Maven "Backend [clean,package]":
+        - Run: "clean package"
+        - Working directory: "C:\Path\to\SWP\server"
+2. JAR Application "Start Frontend":
+   - Path to JAR: "C:\Path\to\SWP\client\target\client-1.0-SNAPSHOT-jar-with-dependencies.jar"
+   - Before launch:
+     1. Maven "Frontend [clean,package]":
+         - Run: "clean package"
+         - Working directory: "C:\Path\to\SWP\client"
 
 Weitere Hinweise finden sich im Wiki https://confluence.swl.informatik.uni-oldenburg.de/display/SWP/Vorlesungsvideos
