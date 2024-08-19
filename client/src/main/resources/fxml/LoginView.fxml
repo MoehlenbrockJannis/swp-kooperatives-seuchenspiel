@@ -11,7 +11,7 @@
 <AnchorPane minHeight="450.0" minWidth="850.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
    <TextField id="loginField" fx:id="loginField" layoutX="347.0" layoutY="131.0" prefHeight="35.0" prefWidth="150.0" promptText="Eingabe Benutzername..." scaleX="1.5" scaleY="1.5" scaleZ="1.5">
       <tooltip>
-         <Tooltip text="Gebe deinen Benutzername hier ein:" />
+         <Tooltip text="Gebe deinen Benutzernamen hier ein:" />
       </tooltip>
    </TextField>
    <PasswordField id="passwordField" fx:id="passwordField" layoutX="347.0" layoutY="225.0" prefHeight="35.0" prefWidth="150.0" promptText="Eingabe Passwort..." scaleX="1.5" scaleY="1.5" scaleZ="1.5" />
