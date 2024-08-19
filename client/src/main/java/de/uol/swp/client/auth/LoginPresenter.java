@@ -70,4 +70,9 @@ public class LoginPresenter extends AbstractPresenter {
     private void onRegisterButtonPressed(ActionEvent event) {
         eventBus.post(showRegViewMessage);
     }
+
+    @FXML
+    private void onCloseGame(ActionEvent event) {
+        System.exit(0);
+    }
 }
