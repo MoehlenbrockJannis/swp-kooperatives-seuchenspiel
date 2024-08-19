@@ -15,15 +15,15 @@
         </tooltip>
     </TextField>
     <PasswordField id="passwordField" fx:id="passwordField1" layoutX="469.0" layoutY="181.0" promptText="Passwort" scaleX="1.5" scaleY="1.5" scaleZ="1.5" />
+    <TextField id="emailField" fx:id="emailField" layoutX="234.0" layoutY="240.0" promptText="E-Mail" scaleX="1.5" scaleY="1.5" scaleZ="1.5" AnchorPane.leftAnchor="234.0" AnchorPane.rightAnchor="468.0">
+        <tooltip>
+            <Tooltip text="Enter your E-Mail here" />
+        </tooltip>
+    </TextField>
     <PasswordField id="passwordField" fx:id="passwordField2" layoutX="469.0" layoutY="240.0" promptText="Passwort wiederholen" scaleX="1.5" scaleY="1.5" scaleZ="1.5" />
+    <Button layoutX="220.0" layoutY="307.0" mnemonicParsing="false" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Spiel beenden" onAction="#onExitButtonPressed" />
     <Button id="registerButton" layoutX="395.0" layoutY="307.0" mnemonicParsing="false" onAction="#onRegisterButtonPressed" prefHeight="23.0" prefWidth="100.0" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Registrieren" AnchorPane.leftAnchor="375.5" AnchorPane.rightAnchor="375.5" />
     <Button id="cancelButton" layoutX="535.0" layoutY="307.0" mnemonicParsing="false" onAction="#onCancelButtonPressed" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Abbrechen" />
-   <Button layoutX="220.0" layoutY="307.0" mnemonicParsing="false" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Spiel beenden" />
-   <TextField id="emailField" fx:id="loginField1" layoutX="234.0" layoutY="240.0" promptText="E-Mail" scaleX="1.5" scaleY="1.5" scaleZ="1.5" AnchorPane.leftAnchor="234.0" AnchorPane.rightAnchor="468.0">
-      <tooltip>
-         <Tooltip text="Enter your login here" />
-      </tooltip>
-   </TextField>
    <Label alignment="CENTER" layoutX="296.0" layoutY="78.0" prefHeight="66.0" prefWidth="260.0" text="PANDEMIE" textAlignment="CENTER" AnchorPane.leftAnchor="296.0" AnchorPane.rightAnchor="296.0" AnchorPane.topAnchor="78.0">
       <font>
          <Font name="System Bold" size="40.0" />
