@@ -1,26 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="450.0" minWidth="850.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
-   <TextField id="loginField" fx:id="loginField" layoutX="347.0" layoutY="131.0" prefHeight="35.0" prefWidth="150.0" promptText="Eingabe Benutzername..." scaleX="1.5" scaleY="1.5" scaleZ="1.5">
-      <tooltip>
-         <Tooltip text="Gebe deinen Benutzernamen hier ein:" />
-      </tooltip>
-   </TextField>
-   <PasswordField id="passwordField" fx:id="passwordField" layoutX="347.0" layoutY="225.0" prefHeight="35.0" prefWidth="150.0" promptText="Eingabe Passwort..." scaleX="1.5" scaleY="1.5" scaleZ="1.5" />
-   <Button id="loginButton" defaultButton="true" layoutX="372.0" layoutY="321.0" mnemonicParsing="false" onAction="#onLoginButtonPressed" prefHeight="23.0" prefWidth="101.0" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Login" />
-   <Button id="registerButton" layoutX="537.0" layoutY="321.0" mnemonicParsing="false" onAction="#onRegisterButtonPressed" prefHeight="23.0" prefWidth="101.0" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Register" />
-   <Button layoutX="206.0" layoutY="321.0" mnemonicParsing="false" onAction="#onCloseGame" prefHeight="23.0" prefWidth="101.0" scaleX="1.5" scaleY="1.5" scaleZ="1.5" text="Spiel beenden" />
-   <Label alignment="CENTER" layoutX="292.0" layoutY="38.0" prefHeight="66.0" prefWidth="260.0" text="PANDEMIE" AnchorPane.leftAnchor="292.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="38.0">
-      <font>
-         <Font name="System Bold" size="40.0" />
-      </font>
-   </Label>
-</AnchorPane>
+<?import javafx.scene.control.PasswordField?>
+<GridPane alignment="TOP_CENTER" prefHeight="450.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="202.20001220703125" minWidth="10.0" prefWidth="79.0" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="635.2000244140625" minWidth="10.0" prefWidth="635.2000244140625" />
+      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="148.199951171875" minWidth="10.0" prefWidth="82.5999755859375" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints maxHeight="176.00000610351563" minHeight="10.0" prefHeight="176.00000610351563" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="296.5999816894531" minHeight="10.0" prefHeight="120.39998779296872" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="224.8" minHeight="10.0" prefHeight="94.80001220703127" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="107.60001220703123" minHeight="0.0" prefHeight="57.5999755859375" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <GridPane alignment="TOP_CENTER" prefHeight="177.0" prefWidth="243.0" GridPane.columnIndex="1">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints maxHeight="49.599996948242186" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="116.8" minHeight="10.0" prefHeight="116.8" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <Label alignment="CENTER" prefHeight="74.0" prefWidth="310.0" text="PANDEMIE" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="NEVER">
+               <font>
+                  <Font size="50.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
+      <GridPane alignment="TOP_CENTER" prefHeight="121.0" prefWidth="619.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints />
+            <ColumnConstraints />
+            <ColumnConstraints />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="80.79999999999998" minHeight="10.0" prefHeight="58.799993896484374" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="66.00000228881835" minHeight="0.0" prefHeight="22.000006103515616" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <TextField fx:id="loginField" alignment="CENTER" prefHeight="43.0" prefWidth="226.0" promptText="Benutername" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="BOTTOM">
+               <GridPane.margin>
+                  <Insets bottom="10.0" right="10.0" />
+               </GridPane.margin>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </TextField>
+            <PasswordField fx:id="passwordField" alignment="CENTER" prefHeight="43.0" prefWidth="318.0" promptText="Passwort" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" GridPane.vgrow="NEVER">
+               <GridPane.margin>
+                  <Insets bottom="10.0" left="10.0" />
+               </GridPane.margin>
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </PasswordField>
+         </children>
+      </GridPane>
+      <GridPane alignment="CENTER" prefHeight="113.0" prefWidth="414.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.20001220703125" minWidth="10.0" prefWidth="127.4000473022461" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="388.5999526977539" minWidth="10.0" prefWidth="384.5999526977539" />
+            <ColumnConstraints />
+            <ColumnConstraints />
+            <ColumnConstraints />
+         </columnConstraints>
+         <children>
+            <Button mnemonicParsing="false" onAction="#onCloseGame" prefHeight="43.0" prefWidth="123.0" text="Beenden" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#onRegisterButtonPressed" prefHeight="43.0" prefWidth="149.0" text="Registrieren" GridPane.columnIndex="4" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+            <Button fx:id="loginButton" alignment="CENTER" mnemonicParsing="false" onAction="#onLoginButtonPressed" prefHeight="43.0" prefWidth="250.0" text="Login" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.valignment="TOP" GridPane.vgrow="NEVER">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+         </children>
+         <rowConstraints>
+            <RowConstraints />
+         </rowConstraints>
+      </GridPane>
+   </children>
+</GridPane>

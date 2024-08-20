@@ -130,7 +130,6 @@ public class SceneManager {
             Parent rootPane = initPresenter(LoginPresenter.FXML);
             loginScene = new Scene(rootPane);
             loginScene.getStylesheets().add(STYLE_SHEET);
-            primaryStage.setResizable(false);
         }
     }
 
