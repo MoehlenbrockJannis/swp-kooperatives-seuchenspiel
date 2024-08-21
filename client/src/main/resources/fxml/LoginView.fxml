@@ -37,7 +37,7 @@
                   <Insets left="30.0" right="10.0" />
                </GridPane.margin>
             </TextField>
-            <PasswordField fx:id="passwordField" focusTraversable="false" prefHeight="60.0" promptText="Passwort eingeben" GridPane.columnIndex="1">
+            <PasswordField fx:id="passwordField" focusTraversable="false" prefHeight="60.0" promptText="Passwort" GridPane.columnIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" right="30.0" />
                </GridPane.margin>
