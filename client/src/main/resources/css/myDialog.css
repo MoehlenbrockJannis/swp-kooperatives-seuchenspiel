@@ -16,3 +16,6 @@
     -fx-font-size: 2em;
 }
 
+.dialog-pane .button:hover {
+    -fx-font-size: 20px;
+}
