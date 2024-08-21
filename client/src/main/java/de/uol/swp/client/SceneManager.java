@@ -39,11 +39,9 @@ public class SceneManager {
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
     static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
-
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
 
     private final Stage primaryStage;
-
     private final Image iconImage;
     private Scene loginScene;
     private String lastTitle;
