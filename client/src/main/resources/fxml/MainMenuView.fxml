@@ -106,7 +106,7 @@
                         prefHeight="36.0" prefWidth="36.0">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@../pictures/setting-line-icon.png"/>
+                            <Image url="@../images/setting-line-icon.png"/>
                         </ImageView>
                     </graphic>
                     <cursor>
@@ -117,7 +117,7 @@
                         prefHeight="36.0" prefWidth="36.0">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@../pictures/question-mark-line-icon.png"/>
+                            <Image url="@../images/question-mark-line-icon.png"/>
                         </ImageView>
                     </graphic>
                     <cursor>
@@ -128,7 +128,7 @@
                         prefHeight="36.0" prefWidth="36.0">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@../pictures/logout-line-icon.png"/>
+                            <Image url="@../images/logout-line-icon.png"/>
                         </ImageView>
                     </graphic>
                     <cursor>
@@ -139,7 +139,7 @@
                         prefHeight="36.0" prefWidth="36.0">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                            <Image url="@../pictures/close-line-icon.png"/>
+                            <Image url="@../images/close-line-icon.png"/>
                         </ImageView>
                     </graphic>
                     <cursor>
