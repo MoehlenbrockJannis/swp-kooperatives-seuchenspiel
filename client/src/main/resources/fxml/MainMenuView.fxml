@@ -125,7 +125,7 @@
                     </cursor>
                 </Button>
                 <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
-                        prefHeight="36.0" prefWidth="36.0">
+                        prefHeight="36.0" prefWidth="36.0" onAction="#onLogoutButtonPressed">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                             <Image url="@../images/logout-line-icon.png"/>
