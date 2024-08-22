@@ -327,6 +327,6 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationScene,"Registration");
+        showScene(registrationScene,"Registrierung");
     }
 }
