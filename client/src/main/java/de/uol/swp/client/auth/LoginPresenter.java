@@ -51,6 +51,8 @@ public class LoginPresenter extends AbstractPresenter {
     @FXML
     private void onLoginButtonPressed(ActionEvent event) {
         userService.login(loginField.getText(), passwordField.getText());
+        loginField.clear();
+        passwordField.clear();
     }
 
     /**
