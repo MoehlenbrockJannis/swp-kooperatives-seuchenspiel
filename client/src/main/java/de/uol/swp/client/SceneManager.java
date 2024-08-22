@@ -1,6 +1,7 @@
 package de.uol.swp.client;
 
 import com.google.inject.Provider;
+import javafx.scene.image.Image;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -38,8 +39,10 @@ public class SceneManager {
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
     static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
+    static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
 
     private final Stage primaryStage;
+    private final Image iconImage;
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
@@ -54,6 +57,9 @@ public class SceneManager {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
+        this.iconImage = new Image(getClass().getResourceAsStream(ICON_IMAGE_PATH));
+        primaryStage.getIcons().add(iconImage);
+
         initViews();
     }
 
@@ -108,7 +114,7 @@ public class SceneManager {
     private void initMainView() throws IOException {
         if (mainScene == null) {
             Parent rootPane = initPresenter(MainMenuPresenter.FXML);
-            mainScene = new Scene(rootPane, 800, 600);
+            mainScene = new Scene(rootPane, 1000, 500);
             mainScene.getStylesheets().add(STYLE_SHEET);
         }
     }
@@ -221,6 +227,9 @@ public class SceneManager {
             Alert a = new Alert(Alert.AlertType.ERROR, message + e);
             // based on: https://stackoverflow.com/questions/28417140/styling-default-javafx-dialogs/28421229#28421229
             DialogPane pane = a.getDialogPane();
+            if (pane.getScene().getWindow() instanceof Stage stage) {
+                stage.getIcons().add(iconImage);
+            }
             pane.getStylesheets().add(DIALOG_STYLE_SHEET);
             a.showAndWait();
         });
