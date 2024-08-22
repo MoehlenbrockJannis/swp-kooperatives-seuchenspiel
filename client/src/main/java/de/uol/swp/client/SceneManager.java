@@ -131,7 +131,7 @@ public class SceneManager {
     private void initLoginView() throws IOException {
         if (loginScene == null) {
             Parent rootPane = initPresenter(LoginPresenter.FXML);
-            loginScene = new Scene(rootPane, 400, 200);
+            loginScene = new Scene(rootPane);
             loginScene.getStylesheets().add(STYLE_SHEET);
         }
     }
@@ -149,7 +149,7 @@ public class SceneManager {
     private void initRegistrationView() throws IOException {
         if (registrationScene == null){
             Parent rootPane = initPresenter(RegistrationPresenter.FXML);
-            registrationScene = new Scene(rootPane, 400,200);
+            registrationScene = new Scene(rootPane);
             registrationScene.getStylesheets().add(STYLE_SHEET);
         }
     }
