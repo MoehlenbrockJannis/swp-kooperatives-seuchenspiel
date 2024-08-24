@@ -41,6 +41,7 @@ public class SceneManager {
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
     static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
+    static final String ERROR_DIALOG_STYLE_SHEET = "css/errorDialog.css";
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
     static final String ERROR_ICON_IMAGE_PATH = "/images/ErrorIcon.png";
 
@@ -237,7 +238,7 @@ public class SceneManager {
             if (pane.getScene().getWindow() instanceof Stage stage) {
                 stage.getIcons().add(iconImage);
             }
-            pane.getStylesheets().add(DIALOG_STYLE_SHEET);
+            pane.getStylesheets().add(ERROR_DIALOG_STYLE_SHEET);
             a.showAndWait();
         });
     }
