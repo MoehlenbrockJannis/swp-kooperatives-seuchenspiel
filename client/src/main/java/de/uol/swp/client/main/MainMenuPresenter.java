@@ -1,5 +1,6 @@
 package de.uol.swp.client.main;
 
+import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
@@ -35,6 +36,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     public static final String FXML = "/fxml/MainMenuView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
+
+    @FXML
+    private TextField chatMessageInput;
 
     private ObservableList<String> users;
 
@@ -180,5 +184,10 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
     }
 
-
+    @FXML
+    void onSendChatMessage(ActionEvent event) {
+        String chatMessage = chatMessageInput.getText();
+        chatMessageInput.clear();
+        lobbyService.sendChatMessage(loggedInUser, chatMessage);
+    }
 }

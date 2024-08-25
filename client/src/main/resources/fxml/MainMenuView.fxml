@@ -55,12 +55,12 @@
             <ListView focusTraversable="false" maxHeight="1.7976931348623157E308" prefWidth="116.0"
                       VBox.vgrow="ALWAYS"/>
             <HBox maxHeight="-Infinity" prefHeight="30.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="NEVER">
-                <TextField focusTraversable="false">
+                <TextField focusTraversable="false" fx:id="chatMessageInput">
                     <cursor>
                         <Cursor fx:constant="TEXT"/>
                     </cursor>
                 </TextField>
-                <Button focusTraversable="false" mnemonicParsing="false" prefWidth="80.0" text="Senden">
+                <Button focusTraversable="false" mnemonicParsing="false" prefWidth="80.0" text="Senden" onAction="#onSendChatMessage">
                     <cursor>
                         <Cursor fx:constant="HAND"/>
                     </cursor>
