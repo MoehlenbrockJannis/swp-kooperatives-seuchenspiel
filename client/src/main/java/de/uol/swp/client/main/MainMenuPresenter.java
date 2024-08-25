@@ -6,6 +6,7 @@ import org.greenrobot.eventbus.Subscribe;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
@@ -46,6 +47,9 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Inject
     private LobbyService lobbyService;
+
+    @Inject
+    private ChatService chatService;
 
     @FXML
     private ListView<String> usersView;
@@ -184,10 +188,19 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
     }
 
+    /**
+     * Method called when the send chat message button is pressed
+     *
+     * If the send chat message button is pressed, this method sends the chat message
+     * written in the chat message input field to the chat service.
+     *
+     * @param event The ActionEvent created by pressing the send chat message button
+     * @since 2024-08-25
+     */
     @FXML
     void onSendChatMessage(ActionEvent event) {
         String chatMessage = chatMessageInput.getText();
         chatMessageInput.clear();
-        lobbyService.sendChatMessage(loggedInUser, chatMessage);
+        chatService.sendChatMessage(loggedInUser, chatMessage);
     }
 }
