@@ -65,7 +65,7 @@
                   <Font size="20.0" />
                </font>
             </Button>
-            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onLoginButtonPressed" pickOnBounds="false" prefHeight="50.0" prefWidth="280.0" scaleShape="false" text="Login" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+            <Button alignment="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onLoginButtonPressed" pickOnBounds="false" prefHeight="50.0" prefWidth="280.0" scaleShape="false" text="Login" GridPane.columnIndex="1" GridPane.halignment="CENTER">
                <font>
                   <Font size="20.0" />
                </font>
