@@ -32,7 +32,7 @@ public class UserDTO implements User {
             this.password = password;
             this.eMail = eMail;
         }else{
-            throw new IllegalArgumentException("Username and password cannot be null");
+            throw new IllegalArgumentException("Nutzername und Passwort dürfen nicht leer sein");
         }
     }
 
