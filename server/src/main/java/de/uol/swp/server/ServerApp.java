@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.common.Configuration;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.chat.ChatService;
 import de.uol.swp.server.communication.ServerHandler;
 import de.uol.swp.server.communication.netty.NettyServerHandler;
 import de.uol.swp.server.communication.netty.Server;
@@ -81,6 +82,7 @@ class ServerApp {
 		injector.getInstance(UserService.class);
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);
+        injector.getInstance(ChatService.class);
 	}
 
 }

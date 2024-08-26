@@ -1,5 +1,6 @@
 package de.uol.swp.client.main;
 
+import de.uol.swp.common.chat.message.message.ChatMessage;
 import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -22,6 +23,9 @@ import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +43,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
     @FXML
+    public ListView<String> chatView;
+
+    @FXML
     private TextField chatMessageInput;
 
     private ObservableList<String> users;
@@ -50,6 +57,8 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @Inject
     private ChatService chatService;
+
+    private ObservableList<String> chat;
 
     @FXML
     private ListView<String> usersView;
@@ -69,6 +78,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void onLoginSuccessfulResponse(LoginSuccessfulResponse message) {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
+        chatService.retrieveChat();
     }
 
     /**
@@ -198,9 +208,65 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @since 2024-08-25
      */
     @FXML
-    void onSendChatMessage(ActionEvent event) {
+    void onSendChatRequest(ActionEvent event) {
         String chatMessage = chatMessageInput.getText();
+        LocalTime timeStamp = getTimeStamp();
+        String userName = loggedInUser.getUsername();
+
         chatMessageInput.clear();
-        chatService.sendChatMessage(loggedInUser, chatMessage);
+
+        chatService.sendChatRequest(userName, chatMessage, timeStamp);
+    }
+
+    /**
+     * Returns the current time stamp
+     *
+     * This method returns the current time stamp in the format of HH:mm
+     *
+     * @return The current time stamp
+     * @since 2024-08-26
+     */
+    private LocalTime getTimeStamp() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.toLocalTime().withSecond(0).withNano(0);
+    }
+
+    /**
+     * Handles chat responses
+     *
+     * If a ChatMessage object is posted to the EventBus the chat view is updated
+     * according to the chat messages in the message received.
+     *
+     * @param chatMessage the ChatMessage object seen on the EventBus
+     * @see de.uol.swp.common.chat.message.message.ChatMessage
+     * @since 2024-08-26
+     */
+    @Subscribe
+    public void onChatResponse(ChatMessage chatMessage) {
+        updateChat(chatMessage.getChatMessages());
+    }
+
+    /**
+     * Updates the chat view according to the list given
+     *
+     * This method clears the entire chat view and then adds the message of each chat
+     * message in the list given to the chat view. If there is no chat view
+     * this it creates one.
+     *
+     * @implNote The code inside this Method has to run in the JavaFX-application
+     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
+     * @param chatMessages A list of chat messages
+     * @since 2024-08-26
+     */
+    private void updateChat(ArrayList<String> chatMessages) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (chat == null) {
+                chat = FXCollections.observableArrayList();
+                chatView.setItems(chat);
+            }
+            chat.clear();
+            chat.addAll(chatMessages);
+        });
     }
 }
