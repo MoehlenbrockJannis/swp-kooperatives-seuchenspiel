@@ -44,6 +44,10 @@ public class ChatService {
         eventBus.post(chatRequest);
     }
 
+    /**
+     * Retrieves the chat
+     *
+     */
     public void retrieveChat() {
         RetrieveChatRequest retrieveChatRequest = new RetrieveChatRequest();
         eventBus.post(retrieveChatRequest);
