@@ -1,5 +1,6 @@
 package de.uol.swp.client.main;
 
+import javafx.scene.layout.AnchorPane;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
@@ -45,6 +46,23 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private ListView<String> usersView;
+
+    @FXML
+    private AnchorPane gameInstructionsAnchorPane;
+
+    /**
+     * Initializes the main menu presenter.
+     *
+     * This method is automatically called after the FXML file has been loaded.
+     * It sets the visibility of the game instructions panel to false, ensuring
+     * that it is hidden when the main menu is first displayed.
+     *
+     * @since 2024-08-27
+     */
+    @FXML
+    public void initialize() {
+        gameInstructionsAnchorPane.setVisible(false);
+    }
 
     /**
      * Handles successful login
@@ -180,5 +198,18 @@ public class MainMenuPresenter extends AbstractPresenter {
         lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
     }
 
+    /**
+     * Handles the event when the game instructions button is pressed.
+     *
+     * This method makes the game instructions panel visible in the UI, allowing
+     * the user to view the game instructions.
+     *
+     * @param event The ActionEvent created by pressing the game instructions button
+     * @since 2024-08-27
+     */
+    @FXML
+    void onGameInstructionsButtonPressed(ActionEvent event) {
+        gameInstructionsAnchorPane.setVisible(true);
+    }
 
 }

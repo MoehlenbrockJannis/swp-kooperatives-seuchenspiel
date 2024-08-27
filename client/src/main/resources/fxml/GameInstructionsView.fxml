@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane fx:id="popupAnchorPane" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/22"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.uol.swp.client.gameinstructions.GameInstructionsPresenter">
+    <Pane fx:id="backgroundPane" prefHeight="500.0" prefWidth="1000.0"
+          style="-fx-background-color: black; -fx-opacity: 60%;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+          AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+    <VBox fx:id="vbox" alignment="CENTER" prefHeight="500.0" prefWidth="1000.0"
+          style="-fx-background-color: white; -fx-padding: 20;" AnchorPane.bottomAnchor="50.0"
+          AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+        <TabPane prefHeight="249.0" prefWidth="660.0" style="-fx-opacity: 100%;" VBox.vgrow="ALWAYS">
+
+            <!-- Einleitung -->
+            <Tab closable="false" text="Einleitung">
+                <content>
+                    <ScrollPane fitToWidth="true">
+                        <content>
+                            <VBox spacing="10.0" style="-fx-padding: 10;">
+                                <children>
+                                    <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                                        <children>
+                                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                <image>
+                                                    <Image url="@/images/PandemieLogo.png"/>
+                                                </image>
+                                            </ImageView>
+                                            <TextFlow>
+                                                <Text text="Pandemie ist ein kooperatives Spiel für 2 bis 4 Spieler. Sie und Ihre Mitspieler sind Angehörige eines Seuchenbekämpfungsteams, das zusammenarbeiten muss, um Gegenmittel zu erforschen und weitere Ausbrüche von Seuchen zu verhindern. Jedem Spieler kommt innerhalb des Teams eine besondere Rolle zu, deren einzigartige Fähigkeiten bei durchdachtem Einsatz die Chancen des Teams deutlich verbessern. Ziel des Spiels ist es, die Menschheit zu retten, indem Sie die Gegenmittel gegen vier tödliche Seuchen (Blau, Gelb, Schwarz und Rot) entdecken, die die Erde in den Abgrund zu reißen drohen."/>
+                                            </TextFlow>
+                                        </children>
+                                    </HBox>
+                                    <TextFlow>
+                                        <Text text="Ist Ihr Team nicht in der Lage, die Seuchen so lange einzudämmen, bis Sie die benötigten Gegenmittel entdeckt haben, kann die Erde ihrer Ausbreitung nicht standhalten, und Sie verlieren alle zusammen. Können Sie die Menschheit retten?"/>
+                                    </TextFlow>
+                                </children>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+                </content>
+            </Tab>
+
+            <!-- Spielkomponenten -->
+            <Tab closable="false" text="Spielkomponenten">
+                <content>
+                    <ScrollPane fitToWidth="true">
+                        <content>
+                            <VBox spacing="10.0" style="-fx-padding: 10;">
+                                <children>
+                                    <TextFlow>
+                                        <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Figuren"/>
+                                    </TextFlow>
+
+                                    <HBox prefHeight="100.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;" text="5 Spielfiguren"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;" text="6 Forschungslabore"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </HBox>
+
+                                    <TextFlow>
+                                        <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Marker"/>
+                                    </TextFlow>
+
+                                    <HBox prefHeight="100.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;"
+                                                              text="Phiolenseite der Gegenmittelmarker"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;"
+                                                              text="Sonnenuntergangsseite der Gegenmittelmarker"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </HBox>
+                                    <HBox prefHeight="100.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;" text="Ausbruchsmarker"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;" text="Infektionsmarker"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </HBox>
+
+                                    <TextFlow>
+                                        <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Karten"/>
+                                    </TextFlow>
+
+                                    <HBox prefHeight="100.0">
+                                        <children>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;" text="59 Spielerkarten"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                                                  spacing="10.0" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                                                        <image>
+                                                            <Image url="@/images/question-mark-line-icon.png"/>
+                                                        </image>
+                                                    </ImageView>
+                                                    <TextFlow>
+                                                        <Text style="-fx-font-weight: bold;"
+                                                              text="48 Infektionskarten"/>
+                                                    </TextFlow>
+                                                </children>
+                                            </HBox>
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+                </content>
+            </Tab>
+
+            <!-- Rollen -->
+            <Tab closable="false" text="Rollen">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0" style="-fx-padding: 10;">
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Arzt"/>
+                                <Text text="&#10;"/>
+                                <Text text="Der Arzt entfernt alle Würfel einer Farbe (also nicht nur 1), wenn er die Aktion Seuche behandeln ausführt. Befindet sich der Arzt in einer Stadt mit Würfeln einer Seuche, für die bereits ein Gegenmittel entdeckt wurde, entfernt er umgehend alle Würfel dieser Farbe, ohne eine Aktion dafür ausgeben zu müssen. Diese einzigartige Fähigkeit funktioniert immer und zu jeder beliebigen Zeit, auch während der Züge der anderen Spieler."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Betriebsexperte"/>
+                                <Text text="&#10;"/>
+                                <Text text="Der Betriebsexperte muss keine passende Karte ausspielen, um in der Stadt, in der er sich gerade befindet, ein Forschungslabor zu errichten. Er gibt einfach 1 Aktion aus und stellt ein Labor in seiner Stadt auf."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Forscherin"/>
+                                <Text text="&#10;"/>
+                                <Text text="Die Forscherin kann einem Mitspieler im Rahmen der Aktion Wissen teilen die Karte einer beliebigen Stadt weitergeben. Im Gegensatz zu den anderen Spielern ist sie nicht auf die Karte der Stadt beschränkt, in der sich die beiden Spielfiguren gerade befinden. Dies gilt aber nur, wenn die Forscherin eine Karte weitergibt – wenn sie eine Karte von einem Mitspieler erhält, ist sie an die gleichen Regeln gebunden wie alle anderen Spieler auch. Die Forscherin kann ihre Sonderfähigkeit auch während der Spielzüge der anderen Spieler einsetzen. Eine Ereigniskarte kann sie nicht weitergeben."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Logistiker"/>
+                                <Text text="&#10;"/>
+                                <Text text="Der Logistiker kann während seines Zugs die Spielfiguren der anderen Spieler bewegen (d.h. mit ihnen eine der hier beschriebenen einfachen Aktionen durchführen), als ob es seine eigene Figur wäre. Er kann zudem eine Aktion ausgeben, um eine beliebige Spielfigur zu einer beliebigen Stadt zu bewegen, in der sich bereits eine andere Spielfigur befindet. Er kann die Spielfiguren anderer Spieler aber nur bewegen, wenn diese ihm dies gestatten. Anmerkung: Wählt der Logistiker die Aktion Charterflug, muss er die Karte ausspielen, die dem derzeitigen Standort der Spielfigur entspricht, die er bewegen möchte."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Wissenschaftler"/>
+                                <Text text="&#10;"/>
+                                <Text text="Der Wissenschaftler benötigt nur 4 Karten einer Farbe, um das Gegenmittel für die entsprechende Seuche zu entdecken."/>
+                            </TextFlow>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- Aktionen -->
+            <Tab closable="false" text="Aktionen">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0" style="-fx-padding: 10;">
+                        <TextFlow>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Einfache Aktionen"/>
+                        </TextFlow>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Auto (oder Fähre)"/>
+                                <Text text="&#10;"/>
+                                <Text text="Ziehen Sie Ihre Spielfigur in eine benachbarte Stadt. Städte gelten als benachbart, wenn sie durch eine rote Linie verbunden sind. Rote Linien, die über den Rand des Spielbretts hinausgehen, „winden“ sich um die Erde auf die andere Seite des Spielplans und enden dann dort in der angegebenen Stadt (so gelten beispielsweise Sydney und Los Angeles als benachbart)."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Direktflug"/>
+                                <Text text="&#10;"/>
+                                <Text text="Legen Sie eine Karte von Ihrer Hand ab, um Ihre Spielfigur in die auf der Karte abgebildete Stadt zu bewegen. Die abgelegte Karte kommt auf den Spieler-Ablagestapel."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Charterflug"/>
+                                <Text text="&#10;"/>
+                                <Text text="Legen Sie die Karte ab, auf der Ihr jetziger Standort abgebildet ist, um Ihre Spielfigur zu einer beliebigen Stadt auf dem Spielbrett zu bewegen. Die abgelegte Karte kommt auf den Spieler-Ablagestapel."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Zubringerflug"/>
+                                <Text text="&#10;"/>
+                                <Text text="Wenn Sie sich in einer Stadt mit einem Forschungslabor befinden, bewegen Sie Ihre Spielfigur in eine andere Stadt mit einem Forschungslabor."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Verzicht"/>
+                                <Text text="&#10;"/>
+                                <Text text="Sie können auch auf eine oder mehrere Aktionen verzichten (also nichts tun)."/>
+                            </TextFlow>
+                        </HBox>
+
+                        <TextFlow>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Besondere Aktionen"/>
+                        </TextFlow>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                                      text="Forschungslabor errichten"/>
+                                <Text text="&#10;"/>
+                                <Text text="Die Errichtung eines Forschungslabors erleichtert Ihrem Team die Bewegung von Ort zu Ort. Forschungslabors sind zudem Voraussetzung für das Entdecken von Gegenmitteln."/>
+                                <Text text="&#10;"/>
+                                <Text text="Legen Sie die Karte ab, auf der Ihr jetziger Standort abgebildet ist, um dort ein Forschungslabor zu errichten. Die abgelegte Karte kommt auf den Spieler-Ablagestapel. Befinden sich bereits alle Forschungslabors auf dem Spielplan, verschieben Sie ein Labor Ihrer Wahl in die Stadt, in der sich Ihre Spielfigur gerade befindet."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Gegenmittel entdecken"/>
+                                <Text text="&#10;"/>
+                                <Text text="Sobald Ihr Team alle vier Gegenmittel entdeckt hat, haben Sie gewonnen!"/>
+                                <Text text="&#10;"/>
+                                <Text text="Legen Sie 5 Karten derselben Farbe ab, um die Seuche mit dieser Farbe zu heilen. Ihre Spielfigur muss sich dazu in einer Stadt mit einem Forschungslabor befinden. Legen Sie den Gegenmittelmarker dieser Farbe mit der Phiolenseite nach oben in den Bereich für entdeckte Gegenmittel auf dem Spielplan. Die abgelegten Karten kommen auf den Spieler-Ablagestapel."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Seuche behandeln"/>
+                                <Text text="&#10;"/>
+                                <Text text="Im Verlauf des Spiels kann Ihr Team ausgebrochene Seuchen behandeln, um Zeit zu gewinnen, ein Gegenmittel zu entdecken. Entfernen Sie aus der Stadt, in der sich Ihre Spielfigur befindet, 1 Seuchenwürfel (jeder Würfel kostet 1 Aktion). Der entfernte Würfel wird neben den Spielplan zu den anderen Würfeln seiner Farbe gelegt. Haben die Spieler zu dieser Seuche bereits ein Gegenmittel entdeckt, entfernen Sie mit 1 Aktion alle Würfel dieser Farbe aus der Stadt."/>
+                                <Text text="&#10;"/>
+                                <Text text="&#10;"/>
+                                <Text style="-fx-font-weight: bold;" text="Eine Seuche auslöschen"/>
+                                <Text text="&#10;"/>
+                                <Text text="Wurde das Gegenmittel für eine Seuche entdeckt, und es befindet sich kein einziger Würfel in der Farbe dieser Seuche mehr auf dem Spielplan, drehen Sie den Gegenmittelmarker für diese Seuche auf die „Sonnenuntergangsseite“ um. Alle Würfel der ausgelöschten Farbe kommen zurück in die Schachtel – sie finden für den Rest des Spiels keine Verwendung mehr. Müssten aufgrund eines Überträgers oder einer Epidemie Würfel dieser Farbe auf den Plan gelegt werden, passiert stattdessen einfach nichts."/>
+                            </TextFlow>
+                        </HBox>
+                        <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                            <ImageView fitHeight="100.0" fitWidth="100.0">
+                                <Image url="@/images/question-mark-line-icon.png"/>
+                            </ImageView>
+                            <TextFlow>
+                                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Wissen teilen"/>
+                                <Text text="&#10;"/>
+                                <Text text="Es ist nicht immer einfach, die für das Entdecken eines Gegenmittels benötigten Karten auf die Hand zu bekommen. Die Aktion Wissen teilen benötigt zwar ein wenig Vorbereitung, kann aber in einem solchen Fall durchaus nützlich werden."/>
+                                <Text text="&#10;"/>
+                                <Text text="Sie können eine Karte an einen anderen Spieler weitergeben oder von einem anderen Spieler bekommen. Dieser Vorgang kostet 1 Aktion. Die Spielfiguren beider Spieler müssen sich in derselben Stadt befinden, und Sie dürfen nur die Karte weitergeben, auf der diese Stadt abgebildet ist. (Befinden sich beispielsweise beide Spielfiguren in Moskau, kann nur die Moskau-Karte weitergegeben werden.) Hält ein Spieler nach einer solchen Übergabe mehr als 7 Karten auf der Hand, müssen die überzähligen Karten sofort auf den Spieler-Ablagestapel gelegt werden."/>
+                            </TextFlow>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- Spielstart-->
+            <Tab closable="false" text="Spielstart">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0" style="-fx-padding: 10;">
+                        <TextFlow>
+                            <Text text="1. Zunächst erhält jeder Spieler eine Rolle, wobei die Rolle zufällig zugeteilt oder selbst ausgewählt werden kann."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="2. Beim Start des Spiels ist bereits ein Forschungslabor in Atlanta vorhanden und alle Spieler befinden sich beim Start in Atlanta."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="3. Der Ausbruchsmarker befindet sich auf der Position 0 und die Infektionsmarke ist auf dem ersten Feld welches den Wert 2 hat."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="4. Je nach Spieleranzahl erhält jeder Spieler folgende Anzahl an Karten:"/>
+                            <Text text="&#10;"/>
+                            <Text text="    4 Mitspieler: je 2 Karten"/>
+                            <Text text="&#10;"/>
+                            <Text text="    3 Mitspieler: je 3 Karten"/>
+                            <Text text="&#10;"/>
+                            <Text text="    2 Mitspieler: je 4 Karten"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="5. Je nach gewähltem Schwierigkeitsgrad befinden sich 4 bis 6 Epidemiekarten im Spieler-Zugstapel."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="6. Zuletzt zieht das Spiel 9 Infektionskarten vom Infektions-Zugstapel und plaziert in den dazugehörigen Städten Seuchenwürfel. Dabei werden für die ersten 3 Karten 3 Würfel pro Stadt platziert, für die nächsten 3 Karten werden jeweils 2 Würfel platziert und für die letzen 3 Karten wird jeweils 1 Würfel platziert."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Nachdem diese Schritte durchgeführt wurden, kann das Spiel beginnen und der erste Spieler fängt mit seinem Spielzug an."/>
+                        </TextFlow>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- Spielablauf-->
+            <Tab closable="false" text="Spielablauf">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0" style="-fx-padding: 10;">
+                        <TextFlow>
+                            <Text text="Im Uhrzeigersinn führen nun alle Spieler ihre Spielzüge durch, bis das Spiel zu Ende ist."/>
+                            <Text text="&#10;"/>
+                            <Text text="In jedem Spielzug muss der Spieler, der an der Reihe ist:"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                                  text="        1.  4 Aktionen ausführen"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                                  text="        2.  2 Spielerkarten ziehen"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                                  text="        3.  Den Überträger spielen"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Nachdem er den Überträger gespielt hat, ist sein Zug vorbei, und der Spieler zu seiner Linken ist an der Reihe"/>
+                        </TextFlow>
+
+                        <TextFlow>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="1.  4 Aktionen ausführen"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Pro Spielzug führt jeder Spieler 4 Aktionen aus. Dazu kann er aus den nachfolgend beschriebenen einfachen und besonderen Aktionen auswählen und sie durch „Ausgeben“ von je 1 Aktion durchführen. Dieselbe Aktion kann mehrmals in einem Spielzug ausgeführt werden, sofern sie jedes Mal „bezahlt“ wird. Ein Spieler kann auch auf eine Aktion verzichten, wenn ihm keine sinnvolle Handlung einfällt. Aktionen können nicht von einem Zug auf den nächsten aufgespart werden. Die eigene Rolle verleiht jedem Spieler besondere Fähigkeiten, die nur für ihn gelten."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Hinweis"/>
+                            <Text text="&#10;"/>
+                            <Text text="Die Rollen haben eine sehr wichtige Bedeutung für das Spiel. Lesen Sie die Beschreibung der Rollen sorgfältig. Schauen Sie sich das Beispiel auf Seite 8 genau an, um die Besonderheiten der Rollen zu verstehen."/>
+                        </TextFlow>
+
+                        <TextFlow>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
+                                  text="2.  2 Spielerkarten ziehen"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Nachdem ein Spieler seine Aktionen ausgeführt hat, muss er 2 Karten vom Spieler-Zugstapel ziehen und auf die Hand nehmen. Ist eine der gezogenen Karten eine Epidemiekarte, geht diese nicht auf die Hand; verfahren Sie stattdessen wie weiter unten für Epidemien beschrieben. Nach dem Ziehen übernimmt der Spieler dann die Rolle des Überträgers. Siehe Den Überträger spielen auf Seite 7. Sind nicht mehr genügend Karten im Spieler-Zugstapel, damit der Spieler in dieser Phase ziehen kann, endet das Spiel sofort mit einer Niederlage für alle Spieler!"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ereigniskarten"/>
+                            <Text text="&#10;"/>
+                            <Text text="Unter den Spielerkarten befinden sich auch einige Karten, die besondere Ereignisse darstellen. Diese Karten können jederzeit gespielt werden (auch während des Zugs eines Mitspielers) und kosten keine Aktionen. Wenn Sie eine Ereigniskarte ausspielen, tritt der auf der Karte beschriebene Effekt sofort ein; danach kommt die Karte auf den Spieler-Ablagestapel."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Maximale Handkartenzahl"/>
+                            <Text text="&#10;"/>
+                            <Text text="Mehr als 7 Karten darf kein Spieler auf der Hand haben. Wann immer die Anzahl 7 überstiegen wird (sei es durch das hier beschriebene Ziehen oder durch die Aktion Wissen teilen), muss der Spieler die überschüssigen Karten sofort auf den Spieler-Ablagestapel legen. Er darf allerdings selbst entscheiden, welche Karte er ablegt. Der Spieler kann aber auch statt abzulegen eine Ereigniskarte ausspielen, wenn er dadurch die Zahl seiner Handkarten auf 7 reduziert."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                                  text="Informationen über Karten austauschen"/>
+                            <Text text="&#10;"/>
+                            <Text text="Falls alle Spieler einverstanden sind, können sie mit offenen Karten spielen oder sich zumindest gegenseitig jederzeit ihre Handkarten zeigen. Ihre Vorgehensweisen können sie nach Belieben diskutieren."/>
+                            <Text text="&#10;"/>
+                            <Text text="Da es bei Pandemie um Kooperation und Einsatzwillen geht, nicht aber um die Merkfähigkeit, dürfen die Spieler zu jeder Zeit nach Belieben den Spieler-Ablagestapel und den Infektions-Ablagestapel einsehen."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Epidemien"/>
+                            <Text text="&#10;"/>
+                            <Text text="Zieht ein Spieler eine Epidemiekarte, passiert Folgendes:"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold;" text="1. Die Infektionsrate weitet sich aus: "/>
+                            <Text text="Schieben Sie den Infektionsmarker ein Feld weiter."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold;" text="2. Infizieren: "/>
+                            <Text text="Ziehen Sie die unterste Karte des Infektions-Zugstapels. Legen Sie 3 Seuchenwürfel in die Stadt, die auf dieser Karte abgebildet ist. (Gehört die Karte zu einer bereits ausgelöschten Seuche, legen Sie keine Würfel in die Stadt.) Danach legen Sie die Karte auf den Infektions-Ablagestapel. Anmerkung: Es kann in einer Stadt nie mehr als 3 Würfel einer bestimmten Farbe geben. Würde durch eine Epidemie diese Obergrenze überschritten, werden die überschüssigen Würfel wieder abgeräumt, und es kommt zu einem Ausbruch."/>
+                            <Text text="&#10;"/>
+                            <Text text="Stehen nicht mehr genügend Würfel zur Verfügung, die während einer Epidemie ausgelegt werden können, endet das Spiel sofort mit einer Niederlage für alle Spieler."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold;"
+                                  text="3. Die Intensität der Infektion verschärft sich: "/>
+                            <Text text="Mischen Sie den Infektions-Ablagestapel gründlich durch und legen Sie ihn auf den Infektions-Zugstapel. (Die Karten werden also nicht in den Infektions-Zugstapel gemischt!)"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Die gezogene Epidemiekarte kommt anschließend auf den Spieler-Ablagestapel. Der Spieler zieht keine neue Karte als Ersatz."/>
+                        </TextFlow>
+
+                        <TextFlow>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
+                                  text="3.  Den Überträger spielen"/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text text="Ziehen Sie eine Anzahl Karten vom Infektions-Zugstapel, die der derzeitigen Infektionsrate entspricht, und legen Sie in den abgebildeten Städten jeweils 1 Würfel derselben Farbe wie der gezogenen Karte aus. Die Karten werden in der Reihenfolge abgearbeitet, in der der Spieler sie gezogen hat. Hat allerdings die Stadt auf der Karte eine Farbe, die zu einer bereits ausgelöschten Seuche gehört, wird dort kein neuer Würfel ausgelegt. Liegen in einer Stadt bereits drei Würfel dieser Farbe aus, wird kein weiterer Würfel mehr hinzugefügt. Stattdessen kommt es zu einem Ausbruch dieser Farbe."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ausbrüche"/>
+                            <Text text="&#10;"/>
+                            <Text text="Ein Ausbruch tritt immer dann ein, wenn ein Spieler in einer Stadt, in der bereits 3 Würfel einer Farbe ausliegen, einen 4. Würfel dieser Farbe auslegen müsste. In diesem Fall erhält die betroffene Stadt keinen neuen Würfel, aber in allen benachbarten Städten wird je 1 Würfel dieser Farbe ausgelegt."/>
+                            <Text text="&#10;"/>
+                            <Text text="Kettenreaktionen – Würde einer dieser neue Würfel dazu führen, dass auch in einer der benachbarten Städte die Obergrenze der Würfel in dieser Farbe überschritten ist, kommt es zu weiteren Ausbrüchen, die zu einer Kettenreaktion führen. Allerdings kann sich pro Kettenreaktion in jeder Stadt nur ein Ausbruch ereignen."/>
+                            <Text text="&#10;"/>
+                            <Text text="Bei jedem Ausbruch wird der Ausbruchsmarker um ein Feld auf der Ausbruchsleiste nach unten verschoben. Erreicht die Zahl der Ausbrüche das 8. Feld (d.h. der Ausbruchsmarker landet auf dem Feld mit dem Totenschädel), endet das Spiel sofort mit einer Niederlage für alle Spieler. Stehen nicht mehr genügend Würfel zur Verfügung, die während eines Ausbruchs ausgelegt werden können, endet das Spiel ebenfalls sofort mit einer Niederlage für alle Spieler."/>
+                            <Text text="&#10;"/>
+                            <Text text="&#10;"/>
+                            <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ende des Spielzugs"/>
+                            <Text text="&#10;"/>
+                            <Text text="Nachdem Sie alle Infektionskarten abgearbeitet haben, legen Sie sie auf den Infektions-Ablagestapel. Der nächste Spieler im Uhrzeigersinn ist nun an der Reihe."/>
+                        </TextFlow>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- Spielende -->
+            <Tab closable="false" text="Spielende">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0" style="-fx-padding: 10;">
+                        <HBox spacing="20.0">
+                            <HBox fillHeight="false" prefWidth="250.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                <VBox>
+                                    <TextFlow textAlignment="CENTER">
+                                        <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="NIEDERLAGE!"/>
+                                    </TextFlow>
+                                    <TextFlow>
+                                        <Text text="Das Spiel endet sofort mit einer Niederlage für alle Spieler, sobald eine der folgenden Bedingungen eintritt:"/>
+                                        <Text text="&#10;"/>
+                                        <Text text="&#10;"/>
+                                        <Text text="Ein Spieler muss Seuchenwürfel auf dem Spielbrett auslegen, aber es stehen in der erforderten Farbe nicht mehr genügend zur Verfügung."/>
+                                        <Text text="&#10;"/>
+                                        <Text text="Es kommt zum 8. Ausbruch (d.h. auf der Ausbruchsleiste erreicht der Ausbruchsmarker das Totenschädel-Symbol)."/>
+                                        <Text text="&#10;"/>
+                                        <Text text="Ein Spieler muss vom Spieler-Zugstapel ziehen, aber dort befinden sich nicht mehr genügend Karten."/>
+                                    </TextFlow>
+                                </VBox>
+                            </HBox>
+                            <HBox fillHeight="false" prefWidth="250.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                                <VBox>
+                                    <TextFlow textAlignment="CENTER">
+                                        <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="SIEG!"/>
+                                    </TextFlow>
+                                    <TextFlow>
+                                        <Text text="Die Spieler gewinnen das Spiel alle zusammen in dem Moment, in dem sie die Gegenmittel zu allen vier Seuchen (Blau, Gelb, Schwarz und Rot) entdeckt haben. Sie müssen die Gegenmittel dann nicht erst noch in den Städten verteilen, um zu gewinnen – sobald das vierte und letzte Gegenmittel entdeckt ist, endet das Spiel sofort."/>
+                                    </TextFlow>
+                                </VBox>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+        </TabPane>
+        <Button onAction="#onCloseButtonPressed" text="Schließen"/>
+    </VBox>
+</AnchorPane>
