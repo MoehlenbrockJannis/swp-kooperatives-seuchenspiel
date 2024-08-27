@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="de.uol.swp.client.lobby.LobbyCreatePresenter"
+            prefHeight="300.0" prefWidth="400.0">
+    <VBox spacing="10" alignment="CENTER">
+        <TextField fx:id="lobbyNameField" promptText="Enter lobby name"/>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Create" onAction="#onCreateButtonClicked"/>
+            <Button text="Cancel" onAction="#onCancelButtonClicked"/>
+        </HBox>
+    </VBox>
+</AnchorPane>
