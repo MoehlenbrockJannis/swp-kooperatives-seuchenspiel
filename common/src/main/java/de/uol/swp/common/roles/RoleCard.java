@@ -4,6 +4,11 @@ import lombok.*;
 
 import java.awt.*;
 
+
+/**
+ * This class is used to define a RoleCard.
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor
