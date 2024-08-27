@@ -210,6 +210,11 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onSendChatRequest(ActionEvent event) {
         String chatMessage = chatMessageInput.getText();
+
+        if (chatMessage == null || chatMessage.isEmpty()) {
+            return;
+        }
+
         LocalTime timeStamp = getTimeStamp();
         String userName = loggedInUser.getUsername();
 
@@ -228,7 +233,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     private LocalTime getTimeStamp() {
         LocalDateTime now = LocalDateTime.now();
-        return now.toLocalTime().withSecond(0).withNano(0);
+        return now.toLocalTime().withNano(0);
     }
 
     /**
@@ -267,6 +272,8 @@ public class MainMenuPresenter extends AbstractPresenter {
             }
             chat.clear();
             chat.addAll(chatMessages);
+            int lastIndex = chat.size() - 1;
+            chatView.scrollTo(lastIndex);
         });
     }
 }
