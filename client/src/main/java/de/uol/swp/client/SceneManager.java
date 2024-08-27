@@ -1,15 +1,21 @@
 package de.uol.swp.client;
 
 import com.google.inject.Provider;
+import de.uol.swp.client.lobby.LobbyCreatePresenter;
+import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.lobby.event.LobbyCreatedEvent;
+import de.uol.swp.client.lobby.event.OpenLobbyWindowEvent;
+import de.uol.swp.client.lobby.event.ShowLobbyCreateScreenEvent;
+import de.uol.swp.common.lobby.message.LobbyCreatedMessage;
 import javafx.scene.image.Image;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.main.event.ReturnToMainMenuEvent;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
@@ -40,25 +46,34 @@ public class SceneManager {
     static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
 
-    private final Stage primaryStage;
+    private Stage primaryStage;
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
     private Scene mainScene;
     private Scene lastScene = null;
     private Scene currentScene = null;
+    private Scene lobbyCreateScene;
+    private final EventBus eventBus;
 
     private final Provider<FXMLLoader> loaderProvider;
 
+
     @Inject
-    public SceneManager(EventBus eventBus, Provider<FXMLLoader> loaderProvider, @Assisted Stage primaryStage) throws IOException {
-        eventBus.register(this);
-        this.primaryStage = primaryStage;
+    public SceneManager(EventBus eventBus, Provider<FXMLLoader> loaderProvider) {
+        this.eventBus = eventBus;
         this.loaderProvider = loaderProvider;
+        this.eventBus.register(this);
+    }
+
+    public void initialize(Stage primaryStage) throws IOException {
+        this.primaryStage = primaryStage;
         Image iconImage = new Image(getClass().getResourceAsStream("/pictures/PandemielogoSimpel.jpg"));
         primaryStage.getIcons().add(iconImage);
         initViews();
     }
+
+
 
     /**
      * Subroutine to initialize all views
@@ -70,8 +85,8 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initLobbyCreateView();
     }
-
     /**
      * Subroutine creating parent panes from FXML files
      *
@@ -148,6 +163,14 @@ public class SceneManager {
             Parent rootPane = initPresenter(RegistrationPresenter.FXML);
             registrationScene = new Scene(rootPane, 400,200);
             registrationScene.getStylesheets().add(STYLE_SHEET);
+        }
+    }
+
+    private void initLobbyCreateView() throws IOException {
+        if (lobbyCreateScene == null) {
+            Parent rootPane = initPresenter("/fxml/LobbyCreateView.fxml");
+            lobbyCreateScene = new Scene(rootPane, 400, 300);
+            lobbyCreateScene.getStylesheets().add(STYLE_SHEET);
         }
     }
 
@@ -323,4 +346,123 @@ public class SceneManager {
     public void showRegistrationScreen() {
         showScene(registrationScene,"Registration");
     }
+
+    public void showLobbyCreateScreen(User loggedInUser) {
+        if (loggedInUser == null) {
+            System.out.println("Error: Cannot show lobby create screen with null user");
+            return;
+        }
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = loaderProvider.get();
+                loader.setLocation(getClass().getResource("/fxml/LobbyCreateView.fxml"));
+                Parent rootPane = loader.load();
+                Scene lobbyCreateScene = new Scene(rootPane, 400, 300);
+                lobbyCreateScene.getStylesheets().add(STYLE_SHEET);
+
+                LobbyCreatePresenter presenter = loader.getController();
+                System.out.println("Setting loggedInUser in SceneManager: " + loggedInUser.getUsername());
+                presenter.setLoggedInUser(loggedInUser);
+
+                primaryStage.setTitle("Create Lobby");
+                primaryStage.setScene(lobbyCreateScene);
+                primaryStage.show();
+            } catch (IOException e) {
+                LOG.error("Error showing lobby create screen", e);
+                showError("Could not open lobby create screen");
+            }
+        });
+    }
+
+    public void showLobbyScreen(String lobbyName, User loggedInUser) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = loaderProvider.get();
+                loader.setLocation(getClass().getResource("/fxml/LobbyView.fxml"));
+                Parent rootPane = loader.load();
+
+                LobbyPresenter presenter = loader.getController();
+                presenter.setLoggedInUser(loggedInUser);
+                presenter.initialize(lobbyName);
+
+                Scene lobbyScene = new Scene(rootPane, 400, 300);
+                lobbyScene.getStylesheets().add(STYLE_SHEET);
+
+                primaryStage.setTitle("Lobby: " + lobbyName);
+                primaryStage.setScene(lobbyScene);
+                primaryStage.show();
+            } catch (IOException e) {
+                LOG.error("Error showing lobby screen", e);
+                showError("Could not open lobby screen");
+            }
+        });
+    }
+
+    @Subscribe
+    public void onShowLobbyCreateScreenEvent(ShowLobbyCreateScreenEvent event) {
+        User user = event.getUser();
+        if (user != null) {
+            showLobbyCreateScreen(user);
+        } else {
+            System.out.println("Error: Cannot show lobby create screen with null user");
+        }
+    }
+
+    @Subscribe
+    public void onReturnToMainMenuEvent(ReturnToMainMenuEvent event) {
+        Platform.runLater(() -> {
+            User currentUser = event.getUser();
+            if (currentUser != null) {
+                showMainScreen(currentUser);
+            } else {
+                System.out.println("Warning: User is null in ReturnToMainMenuEvent");
+                // Hier könnten Sie einen alternativen Weg zum Hauptmenü implementieren
+                // Zum Beispiel: showLoginScreen();
+            }
+        });
+    }
+
+    @Subscribe
+    public void onLobbyCreatedEvent(LobbyCreatedEvent event) {
+        showLobbyScreen(event.getLobbyName(), event.getUser());
+    }
+
+    @Subscribe
+    public void onLobbyCreatedMessage(LobbyCreatedMessage message) {
+        Platform.runLater(() -> {
+            eventBus.post(new OpenLobbyWindowEvent(message.getName(), message.getUser()));
+        });
+    }
+
+    @Subscribe
+    public void onOpenLobbyWindowEvent(OpenLobbyWindowEvent event) {
+        Platform.runLater(() -> {
+            openLobbyInNewWindow(event.getLobbyName(), event.getUser());
+        });
+    }
+
+    private void openLobbyInNewWindow(String lobbyName, User user) {
+        try {
+            FXMLLoader loader = loaderProvider.get();
+            loader.setLocation(getClass().getResource("/fxml/LobbyView.fxml"));
+            Parent rootPane = loader.load();
+
+            LobbyPresenter presenter = loader.getController();
+            presenter.setLoggedInUser(user);
+            presenter.initialize(lobbyName);
+
+            Scene lobbyScene = new Scene(rootPane, 400, 300);
+            lobbyScene.getStylesheets().add(STYLE_SHEET);
+
+            Stage lobbyStage = new Stage();
+            lobbyStage.setTitle("Lobby: " + lobbyName);
+            lobbyStage.setScene(lobbyScene);
+            lobbyStage.show();
+        } catch (IOException e) {
+            LOG.error("Error opening lobby in new window", e);
+            showError("Could not open lobby window");
+        }
+    }
+
+
 }

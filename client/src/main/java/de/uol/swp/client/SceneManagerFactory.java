@@ -1,5 +1,6 @@
 package de.uol.swp.client;
 
+import com.google.inject.assistedinject.Assisted;
 import javafx.stage.Stage;
 
 /**
@@ -19,5 +20,5 @@ public interface SceneManagerFactory {
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-19
      */
-    SceneManager create(Stage primaryStage);
+    SceneManager create();
 }

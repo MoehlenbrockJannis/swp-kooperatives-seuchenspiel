@@ -1,5 +1,8 @@
 package de.uol.swp.client.main;
 
+import de.uol.swp.client.lobby.event.ShowLobbyCreateScreenEvent;
+import de.uol.swp.client.lobby.event.ShowLobbyViewEvent;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
@@ -36,15 +39,22 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
+    private final LobbyService lobbyService;
+
+    private final EventBus eventBus;
+
     private ObservableList<String> users;
 
     private User loggedInUser;
 
-    @Inject
-    private LobbyService lobbyService;
-
     @FXML
     private ListView<String> usersView;
+
+    @Inject
+    public MainMenuPresenter(LobbyService lobbyService, EventBus eventBus) {
+        this.lobbyService = lobbyService;
+        this.eventBus = eventBus;
+    }
 
     /**
      * Handles successful login
@@ -161,9 +171,8 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", new UserDTO("ich", "", ""));
+        eventBus.post(new ShowLobbyCreateScreenEvent(this.loggedInUser));
     }
-
     /**
      * Method called when the join lobby button is pressed
      *
@@ -177,7 +186,9 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onJoinLobby(ActionEvent event) {
-        lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
+        String lobbyName = "test"; // You might want to get this from user input
+        lobbyService.joinLobby(lobbyName, new UserDTO(loggedInUser.getUsername(), "", ""));
+        eventBus.post(new ShowLobbyViewEvent(lobbyName));
     }
 
 
