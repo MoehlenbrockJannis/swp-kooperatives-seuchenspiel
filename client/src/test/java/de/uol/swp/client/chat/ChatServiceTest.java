@@ -15,10 +15,12 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
+    //TODO: Fix ChatServiceTest equal to UserServiceTest
+
     /**
      * Test for the sendChatRequest method
      * <p>
-     * This test checks if the sendChatRequest method sends a ChatRequest to the EventBus
+     * This test checks if the sendChatRequest method sends a SendChatMessageRequest to the EventBus
      *
      * @since 2024-08-26
      */

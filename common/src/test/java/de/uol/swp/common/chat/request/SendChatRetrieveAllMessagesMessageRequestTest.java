@@ -11,14 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test for the chat request
  *
- * @see de.uol.swp.common.chat.request.ChatRequest
+ * @see SendChatMessageRequest
  */
-public class ChatRequestTest {
+public class SendChatRetrieveAllMessagesMessageRequestTest {
 
     /**
      * Test for creation of the ChatRequests
      *
-     * This test checks if the username and the chatMessage of the ChatRequest gets
+     * This test checks if the username and the chatMessage of the SendChatMessageRequest gets
      * set correctly during the creation of the request
      *
      * @since 2023-05-14
@@ -32,7 +32,7 @@ public class ChatRequestTest {
 
         final String expectedMessage = "[" + time + "] " + defaultUser.getUsername() + ": Hallo Welt!";
 
-        ChatRequest request = new ChatRequest(defaultUser.getUsername(), "Hallo Welt!", time);
+        SendChatMessageRequest request = new SendChatMessageRequest(defaultUser.getUsername(), "Hallo Welt!", time);
 
         assertEquals(expectedMessage, request.getChatMessage());
     }

@@ -7,16 +7,16 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test for the ChatMessage
+ * Test for the ChatRetrieveAllMessagesMessage
  *
- * @see de.uol.swp.common.chat.message.ChatMessage
+ * @see ChatRetrieveAllMessagesMessage
  */
-public class ChatMessageTest {
+public class ChatRetrieveAllMessagesMessageTest {
 
     /**
-     * Test for creation of the ChatMessage
+     * Test for creation of the ChatRetrieveAllMessagesMessage
      *
-     * This test checks if the chatMessages of the ChatMessage gets
+     * This test checks if the chatMessages of the ChatRetrieveAllMessagesMessage gets
      * set correctly during the creation of the message
      *
      * @since 2023-05-14
@@ -28,7 +28,7 @@ public class ChatMessageTest {
         chatMessages.add("Test");
         chatMessages.add("Test2");
 
-        ChatMessage message = new ChatMessage(chatMessages);
+        ChatRetrieveAllMessagesMessage message = new ChatRetrieveAllMessagesMessage(chatMessages);
 
         assertEquals(chatMessages, message.getChatMessages());
     }

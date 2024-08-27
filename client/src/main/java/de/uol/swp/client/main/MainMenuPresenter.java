@@ -1,6 +1,6 @@
 package de.uol.swp.client.main;
 
-import de.uol.swp.common.chat.message.ChatMessage;
+import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,7 +24,6 @@ import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +43,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
     @FXML
-    public ListView<String> chatView;
+    private ListView<String> chatView;
 
     @FXML
     private TextField chatMessageInput;
@@ -59,7 +58,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @Inject
     private ChatService chatService;
 
-    private ObservableList<String> chat;
+    private ObservableList<String> chatMessages;
 
     @FXML
     private ListView<String> usersView;
@@ -231,7 +230,7 @@ public class MainMenuPresenter extends AbstractPresenter {
             return;
         }
 
-        LocalTime timeStamp = getTimeStamp();
+        LocalTime timeStamp = getCurrentTimeStamp();
         String userName = loggedInUser.getUsername();
 
         chatMessageInput.clear();
@@ -242,29 +241,28 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      * Returns the current time stamp
      *
-     * This method returns the current time stamp in the format of HH:mm
+     * This method returns the current time stamp as a LocalTime object
      *
-     * @return The current time stamp
+     * @return The current time stamp as a LocalTime object
      * @since 2024-08-26
      */
-    private LocalTime getTimeStamp() {
-        LocalDateTime now = LocalDateTime.now();
-        return now.toLocalTime().withNano(0);
+    private LocalTime getCurrentTimeStamp() {
+        return LocalTime.now().withNano(0);
     }
 
     /**
      * Handles chat responses
      *
-     * If a ChatMessage object is posted to the EventBus the chat view is updated
+     * If a ChatRetrieveAllMessagesMessage object is posted to the EventBus the chat view is updated
      * according to the chat messages in the message received.
      *
-     * @param chatMessage the ChatMessage object seen on the EventBus
-     * @see ChatMessage
+     * @param chatRetrieveAllMessagesMessage the ChatRetrieveAllMessagesMessage object seen on the EventBus
+     * @see ChatRetrieveAllMessagesMessage
      * @since 2024-08-26
      */
     @Subscribe
-    public void onChatResponse(ChatMessage chatMessage) {
-        updateChat(chatMessage.getChatMessages());
+    public void onChatResponse(ChatRetrieveAllMessagesMessage chatRetrieveAllMessagesMessage) {
+        updateChat(chatRetrieveAllMessagesMessage.getChatMessages());
     }
 
     /**
@@ -279,16 +277,16 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @param chatMessages A list of chat messages
      * @since 2024-08-26
      */
-    private void updateChat(ArrayList<String> chatMessages) {
+    private void updateChat(List<String> chatMessages) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
-            if (chat == null) {
-                chat = FXCollections.observableArrayList();
-                chatView.setItems(chat);
+            if (this.chatMessages == null) {
+                this.chatMessages = FXCollections.observableArrayList();
+                chatView.setItems(this.chatMessages);
             }
-            chat.clear();
-            chat.addAll(chatMessages);
-            int lastIndex = chat.size() - 1;
+            this.chatMessages.clear();
+            this.chatMessages.addAll(chatMessages);
+            int lastIndex = this.chatMessages.size() - 1;
             chatView.scrollTo(lastIndex);
         });
     }

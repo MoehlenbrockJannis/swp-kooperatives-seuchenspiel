@@ -2,7 +2,7 @@ package de.uol.swp.client.chat;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.chat.request.RetrieveChatRequest;
-import de.uol.swp.common.chat.request.ChatRequest;
+import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import org.greenrobot.eventbus.EventBus;
 
 import java.time.LocalTime;
@@ -34,14 +34,14 @@ public class ChatService {
     /**
      * Sends a chat message
      *
-     * @param user The user who sends the message
+     * @param userName The user who sends the message
      * @param chatMessage The message to be sent
      * @param timestamp The time the message was sent
      * @since 2024-08-26
      */
-    public void sendChatRequest(String user, String chatMessage, LocalTime timestamp) {
-        ChatRequest chatRequest = new ChatRequest(user, chatMessage, timestamp);
-        eventBus.post(chatRequest);
+    public void sendChatRequest(String userName, String chatMessage, LocalTime timestamp) {
+        SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(userName, chatMessage, timestamp);
+        eventBus.post(sendChatMessageRequest);
     }
 
     /**
