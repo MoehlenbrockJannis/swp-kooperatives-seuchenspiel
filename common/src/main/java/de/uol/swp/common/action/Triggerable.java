@@ -1,6 +1,6 @@
 package de.uol.swp.common.action;
 
-public interface Triggerable {
+public interface Triggerable extends Command {
 
     void trigger();
 

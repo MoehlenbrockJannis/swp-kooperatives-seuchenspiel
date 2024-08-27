@@ -10,8 +10,6 @@ import java.awt.*;
  */
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class RoleCard {

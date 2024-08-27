@@ -7,14 +7,11 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public abstract class GeneralAction implements Action {
 
     private Player executingPlayer;
     private Game game;
 
-    @Override
-    public abstract boolean isAvailable();
 }
 

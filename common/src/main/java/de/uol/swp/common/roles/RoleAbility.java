@@ -10,13 +10,9 @@ import java.util.Map;
 
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class RoleAbility {
-
-
     private Map<Class<? extends GeneralAction>, Class<? extends RoleAction>> replacedActions;
     private List<Class<? extends RoleAction>> additionalActions;
     private List<Triggerable> triggerables;
