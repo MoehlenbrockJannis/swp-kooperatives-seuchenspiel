@@ -1,8 +1,8 @@
 package de.uol.swp.client.chat;
 
 import com.google.inject.Inject;
-import de.uol.swp.common.chat.message.request.RetrieveChatRequest;
-import de.uol.swp.common.chat.message.request.ChatRequest;
+import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.ChatRequest;
 import org.greenrobot.eventbus.EventBus;
 
 import java.time.LocalTime;

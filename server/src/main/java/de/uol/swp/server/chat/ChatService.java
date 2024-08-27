@@ -1,8 +1,8 @@
 package de.uol.swp.server.chat;
 
-import de.uol.swp.common.chat.message.request.ChatRequest;
-import de.uol.swp.common.chat.message.message.ChatMessage;
-import de.uol.swp.common.chat.message.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.ChatRequest;
+import de.uol.swp.common.chat.message.ChatMessage;
+import de.uol.swp.common.chat.request.RetrieveChatRequest;
 import de.uol.swp.server.AbstractService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

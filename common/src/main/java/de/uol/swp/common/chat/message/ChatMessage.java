@@ -1,4 +1,4 @@
-package de.uol.swp.common.chat.message.message;
+package de.uol.swp.common.chat.message;
 
 import de.uol.swp.common.message.AbstractServerMessage;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package de.uol.swp.client.main;
 
-import de.uol.swp.common.chat.message.message.ChatMessage;
+import de.uol.swp.common.chat.message.ChatMessage;
 import javafx.scene.control.TextField;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -238,7 +238,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * according to the chat messages in the message received.
      *
      * @param chatMessage the ChatMessage object seen on the EventBus
-     * @see de.uol.swp.common.chat.message.message.ChatMessage
+     * @see ChatMessage
      * @since 2024-08-26
      */
     @Subscribe
