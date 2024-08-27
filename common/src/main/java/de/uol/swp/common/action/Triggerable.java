@@ -1,4 +1,4 @@
-package de.uol.swp.common.actions.service;
+package de.uol.swp.common.action;
 
 public interface Triggerable {
 

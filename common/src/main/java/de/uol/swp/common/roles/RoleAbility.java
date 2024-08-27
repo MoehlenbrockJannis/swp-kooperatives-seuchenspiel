@@ -1,8 +1,8 @@
 package de.uol.swp.common.roles;
 
-import de.uol.swp.common.actions.GeneralAction;
-import de.uol.swp.common.actions.RoleAction;
-import de.uol.swp.common.actions.service.Triggerable;
+import de.uol.swp.common.action.GeneralAction;
+import de.uol.swp.common.action.RoleAction;
+import de.uol.swp.common.action.Triggerable;
 import lombok.*;
 
 import java.util.List;

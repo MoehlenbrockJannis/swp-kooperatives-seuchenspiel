@@ -1,4 +1,4 @@
-package de.uol.swp.common.actions.service;
+package de.uol.swp.common.action;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;

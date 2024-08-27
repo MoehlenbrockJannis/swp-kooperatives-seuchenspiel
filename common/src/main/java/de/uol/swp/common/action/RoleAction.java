@@ -1,7 +1,7 @@
-package de.uol.swp.common.actions;
+package de.uol.swp.common.action;
 
 
-public class RoleAction {
+public interface RoleAction {
 
     //TODO "extends Action" hinzufügen bei Implementierung der Actions
 }

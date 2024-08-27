@@ -1,6 +1,5 @@
-package de.uol.swp.common.actions;
+package de.uol.swp.common.action;
 
-import de.uol.swp.common.actions.service.Action;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 
