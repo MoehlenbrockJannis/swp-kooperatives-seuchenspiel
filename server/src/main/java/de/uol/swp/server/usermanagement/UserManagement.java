@@ -42,7 +42,7 @@ public class UserManagement extends AbstractUserManagement {
             this.loggedInUsers.put(username, user.get());
             return user.get();
         }else{
-            throw new SecurityException(username + " kann nicht authentifiziert werden");
+            throw new SecurityException("Der Nutzer: " + username + " kann nicht authentifiziert werden");
         }
     }
 
