@@ -2,6 +2,7 @@ package de.uol.swp.client.main;
 
 import de.uol.swp.common.chat.message.ChatMessage;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
@@ -62,6 +63,21 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private ListView<String> usersView;
+
+    /**
+     * Initializes the MainMenuPresenter
+     *
+     * This method initializes the MainMenuPresenter
+     *
+     */
+    @FXML
+    public void initialize() {
+        chatMessageInput.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                onSendChatRequest(null);
+            }
+        });
+    }
 
     /**
      * Handles successful login
