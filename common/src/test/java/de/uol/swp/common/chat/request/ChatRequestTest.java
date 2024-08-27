@@ -25,13 +25,14 @@ public class ChatRequestTest {
      */
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
+    final LocalTime time = LocalTime.now();
 
     @Test
     void createChatRequest() {
 
-        final String expectedMessage = "[" + LocalTime.now() + "] " + defaultUser.getUsername() + ": Hallo Welt!";
+        final String expectedMessage = "[" + time + "] " + defaultUser.getUsername() + ": Hallo Welt!";
 
-        ChatRequest request = new ChatRequest(defaultUser.getUsername(), "Hallo Welt!", LocalTime.now());
+        ChatRequest request = new ChatRequest(defaultUser.getUsername(), "Hallo Welt!", time);
 
         assertEquals(expectedMessage, request.getChatMessage());
     }
