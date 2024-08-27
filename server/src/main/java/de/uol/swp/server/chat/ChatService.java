@@ -6,12 +6,13 @@ import de.uol.swp.common.chat.request.RetrieveChatRequest;
 import de.uol.swp.server.AbstractService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import lombok.Getter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-@Singleton
+@Singleton @Getter
 public class ChatService extends AbstractService {
 
     private final ArrayList<String> chatMessages = new ArrayList<>();
