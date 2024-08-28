@@ -20,5 +20,5 @@ public interface SceneManagerFactory {
      * @see de.uol.swp.client.SceneManager
      * @since 2019-09-19
      */
-    SceneManager create();
+    SceneManager create(Stage primaryStage);
 }
