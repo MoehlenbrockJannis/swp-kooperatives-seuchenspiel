@@ -1,40 +1,53 @@
 package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
+import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import org.greenrobot.eventbus.EventBus;
+import lombok.NoArgsConstructor;
 
-public class LobbyPresenter {
+/**
+ * Manages the lobby window
+ *
+ * @author Niklas Wrobel
+ * @see de.uol.swp.client.AbstractPresenter
+ * @since 2024-08-28
+ */
+@NoArgsConstructor
+public class LobbyPresenter extends AbstractPresenter {
+
+    public static final String FXML = "/fxml/LobbyView.fxml";
 
     @FXML
     private Label lobbyNameLabel;
 
-    private final EventBus eventBus;
-    private final LobbyService lobbyService;
-    private User loggedInUser;
-
     @Inject
-    public LobbyPresenter(EventBus eventBus, LobbyService lobbyService) {
-        this.eventBus = eventBus;
-        this.lobbyService = lobbyService;
+    private LobbyService lobbyService;
+
+    private Stage stage;
+    private Lobby lobby;
+    private User loggedInUser; // TODO: replace on other branch
+
+    public void initialize(final Stage stage, final Lobby lobby) {
+        this.stage = stage;
+        this.lobby = lobby;
+        setTitle(lobby.getName());
+        stage.show();
     }
 
-    public void initialize(String lobbyName) {
-        lobbyNameLabel.setText("Lobby: " + lobbyName);
-    }
-
-    public void setLoggedInUser(User user) {
-        this.loggedInUser = user;
+    private void setTitle(final String lobbyName) {
+        final String title = "Lobby: " + lobbyName;
+        stage.setTitle(title);
+        lobbyNameLabel.setText(title);
     }
 
     @FXML
-    void onLeaveLobbyButtonClicked(ActionEvent event) {
-        lobbyService.leaveLobby(lobbyNameLabel.getText().replace("Lobby: ", ""));
-        Stage stage = (Stage) lobbyNameLabel.getScene().getWindow();
+    private void onLeaveLobbyButtonClicked(final ActionEvent event) {
+        lobbyService.leaveLobby(lobby.getName(), loggedInUser);
         stage.close();
     }
 }

@@ -1,23 +1,21 @@
 package de.uol.swp.client;
 
-import com.google.inject.Provider;
-import de.uol.swp.client.lobby.LobbyCreatePresenter;
-import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
-import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.lobby.LobbyCreatePresenter;
+import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
+import de.uol.swp.client.lobby.event.ShowLobbyViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.main.event.ReturnToMainMenuEvent;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -25,9 +23,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.net.URL;
@@ -98,17 +100,25 @@ public class SceneManager {
      * @since 2019-09-03
      */
     private Parent initPresenter(String fxmlFile) throws IOException {
-        Parent rootPane;
-        FXMLLoader loader = loaderProvider.get();
         try {
-            URL url = getClass().getResource(fxmlFile);
-            LOG.debug("Loading {}", url);
-            loader.setLocation(url);
-            rootPane = loader.load();
+            return initFXMLLoader(fxmlFile).load();
         } catch (Exception e) {
             throw new IOException(String.format("Could not load View! %s", e.getMessage()), e);
         }
-        return rootPane;
+    }
+
+    /**
+     * Creates an FXMLLoader that has its location set to the resource at destination path fxmlFile
+     *
+     * @param fxmlFile Path to the FXML file to target
+     * @return {@link FXMLLoader} with FXML file at fxmlFile targeted
+     */
+    private FXMLLoader initFXMLLoader(final String fxmlFile) throws Exception {
+        final FXMLLoader loader = loaderProvider.get();
+        final URL url = getClass().getResource(fxmlFile);
+        LOG.debug("Loading {}", url);
+        loader.setLocation(url);
+        return loader;
     }
 
     /**
@@ -180,6 +190,23 @@ public class SceneManager {
             lobbyCreateScene = new Scene(rootPane);
             lobbyCreateScene.getStylesheets().add(STYLE_SHEET);
         }
+    }
+
+    /**
+     * Handles ReturnToMainMenuEvent detected on the EventBus
+     *
+     * <p>
+     * If a ReturnToMainMenuEvent is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the main menu screen.
+     * </p>
+     *
+     * @param event The ReturnToMainMenuEvent detected on the EventBus
+     * @see de.uol.swp.client.main.event.ReturnToMainMenuEvent
+     * @since 2024-08-28
+     */
+    @Subscribe
+    public void onReturnToMainMenuEvent(final ReturnToMainMenuEvent event){
+        showMainScreen(event.getUser());
     }
 
     /**
@@ -256,6 +283,21 @@ public class SceneManager {
     @Subscribe
     public void onRegistrationErrorEvent(RegistrationErrorEvent event) {
         showError(event.getMessage());
+    }
+
+    /**
+     * Handles ShowLobbyViewEvent detected on the EventBus
+     *
+     * If a {@link ShowLobbyViewEvent} is detected on the EventBus, this method gets
+     * called. It opens a new lobby window for the created lobby.
+     *
+     * @param event The ShowLobbyViewEvent detected on the EventBus
+     * @see de.uol.swp.client.lobby.event.ShowLobbyViewEvent
+     * @since 2024-08-28
+     */
+    @Subscribe
+    public void onShowLobbyViewEvent(final ShowLobbyViewEvent event) {
+        showLobbyScreen(event.getLobby());
     }
 
     /**
@@ -367,5 +409,36 @@ public class SceneManager {
      */
     public void showLobbyCreateScreen() {
         showScene(lobbyCreateScene,"Lobby erstellen");
+    }
+
+    /**
+     * Shows the lobby screen associated with the given lobby
+     *
+     * <p>
+     * Opens a new window with the lobby screen associated with the given lobby.
+     * </p>
+     *
+     * @param lobby Lobby to show window for
+     * @since 2024-08-28
+     */
+    public void showLobbyScreen(final Lobby lobby) {
+        Platform.runLater(() -> {
+            try {
+                final FXMLLoader fxmlLoader = initFXMLLoader(LobbyPresenter.FXML);
+                final Parent lobbyView = fxmlLoader.load();
+                final LobbyPresenter lobbyPresenter = fxmlLoader.getController();
+
+                final Scene lobbyScene = new Scene(lobbyView);
+                lobbyScene.getStylesheets().add(STYLE_SHEET);
+
+                final Stage lobbyStage = new Stage();
+                lobbyStage.setScene(lobbyScene);
+                lobbyStage.getIcons().add(iconImage);
+
+                lobbyPresenter.initialize(lobbyStage, lobby);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        });
     }
 }

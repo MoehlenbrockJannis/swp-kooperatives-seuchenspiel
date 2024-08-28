@@ -1,7 +1,6 @@
 package de.uol.swp.client.lobby.event;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,5 +18,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShowLobbyViewEvent {
     private final Lobby lobby;
-    private final User user;
 }
