@@ -19,3 +19,11 @@
 .dialog-pane .button:hover {
     -fx-font-size: 20px;
 }
+
+.dialog-pane .button:focused {
+    -fx-font-size: 20px;
+}
+
+.dialog-pane .button, .dialog-pane .text-field {
+    -fx-font-size: 20px;
+}
