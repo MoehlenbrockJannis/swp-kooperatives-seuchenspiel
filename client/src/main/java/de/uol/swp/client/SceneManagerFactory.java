@@ -1,6 +1,5 @@
 package de.uol.swp.client;
 
-import com.google.inject.assistedinject.Assisted;
 import javafx.stage.Stage;
 
 /**
