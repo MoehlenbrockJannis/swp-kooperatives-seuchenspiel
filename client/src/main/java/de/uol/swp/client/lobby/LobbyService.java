@@ -1,12 +1,12 @@
 package de.uol.swp.client.lobby;
 
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.user.User;
-import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Classes that manages lobbies
