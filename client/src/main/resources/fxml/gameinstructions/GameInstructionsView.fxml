@@ -2,33 +2,30 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.*?>
-<AnchorPane fx:id="popupAnchorPane" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/22"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="de.uol.swp.client.gameinstructions.GameInstructionsPresenter">
-    <Pane fx:id="backgroundPane" prefHeight="500.0" prefWidth="1000.0"
-          style="-fx-background-color: black; -fx-opacity: 60%;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
-          AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
-    <VBox fx:id="vbox" alignment="CENTER" prefHeight="500.0" prefWidth="1000.0"
-          style="-fx-background-color: white; -fx-padding: 20;" AnchorPane.bottomAnchor="50.0"
-          AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="popupAnchorPane" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.gameinstructions.GameInstructionsPresenter">
+    <Pane fx:id="backgroundPane" onMouseClicked="#closePopup" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: black; -fx-opacity: 60%;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+    <VBox fx:id="vbox" alignment="CENTER" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: white; -fx-padding: 20;" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
         <TabPane prefHeight="249.0" prefWidth="660.0" style="-fx-opacity: 100%;" VBox.vgrow="ALWAYS">
 
-            <fx:include source="IntroductionTab.fxml"/>
+            <fx:include source="IntroductionTab.fxml" />
 
-            <fx:include source="GameComponentsTab.fxml"/>
+            <fx:include source="GameComponentsTab.fxml" />
 
-            <fx:include source="RolesTab.fxml"/>
+            <fx:include source="RolesTab.fxml" />
 
-            <fx:include source="ActionsTab.fxml"/>
+            <fx:include source="ActionsTab.fxml" />
 
-            <fx:include source="GameStartTab.fxml"/>
+            <fx:include source="GameStartTab.fxml" />
 
-            <fx:include source="GameplayTab.fxml"/>
+            <fx:include source="GameplayTab.fxml" />
 
-            <fx:include source="GameEndTab.fxml"/>
+            <fx:include source="GameEndTab.fxml" />
 
         </TabPane>
-        <Button onAction="#onCloseButtonPressed" text="Schließen"/>
+        <Button onAction="#onCloseButtonPressed" text="Schließen" />
     </VBox>
 </AnchorPane>
