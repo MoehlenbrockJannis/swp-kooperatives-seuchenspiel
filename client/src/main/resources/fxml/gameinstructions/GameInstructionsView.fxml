@@ -7,9 +7,9 @@
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="popupAnchorPane" onKeyPressed="#handleEscKeyPressed" prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.gameinstructions.GameInstructionsPresenter">
-    <Pane onMouseClicked="#closePopup" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: black; -fx-opacity: 60%;" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
-    <VBox alignment="CENTER" prefHeight="500.0" prefWidth="1000.0" style="-fx-background-color: white; -fx-padding: 20;" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
-        <TabPane prefHeight="249.0" prefWidth="660.0" style="-fx-opacity: 100%;" VBox.vgrow="ALWAYS">
+    <Pane onMouseClicked="#closePopup" prefHeight="500.0" prefWidth="1000.0" styleClass="background-pane" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+    <VBox alignment="CENTER" prefHeight="500.0" prefWidth="1000.0" styleClass="main-vbox" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+        <TabPane prefHeight="249.0" prefWidth="660.0" VBox.vgrow="ALWAYS">
 
             <fx:include source="IntroductionTab.fxml" />
 

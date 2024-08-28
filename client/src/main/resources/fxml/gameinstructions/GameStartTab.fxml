@@ -6,7 +6,7 @@
 <?import javafx.scene.text.*?>
 <Tab closable="false" text="Spielstart">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" style="-fx-padding: 10;">
+        <VBox spacing="10.0" styleClass="tab-vbox">
             <TextFlow>
                 <Text text="1. Zunächst erhält jeder Spieler eine Rolle, wobei die Rolle zufällig zugeteilt oder selbst ausgewählt werden kann."/>
                 <Text text="&#10;"/>

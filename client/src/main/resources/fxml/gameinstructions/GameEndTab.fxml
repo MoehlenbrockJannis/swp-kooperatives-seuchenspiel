@@ -6,12 +6,12 @@
 <?import javafx.scene.text.*?>
 <Tab closable="false" text="Spielende">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" style="-fx-padding: 10;">
+        <VBox spacing="10.0" styleClass="tab-vbox">
             <HBox spacing="20.0">
                 <HBox fillHeight="false" prefWidth="250.0" spacing="10.0" HBox.hgrow="ALWAYS">
                     <VBox>
                         <TextFlow textAlignment="CENTER">
-                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="NIEDERLAGE!"/>
+                            <Text styleClass="tab-h1" text="NIEDERLAGE!"/>
                         </TextFlow>
                         <TextFlow>
                             <Text text="Das Spiel endet sofort mit einer Niederlage für alle Spieler, sobald eine der folgenden Bedingungen eintritt:"/>
@@ -28,7 +28,7 @@
                 <HBox fillHeight="false" prefWidth="250.0" spacing="10.0" HBox.hgrow="ALWAYS">
                     <VBox>
                         <TextFlow textAlignment="CENTER">
-                            <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="SIEG!"/>
+                            <Text styleClass="tab-h1" text="SIEG!"/>
                         </TextFlow>
                         <TextFlow>
                             <Text text="Die Spieler gewinnen das Spiel alle zusammen in dem Moment, in dem sie die Gegenmittel zu allen vier Seuchen (Blau, Gelb, Schwarz und Rot) entdeckt haben. Sie müssen die Gegenmittel dann nicht erst noch in den Städten verteilen, um zu gewinnen – sobald das vierte und letzte Gegenmittel entdeckt ist, endet das Spiel sofort."/>

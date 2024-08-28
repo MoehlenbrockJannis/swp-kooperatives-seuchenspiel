@@ -7,9 +7,9 @@
 <?import javafx.scene.text.*?>
 <Tab closable="false" text="Spielkomponenten">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" style="-fx-padding: 10;">
+        <VBox spacing="10.0" styleClass="tab-vbox">
             <TextFlow>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Figuren"/>
+                <Text styleClass="tab-h1" text="Figuren"/>
             </TextFlow>
 
             <HBox prefHeight="100.0">
@@ -19,7 +19,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;" text="5 Spielfiguren"/>
+                        <Text styleClass="tab-text-bold" text="5 Spielfiguren"/>
                     </TextFlow>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
@@ -28,14 +28,14 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;" text="6 Forschungslabore"/>
+                        <Text styleClass="tab-text-bold" text="6 Forschungslabore"/>
                     </TextFlow>
                 </HBox>
             </HBox>
 
             <TextFlow>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Marker"/>
+                <Text styleClass="tab-h1" text="Marker"/>
             </TextFlow>
 
             <HBox prefHeight="100.0">
@@ -45,8 +45,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;"
-                              text="Phiolenseite der Gegenmittelmarker"/>
+                        <Text styleClass="tab-text-bold" text="Phiolenseite der Gegenmittelmarker"/>
                     </TextFlow>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
@@ -55,8 +54,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;"
-                              text="Sonnenuntergangsseite der Gegenmittelmarker"/>
+                        <Text styleClass="tab-text-bold" text="Sonnenuntergangsseite der Gegenmittelmarker"/>
                     </TextFlow>
                 </HBox>
             </HBox>
@@ -67,7 +65,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;" text="Ausbruchsmarker"/>
+                        <Text styleClass="tab-text-bold" text="Ausbruchsmarker"/>
                     </TextFlow>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
@@ -76,14 +74,14 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;" text="Infektionsmarker"/>
+                        <Text styleClass="tab-text-bold" text="Infektionsmarker"/>
                     </TextFlow>
                 </HBox>
             </HBox>
 
             <TextFlow>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Karten"/>
+                <Text styleClass="tab-h1" text="Karten"/>
             </TextFlow>
 
             <HBox prefHeight="100.0">
@@ -93,7 +91,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;" text="59 Spielerkarten"/>
+                        <Text styleClass="tab-text-bold" text="59 Spielerkarten"/>
                     </TextFlow>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
@@ -102,8 +100,7 @@
                         <Image url="@/images/question-mark-line-icon.png"/>
                     </ImageView>
                     <TextFlow>
-                        <Text style="-fx-font-weight: bold;"
-                              text="48 Infektionskarten"/>
+                        <Text styleClass="tab-text-bold" text="48 Infektionskarten"/>
                     </TextFlow>
                 </HBox>
             </HBox>

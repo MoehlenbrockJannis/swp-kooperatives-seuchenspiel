@@ -6,80 +6,75 @@
 <?import javafx.scene.text.*?>
 <Tab closable="false" text="Spielablauf">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" style="-fx-padding: 10;">
+        <VBox spacing="10.0" styleClass="tab-vbox">
             <TextFlow>
                 <Text text="Im Uhrzeigersinn führen nun alle Spieler ihre Spielzüge durch, bis das Spiel zu Ende ist."/>
                 <Text text="&#10;"/>
                 <Text text="In jedem Spielzug muss der Spieler, der an der Reihe ist:"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        1.      4 Aktionen ausführen"/>
+                <Text styleClass="tab-h2" text="        1.      4 Aktionen ausführen"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        2.      2 Spielerkarten ziehen"/>
+                <Text styleClass="tab-h2" text="        2.      2 Spielerkarten ziehen"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        3.      Den Überträger spielen"/>
+                <Text styleClass="tab-h2" text="        3.      Den Überträger spielen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Nachdem er den Überträger gespielt hat, ist sein Zug vorbei, und der Spieler zu seiner Linken ist an der Reihe"/>
             </TextFlow>
 
             <TextFlow>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="1.      4 Aktionen ausführen"/>
+                <Text styleClass="tab-h1" text="1.      4 Aktionen ausführen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Pro Spielzug führt jeder Spieler 4 Aktionen aus. Dazu kann er aus den nachfolgend beschriebenen einfachen und besonderen Aktionen auswählen und sie durch „Ausgeben“ von je 1 Aktion durchführen. Dieselbe Aktion kann mehrmals in einem Spielzug ausgeführt werden, sofern sie jedes Mal „bezahlt“ wird. Ein Spieler kann auch auf eine Aktion verzichten, wenn ihm keine sinnvolle Handlung einfällt. Aktionen können nicht von einem Zug auf den nächsten aufgespart werden. Die eigene Rolle verleiht jedem Spieler besondere Fähigkeiten, die nur für ihn gelten."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Hinweis"/>
+                <Text styleClass="tab-h2" text="Hinweis"/>
                 <Text text="&#10;"/>
                 <Text text="Die Rollen haben eine sehr wichtige Bedeutung für das Spiel. Lesen Sie die Beschreibung der Rollen sorgfältig. Schauen Sie sich das Beispiel auf Seite 8 genau an, um die Besonderheiten der Rollen zu verstehen."/>
             </TextFlow>
 
             <TextFlow>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
-                      text="2.      2 Spielerkarten ziehen"/>
+                <Text styleClass="tab-h1" text="2.      2 Spielerkarten ziehen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Nachdem ein Spieler seine Aktionen ausgeführt hat, muss er 2 Karten vom Spieler-Zugstapel ziehen und auf die Hand nehmen. Ist eine der gezogenen Karten eine Epidemiekarte, geht diese nicht auf die Hand; verfahren Sie stattdessen wie weiter unten für Epidemien beschrieben. Nach dem Ziehen übernimmt der Spieler dann die Rolle des Überträgers. Siehe Den Überträger spielen auf Seite 7. Sind nicht mehr genügend Karten im Spieler-Zugstapel, damit der Spieler in dieser Phase ziehen kann, endet das Spiel sofort mit einer Niederlage für alle Spieler!"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ereigniskarten"/>
+                <Text styleClass="tab-h2" text="Ereigniskarten"/>
                 <Text text="&#10;"/>
                 <Text text="Unter den Spielerkarten befinden sich auch einige Karten, die besondere Ereignisse darstellen. Diese Karten können jederzeit gespielt werden (auch während des Zugs eines Mitspielers) und kosten keine Aktionen. Wenn Sie eine Ereigniskarte ausspielen, tritt der auf der Karte beschriebene Effekt sofort ein; danach kommt die Karte auf den Spieler-Ablagestapel."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Maximale Handkartenzahl"/>
+                <Text styleClass="tab-h2" text="Maximale Handkartenzahl"/>
                 <Text text="&#10;"/>
                 <Text text="Mehr als 7 Karten darf kein Spieler auf der Hand haben. Wann immer die Anzahl 7 überstiegen wird (sei es durch das hier beschriebene Ziehen oder durch die Aktion Wissen teilen), muss der Spieler die überschüssigen Karten sofort auf den Spieler-Ablagestapel legen. Er darf allerdings selbst entscheiden, welche Karte er ablegt. Der Spieler kann aber auch statt abzulegen eine Ereigniskarte ausspielen, wenn er dadurch die Zahl seiner Handkarten auf 7 reduziert."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="Informationen über Karten austauschen"/>
+                <Text styleClass="tab-h2" text="Informationen über Karten austauschen"/>
                 <Text text="&#10;"/>
                 <Text text="Falls alle Spieler einverstanden sind, können sie mit offenen Karten spielen oder sich zumindest gegenseitig jederzeit ihre Handkarten zeigen. Ihre Vorgehensweisen können sie nach Belieben diskutieren."/>
                 <Text text="&#10;"/>
                 <Text text="Da es bei Pandemie um Kooperation und Einsatzwillen geht, nicht aber um die Merkfähigkeit, dürfen die Spieler zu jeder Zeit nach Belieben den Spieler-Ablagestapel und den Infektions-Ablagestapel einsehen."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Epidemien"/>
+                <Text styleClass="tab-h2" text="Epidemien"/>
                 <Text text="&#10;"/>
                 <Text text="Zieht ein Spieler eine Epidemiekarte, passiert Folgendes:"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold;" text="1. Die Infektionsrate weitet sich aus: "/>
+                <Text styleClass="tab-text-bold" text="1. Die Infektionsrate weitet sich aus: "/>
                 <Text text="Schieben Sie den Infektionsmarker ein Feld weiter."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold;" text="2. Infizieren: "/>
+                <Text styleClass="tab-text-bold" text="2. Infizieren: "/>
                 <Text text="Ziehen Sie die unterste Karte des Infektions-Zugstapels. Legen Sie 3 Seuchenwürfel in die Stadt, die auf dieser Karte abgebildet ist. (Gehört die Karte zu einer bereits ausgelöschten Seuche, legen Sie keine Würfel in die Stadt.) Danach legen Sie die Karte auf den Infektions-Ablagestapel. Anmerkung: Es kann in einer Stadt nie mehr als 3 Würfel einer bestimmten Farbe geben. Würde durch eine Epidemie diese Obergrenze überschritten, werden die überschüssigen Würfel wieder abgeräumt, und es kommt zu einem Ausbruch."/>
                 <Text text="&#10;"/>
                 <Text text="Stehen nicht mehr genügend Würfel zur Verfügung, die während einer Epidemie ausgelegt werden können, endet das Spiel sofort mit einer Niederlage für alle Spieler."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold;"
+                <Text styleClass="tab-text-bold"
                       text="3. Die Intensität der Infektion verschärft sich: "/>
                 <Text text="Mischen Sie den Infektions-Ablagestapel gründlich durch und legen Sie ihn auf den Infektions-Zugstapel. (Die Karten werden also nicht in den Infektions-Zugstapel gemischt!)"/>
                 <Text text="&#10;"/>
@@ -88,14 +83,13 @@
             </TextFlow>
 
             <TextFlow>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
-                      text="3.      Den Überträger spielen"/>
+                <Text styleClass="tab-h1" text="3.      Den Überträger spielen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Ziehen Sie eine Anzahl Karten vom Infektions-Zugstapel, die der derzeitigen Infektionsrate entspricht, und legen Sie in den abgebildeten Städten jeweils 1 Würfel derselben Farbe wie der gezogenen Karte aus. Die Karten werden in der Reihenfolge abgearbeitet, in der der Spieler sie gezogen hat. Hat allerdings die Stadt auf der Karte eine Farbe, die zu einer bereits ausgelöschten Seuche gehört, wird dort kein neuer Würfel ausgelegt. Liegen in einer Stadt bereits drei Würfel dieser Farbe aus, wird kein weiterer Würfel mehr hinzugefügt. Stattdessen kommt es zu einem Ausbruch dieser Farbe."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ausbrüche"/>
+                <Text styleClass="tab-h2" text="Ausbrüche"/>
                 <Text text="&#10;"/>
                 <Text text="Ein Ausbruch tritt immer dann ein, wenn ein Spieler in einer Stadt, in der bereits 3 Würfel einer Farbe ausliegen, einen 4. Würfel dieser Farbe auslegen müsste. In diesem Fall erhält die betroffene Stadt keinen neuen Würfel, aber in allen benachbarten Städten wird je 1 Würfel dieser Farbe ausgelegt."/>
                 <Text text="&#10;"/>
@@ -104,7 +98,7 @@
                 <Text text="Bei jedem Ausbruch wird der Ausbruchsmarker um ein Feld auf der Ausbruchsleiste nach unten verschoben. Erreicht die Zahl der Ausbrüche das 8. Feld (d.h. der Ausbruchsmarker landet auf dem Feld mit dem Totenschädel), endet das Spiel sofort mit einer Niederlage für alle Spieler. Stehen nicht mehr genügend Würfel zur Verfügung, die während eines Ausbruchs ausgelegt werden können, endet das Spiel ebenfalls sofort mit einer Niederlage für alle Spieler."/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Ende des Spielzugs"/>
+                <Text styleClass="tab-h2" text="Ende des Spielzugs"/>
                 <Text text="&#10;"/>
                 <Text text="Nachdem Sie alle Infektionskarten abgearbeitet haben, legen Sie sie auf den Infektions-Ablagestapel. Der nächste Spieler im Uhrzeigersinn ist nun an der Reihe."/>
             </TextFlow>

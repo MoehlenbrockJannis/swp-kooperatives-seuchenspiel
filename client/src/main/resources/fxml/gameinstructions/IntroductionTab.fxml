@@ -10,7 +10,7 @@
 <?import javafx.scene.text.TextFlow?>
 <Tab closable="false" text="Einleitung">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" style="-fx-padding: 10;">
+        <VBox spacing="10.0" styleClass="tab-vbox">
             <HBox spacing="10.0" VBox.vgrow="ALWAYS">
                 <ImageView fitHeight="100.0" fitWidth="100.0">
                     <Image url="@/images/PandemieLogo.png"/>
