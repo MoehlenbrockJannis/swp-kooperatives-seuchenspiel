@@ -32,15 +32,4 @@ public class GameInstructionsPresenter {
     public void openPopup() {
         popupAnchorPane.setVisible(true);
     }
-
-    /**
-     * Handles the action event triggered when the close button is pressed.
-     *
-     * @param event the ActionEvent triggered by pressing the close button
-     * @since 2024-08-27
-     */
-    @FXML
-    void onCloseButtonPressed(ActionEvent event) {
-        closePopup();
-    }
 }

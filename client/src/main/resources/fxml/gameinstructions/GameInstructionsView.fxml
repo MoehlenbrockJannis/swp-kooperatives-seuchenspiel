@@ -26,6 +26,6 @@
             <fx:include source="GameEndTab.fxml" />
 
         </TabPane>
-        <Button onAction="#onCloseButtonPressed" text="Schließen" />
+        <Button onAction="#closePopup" text="Schließen" />
     </VBox>
 </AnchorPane>
