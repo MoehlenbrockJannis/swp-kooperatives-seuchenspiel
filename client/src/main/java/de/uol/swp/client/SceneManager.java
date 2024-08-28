@@ -1,7 +1,9 @@
 package de.uol.swp.client;
 
 import com.google.inject.Provider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -39,10 +41,13 @@ public class SceneManager {
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
     static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
+    static final String ERROR_DIALOG_STYLE_SHEET = "css/errorDialog.css";
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
+    static final String ERROR_ICON_IMAGE_PATH = "/images/ErrorIcon.png";
 
     private final Stage primaryStage;
     private final Image iconImage;
+    private final Image errorIconImage;
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
@@ -58,6 +63,7 @@ public class SceneManager {
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
         this.iconImage = new Image(getClass().getResourceAsStream(ICON_IMAGE_PATH));
+        this.errorIconImage = new Image(getClass().getResourceAsStream(ERROR_ICON_IMAGE_PATH));
         primaryStage.getIcons().add(iconImage);
 
         initViews();
@@ -227,10 +233,12 @@ public class SceneManager {
             Alert a = new Alert(Alert.AlertType.ERROR, message + e);
             // based on: https://stackoverflow.com/questions/28417140/styling-default-javafx-dialogs/28421229#28421229
             DialogPane pane = a.getDialogPane();
+            ImageView imageView = new ImageView(this.errorIconImage);
+            a.setGraphic(imageView);
             if (pane.getScene().getWindow() instanceof Stage stage) {
                 stage.getIcons().add(iconImage);
             }
-            pane.getStylesheets().add(DIALOG_STYLE_SHEET);
+            pane.getStylesheets().add(ERROR_DIALOG_STYLE_SHEET);
             a.showAndWait();
         });
     }
@@ -242,7 +250,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showServerError(String e) {
-        showError("Server returned an error:\n" , e);
+        showError("" , e);
     }
 
     /**
@@ -252,7 +260,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showError(String e) {
-        showError("Error:\n" , e);
+        showError("" , e);
     }
 
     /**
@@ -273,24 +281,6 @@ public class SceneManager {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.show();
-        });
-    }
-
-    /**
-     * Shows the login error alert
-     *
-     * Opens an ErrorAlert popup saying "Error logging in to server"
-     *
-     * @since 2019-09-03
-     */
-    public void showLoginErrorScreen() {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Error logging in to server");
-            // based on: https://stackoverflow.com/questions/28417140/styling-default-javafx-dialogs/28421229#28421229
-            DialogPane pane = alert.getDialogPane();
-            pane.getStylesheets().add(DIALOG_STYLE_SHEET);
-            alert.showAndWait();
-            showLoginScreen();
         });
     }
 

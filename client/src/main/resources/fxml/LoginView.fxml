@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane prefHeight="450.0" prefWidth="850.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
+<GridPane prefHeight="450.0" prefWidth="850.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.auth.LoginPresenter">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
    </columnConstraints>
@@ -29,7 +29,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <TextField fx:id="loginField" focusTraversable="false" prefHeight="60.0" prefWidth="425.0" promptText="Benutzername">
+            <TextField fx:id="loginField" prefHeight="60.0" prefWidth="425.0" promptText="Benutzername">
                <font>
                   <Font size="20.0" />
                </font>
@@ -37,7 +37,7 @@
                   <Insets left="30.0" right="10.0" />
                </GridPane.margin>
             </TextField>
-            <PasswordField fx:id="passwordField" focusTraversable="false" prefHeight="60.0" promptText="Passwort" GridPane.columnIndex="1">
+            <PasswordField fx:id="passwordField" prefHeight="60.0" promptText="Passwort" GridPane.columnIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" right="30.0" />
                </GridPane.margin>
@@ -57,7 +57,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <Button alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#onExitButtonPressed" prefHeight="50.0" prefWidth="135.0" text="Beenden" GridPane.halignment="RIGHT">
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onExitButtonPressed" prefHeight="50.0" prefWidth="135.0" text="Beenden" GridPane.halignment="RIGHT">
                <GridPane.margin>
                   <Insets right="10.0" />
                </GridPane.margin>
@@ -65,12 +65,12 @@
                   <Font size="20.0" />
                </font>
             </Button>
-            <Button alignment="CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#onLoginButtonPressed" pickOnBounds="false" prefHeight="50.0" prefWidth="280.0" scaleShape="false" text="Login" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+            <Button alignment="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#onLoginButtonPressed" pickOnBounds="false" prefHeight="50.0" prefWidth="280.0" scaleShape="false" text="Login" GridPane.columnIndex="1" GridPane.halignment="CENTER">
                <font>
                   <Font size="20.0" />
                </font>
             </Button>
-            <Button blendMode="SRC_ATOP" focusTraversable="false" mnemonicParsing="false" onAction="#onRegisterButtonPressed" prefHeight="50.0" prefWidth="135.0" text="Registrieren" GridPane.columnIndex="2">
+            <Button blendMode="SRC_ATOP" mnemonicParsing="false" onAction="#onRegisterButtonPressed" prefHeight="50.0" prefWidth="135.0" text="Registrieren" GridPane.columnIndex="2">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>

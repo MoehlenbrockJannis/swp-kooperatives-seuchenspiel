@@ -120,7 +120,7 @@ public class AuthenticationService extends AbstractService {
             returnMessage.setSession(newSession);
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new ServerExceptionMessage(new LoginException("Cannot auth user " + msg.getUsername()));
+            returnMessage = new ServerExceptionMessage(new LoginException( msg.getUsername() + " kann nicht authentifiziert werden"));
         }
         msg.getMessageContext().ifPresent(returnMessage::setMessageContext);
         post(returnMessage);
