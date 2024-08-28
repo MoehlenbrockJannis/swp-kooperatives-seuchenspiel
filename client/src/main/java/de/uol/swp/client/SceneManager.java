@@ -1,6 +1,8 @@
 package de.uol.swp.client;
 
 import com.google.inject.Provider;
+import de.uol.swp.client.lobby.LobbyCreatePresenter;
+import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -52,6 +54,7 @@ public class SceneManager {
     private String lastTitle;
     private Scene registrationScene;
     private Scene mainScene;
+    private Scene lobbyCreateScene;
     private Scene lastScene = null;
     private Scene currentScene = null;
 
@@ -79,6 +82,7 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initLobbyCreateView();
     }
 
     /**
@@ -161,6 +165,24 @@ public class SceneManager {
     }
 
     /**
+     * Initializes the lobby create view
+     *
+     * If the {@link #lobbyCreateScene} is null, it gets set to a new scene containing
+     * a pane showing the lobby create view as specified by the LobbyCreateView
+     * FXML file.
+     *
+     * @see de.uol.swp.client.lobby.LobbyCreatePresenter
+     * @since 2024-08-28
+     */
+    private void initLobbyCreateView() throws IOException {
+        if (lobbyCreateScene == null){
+            final Parent rootPane = initPresenter(LobbyCreatePresenter.FXML);
+            lobbyCreateScene = new Scene(rootPane);
+            lobbyCreateScene.getStylesheets().add(STYLE_SHEET);
+        }
+    }
+
+    /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
      *
      * If a ShowRegistrationViewEvent is detected on the EventBus, this method gets
@@ -189,6 +211,21 @@ public class SceneManager {
     @Subscribe
     public void onShowLoginViewEvent(ShowLoginViewEvent event){
         showLoginScreen();
+    }
+
+    /**
+     * Handles ShowLobbyCreateViewEvent detected on the EventBus
+     *
+     * If a ShowLobbyCreateViewEvent is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the lobby create screen.
+     *
+     * @param event The ShowLobbyCreateViewEvent detected on the EventBus
+     * @see de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent
+     * @since 2024-08-28
+     */
+    @Subscribe
+    public void onShowLobbyCreateViewEvent(final ShowLobbyCreateViewEvent event) {
+        showLobbyCreateScreen();
     }
 
     /**
@@ -318,5 +355,17 @@ public class SceneManager {
      */
     public void showRegistrationScreen() {
         showScene(registrationScene,"Registrierung");
+    }
+
+    /**
+     * Shows the lobby create screen
+     *
+     * Switches the current Scene to the {@link #lobbyCreateScene} and sets the title of
+     * the window to "Lobby erstellen"
+     *
+     * @since 2024-08-28
+     */
+    public void showLobbyCreateScreen() {
+        showScene(lobbyCreateScene,"Lobby erstellen");
     }
 }
