@@ -1,6 +1,7 @@
 package de.uol.swp.client.lobby;
 
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
+import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
@@ -42,8 +43,7 @@ public class LobbyService {
      * @see de.uol.swp.common.lobby.message.CreateLobbyRequest
      * @since 2019-11-20
      */
-    public void createNewLobby(String name) {
-        UserDTO user = new UserDTO("", "", "");
+    public void createNewLobby(String name, UserDTO user) {
         CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user);
         eventBus.post(createLobbyRequest);
     }
@@ -61,9 +61,16 @@ public class LobbyService {
         eventBus.post(joinUserRequest);
     }
 
-    public void leaveLobby(String lobbyName) {
-        UserDTO user = new UserDTO("", "", "");
-        LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobbyName, user);
+    /**
+     * Posts a request to leave a lobby on the EventBus
+     *
+     * @param lobbyName Name of the lobby to leave
+     * @param user User who wants to leave the lobby
+     * @see de.uol.swp.common.lobby.message.LobbyLeaveUserRequest
+     * @since 2024-08-28
+     */
+    public void leaveLobby(final String lobbyName, final User user) {
+        final LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobbyName, (UserDTO) user);
         eventBus.post(leaveLobbyRequest);
     }
 }
