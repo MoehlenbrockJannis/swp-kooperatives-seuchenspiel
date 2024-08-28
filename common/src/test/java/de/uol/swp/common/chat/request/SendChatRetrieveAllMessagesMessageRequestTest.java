@@ -34,6 +34,6 @@ public class SendChatRetrieveAllMessagesMessageRequestTest {
 
         SendChatMessageRequest request = new SendChatMessageRequest(defaultUser.getUsername(), "Hallo Welt!", time);
 
-        assertEquals(expectedMessage, request.getChatMessage());
+        assertEquals(expectedMessage, "[" + request.getTimestamp() + "] " + request.getUserName() + ": Hallo Welt!");
     }
 }
