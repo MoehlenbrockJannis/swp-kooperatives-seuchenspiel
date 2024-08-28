@@ -1,5 +1,6 @@
 package de.uol.swp.client.gameinstructions;
 
+import de.uol.swp.client.AbstractPresenter;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -11,7 +12,7 @@ import javafx.scene.layout.AnchorPane;
  *
  * @since 2024-08-27
  */
-public class GameInstructionsPresenter {
+public class GameInstructionsPresenter extends AbstractPresenter {
 
     @FXML
     private AnchorPane popupAnchorPane;
