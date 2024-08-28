@@ -1,7 +1,8 @@
 package de.uol.swp.client.gameinstructions;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 
 /**
@@ -31,5 +32,18 @@ public class GameInstructionsPresenter {
      */
     public void openPopup() {
         popupAnchorPane.setVisible(true);
+    }
+
+    /**
+     * Handles the key press event to close the popup when the Escape key is pressed.
+     *
+     * @param event the KeyEvent triggered by pressing a key
+     * @since 2024-08-28
+     */
+    @FXML
+    void handleEscKeyPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ESCAPE) {
+            closePopup();
+        }
     }
 }
