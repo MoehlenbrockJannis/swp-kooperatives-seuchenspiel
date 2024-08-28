@@ -63,6 +63,7 @@
             </HBox>
 
             <TextFlow>
+                <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Besondere Aktionen"/>
             </TextFlow>
             <HBox spacing="10.0" VBox.vgrow="ALWAYS">

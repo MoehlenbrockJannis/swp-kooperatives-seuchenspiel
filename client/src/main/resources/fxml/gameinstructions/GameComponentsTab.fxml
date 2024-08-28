@@ -34,6 +34,7 @@
             </HBox>
 
             <TextFlow>
+                <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Marker"/>
             </TextFlow>
 
@@ -81,6 +82,7 @@
             </HBox>
 
             <TextFlow>
+                <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Karten"/>
             </TextFlow>
 
