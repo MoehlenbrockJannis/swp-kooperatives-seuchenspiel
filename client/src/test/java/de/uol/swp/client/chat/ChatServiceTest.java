@@ -1,11 +1,16 @@
 package de.uol.swp.client.chat;
 
 import de.uol.swp.client.EventBusBasedTest;
+import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * Test class of the ChatService
@@ -15,7 +20,26 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
 
-    //TODO: Fix ChatServiceTest equal to UserServiceTest
+    /**
+     * Sends a chat request
+     * @throws InterruptedException
+     */
+    public void sendChatRequest() throws InterruptedException {
+        ChatService chatService = new ChatService(getBus());
+        chatService.sendChatRequest(defaultUser.getUsername(), "Hello World!", LocalTime.now());
+        waitForLock();
+    }
+
+    // handlers for events
+    @Subscribe
+    public void onEvent(SendChatMessageRequest e) {
+        handleEvent(e);
+    }
+
+    @Subscribe
+    public void onEvent(RetrieveChatRequest e) {
+        handleEvent(e);
+    }
 
     /**
      * Test for the sendChatRequest method
@@ -26,9 +50,8 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     public void testSendChatRequest() throws InterruptedException {
-        ChatService chatService = new ChatService(getBus());
-        chatService.sendChatRequest(defaultUser.getUsername(), "Hello World!", LocalTime.now());
-        waitForLock();
+        sendChatRequest();
+        assertInstanceOf(SendChatMessageRequest.class, event);
     }
 
     /**
@@ -39,8 +62,12 @@ public class ChatServiceTest extends EventBusBasedTest {
      * @since 2024-08-26
      */
     @Test
-    public void testRetrieveChat() {
+    public void testRetrieveChat() throws InterruptedException {
         ChatService chatService = new ChatService(getBus());
         chatService.retrieveChat();
+
+        waitForLock();
+
+        assertInstanceOf(RetrieveChatRequest.class, event);
     }
 }
