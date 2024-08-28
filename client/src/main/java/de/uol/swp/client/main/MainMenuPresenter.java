@@ -48,21 +48,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private ListView<String> usersView;
 
-    private final EventBus bus;
-
-    /**
-     * Constructor
-     *
-     * @param bus The EventBus set in ClientModule
-     * @see de.uol.swp.client.di.ClientModule
-     * @since 2024-08-22
-     */
-    @Inject
-    public MainMenuPresenter(EventBus bus) {
-        this.bus = bus;
-    }
-
-
     /**
      * Handles successful login
      *
@@ -212,7 +197,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private void onLogoutButtonPressed(ActionEvent event) {
         userService.logout(loggedInUser);
-        bus.post(new ShowLoginViewEvent());
+        this.eventBus.post(new ShowLoginViewEvent());
     }
 
 
