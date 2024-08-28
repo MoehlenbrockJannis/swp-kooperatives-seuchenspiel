@@ -14,20 +14,20 @@
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        1.  4 Aktionen ausführen"/>
+                      text="        1.      4 Aktionen ausführen"/>
                 <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        2.  2 Spielerkarten ziehen"/>
+                      text="        2.      2 Spielerkarten ziehen"/>
                 <Text text="&#10;"/>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 16px;"
-                      text="        3.  Den Überträger spielen"/>
+                      text="        3.      Den Überträger spielen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Nachdem er den Überträger gespielt hat, ist sein Zug vorbei, und der Spieler zu seiner Linken ist an der Reihe"/>
             </TextFlow>
 
             <TextFlow>
-                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="1.  4 Aktionen ausführen"/>
+                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="1.      4 Aktionen ausführen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Pro Spielzug führt jeder Spieler 4 Aktionen aus. Dazu kann er aus den nachfolgend beschriebenen einfachen und besonderen Aktionen auswählen und sie durch „Ausgeben“ von je 1 Aktion durchführen. Dieselbe Aktion kann mehrmals in einem Spielzug ausgeführt werden, sofern sie jedes Mal „bezahlt“ wird. Ein Spieler kann auch auf eine Aktion verzichten, wenn ihm keine sinnvolle Handlung einfällt. Aktionen können nicht von einem Zug auf den nächsten aufgespart werden. Die eigene Rolle verleiht jedem Spieler besondere Fähigkeiten, die nur für ihn gelten."/>
@@ -40,7 +40,7 @@
 
             <TextFlow>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
-                      text="2.  2 Spielerkarten ziehen"/>
+                      text="2.      2 Spielerkarten ziehen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Nachdem ein Spieler seine Aktionen ausgeführt hat, muss er 2 Karten vom Spieler-Zugstapel ziehen und auf die Hand nehmen. Ist eine der gezogenen Karten eine Epidemiekarte, geht diese nicht auf die Hand; verfahren Sie stattdessen wie weiter unten für Epidemien beschrieben. Nach dem Ziehen übernimmt der Spieler dann die Rolle des Überträgers. Siehe Den Überträger spielen auf Seite 7. Sind nicht mehr genügend Karten im Spieler-Zugstapel, damit der Spieler in dieser Phase ziehen kann, endet das Spiel sofort mit einer Niederlage für alle Spieler!"/>
@@ -89,7 +89,7 @@
 
             <TextFlow>
                 <Text style="-fx-font-weight: bold; -fx-font-size: 20px;"
-                      text="3.  Den Überträger spielen"/>
+                      text="3.      Den Überträger spielen"/>
                 <Text text="&#10;"/>
                 <Text text="&#10;"/>
                 <Text text="Ziehen Sie eine Anzahl Karten vom Infektions-Zugstapel, die der derzeitigen Infektionsrate entspricht, und legen Sie in den abgebildeten Städten jeweils 1 Würfel derselben Farbe wie der gezogenen Karte aus. Die Karten werden in der Reihenfolge abgearbeitet, in der der Spieler sie gezogen hat. Hat allerdings die Stadt auf der Karte eine Farbe, die zu einer bereits ausgelöschten Seuche gehört, wird dort kein neuer Würfel ausgelegt. Liegen in einer Stadt bereits drei Würfel dieser Farbe aus, wird kein weiterer Würfel mehr hinzugefügt. Stattdessen kommt es zu einem Ausbruch dieser Farbe."/>
