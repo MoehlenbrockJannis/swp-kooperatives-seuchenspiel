@@ -1,6 +1,7 @@
 package de.uol.swp.client;
 
 
+import java.io.IOException;
 import java.net.ConnectException;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -88,18 +89,25 @@ public class ClientApp extends Application implements ConnectionListener {
         this.userService = injector.getInstance(ClientUserService.class);
 
         // get event bus from guice
-		eventBus = injector.getInstance(EventBus.class);
+		this.eventBus = injector.getInstance(EventBus.class);
 		// Register this class for de.uol.swp.client.events (e.g. for exceptions)
 		eventBus.register(this);
 
 		// Client app is created by java, so injection must
 		// be handled here manually
 		SceneManagerFactory sceneManagerFactory = injector.getInstance(SceneManagerFactory.class);
-		this.sceneManager = sceneManagerFactory.create(primaryStage);
+		this.sceneManager = sceneManagerFactory.create();
+		try {
+			this.sceneManager.initialize(primaryStage);
+		} catch (IOException e) {
+			LOG.error("Error initializing SceneManager", e);
+			return;
+		}
+
 
 		ClientConnectionFactory connectionFactory = injector.getInstance(ClientConnectionFactory.class);
-		clientConnection = connectionFactory.create(host, port);
-		clientConnection.addConnectionListener(this);
+		this.clientConnection = connectionFactory.create(host, port);
+		this.clientConnection.addConnectionListener(this);
 		// JavaFX Thread should not be blocked to long!
 		Thread t = new Thread(() -> {
 			try {
