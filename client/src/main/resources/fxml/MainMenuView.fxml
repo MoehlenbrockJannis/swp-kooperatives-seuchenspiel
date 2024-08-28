@@ -153,5 +153,5 @@
         </center>
     </BorderPane>
 
-    <fx:include source="GameInstructionsView.fxml" fx:id="gameInstructionsAnchorPane"/>
+    <fx:include source="gameinstructions/GameInstructionsView.fxml" fx:id="gameInstructionsAnchorPane"/>
 </StackPane>

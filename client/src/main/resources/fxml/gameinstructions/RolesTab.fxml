@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Tab closable="false" text="Rollen">
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="10.0" style="-fx-padding: 10;">
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Arzt"/>
+                    <Text text="&#10;"/>
+                    <Text text="Der Arzt entfernt alle Würfel einer Farbe (also nicht nur 1), wenn er die Aktion Seuche behandeln ausführt. Befindet sich der Arzt in einer Stadt mit Würfeln einer Seuche, für die bereits ein Gegenmittel entdeckt wurde, entfernt er umgehend alle Würfel dieser Farbe, ohne eine Aktion dafür ausgeben zu müssen. Diese einzigartige Fähigkeit funktioniert immer und zu jeder beliebigen Zeit, auch während der Züge der anderen Spieler."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Betriebsexperte"/>
+                    <Text text="&#10;"/>
+                    <Text text="Der Betriebsexperte muss keine passende Karte ausspielen, um in der Stadt, in der er sich gerade befindet, ein Forschungslabor zu errichten. Er gibt einfach 1 Aktion aus und stellt ein Labor in seiner Stadt auf."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Forscherin"/>
+                    <Text text="&#10;"/>
+                    <Text text="Die Forscherin kann einem Mitspieler im Rahmen der Aktion Wissen teilen die Karte einer beliebigen Stadt weitergeben. Im Gegensatz zu den anderen Spielern ist sie nicht auf die Karte der Stadt beschränkt, in der sich die beiden Spielfiguren gerade befinden. Dies gilt aber nur, wenn die Forscherin eine Karte weitergibt – wenn sie eine Karte von einem Mitspieler erhält, ist sie an die gleichen Regeln gebunden wie alle anderen Spieler auch. Die Forscherin kann ihre Sonderfähigkeit auch während der Spielzüge der anderen Spieler einsetzen. Eine Ereigniskarte kann sie nicht weitergeben."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Logistiker"/>
+                    <Text text="&#10;"/>
+                    <Text text="Der Logistiker kann während seines Zugs die Spielfiguren der anderen Spieler bewegen (d.h. mit ihnen eine der hier beschriebenen einfachen Aktionen durchführen), als ob es seine eigene Figur wäre. Er kann zudem eine Aktion ausgeben, um eine beliebige Spielfigur zu einer beliebigen Stadt zu bewegen, in der sich bereits eine andere Spielfigur befindet. Er kann die Spielfiguren anderer Spieler aber nur bewegen, wenn diese ihm dies gestatten. Anmerkung: Wählt der Logistiker die Aktion Charterflug, muss er die Karte ausspielen, die dem derzeitigen Standort der Spielfigur entspricht, die er bewegen möchte."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Wissenschaftler"/>
+                    <Text text="&#10;"/>
+                    <Text text="Der Wissenschaftler benötigt nur 4 Karten einer Farbe, um das Gegenmittel für die entsprechende Seuche zu entdecken."/>
+                </TextFlow>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</Tab>

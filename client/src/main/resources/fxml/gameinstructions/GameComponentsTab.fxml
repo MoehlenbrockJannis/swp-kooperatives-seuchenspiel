@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Tab closable="false" text="Spielkomponenten">
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="10.0" style="-fx-padding: 10;">
+            <TextFlow>
+                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Figuren"/>
+            </TextFlow>
+
+            <HBox prefHeight="100.0">
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;" text="5 Spielfiguren"/>
+                    </TextFlow>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;" text="6 Forschungslabore"/>
+                    </TextFlow>
+                </HBox>
+            </HBox>
+
+            <TextFlow>
+                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Marker"/>
+            </TextFlow>
+
+            <HBox prefHeight="100.0">
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;"
+                              text="Phiolenseite der Gegenmittelmarker"/>
+                    </TextFlow>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;"
+                              text="Sonnenuntergangsseite der Gegenmittelmarker"/>
+                    </TextFlow>
+                </HBox>
+            </HBox>
+            <HBox prefHeight="100.0">
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;" text="Ausbruchsmarker"/>
+                    </TextFlow>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;" text="Infektionsmarker"/>
+                    </TextFlow>
+                </HBox>
+            </HBox>
+
+            <TextFlow>
+                <Text style="-fx-font-weight: bold; -fx-font-size: 20px;" text="Karten"/>
+            </TextFlow>
+
+            <HBox prefHeight="100.0">
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;" text="59 Spielerkarten"/>
+                    </TextFlow>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" fillHeight="false" prefWidth="250.0"
+                      spacing="10.0" HBox.hgrow="ALWAYS">
+                    <ImageView fitHeight="100.0" fitWidth="100.0">
+                        <Image url="@/images/question-mark-line-icon.png"/>
+                    </ImageView>
+                    <TextFlow>
+                        <Text style="-fx-font-weight: bold;"
+                              text="48 Infektionskarten"/>
+                    </TextFlow>
+                </HBox>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</Tab>
