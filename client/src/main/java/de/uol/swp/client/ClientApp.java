@@ -1,10 +1,6 @@
 package de.uol.swp.client;
 
 
-import java.net.ConnectException;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
@@ -19,7 +15,10 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
+import java.net.ConnectException;
 import java.util.List;
 
 /**
