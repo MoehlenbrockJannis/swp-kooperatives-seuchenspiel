@@ -1,5 +1,6 @@
 package de.uol.swp.client.main;
 
+import javafx.scene.layout.GridPane;
 import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
 import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
 import javafx.scene.control.TextField;
@@ -26,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +64,9 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private ListView<String> usersView;
 
+    @FXML
+    private GridPane gameInstructionsGridPane;
+
     /**
      * Initializes the MainMenuPresenter
      *
@@ -77,6 +80,7 @@ public class MainMenuPresenter extends AbstractPresenter {
                 onSendChatRequest(null);
             }
         });
+        gameInstructionsGridPane.setVisible(false);
     }
 
     /**
@@ -238,6 +242,19 @@ public class MainMenuPresenter extends AbstractPresenter {
         chatMessageInput.clear();
 
         chatService.sendChatRequest(userName, chatMessage, timeStamp);
+    }
+    /**
+     * Handles the event when the game instructions button is pressed.
+     *
+     * This method makes the game instructions panel visible in the UI, allowing
+     * the user to view the game instructions.
+     *
+     * @param event The ActionEvent created by pressing the game instructions button
+     * @since 2024-08-27
+     */
+    @FXML
+    void onGameInstructionsButtonPressed(ActionEvent event) {
+        gameInstructionsGridPane.setVisible(true);
     }
 
     /**

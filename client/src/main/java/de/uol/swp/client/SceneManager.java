@@ -49,6 +49,8 @@ public class SceneManager {
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
     static final String ERROR_ICON_IMAGE_PATH = "/images/ErrorIcon.png";
 
+    static final String GAME_INSTRUCTIONS_STYLE_SHEET = "css/gameInstructions.css";
+
     private final Stage primaryStage;
     private final Image iconImage;
     private final Image errorIconImage;
@@ -136,6 +138,7 @@ public class SceneManager {
             Parent rootPane = initPresenter(MainMenuPresenter.FXML);
             mainScene = new Scene(rootPane, 1000, 500);
             mainScene.getStylesheets().add(STYLE_SHEET);
+            mainScene.getStylesheets().add(GAME_INSTRUCTIONS_STYLE_SHEET);
         }
     }
 
