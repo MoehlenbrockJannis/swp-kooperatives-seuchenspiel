@@ -4,7 +4,7 @@ import de.uol.swp.client.AbstractPresenter;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 
 /**
  * The GameInstructionsPresenter class manages the display and hiding of a popup
@@ -15,7 +15,7 @@ import javafx.scene.layout.AnchorPane;
 public class GameInstructionsPresenter extends AbstractPresenter {
 
     @FXML
-    private AnchorPane popupAnchorPane;
+    private GridPane popupGridPane;
 
     /**
      * Closes the popup by setting its visibility to false.
@@ -23,7 +23,7 @@ public class GameInstructionsPresenter extends AbstractPresenter {
      * @since 2024-08-27
      */
     public void closePopup() {
-        popupAnchorPane.setVisible(false);
+        popupGridPane.setVisible(false);
     }
 
     /**
@@ -32,7 +32,7 @@ public class GameInstructionsPresenter extends AbstractPresenter {
      * @since 2024-08-27
      */
     public void openPopup() {
-        popupAnchorPane.setVisible(true);
+        popupGridPane.setVisible(true);
     }
 
     /**

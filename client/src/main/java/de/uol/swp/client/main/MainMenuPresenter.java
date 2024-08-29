@@ -1,6 +1,6 @@
 package de.uol.swp.client.main;
 
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
@@ -48,7 +48,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     private ListView<String> usersView;
 
     @FXML
-    private AnchorPane gameInstructionsAnchorPane;
+    private GridPane gameInstructionsGridPane;
 
     /**
      * Initializes the main menu presenter.
@@ -61,7 +61,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     public void initialize() {
-        gameInstructionsAnchorPane.setVisible(false);
+        gameInstructionsGridPane.setVisible(false);
     }
 
     /**
@@ -209,7 +209,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      */
     @FXML
     void onGameInstructionsButtonPressed(ActionEvent event) {
-        gameInstructionsAnchorPane.setVisible(true);
+        gameInstructionsGridPane.setVisible(true);
     }
 
 }

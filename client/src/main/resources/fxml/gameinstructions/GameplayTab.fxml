@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
 <Tab closable="false" text="Spielablauf">
     <ScrollPane fitToWidth="true">
         <VBox spacing="10.0" styleClass="tab-vbox">
@@ -102,6 +103,9 @@
                 <Text text="&#10;"/>
                 <Text text="Nachdem Sie alle Infektionskarten abgearbeitet haben, legen Sie sie auf den Infektions-Ablagestapel. Der nächste Spieler im Uhrzeigersinn ist nun an der Reihe."/>
             </TextFlow>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
         </VBox>
     </ScrollPane>
 </Tab>
