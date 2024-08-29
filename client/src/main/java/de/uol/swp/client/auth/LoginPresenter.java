@@ -53,6 +53,7 @@ public class LoginPresenter extends AbstractPresenter {
         userService.login(loginField.getText(), passwordField.getText());
         loginField.clear();
         passwordField.clear();
+        loginField.requestFocus();
     }
 
     /**
