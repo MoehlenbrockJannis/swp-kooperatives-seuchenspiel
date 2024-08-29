@@ -31,11 +31,15 @@ public class LobbyManagement {
      * @throws IllegalArgumentException name already taken
      * @since 2019-10-08
      */
-    public void createLobby(String name, User owner) {
+    public Lobby createLobby(String name, User owner) {
         if (lobbies.containsKey(name)) {
             throw new IllegalArgumentException("Lobby name " + name + " already exists!");
         }
-        lobbies.put(name, new LobbyDTO(name, owner));
+        final Lobby lobby = new LobbyDTO(name, owner);
+
+        lobbies.put(name, lobby);
+
+        return lobby;
     }
 
     /**

@@ -1,5 +1,6 @@
 package de.uol.swp.server.lobby;
 
+import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -59,8 +60,11 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getOwner());
-        sendToAll(new LobbyCreatedMessage(createLobbyRequest.getName(), (UserDTO) createLobbyRequest.getOwner()));
+        final Lobby lobby = lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getOwner());
+
+        final LobbyCreatedResponse response = new LobbyCreatedResponse(lobby);
+        response.initWithMessage(createLobbyRequest);
+        post(response);
     }
 
     /**

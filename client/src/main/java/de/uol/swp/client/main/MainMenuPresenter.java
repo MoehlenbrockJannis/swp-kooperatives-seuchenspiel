@@ -1,5 +1,6 @@
 package de.uol.swp.client.main;
 
+import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
 import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -184,17 +185,18 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      * Method called when the create lobby button is pressed
      *
-     * If the create lobby button is pressed, this method requests the lobby service
-     * to create a new lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * <p>
+     * If the create lobby button is pressed, this method posts a new {@link ShowLobbyCreateViewEvent} to the eventBus.
+     * </p>
      *
      * @param event The ActionEvent created by pressing the create lobby button
-     * @see de.uol.swp.client.lobby.LobbyService
+     * @see de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent
      * @since 2019-11-20
      */
     @FXML
-    void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", new UserDTO("ich", "", ""));
+    void onCreateLobby(final ActionEvent event) {
+        final ShowLobbyCreateViewEvent showLobbyCreateViewEvent = new ShowLobbyCreateViewEvent();
+        eventBus.post(showLobbyCreateViewEvent);
     }
 
     /**
