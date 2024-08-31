@@ -2,11 +2,17 @@ package de.uol.swp.client.main;
 
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import org.greenrobot.eventbus.EventBus;
+import javafx.scene.layout.GridPane;
+import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
+import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
@@ -22,6 +28,7 @@ import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -38,6 +45,12 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
+    @FXML
+    private ListView<String> chatView;
+
+    @FXML
+    private TextField chatMessageInput;
+
     private ObservableList<String> users;
 
     private User loggedInUser;
@@ -45,8 +58,32 @@ public class MainMenuPresenter extends AbstractPresenter {
     @Inject
     private LobbyService lobbyService;
 
+    @Inject
+    private ChatService chatService;
+
+    private ObservableList<String> chatMessages;
+
     @FXML
     private ListView<String> usersView;
+
+    @FXML
+    private GridPane gameInstructionsGridPane;
+
+    /**
+     * Initializes the MainMenuPresenter
+     *
+     * This method initializes the MainMenuPresenter
+     *
+     */
+    @FXML
+    public void initialize() {
+        chatMessageInput.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                onSendChatRequest(null);
+            }
+        });
+        gameInstructionsGridPane.setVisible(false);
+    }
 
     /**
      * Handles successful login
@@ -63,6 +100,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     public void onLoginSuccessfulResponse(LoginSuccessfulResponse message) {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
+        chatService.retrieveChat();
     }
 
     /**
@@ -153,17 +191,18 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      * Method called when the create lobby button is pressed
      *
-     * If the create lobby button is pressed, this method requests the lobby service
-     * to create a new lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * <p>
+     * If the create lobby button is pressed, this method posts a new {@link ShowLobbyCreateViewEvent} to the eventBus.
+     * </p>
      *
      * @param event The ActionEvent created by pressing the create lobby button
-     * @see de.uol.swp.client.lobby.LobbyService
+     * @see de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent
      * @since 2019-11-20
      */
     @FXML
-    void onCreateLobby(ActionEvent event) {
-        lobbyService.createNewLobby("test", new UserDTO("ich", "", ""));
+    void onCreateLobby(final ActionEvent event) {
+        final ShowLobbyCreateViewEvent showLobbyCreateViewEvent = new ShowLobbyCreateViewEvent();
+        eventBus.post(showLobbyCreateViewEvent);
     }
 
     /**
@@ -200,5 +239,95 @@ public class MainMenuPresenter extends AbstractPresenter {
         this.eventBus.post(new ShowLoginViewEvent());
     }
 
+     /**
+     * Method called when the send chat message button is pressed
+     *
+     * If the send chat message button is pressed, this method sends the chat message
+     * written in the chat message input field to the chat service.
+     *
+     * @param event The ActionEvent created by pressing the send chat message button
+     * @since 2024-08-25
+     */
+    @FXML
+    void onSendChatRequest(ActionEvent event) {
+        String chatMessage = chatMessageInput.getText();
 
+        if (chatMessage == null || chatMessage.isEmpty()) {
+            return;
+        }
+
+        LocalTime timeStamp = getCurrentTimeStamp();
+        String userName = loggedInUser.getUsername();
+
+        chatMessageInput.clear();
+
+        chatService.sendChatRequest(userName, chatMessage, timeStamp);
+    }
+    
+    /**
+     * Handles the event when the game instructions button is pressed.
+     *
+     * This method makes the game instructions panel visible in the UI, allowing
+     * the user to view the game instructions.
+     *
+     * @param event The ActionEvent created by pressing the game instructions button
+     * @since 2024-08-27
+     */
+    @FXML
+    void onGameInstructionsButtonPressed(ActionEvent event) {
+        gameInstructionsGridPane.setVisible(true);
+    }
+
+    /**
+     * Returns the current time stamp
+     *
+     * This method returns the current time stamp as a LocalTime object
+     *
+     * @return The current time stamp as a LocalTime object
+     * @since 2024-08-26
+     */
+    private LocalTime getCurrentTimeStamp() {
+        return LocalTime.now().withNano(0);
+    }
+
+    /**
+     * Handles chat responses
+     *
+     * If a ChatRetrieveAllMessagesMessage object is posted to the EventBus the chat view is updated
+     * according to the chat messages in the message received.
+     *
+     * @param chatRetrieveAllMessagesMessage the ChatRetrieveAllMessagesMessage object seen on the EventBus
+     * @see ChatRetrieveAllMessagesMessage
+     * @since 2024-08-26
+     */
+    @Subscribe
+    public void onChatResponse(ChatRetrieveAllMessagesMessage chatRetrieveAllMessagesMessage) {
+        updateChat(chatRetrieveAllMessagesMessage.getChatMessages());
+    }
+
+    /**
+     * Updates the chat view according to the list given
+     *
+     * This method clears the entire chat view and then adds the message of each chat
+     * message in the list given to the chat view. If there is no chat view
+     * this it creates one.
+     *
+     * @implNote The code inside this Method has to run in the JavaFX-application
+     * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
+     * @param chatMessages A list of chat messages
+     * @since 2024-08-26
+     */
+    private void updateChat(List<String> chatMessages) {
+        // Attention: This must be done on the FX Thread!
+        Platform.runLater(() -> {
+            if (this.chatMessages == null) {
+                this.chatMessages = FXCollections.observableArrayList();
+                chatView.setItems(this.chatMessages);
+            }
+            this.chatMessages.clear();
+            this.chatMessages.addAll(chatMessages);
+            int lastIndex = this.chatMessages.size() - 1;
+            chatView.scrollTo(lastIndex);
+        });
+    }
 }
