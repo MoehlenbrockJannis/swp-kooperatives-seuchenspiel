@@ -1,6 +1,12 @@
 package de.uol.swp.client;
 
 
+import java.net.ConnectException;
+
+import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
@@ -151,6 +157,24 @@ public class ClientApp extends Application implements ConnectionListener {
 		LOG.debug("user logged in successfully {}", message.getUser().getUsername());
 		this.user = message.getUser();
 		sceneManager.showMainScreen(user);
+	}
+
+	/**
+	 * Handles successful logout
+	 *
+	 * If an UserLoggedOutMessage object is detected on the EventBus this
+	 * method is called. If the loglevel is set to DEBUG or higher "user
+     * logged out successfully " and the username of the logged out user
+     * are written to the log.
+	 *
+	 * @param message The UserLoggedOutMessage object detected on the EventBus
+	 * @see de.uol.swp.client.SceneManager
+	 * @since 2024-08-29
+	 */
+	@Subscribe
+	public void onLogoutSuccessfulResponse(UserLoggedOutMessage message) {
+		LOG.debug("user logged out successfully {}", message.getUsername());
+		this.user = null;
 	}
 
 	/**
