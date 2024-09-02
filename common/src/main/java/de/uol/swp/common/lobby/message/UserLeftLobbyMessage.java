@@ -1,6 +1,7 @@
 package de.uol.swp.common.lobby.message;
 
-import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.User;
+import lombok.NoArgsConstructor;
 
 /**
  * Message sent by the server when a user successfully leaves a lobby
@@ -10,17 +11,8 @@ import de.uol.swp.common.user.UserDTO;
  * @author Marco Grawunder
  * @since 2019-10-08
  */
+@NoArgsConstructor
 public class UserLeftLobbyMessage extends AbstractLobbyMessage {
-
-    /**
-     * Default constructor
-     *
-     * @implNote this constructor is needed for serialization
-     * @since 2019-10-08
-     */
-    public UserLeftLobbyMessage() {
-    }
-
     /**
      * Constructor
      *
@@ -28,7 +20,7 @@ public class UserLeftLobbyMessage extends AbstractLobbyMessage {
      * @param user user who left the lobby
      * @since 2019-10-08
      */
-    public UserLeftLobbyMessage(String lobbyName, UserDTO user) {
+    public UserLeftLobbyMessage(String lobbyName, User user) {
         super(lobbyName, user);
     }
 }

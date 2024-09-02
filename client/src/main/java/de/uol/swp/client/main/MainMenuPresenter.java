@@ -1,9 +1,10 @@
 package de.uol.swp.client.main;
 
+import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import org.greenrobot.eventbus.EventBus;
 import javafx.scene.layout.GridPane;
-import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -44,6 +45,8 @@ public class MainMenuPresenter extends AbstractPresenter {
     public static final String FXML = "/fxml/MainMenuView.fxml";
 
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
+
+    private static final ShowLobbyOverviewViewEvent showLobbyOverviewViewEvent = new ShowLobbyOverviewViewEvent();
 
     @FXML
     private ListView<String> chatView;
@@ -196,7 +199,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * </p>
      *
      * @param event The ActionEvent created by pressing the create lobby button
-     * @see de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent
+     * @see ShowLobbyCreateViewEvent
      * @since 2019-11-20
      */
     @FXML
@@ -208,17 +211,18 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      * Method called when the join lobby button is pressed
      *
-     * If the join lobby button is pressed, this method requests the lobby service
-     * to join a specified lobby. Therefore it currently uses the lobby name "test"
-     * and an user called "ich"
+     * <p>
+     * If the join lobby button is pressed, this method opens a window with all active lobbies.
+     * </p>
      *
      * @param event The ActionEvent created by pressing the join lobby button
      * @see de.uol.swp.client.lobby.LobbyService
-     * @since 2019-11-20
+     * @since 2024-08-23
      */
     @FXML
     void onJoinLobby(ActionEvent event) {
-        lobbyService.joinLobby("test", new UserDTO("ich", "", ""));
+        lobbyService.findLobbies();
+        eventBus.post(showLobbyOverviewViewEvent);
     }
 
     /**

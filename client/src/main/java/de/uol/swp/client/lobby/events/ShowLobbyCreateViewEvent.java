@@ -1,4 +1,4 @@
-package de.uol.swp.client.lobby.event;
+package de.uol.swp.client.lobby.events;
 
 /**
  * Event used to show the lobby create window

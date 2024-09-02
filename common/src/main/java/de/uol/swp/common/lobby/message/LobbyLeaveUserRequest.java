@@ -1,6 +1,7 @@
 package de.uol.swp.common.lobby.message;
 
 import de.uol.swp.common.user.UserDTO;
+import lombok.NoArgsConstructor;
 
 /**
  * Request sent to the server when a user wants to leave a lobby
@@ -10,16 +11,8 @@ import de.uol.swp.common.user.UserDTO;
  * @author Marco Grawunder
  * @since 2019-10-08
  */
+@NoArgsConstructor
 public class LobbyLeaveUserRequest extends AbstractLobbyRequest {
-
-    /**
-     * Default constructor
-     *
-     * @implNote this constructor is needed for serialization
-     * @since 2019-10-08
-     */
-    public LobbyLeaveUserRequest() {
-    }
 
     /**
      * Constructor

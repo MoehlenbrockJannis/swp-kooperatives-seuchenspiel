@@ -78,4 +78,14 @@ public class LobbyDTO implements Lobby {
         return Collections.unmodifiableSet(users);
     }
 
+    @Override
+    public boolean containsUser(final User user) {
+        for (final User userInLobby : users) {
+            if (userInLobby.equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

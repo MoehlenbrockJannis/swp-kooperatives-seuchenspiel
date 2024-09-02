@@ -3,6 +3,7 @@ package de.uol.swp.client;
 
 import java.net.ConnectException;
 
+import lombok.Getter;
 import de.uol.swp.common.user.message.UserLoggedOutMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -49,6 +50,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	private ClientUserService userService;
 
+	@Getter
 	private User user;
 
 	private ClientConnection clientConnection;
@@ -87,7 +89,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
         // Client app is created by java, so injection must
         // be handled here manually
-		Injector injector = Guice.createInjector(new ClientModule());
+		Injector injector = Guice.createInjector(new ClientModule(this));
 
         // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);

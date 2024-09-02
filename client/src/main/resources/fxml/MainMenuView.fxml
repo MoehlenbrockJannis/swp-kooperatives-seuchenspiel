@@ -93,7 +93,7 @@
                         <Cursor fx:constant="HAND"/>
                     </cursor>
                 </Button>
-                <Button alignment="CENTER" defaultButton="true" focusTraversable="false" maxWidth="-Infinity"
+                <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity"
                         mnemonicParsing="false" onAction="#onJoinLobby" prefHeight="50.0" prefWidth="250.0"
                         text="Lobby beitreten">
                     <font>

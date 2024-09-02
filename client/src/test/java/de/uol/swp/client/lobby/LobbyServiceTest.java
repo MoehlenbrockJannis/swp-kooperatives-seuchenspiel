@@ -5,6 +5,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;
@@ -35,7 +36,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
         assertTrue(event instanceof CreateLobbyRequest);
 
         final CreateLobbyRequest createLobbyRequest = (CreateLobbyRequest) event;
-        assertEquals(createLobbyRequest.getName(), lobbyName);
+        assertEquals(createLobbyRequest.getLobbyName(), lobbyName);
         assertEquals(createLobbyRequest.getOwner(), user);
     }
 
@@ -48,8 +49,17 @@ public class LobbyServiceTest extends EventBusBasedTest {
         assertTrue(event instanceof LobbyJoinUserRequest);
 
         final LobbyJoinUserRequest lobbyJoinUserRequest = (LobbyJoinUserRequest) event;
-        assertEquals(lobbyJoinUserRequest.getName(), lobbyName);
+        assertEquals(lobbyJoinUserRequest.getLobbyName(), lobbyName);
         assertEquals(lobbyJoinUserRequest.getUser(), user);
+    }
+
+    @Test
+    void findLobbies() throws InterruptedException {
+        lobbyService.findLobbies();
+
+        waitForLock();
+
+        assertTrue(event instanceof LobbyFindLobbiesRequest);
     }
 
     @Test
@@ -61,7 +71,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
         assertTrue(event instanceof LobbyLeaveUserRequest);
 
         final LobbyLeaveUserRequest lobbyLeaveUserRequest = (LobbyLeaveUserRequest) event;
-        assertEquals(lobbyLeaveUserRequest.getName(), lobbyName);
+        assertEquals(lobbyLeaveUserRequest.getLobbyName(), lobbyName);
         assertEquals(lobbyLeaveUserRequest.getUser(), user);
     }
 
@@ -73,6 +83,11 @@ public class LobbyServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final LobbyJoinUserRequest lobbyJoinUserRequest) {
         handleEvent(lobbyJoinUserRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final LobbyFindLobbiesRequest lobbyFindLobbiesRequest) {
+        handleEvent(lobbyFindLobbiesRequest);
     }
 
     @Subscribe

@@ -4,9 +4,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Manages creation, deletion and storing of lobbies
@@ -71,6 +69,16 @@ public class LobbyManagement {
             return Optional.of(lobby);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Returns a list of all lobbies
+     *
+     * @return List of all lobbies
+     * @since 2024-08-24
+     */
+    public List<Lobby> getAllLobbies() {
+        return new ArrayList<>(lobbies.values());
     }
 
 
