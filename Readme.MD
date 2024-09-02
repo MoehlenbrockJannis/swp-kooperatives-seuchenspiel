@@ -105,4 +105,49 @@ Alternativ dazu kann zur Verwendung des JDK und Maven aus Intellij ein anderes C
          - Run: "clean package"
          - Working directory: "C:\Path\to\SWP\client"
 
+## Setup - Docker
+
+Der Server kann in einem Docker-Container gestartet werden. Das dazu notwendige Image kann über Maven gebaut werden.
+
+### Voraussetzungen
+
+1. Docker muss lokal installiert sein. Eine Anleitung dazu findet sich [hier](https://docs.docker.com/get-docker/).
+
+### Erstellung
+
+#### Lokal
+
+Um das Docker-Image zu erstellen, muss folgender Befehl ausgeführt werden:
+```shell
+mvn clean package 
+```
+Soll ein Docker-Image für den Raspberry Pi erstellt werden, muss folgender Befehl ausgeführt werden:
+```shell
+mvn clean package -D image.tag.value=git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server -D platform.value=linux/arm64
+```
+
+#### Mit push in die GitLab-Registry
+
+Soll das Docker-Image erstellt werden und in die GitLab-Registry hochgeladen werden, muss folgender Befehl ausgeführt werden:
+```shell
+docker login git.swp-ibs.de:5050
+```
+Daraufhin wird nach Benutzername und Passwort von GitLab gefragt. Anschließend kann das Image erstellt und gepusht werden:
+```shell
+mvn clean install 
+```
+Auch hier kann ein Docker-Image für den Raspberry Pi erstellt und gepusht werden:
+```shell
+mvn clean install -D image.tag.value=git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server -D platform.value=linux/arm64
+```
+### Starten
+
+Um den Server in einem Docker-Container zu starten, muss folgender Befehl ausgeführt werden:
+```shell
+docker run -p 8899:8899 -d <tag>
+```
+- Tag PC / Server = git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/server:\<Versions-Nr>
+- Tag Pi = git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server:\<Versions-Nr>
+
+
 Weitere Hinweise finden sich im Wiki https://confluence.swl.informatik.uni-oldenburg.de/display/SWP/Vorlesungsvideos
