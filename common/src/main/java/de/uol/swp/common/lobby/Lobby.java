@@ -65,4 +65,13 @@ public interface Lobby extends Serializable {
      */
     Set<User> getUsers();
 
+    /**
+     * Checks whether a given user is in this lobby
+     *
+     * @param user The user to check
+     * @return true if user is in lobby, false otherwise
+     * @since 2024-08-29
+     */
+    boolean containsUser(User user);
+
 }

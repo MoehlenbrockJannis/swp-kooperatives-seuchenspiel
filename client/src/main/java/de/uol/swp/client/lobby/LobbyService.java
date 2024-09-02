@@ -1,5 +1,8 @@
 package de.uol.swp.client.lobby;
 
+import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.user.User;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
@@ -56,9 +59,20 @@ public class LobbyService {
      * @see de.uol.swp.common.lobby.message.LobbyJoinUserRequest
      * @since 2019-11-20
      */
-    public void joinLobby(String name, UserDTO user) {
-        LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
+    public void joinLobby(final String name, final User user) {
+        final LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
         eventBus.post(joinUserRequest);
+    }
+
+    /**
+     * Posts a request to find all lobbies to the EventBus
+     *
+     * @see de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest
+     * @since 2024-08-24
+     */
+    public void findLobbies() {
+        final LobbyFindLobbiesRequest lobbyFindLobbiesRequest = new LobbyFindLobbiesRequest();
+        eventBus.post(lobbyFindLobbiesRequest);
     }
 
     /**

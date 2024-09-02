@@ -1,4 +1,4 @@
-package de.uol.swp.client.lobby.event;
+package de.uol.swp.client.lobby.events;
 
 import de.uol.swp.common.lobby.Lobby;
 import lombok.Getter;

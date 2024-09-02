@@ -2,9 +2,10 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
@@ -30,12 +31,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private Stage stage;
     private Lobby lobby;
-    private User loggedInUser; // TODO: replace on other branch
+    @Inject
+    private LoggedInUserProvider loggedInUserProvider;
 
     public void initialize(final Stage stage, final Lobby lobby) {
         this.stage = stage;
         this.lobby = lobby;
         setTitle(lobby.getName());
+        stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
         stage.show();
     }
 
@@ -47,7 +50,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
-        lobbyService.leaveLobby(lobby.getName(), loggedInUser);
+        lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get());
         stage.close();
     }
 }

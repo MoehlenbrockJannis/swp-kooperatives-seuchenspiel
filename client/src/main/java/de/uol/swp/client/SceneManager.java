@@ -6,16 +6,19 @@ import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyCreatePresenter;
+import de.uol.swp.client.lobby.LobbyOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent;
-import de.uol.swp.client.lobby.event.ShowLobbyViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
-import de.uol.swp.client.main.event.ReturnToMainMenuEvent;
+import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -57,6 +60,7 @@ public class SceneManager {
     private Scene loginScene;
     private String lastTitle;
     private Scene registrationScene;
+    private Scene lobbyOverviewScene;
     private Scene mainScene;
     private Scene lobbyCreateScene;
     private Scene lastScene = null;
@@ -86,6 +90,7 @@ public class SceneManager {
         initLoginView();
         initMainView();
         initRegistrationView();
+        initLobbyOverviewView();
         initLobbyCreateView();
     }
 
@@ -196,19 +201,40 @@ public class SceneManager {
     }
 
     /**
-     * Handles ReturnToMainMenuEvent detected on the EventBus
+     * Initializes the lobbyOverview view
      *
      * <p>
-     * If a ReturnToMainMenuEvent is detected on the EventBus, this method gets
-     * called. It calls a method to switch the current screen to the main menu screen.
+     * If the lobbyOverviewScene is null, it gets set to a new scene containing
+     * a pane showing the lobbyOverview view as specified by the LobbyOverviewView
+     * FXML file.
      * </p>
      *
-     * @param event The ReturnToMainMenuEvent detected on the EventBus
-     * @see de.uol.swp.client.main.event.ReturnToMainMenuEvent
-     * @since 2024-08-28
+     * @see de.uol.swp.client.lobby.LobbyOverviewPresenter
+     * @since 2024-08-23
+     */
+    private void initLobbyOverviewView() throws IOException {
+        if (lobbyOverviewScene == null){
+            Parent rootPane = initPresenter(LobbyOverviewPresenter.FXML);
+            lobbyOverviewScene = new Scene(rootPane);
+            lobbyOverviewScene.getStylesheets().add(STYLE_SHEET);
+        }
+    }
+
+    /**
+     * Handles ShowMainMenuEvent detected on the EventBus
+     *
+     * <p>
+     * If a {@link ShowMainMenuEvent} is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the main menu
+     * screen.
+     * </p>
+     *
+     * @param event The ShowMainMenuEvent detected on the EventBus
+     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
+     * @since 2024-08-24
      */
     @Subscribe
-    public void onReturnToMainMenuEvent(final ReturnToMainMenuEvent event){
+    public void onShowMainMenuEvent(final ShowMainMenuEvent event){
         showMainScreen(event.getUser());
     }
 
@@ -250,7 +276,7 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the lobby create screen.
      *
      * @param event The ShowLobbyCreateViewEvent detected on the EventBus
-     * @see de.uol.swp.client.lobby.event.ShowLobbyCreateViewEvent
+     * @see ShowLobbyCreateViewEvent
      * @since 2024-08-28
      */
     @Subscribe
@@ -289,13 +315,47 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowLobbyOverviewViewEvent detected on the EventBus
+     *
+     * <p>
+     * If a ShowLobbyOverviewViewEvent is detected on the EventBus, this method gets called.
+     * It calls a method to switch the current screen to the lobbyOverview screen.
+     * </p>
+     *
+     * @param event The ShowLobbyOverviewViewEvent detected on the EventBus
+     * @see de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent
+     * @since 2024-08-23
+     */
+    @Subscribe
+    public void onShowLobbyOverviewEvent(final ShowLobbyOverviewViewEvent event) {
+        showLobbyOverviewScreen();
+    }
+
+    /**
+     * Handles LobbyJoinUserUserAlreadyInLobbyResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyJoinUserUserAlreadyInLobbyResponse} is detected on the EventBus, this method gets called.
+     * It calls a method to open an error screen.
+     * </p>
+     *
+     * @param event The LobbyJoinUserUserAlreadyInLobbyResponse detected on the EventBus
+     * @see de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse
+     * @since 2024-08-29
+     */
+    @Subscribe
+    public void onLobbyJoinUserUserAlreadyInLobbyResponse(final LobbyJoinUserUserAlreadyInLobbyResponse event) {
+        showError("", "Du kannst der Lobby \""+event.getLobby().getName()+"\" nicht beitreten, da du bereits in ihr bist.");
+    }
+
+    /**
      * Handles ShowLobbyViewEvent detected on the EventBus
      *
      * If a {@link ShowLobbyViewEvent} is detected on the EventBus, this method gets
      * called. It opens a new lobby window for the created lobby.
      *
      * @param event The ShowLobbyViewEvent detected on the EventBus
-     * @see de.uol.swp.client.lobby.event.ShowLobbyViewEvent
+     * @see ShowLobbyViewEvent
      * @since 2024-08-28
      */
     @Subscribe
@@ -412,6 +472,19 @@ public class SceneManager {
      */
     public void showLobbyCreateScreen() {
         showScene(lobbyCreateScene,"Lobby erstellen");
+    }
+
+    /**
+     * Shows the lobbyOverview screen
+     *
+     * <p>
+     * Switches the current Scene to the lobbyOverviewScene and sets the title of the window
+     * </p>
+     *
+     * @since 2024-08-23
+     */
+    public void showLobbyOverviewScreen() {
+        showScene(lobbyOverviewScene, "Lobby-Übersicht");
     }
 
     /**

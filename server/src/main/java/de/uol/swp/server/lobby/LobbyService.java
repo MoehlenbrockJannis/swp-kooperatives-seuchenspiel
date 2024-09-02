@@ -1,6 +1,8 @@
 package de.uol.swp.server.lobby;
 
 import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -8,11 +10,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
+import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
 
@@ -60,7 +65,7 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
-        final Lobby lobby = lobbyManagement.createLobby(createLobbyRequest.getName(), createLobbyRequest.getOwner());
+        final Lobby lobby = lobbyManagement.createLobby(createLobbyRequest.getLobbyName(), createLobbyRequest.getOwner());
 
         final LobbyCreatedResponse response = new LobbyCreatedResponse(lobby);
         response.initWithMessage(createLobbyRequest);
@@ -81,13 +86,38 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
-        Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyJoinUserRequest.getName());
+        Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinUserRequest.getLobbyName());
 
-        if (lobby.isPresent()) {
-            lobby.get().joinUser(lobbyJoinUserRequest.getUser());
-            sendToAllInLobby(lobbyJoinUserRequest.getName(), new UserJoinedLobbyMessage(lobbyJoinUserRequest.getName(), lobbyJoinUserRequest.getUser()));
+        if (lobbyOptional.isEmpty()) {
+            // TODO: error handling not existing lobby
+            return;
         }
-        // TODO: error handling not existing lobby
+
+        final Lobby lobby = lobbyOptional.get();
+
+        final User user = lobbyJoinUserRequest.getUser();
+
+        if (user == null) {
+            // TODO: error handling not existing user
+            return;
+        }
+
+        System.out.println(lobby.containsUser(user));
+        if (lobby.containsUser(user)) {
+            final LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(lobby, user);
+            response.initWithMessage(lobbyJoinUserRequest);
+            post(response);
+            return;
+        }
+
+        lobby.joinUser(user);
+
+        final LobbyJoinUserResponse response = new LobbyJoinUserResponse(lobby, user);
+        response.initWithMessage(lobbyJoinUserRequest);
+        post(response);
+
+        final UserJoinedLobbyMessage userJoinedLobbyMessage = new UserJoinedLobbyMessage(lobby.getName(), user);
+        sendToAllInLobby(lobby.getName(), userJoinedLobbyMessage);
     }
 
     /**
@@ -104,11 +134,18 @@ public class LobbyService extends AbstractService {
      */
     @Subscribe
     public void onLobbyLeaveUserRequest(LobbyLeaveUserRequest lobbyLeaveUserRequest) {
-        Optional<Lobby> lobby = lobbyManagement.getLobby(lobbyLeaveUserRequest.getName());
+        Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyLeaveUserRequest.getLobbyName());
 
-        if (lobby.isPresent()) {
-            lobby.get().leaveUser(lobbyLeaveUserRequest.getUser());
-            sendToAllInLobby(lobbyLeaveUserRequest.getName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getName(), lobbyLeaveUserRequest.getUser()));
+        if (lobbyOptional.isPresent()) {
+            final Lobby lobby = lobbyOptional.get();
+
+            if (lobby.getUsers().size() == 1) {
+                lobbyManagement.dropLobby(lobby.getName());
+            } else {
+                lobby.leaveUser(lobbyLeaveUserRequest.getUser());
+            }
+
+            sendToAllInLobby(lobbyLeaveUserRequest.getLobbyName(), new UserLeftLobbyMessage(lobbyLeaveUserRequest.getLobbyName(), lobbyLeaveUserRequest.getUser()));
         }
         // TODO: error handling not existing lobby
     }
@@ -131,6 +168,27 @@ public class LobbyService extends AbstractService {
         }
 
         // TODO: error handling not existing lobby
+    }
+
+    /**
+     * Handles LobbyFindLobbiesRequests found on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyFindLobbiesRequest} is detected on the EventBus, this method is called.
+     * It creates a {@link LobbyFindLobbiesResponse} containing all lobbies and posts it to the EventBus.
+     * </p>
+     *
+     * @param lobbyFindLobbiesRequest The LobbyFindLobbiesRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.Lobby
+     * @see de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest
+     * @see de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse
+     * @since 2024-08-24
+     */
+    @Subscribe
+    public void onLobbyFindLobbiesRequest(final LobbyFindLobbiesRequest lobbyFindLobbiesRequest) {
+        final LobbyFindLobbiesResponse lobbyFindLobbiesResponse = new LobbyFindLobbiesResponse(lobbyManagement.getAllLobbies());
+        lobbyFindLobbiesResponse.initWithMessage(lobbyFindLobbiesRequest);
+        post(lobbyFindLobbiesResponse);
     }
 
 }

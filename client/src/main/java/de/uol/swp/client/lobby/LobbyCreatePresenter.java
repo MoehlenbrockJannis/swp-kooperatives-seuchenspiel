@@ -2,8 +2,9 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.lobby.event.ShowLobbyViewEvent;
-import de.uol.swp.client.main.event.ReturnToMainMenuEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
+import de.uol.swp.client.main.events.ShowMainMenuEvent;
+import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -30,7 +31,8 @@ public class LobbyCreatePresenter extends AbstractPresenter {
 
     @Inject
     private LobbyService lobbyService;
-    private User loggedInUser; // TODO: replace on other branch
+    @Inject
+    private LoggedInUserProvider loggedInUserProvider;
 
     @FXML
     private void onCreateButtonClicked(final ActionEvent event) {
@@ -41,6 +43,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
             return;
         }
 
+        final User loggedInUser = loggedInUserProvider.get();
         if (loggedInUser == null) {
             // TODO: throw exception and show error message
             return;
@@ -55,8 +58,8 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     }
 
     private void backToMainMenu() {
-        final ReturnToMainMenuEvent returnToMainMenuEvent = new ReturnToMainMenuEvent(loggedInUser);
-        eventBus.post(returnToMainMenuEvent);
+        final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
+        eventBus.post(showMainMenuEvent);
     }
 
     /**

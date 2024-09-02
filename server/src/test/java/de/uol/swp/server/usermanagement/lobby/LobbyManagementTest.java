@@ -1,5 +1,7 @@
 package de.uol.swp.server.usermanagement.lobby;
 
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
@@ -9,6 +11,8 @@ import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.Test;
 
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +59,24 @@ public class LobbyManagementTest {
         if(lobbyManagement.getLobby("Test").isPresent()){
             assertNotNull(lobbyManagement.getLobby("Test"));
             assertEquals(lobbyManagement.getLobby("Test").get().getOwner(), firstOwner);
+        }
+    }
+
+    @Test
+    void getAllLobbiesTest() {
+        final List<Lobby> lobbies = List.of(
+                new LobbyDTO("1", new UserDTO("Test", "", "")),
+                new LobbyDTO("2", new UserDTO("Tom", "", ""))
+        );
+
+        lobbies.forEach(lobby -> lobbyManagement.createLobby(lobby.getName(), lobby.getOwner()));
+
+        final List<Lobby> lobbiesInLobbyManagement = lobbyManagement.getAllLobbies();
+
+        assertEquals(lobbies.size(), lobbiesInLobbyManagement.size());
+        for (int i = 0; i < lobbiesInLobbyManagement.size(); i++) {
+            assertEquals(lobbies.get(i).getName(), lobbiesInLobbyManagement.get(i).getName());
+            assertEquals(lobbies.get(i).getOwner(), lobbiesInLobbyManagement.get(i).getOwner());
         }
     }
 
