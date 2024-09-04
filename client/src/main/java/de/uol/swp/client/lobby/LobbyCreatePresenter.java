@@ -10,6 +10,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,6 +29,9 @@ public class LobbyCreatePresenter extends AbstractPresenter {
 
     @FXML
     private TextField lobbyNameField;
+
+    @FXML
+    private PasswordField lobbyPasswordField;
 
     @Inject
     private LobbyService lobbyService;
@@ -49,11 +53,24 @@ public class LobbyCreatePresenter extends AbstractPresenter {
             return;
         }
 
+        clearInputFields();
         lobbyService.createNewLobby(lobbyName, (UserDTO) loggedInUser);
+    }
+
+    /**
+     * Clears the input fields
+     *
+     * Clears the input fields of the lobby name and password fields.
+     *
+     */
+    private void clearInputFields() {
+        lobbyNameField.clear();
+        lobbyPasswordField.clear();
     }
 
     @FXML
     private void onCancelButtonClicked(final ActionEvent event) {
+        clearInputFields();
         backToMainMenu();
     }
 
