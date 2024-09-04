@@ -35,7 +35,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     private LoggedInUserProvider loggedInUserProvider;
 
     @FXML
-    private void onCreateButtonClicked(final ActionEvent event) {
+    private void onCreateLobbyButtonClicked(final ActionEvent event) {
         final String lobbyName = lobbyNameField.getText();
 
         if (lobbyName.isEmpty()) {

@@ -1,14 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="de.uol.swp.client.lobby.LobbyPresenter"
-            prefHeight="300.0" prefWidth="400.0">
-    <VBox spacing="10" alignment="CENTER">
-        <Label fx:id="lobbyNameLabel"/>
-        <Button text="Leave Lobby" onAction="#onLeaveLobbyButtonClicked"/>
-    </VBox>
-</AnchorPane>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.Cursor?>
+<BorderPane prefHeight="500.0" prefWidth="1000.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+    <top>
+        <Label fx:id="lobbyNameLabel" alignment="CENTER" text="Lobby:" BorderPane.alignment="CENTER">
+            <font>
+                <Font size="24.0"/>
+            </font>
+            <BorderPane.margin>
+                <Insets bottom="20.0" top="20.0" />
+            </BorderPane.margin>
+        </Label>
+    </top>
+    <center>
+        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox spacing="10.0">
+                    <children>
+                        <TextField fx:id="lobbyNameField" promptText="Lobby Name" HBox.hgrow="ALWAYS" styleClass="persistent-prompt" />
+                        <ComboBox fx:id="mapComboBox" promptText="Map" prefWidth="200.0" />
+                        <ComboBox fx:id="playerCountComboBox" promptText="Spieleranzahl" prefWidth="200.0" />
+                    </children>
+                </HBox>
+                <HBox spacing="10.0">
+                    <children>
+                        <PasswordField fx:id="lobbyPasswordField" promptText="Lobby Passwort" HBox.hgrow="ALWAYS" styleClass="persistent-prompt" />
+                        <ComboBox fx:id="difficultyComboBox" promptText="Schwierigkeit" prefWidth="200.0" />
+                        <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0" />
+                    </children>
+                </HBox>
+            </children>
+            <BorderPane.margin>
+                <Insets left="20.0" right="20.0" />
+            </BorderPane.margin>
+        </VBox>
+    </center>
+    <right>
+        <VBox prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Spielerliste">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+                <ListView fx:id="playerListView" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER" />
+                <Label text="Chat">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+                <TextArea fx:id="chatTextArea" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                <HBox spacing="10.0">
+                    <children>
+                        <TextField fx:id="chatInputField" promptText="Nachricht eingeben" HBox.hgrow="ALWAYS" styleClass="persistent-prompt" />
+                        <Button fx:id="sendMessageButton" alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
+                                prefHeight="36.0" prefWidth="36.0" >
+                            <graphic>
+                                <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <Image url="@../images/send-chat-message-icon.png"/>
+                                </ImageView>
+                            </graphic>
+                            <cursor>
+                                <Cursor fx:constant="HAND"/>
+                            </cursor>
+                        </Button>
+                    </children>
+                </HBox>
+            </children>
+            <BorderPane.margin>
+                <Insets left="20.0" right="20.0" />
+            </BorderPane.margin>
+        </VBox>
+    </right>
+    <bottom>
+        <HBox spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
+            <children>
+                <Button fx:id="startGameButton" mnemonicParsing="false" text="Spiel starten" />
+                <Button fx:id="leaveLobbyButton" mnemonicParsing="false" text="Verlassen" onAction="#onLeaveLobbyButtonClicked"/>
+            </children>
+            <BorderPane.margin>
+                <Insets bottom="20.0" left="20.0" top="20.0" />
+            </BorderPane.margin>
+        </HBox>
+    </bottom>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</BorderPane>
