@@ -310,7 +310,7 @@ public class Game {
      * @return the PlagueCube object representing a cube of the specified plague
      */
     public PlagueCube getPlagueCubeOfPlague (Plague plague) {
-        return new PlagueCube();
+        return new PlagueCube(plague);
     }
 
     /**
