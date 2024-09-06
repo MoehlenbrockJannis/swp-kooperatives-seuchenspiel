@@ -1,17 +1,14 @@
 package de.uol.swp.server.lobby;
 
-import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
 import de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
@@ -102,7 +99,6 @@ public class LobbyService extends AbstractService {
             return;
         }
 
-        System.out.println(lobby.containsUser(user));
         if (lobby.containsUser(user)) {
             final LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(lobby, user);
             response.initWithMessage(lobbyJoinUserRequest);
@@ -116,7 +112,7 @@ public class LobbyService extends AbstractService {
         response.initWithMessage(lobbyJoinUserRequest);
         post(response);
 
-        final UserJoinedLobbyMessage userJoinedLobbyMessage = new UserJoinedLobbyMessage(lobby.getName(), user);
+        final UserJoinedLobbyMessage userJoinedLobbyMessage = new UserJoinedLobbyMessage(lobby.getName(), user.getWithoutPassword());
         sendToAllInLobby(lobby.getName(), userJoinedLobbyMessage);
     }
 

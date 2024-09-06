@@ -4,12 +4,15 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.message.AbstractLobbyMessage;
+import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
+import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import lombok.NoArgsConstructor;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * Manages the lobby window
@@ -52,5 +55,23 @@ public class LobbyPresenter extends AbstractPresenter {
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
         lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get());
         stage.close();
+    }
+
+    private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyMessage lobbyMessage, final Runnable executable) {
+        if (lobby.getName().equals(lobbyMessage.getLobbyName())) {
+            executable.run();
+        }
+    }
+
+    @Subscribe
+    public void onUserJoinedLobbyMessage(final UserJoinedLobbyMessage userJoinedLobbyMessage) {
+        final Runnable executable = () -> lobby.joinUser(userJoinedLobbyMessage.getUser());
+        executeOnlyIfMessageIsForThisLobby(userJoinedLobbyMessage, executable);
+    }
+
+    @Subscribe
+    public void onUserLeftLobbyMessage(final UserLeftLobbyMessage userLeftLobbyMessage) {
+        final Runnable executable = () -> lobby.leaveUser(userLeftLobbyMessage.getUser());
+        executeOnlyIfMessageIsForThisLobby(userLeftLobbyMessage, executable);
     }
 }
