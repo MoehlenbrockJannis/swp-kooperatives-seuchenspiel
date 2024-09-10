@@ -299,7 +299,8 @@ public class Game {
      * @return the PlayerTurn object representing the current turn
      */
     private PlayerTurn startNewTurn () {
-        return new PlayerTurn();
+        // TODO: 05.09.2024
+        return null;
     }
 
     /**
@@ -365,6 +366,7 @@ public class Game {
      * @return the PlayerTurn object representing the current turn
      */
     public PlayerTurn getCurrentTurn () {
-        return new PlayerTurn();
+        // TODO: 05.09.2024  
+        return null;
     }
 }

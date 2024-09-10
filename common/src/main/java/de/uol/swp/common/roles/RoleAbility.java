@@ -2,7 +2,7 @@ package de.uol.swp.common.roles;
 
 import de.uol.swp.common.action.GeneralAction;
 import de.uol.swp.common.action.RoleAction;
-import de.uol.swp.common.action.Triggerable;
+import de.uol.swp.common.triggerable.Triggerable;
 import lombok.*;
 
 import java.util.List;
