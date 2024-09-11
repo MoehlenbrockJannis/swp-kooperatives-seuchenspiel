@@ -181,7 +181,6 @@ public class ServerHandler implements ServerHandlerDelegate {
     public void onUserLoggedOutMessage(UserLoggedOutMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         ctx.ifPresent(this::removeSession);
-        sendMessage(msg);
     }
 
     // -------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ package de.uol.swp.client.main;
 
 import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
-import org.greenrobot.eventbus.EventBus;
+import de.uol.swp.common.user.message.UsersListMessage;
 import javafx.scene.layout.GridPane;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
@@ -15,10 +15,7 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.chat.ChatService;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.message.UserLoggedInMessage;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -66,8 +63,11 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     private ObservableList<String> chatMessages;
 
+    private final HighlightLoggedInUserCellFactory highlightLoggedInUserCellFactory = new HighlightLoggedInUserCellFactory();
+
     @FXML
     private ListView<String> usersView;
+
 
     @FXML
     private GridPane gameInstructionsGridPane;
@@ -104,6 +104,8 @@ public class MainMenuPresenter extends AbstractPresenter {
         this.loggedInUser = message.getUser();
         userService.retrieveAllUsers();
         chatService.retrieveChat();
+        highlightLoggedInUserCellFactory.setLoggedInUserProvider(loggedInUser);
+        usersView.setCellFactory(highlightLoggedInUserCellFactory);
     }
 
     /**
@@ -129,24 +131,6 @@ public class MainMenuPresenter extends AbstractPresenter {
     }
 
     /**
-     * Handles new logged out users
-     *
-     * If a new UserLoggedOutMessage object is posted to the EventBus the name of the newly
-     * logged out user is removed from the user list in the main menu.
-     * Furthermore if the LOG-Level is set to DEBUG the message "User {@literal
-     * <Username>} logged out." is displayed in the log.
-     *
-     * @param message the UserLoggedOutMessage object seen on the EventBus
-     * @see de.uol.swp.common.user.message.UserLoggedOutMessage
-     * @since 2019-08-29
-     */
-    @Subscribe
-    public void onUserLoggedOutMessage(UserLoggedOutMessage message) {
-        LOG.debug("User {}  logged out.",  message.getUsername() );
-        Platform.runLater(() -> users.remove(message.getUsername()));
-    }
-
-    /**
      * Handles new list of users
      *
      * If a new AllOnlineUsersResponse object is posted to the EventBus the names
@@ -160,7 +144,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @since 2019-08-29
      */
     @Subscribe
-    public void onAllOnlineUsersResponse(AllOnlineUsersResponse allUsersResponse) {
+    public void onAllOnlineUsersResponse(UsersListMessage allUsersResponse) {
         LOG.debug("Update of user list {}", allUsersResponse.getUsers());
         updateUsersList(allUsersResponse.getUsers());
     }
@@ -179,7 +163,7 @@ public class MainMenuPresenter extends AbstractPresenter {
      * @see de.uol.swp.common.user.UserDTO
      * @since 2019-08-29
      */
-    private void updateUsersList(List<UserDTO> userList) {
+    private void updateUsersList(List<String> userList) {
         // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (users == null) {
@@ -187,7 +171,7 @@ public class MainMenuPresenter extends AbstractPresenter {
                 usersView.setItems(users);
             }
             users.clear();
-            userList.forEach(u -> users.add(u.getUsername()));
+            userList.forEach(u -> users.add(u));
         });
     }
 
@@ -240,6 +224,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     private void onLogoutButtonPressed(ActionEvent event) {
         userService.logout(loggedInUser);
+        loggedInUser = null;
         this.eventBus.post(new ShowLoginViewEvent());
     }
 

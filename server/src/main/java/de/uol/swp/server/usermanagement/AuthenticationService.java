@@ -1,5 +1,7 @@
 package de.uol.swp.server.usermanagement;
 
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.user.message.UsersListMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -157,8 +159,11 @@ public class AuthenticationService extends AbstractService {
                 userManagement.logout(userToLogOut);
                 userSessions.remove(userSession);
 
-                ServerMessage returnMessage = new UserLoggedOutMessage(userToLogOut.getUsername());
+                Message returnMessage = new UserLoggedOutMessage(userToLogOut.getUsername());
+                returnMessage.initWithMessage(msg);
                 post(returnMessage);
+
+                sendAllOnlineUsersToAllClients();
 
             }
         }
@@ -178,9 +183,21 @@ public class AuthenticationService extends AbstractService {
      */
     @Subscribe
     public void onRetrieveAllOnlineUsersRequest(RetrieveAllOnlineUsersRequest msg) {
-        AllOnlineUsersResponse response = new AllOnlineUsersResponse(userSessions.values());
-        response.initWithMessage(msg);
-        post(response);
+        sendAllOnlineUsersToAllClients();
+    }
+
+    /**
+     * Sends a message to all clients
+     *
+     * @since 2019-08-30
+     */
+    private void sendAllOnlineUsersToAllClients() {
+        List<String> usernames = userSessions.values().stream()
+                .map(User::getUsername)
+                .distinct()
+                .toList();
+        UsersListMessage response = new UsersListMessage(usernames);
+        sendToAll(response);
     }
 
 
