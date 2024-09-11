@@ -28,7 +28,7 @@ public class LobbyService {
     /**
      * Constructor
      *
-     * @param eventBus The EventBus set in ClientModule
+     * @param eventBus    The EventBus set in ClientModule
      * @see de.uol.swp.client.di.ClientModule
      * @since 2019-11-20
      */

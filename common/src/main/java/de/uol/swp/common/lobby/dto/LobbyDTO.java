@@ -3,8 +3,10 @@ package de.uol.swp.common.lobby.dto;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.user.User;
+import lombok.ToString;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,6 +20,8 @@ import java.util.TreeSet;
  * @author Marco Grawunder
  * @since 2019-10-08
  */
+
+@ToString
 public class LobbyDTO implements Lobby {
 
     private final String name;
@@ -38,6 +42,19 @@ public class LobbyDTO implements Lobby {
         this.owner = creator;
         this.users.add(creator);
         this.status = LobbyStatus.OPEN;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Lobby lobby) {
+            return name.equals(lobby.getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 
     @Override

@@ -31,7 +31,6 @@ import java.util.Optional;
  * @since 2019-10-08
  */
 
-
 @Singleton
 public class LobbyService extends AbstractService {
 

@@ -23,6 +23,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
     private String lobbyName;
     private User user;
 
+
     @BeforeEach
     void setUp() {
         this.lobbyService = new LobbyService(getBus());
