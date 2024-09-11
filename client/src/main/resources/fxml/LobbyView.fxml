@@ -51,41 +51,8 @@
         </VBox>
     </center>
     <right>
-        <VBox prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
-            <children>
-                <Label text="Spielerliste">
-                    <font>
-                        <Font name="System Bold" size="14.0" />
-                    </font>
-                </Label>
-                <ListView fx:id="playerListView" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER" />
-                <Label text="Chat">
-                    <font>
-                        <Font name="System Bold" size="14.0" />
-                    </font>
-                </Label>
-                <TextArea fx:id="chatTextArea" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-                <HBox spacing="10.0">
-                    <children>
-                        <TextField fx:id="chatInputField" promptText="Nachricht eingeben" HBox.hgrow="ALWAYS" styleClass="persistent-prompt" />
-                        <Button fx:id="sendMessageButton" alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
-                                prefHeight="36.0" prefWidth="36.0" >
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                    <Image url="@../images/send-chat-message-icon.png"/>
-                                </ImageView>
-                            </graphic>
-                            <cursor>
-                                <Cursor fx:constant="HAND"/>
-                            </cursor>
-                        </Button>
-                    </children>
-                </HBox>
-            </children>
-            <BorderPane.margin>
-                <Insets left="20.0" right="20.0" />
-            </BorderPane.margin>
-        </VBox>
+        <!--TODO: Spielerliste einfügen-->
+        <fx:include source="component/ChatComponent.fxml" fx:id="chat"/>
     </right>
     <bottom>
         <HBox spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">

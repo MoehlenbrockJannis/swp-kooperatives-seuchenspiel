@@ -3,6 +3,9 @@ package de.uol.swp.client.chat;
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.chat.request.RetrieveChatRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
+import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;
@@ -19,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class ChatServiceTest extends EventBusBasedTest {
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
+    final Lobby defaultLobby = new LobbyDTO("TestLobby", defaultUser);
 
     /**
      * Sends a chat request
@@ -30,9 +34,20 @@ public class ChatServiceTest extends EventBusBasedTest {
         waitForLock();
     }
 
+    public void sendLobbyChatRequest() throws InterruptedException {
+        ChatService chatService = new ChatService(getBus());
+        chatService.sendLobbyChatRequest(defaultUser, "Hello World!", LocalTime.now(), "TestLobby");
+        waitForLock();
+    }
+
     // handlers for events
     @Subscribe
     public void onEvent(SendChatMessageRequest e) {
+        handleEvent(e);
+    }
+
+    @Subscribe
+    public void onEvent(SendLobbyChatMessageRequest e) {
         handleEvent(e);
     }
 
@@ -54,6 +69,12 @@ public class ChatServiceTest extends EventBusBasedTest {
         assertInstanceOf(SendChatMessageRequest.class, event);
     }
 
+    @Test
+    public void testSendLobbyChatRequest() throws InterruptedException {
+        sendLobbyChatRequest();
+        assertInstanceOf(SendLobbyChatMessageRequest.class, event);
+    }
+
     /**
      * Test for the retrieveChat method
      * <p>
@@ -65,6 +86,16 @@ public class ChatServiceTest extends EventBusBasedTest {
     public void testRetrieveChat() throws InterruptedException {
         ChatService chatService = new ChatService(getBus());
         chatService.retrieveChat();
+
+        waitForLock();
+
+        assertInstanceOf(RetrieveChatRequest.class, event);
+    }
+
+    @Test
+    public void testRetrieveLobbyChat() throws InterruptedException {
+        ChatService chatService = new ChatService(getBus());
+        chatService.retrieveChat(this.defaultLobby);
 
         waitForLock();
 
