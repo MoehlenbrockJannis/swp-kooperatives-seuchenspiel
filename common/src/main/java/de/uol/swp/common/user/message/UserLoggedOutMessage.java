@@ -1,5 +1,6 @@
 package de.uol.swp.common.user.message;
 
+import de.uol.swp.common.message.AbstractResponseMessage;
 import de.uol.swp.common.message.AbstractServerMessage;
 
 import java.util.Objects;
@@ -13,7 +14,7 @@ import java.util.Objects;
  * @author Marco Grawunder
  * @since 2017-03-17
  */
-public class UserLoggedOutMessage extends AbstractServerMessage {
+public class UserLoggedOutMessage extends AbstractResponseMessage {
 
 	private static final long serialVersionUID = -2071886836547126480L;
 	private String username;
