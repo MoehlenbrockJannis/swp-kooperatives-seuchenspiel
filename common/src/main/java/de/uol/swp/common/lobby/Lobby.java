@@ -74,4 +74,17 @@ public interface Lobby extends Serializable {
      */
     boolean containsUser(User user);
 
+    /**
+     * Getter for the current status of the lobby
+     *
+     * @return The current status of the lobby
+     */
+    LobbyStatus getStatus();
+
+    /**
+     * Sets the status of the lobby
+     *
+     * @param status The new status of the lobby
+     */
+    void setStatus(LobbyStatus status);
 }

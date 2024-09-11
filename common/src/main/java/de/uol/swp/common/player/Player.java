@@ -6,6 +6,7 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.roles.RoleCard;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * It holds common player properties and actions that can be performed by any player.
  * This class is intended to be extended by specific types of players.
  */
-public abstract class Player {
+public abstract class Player implements Serializable {
 
     @Getter
     @Setter

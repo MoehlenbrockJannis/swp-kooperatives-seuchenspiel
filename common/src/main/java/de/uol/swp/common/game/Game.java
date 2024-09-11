@@ -15,6 +15,7 @@ import de.uol.swp.common.marker.InfectionMarker;
 import de.uol.swp.common.marker.OutbreakMarker;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.Map;
  * and various game markers. It provides methods to initialize the game,
  * handle turns, and determine the game's outcome.
  */
-public class Game {
+public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
@@ -40,6 +41,7 @@ public class Game {
             2, 4
     );
 
+    @Getter
     private Lobby lobby;
     @Getter
     private int maxHandCards;

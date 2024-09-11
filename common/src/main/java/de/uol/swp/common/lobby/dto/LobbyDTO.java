@@ -1,6 +1,7 @@
 package de.uol.swp.common.lobby.dto;
 
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.user.User;
 
 import java.util.Collections;
@@ -22,6 +23,7 @@ public class LobbyDTO implements Lobby {
     private final String name;
     private User owner;
     private final Set<User> users = new TreeSet<>();
+    private LobbyStatus status;
 
     /**
      * Constructor
@@ -35,6 +37,7 @@ public class LobbyDTO implements Lobby {
         this.name = name;
         this.owner = creator;
         this.users.add(creator);
+        this.status = LobbyStatus.OPEN;
     }
 
     @Override
@@ -86,6 +89,27 @@ public class LobbyDTO implements Lobby {
             }
         }
         return false;
+    }
+
+    @Override
+    public LobbyStatus getStatus() {
+        determineLobbyStatus();
+        return status;
+    }
+
+    private void determineLobbyStatus() {
+        if (users.size() < 4 && !status.equals(LobbyStatus.RUNNING)) {
+            status = LobbyStatus.OPEN;
+        } else if (users.size() == 4 && !status.equals(LobbyStatus.RUNNING)) {
+            status = LobbyStatus.FULL;
+        } else {
+            status = LobbyStatus.RUNNING;
+        }
+    }
+
+    @Override
+    public void setStatus(LobbyStatus status) {
+        this.status = status;
     }
 
 }

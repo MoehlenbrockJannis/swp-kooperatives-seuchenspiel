@@ -90,7 +90,7 @@
     <bottom>
         <HBox spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
             <children>
-                <Button fx:id="startGameButton" mnemonicParsing="false" text="Spiel starten" />
+                <Button fx:id="startGameButton" mnemonicParsing="false" text="Spiel starten" onAction="#onStartGameButtonClicked" />
                 <Button fx:id="leaveLobbyButton" mnemonicParsing="false" text="Verlassen" onAction="#onLeaveLobbyButtonClicked"/>
             </children>
             <BorderPane.margin>

@@ -7,6 +7,8 @@ import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.lobby.message.UpdatedLobbyListMessage;
 import de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
 import de.uol.swp.common.user.User;
@@ -51,12 +53,14 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     private TableColumn<Lobby, String> ownerColumn;
     @FXML
     private TableColumn<Lobby, String> membersColumn;
+    @FXML
+    private TableColumn<Lobby, String> lobbyStatusColumn;
 
     /**
      * Called on initialization of LobbyOverviewView FXML file
      *
      * <p>
-     *     Method sets the column widths to 0.5 for the {@link #nameColumn}, 0.3 for the {@link #ownerColumn} and 0.2 for the {@link #membersColumn}.
+     *     Method sets the column widths to 0.5 for the {@link #nameColumn}, 0.3 for the {@link #ownerColumn}, 0.2 for the {@link #membersColumn} and 0.2 for the {@link #lobbyStatusColumn}.
      *     It also assigns a ValueFactory to each column.
      *     After that it loads all lobbies using the {@link #lobbyService}.
      * </p>
@@ -65,11 +69,12 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      */
     @FXML
     public void initialize() {
-        setColumnWidths(0.5, 0.3, 0.2);
+        setColumnWidths(0.5, 0.2, 0.2, 0.1);
 
         initializeNameColumnValueFactory();
         initializeOwnerColumnValueFactory();
         initializeMembersColumnValueFactory();
+        initializeLobbyStatusColumnValueFactory();
 
         initializeRowFactory();
     }
@@ -90,10 +95,11 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @since 2024-08-24
      */
-    public void setColumnWidths(final double nameColumnWidth, final double ownerColumnWidth, final double membersColumnWidth) {
+    public void setColumnWidths(final double nameColumnWidth, final double ownerColumnWidth, final double membersColumnWidth, final double lobbyStatusColumnWidth) {
         nameColumn.prefWidthProperty().bind(lobbiesTable.widthProperty().multiply(nameColumnWidth));
         ownerColumn.prefWidthProperty().bind(lobbiesTable.widthProperty().multiply(ownerColumnWidth));
         membersColumn.prefWidthProperty().bind(lobbiesTable.widthProperty().multiply(membersColumnWidth));
+        lobbyStatusColumn.prefWidthProperty().bind(lobbiesTable.widthProperty().multiply(lobbyStatusColumnWidth));
     }
 
     /**
@@ -149,6 +155,15 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
                 }
             }
         });
+    }
+
+    /**
+     * Sets a CellValueFactory to the {@link #lobbyStatusColumn} to display the status of each lobby.
+     *
+     * @see de.uol.swp.common.lobby.Lobby
+     */
+    private void initializeLobbyStatusColumnValueFactory() {
+        lobbyStatusColumn.setCellValueFactory(lobby -> new SimpleStringProperty(lobby.getValue().getStatus().getStatus()));
     }
 
     /**
@@ -273,7 +288,9 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * @see LobbyService#joinLobby(String, User)
      */
     private void onLobbyRowClicked(final Lobby lobby) {
-        lobbyService.joinLobby(lobby.getName(), loggedInUserProvider.get());
+        if (lobby.getStatus().equals(LobbyStatus.OPEN)) {
+            lobbyService.joinLobby(lobby.getName(), loggedInUserProvider.get());
+        }
     }
 
     /**
@@ -294,5 +311,22 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
 
         final ShowLobbyViewEvent showLobbyViewEvent = new ShowLobbyViewEvent(lobbyJoinUserResponse.getLobby());
         eventBus.post(showLobbyViewEvent);
+    }
+
+    /**
+     * Handles UpdatedLobbyListMessage detected on the EventBus
+     *
+     * <p>
+     * If a {@link UpdatedLobbyListMessage} is detected on the EventBus, this method gets
+     * called. It calls {@link #setLobbyList(List)} with the list of all lobbies in the UpdatedLobbyListMessage.
+     * </p>
+     *
+     * @param updatedLobbyListMessage The UpdatedLobbyListMessage detected on the EventBus
+     * @see de.uol.swp.common.lobby.message.UpdatedLobbyListMessage
+     * @see #setLobbyList(List)
+     */
+    @Subscribe
+    public void onLobbyStatusUpdatedResponse(final UpdatedLobbyListMessage updatedLobbyListMessage) {
+        setLobbyList(updatedLobbyListMessage.getAllLobbies());
     }
 }

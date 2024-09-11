@@ -147,5 +147,27 @@ class LobbyDTOTest {
         assertThrows(IllegalArgumentException.class, () -> lobby.leaveUser(defaultUser));
     }
 
+    /**
+     * This test checks if the status of a lobby is determined correctly
+     *
+     * The test fails if the status is not OPEN when the lobby is created
+     * or if the status is not FULL when the lobby is full
+     *
+     */
+    @Test
+    void determineLobbyStatusTest() {
+        Lobby lobby = new LobbyDTO("test", defaultUser);
 
+        assertEquals(LobbyStatus.OPEN, lobby.getStatus());
+
+        for (int i = 0; i < 3; i++) {
+            lobby.joinUser(users.get(i));
+        }
+
+        assertEquals(LobbyStatus.FULL, lobby.getStatus());
+
+        lobby.leaveUser(users.get(0));
+
+        assertEquals(LobbyStatus.OPEN, lobby.getStatus());
+    }
 }
