@@ -41,6 +41,11 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     @FXML
     private void onCreateLobbyButtonClicked(final ActionEvent event) {
         final String lobbyName = lobbyNameField.getText();
+        final int lobbyId = (int) (Math.random() * 9000) + 1000;
+
+        // the lobbyIdentifier identifies the correct Lobby
+        // if another lobby, which is not active anymore, had the same lobbyName
+        final String lobbyIdentifier = lobbyName + "@" + lobbyId;
 
         if (lobbyName.isEmpty()) {
             // TODO: throw exception and show error message
@@ -54,7 +59,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
         }
 
         clearInputFields();
-        lobbyService.createNewLobby(lobbyName, (UserDTO) loggedInUser);
+        lobbyService.createNewLobby(lobbyIdentifier, (UserDTO) loggedInUser);
     }
 
     /**

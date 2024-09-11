@@ -2,10 +2,13 @@ package de.uol.swp.client.lobby;
 
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
 import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;
@@ -75,6 +78,19 @@ public class LobbyServiceTest extends EventBusBasedTest {
         assertEquals(lobbyLeaveUserRequest.getUser(), user);
     }
 
+    @Test
+    void updateLobbyStatus() throws InterruptedException {
+        Lobby lobby = new LobbyDTO(lobbyName, user);
+        lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
+
+        waitForLock();
+
+        assertInstanceOf(LobbyUpdateStatusRequest.class, event);
+
+        final LobbyUpdateStatusRequest lobbyUpdateStatusRequest = (LobbyUpdateStatusRequest) event;
+        assertEquals(LobbyStatus.RUNNING, lobbyUpdateStatusRequest.getStatus());
+    }
+
     @Subscribe
     public void onEvent(final CreateLobbyRequest createLobbyRequest) {
         handleEvent(createLobbyRequest);
@@ -93,5 +109,10 @@ public class LobbyServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final LobbyLeaveUserRequest lobbyLeaveUserRequest) {
         handleEvent(lobbyLeaveUserRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final LobbyUpdateStatusRequest lobbyUpdateStatusRequest) {
+        handleEvent(lobbyUpdateStatusRequest);
     }
 }

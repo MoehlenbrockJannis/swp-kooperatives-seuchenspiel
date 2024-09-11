@@ -55,6 +55,8 @@
                     </TableColumn>
                     <TableColumn fx:id="membersColumn" text="Mitglieder" resizable="false" reorderable="false">
                     </TableColumn>
+                    <TableColumn fx:id="lobbyStatusColumn" text="Status" resizable="false" reorderable="false">
+                    </TableColumn>
                 </columns>
             </TableView>
         </ScrollPane>

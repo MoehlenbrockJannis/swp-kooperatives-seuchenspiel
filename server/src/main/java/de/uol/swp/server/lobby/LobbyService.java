@@ -3,12 +3,11 @@ package de.uol.swp.server.lobby;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.message.*;
 import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
-import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
-import de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
+import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
+import de.uol.swp.common.lobby.response.*;
 import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
@@ -185,6 +184,34 @@ public class LobbyService extends AbstractService {
         final LobbyFindLobbiesResponse lobbyFindLobbiesResponse = new LobbyFindLobbiesResponse(lobbyManagement.getAllLobbies());
         lobbyFindLobbiesResponse.initWithMessage(lobbyFindLobbiesRequest);
         post(lobbyFindLobbiesResponse);
+    }
+
+    /**
+     * Handles LobbyUpdateStatusRequests found on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyUpdateStatusRequest} is detected on the EventBus, this method is called.
+     * It updates the status of a lobby and sends an {@link UpdatedLobbyListMessage} to all users.
+     * </p>
+     *
+     * @param lobbyUpdateStatusRequest The LobbyUpdateStatusRequest found on the EventBus
+     * @see de.uol.swp.common.lobby.Lobby
+     * @see de.uol.swp.common.lobby.LobbyStatus
+     * @see de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest
+     * @see de.uol.swp.common.lobby.message.UpdatedLobbyListMessage
+     */
+    @Subscribe
+    public void onLobbyUpdateStatusRequest(LobbyUpdateStatusRequest lobbyUpdateStatusRequest) {
+        String lobbyName = lobbyUpdateStatusRequest.getLobby().getName();
+
+        if (lobbyManagement.getLobby(lobbyName).isPresent()) {
+            LobbyStatus status = lobbyUpdateStatusRequest.getStatus();
+            lobbyManagement.updateLobbyStatus(lobbyName, status);
+        }
+
+        UpdatedLobbyListMessage updatedLobbyListMessage = new UpdatedLobbyListMessage(lobbyManagement.getAllLobbies());
+        updatedLobbyListMessage.initWithMessage(lobbyUpdateStatusRequest);
+        post(updatedLobbyListMessage);
     }
 
 }

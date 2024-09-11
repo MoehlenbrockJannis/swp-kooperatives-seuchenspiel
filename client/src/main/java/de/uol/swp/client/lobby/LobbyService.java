@@ -1,15 +1,16 @@
 package de.uol.swp.client.lobby;
 
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.message.CreateLobbyRequest;
 import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Classes that manages lobbies
@@ -86,5 +87,17 @@ public class LobbyService {
     public void leaveLobby(final String lobbyName, final User user) {
         final LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobbyName, (UserDTO) user);
         eventBus.post(leaveLobbyRequest);
+    }
+
+    /**
+     * Updates the status of a lobby
+     *
+     * @param lobby The lobby to update
+     * @param lobbyStatus The new status of the lobby
+     * @since 2024-08-29
+     */
+    public void updateLobbyStatus(Lobby lobby, LobbyStatus lobbyStatus) {
+        final LobbyUpdateStatusRequest updateStatusRequest = new LobbyUpdateStatusRequest(lobby, lobbyStatus);
+        eventBus.post(updateStatusRequest);
     }
 }

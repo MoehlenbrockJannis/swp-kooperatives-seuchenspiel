@@ -1,6 +1,7 @@
 package de.uol.swp.server.lobby;
 
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.user.User;
 
@@ -81,5 +82,14 @@ public class LobbyManagement {
         return new ArrayList<>(lobbies.values());
     }
 
-
+    /**
+     * Updates the status of a lobby
+     *
+     * @param lobbyName The name of the lobby to update
+     * @param status The new status of the lobby
+     * @since 2024-08-29
+     */
+    public void updateLobbyStatus(String lobbyName, LobbyStatus status) {
+        lobbies.get(lobbyName).setStatus(status);
+    }
 }
