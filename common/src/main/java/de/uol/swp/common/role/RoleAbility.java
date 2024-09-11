@@ -1,4 +1,4 @@
-package de.uol.swp.common.roles;
+package de.uol.swp.common.role;
 
 import de.uol.swp.common.action.GeneralAction;
 import de.uol.swp.common.action.RoleAction;

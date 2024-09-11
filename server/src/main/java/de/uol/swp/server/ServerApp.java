@@ -12,6 +12,8 @@ import de.uol.swp.server.communication.netty.Server;
 import de.uol.swp.server.di.ServerModule;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.role.RoleManagement;
+import de.uol.swp.server.role.RoleService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
@@ -86,6 +88,8 @@ class ServerApp {
         injector.getInstance(LobbyService.class);
         injector.getInstance(ChatService.class);
 		injector.getInstance(ChatManagement.class);
+		injector.getInstance(RoleService.class);
+		injector.getInstance(RoleManagement.class);
 		injector.getInstance(GameService.class);
 	}
 

@@ -2,6 +2,7 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.chat.ChatPresenter;
@@ -13,6 +14,14 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.message.AbstractLobbyMessage;
 import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.role.message.RolesAvailableMessage;
+import de.uol.swp.common.role.response.RoleAssignedMessage;
+import de.uol.swp.common.role.response.RolesToComboBoxMessage;
+import de.uol.swp.common.user.User;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventType;
@@ -21,13 +30,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+
+import java.util.Set;
 
 /**
  * Manages the lobby window
@@ -37,6 +50,8 @@ import java.io.IOException;
  * @since 2024-08-28
  */
 @NoArgsConstructor
+@Getter
+@Setter
 public class LobbyPresenter extends AbstractPresenter {
 
     public static final String FXML = "/fxml/LobbyView.fxml";
@@ -52,11 +67,16 @@ public class LobbyPresenter extends AbstractPresenter {
     @Inject
     private GameService gameService;
 
-    private Stage stage;
-    @Getter
-    private Lobby lobby;
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
+    @FXML
+    private ComboBox<RoleCard> roleComboBox;
+    private Stage stage;
+    private Lobby lobby;
+    private ObservableList<RoleCard> availableRoles;
+    @Inject
+    private RoleService roleService;
+    private RoleCard selectedRole;
     @FXML
     private ChatPresenter chatController;
 
@@ -69,8 +89,81 @@ public class LobbyPresenter extends AbstractPresenter {
         setTitle(lobby.getName());
         stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
         stage.show();
+        initializeComboBox();
         chatController.setLobby(lobby);
     }
+
+    /**
+     * Initializes the combo box for selecting roles and sets up a listener to update the selected role.
+     * Sends a request to populate the combo box with available roles for the current lobby.
+     */
+    private void initializeComboBox() {
+        roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> updateRole());
+        roleService.sendRolesToComboBoxRequest(lobby);
+    }
+
+    /**
+     * Handles the message when roles are sent to the combo box. If the lobby matches,
+     * updates the available roles in the combo box with the received role set.
+     *
+     * @param message the message containing the roles to be displayed in the combo box.
+     */
+    @Subscribe
+    public void onRolesSendToComboBox(RolesToComboBoxMessage message) {
+        if (lobby.getName().equals(message.getLobby().getName())) {
+            Platform.runLater(() -> {
+                Set<RoleCard> roles = message.getRoleCardSet();
+                availableRoles = FXCollections.observableArrayList(roles);
+                roleComboBox.setItems(availableRoles);
+            });
+        }
+    }
+
+    /**
+     * Handles the message regarding available roles. Updates the UI based on role availability.
+     * The method is a placeholder for future role filtering logic.
+     *
+     * @param message the message containing information about available roles.
+     */
+    @Subscribe
+    public void onRolesAvailableMessage(RolesAvailableMessage message) {
+        Platform.runLater(() -> {
+            //TODO Remove unavailable roles or disable them. Implementation available in RoleManagement.java.
+        });
+    }
+
+    /**
+     * Updates the selected role and sends a request to assign the selected role
+     * to the logged-in user in the current lobby.
+     */
+    @FXML
+    private void updateRole() {
+        selectedRole = roleComboBox.getValue();
+        if (selectedRole != null) {
+            Lobby lobbyName = lobby;
+            User user = loggedInUserProvider.get();
+            roleService.sendRoleAssignmentRequest(lobbyName, user, selectedRole);
+        }
+    }
+
+    /**
+     * Updates the role {@link ComboBox} based on the {@link RoleAssignedMessage}.
+     *
+     * If a role is assigned, sets the {@link ComboBox} prompt text. If no role is assigned, clears the selection.
+     *
+     * @param roleAssignedMessage contains role assignment details.
+     */
+    @Subscribe
+    public void onRoleAssignedMessage(RoleAssignedMessage roleAssignedMessage) {
+        Platform.runLater(() -> {
+            if(roleAssignedMessage.isRoleAssigned()) {
+                roleComboBox.setPromptText(roleAssignedMessage.getRoleCardName());
+            } else {
+                roleComboBox.setValue(null);
+            }
+        });
+    }
+
 
     private void setTitle(final String lobbyName) {
         final String title = "Lobby: " + lobbyName;

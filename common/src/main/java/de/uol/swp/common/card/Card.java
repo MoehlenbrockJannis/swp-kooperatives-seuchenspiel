@@ -1,4 +1,7 @@
 package de.uol.swp.common.card;
 
-public abstract class Card {
+import java.io.Serializable;
+
+public abstract class Card implements Serializable {
+
 }

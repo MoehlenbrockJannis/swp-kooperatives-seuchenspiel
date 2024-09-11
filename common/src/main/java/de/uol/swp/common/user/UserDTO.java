@@ -1,5 +1,7 @@
 package de.uol.swp.common.user;
 
+import de.uol.swp.common.lobby.Lobby;
+
 import java.util.Objects;
 
 /**

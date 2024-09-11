@@ -3,7 +3,7 @@ package de.uol.swp.common.player;
 import de.uol.swp.common.card.OverviewCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
-import de.uol.swp.common.roles.RoleCard;
+import de.uol.swp.common.role.RoleCard;
 import lombok.*;
 
 import java.io.Serializable;

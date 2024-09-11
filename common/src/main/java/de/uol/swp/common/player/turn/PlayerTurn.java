@@ -2,11 +2,10 @@ package de.uol.swp.common.player.turn;
 
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.Command;
-import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.roles.RoleAbility;
+import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 

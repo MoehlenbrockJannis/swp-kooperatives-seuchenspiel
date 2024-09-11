@@ -41,7 +41,7 @@
                     <children>
                         <PasswordField fx:id="lobbyPasswordField" promptText="Lobby Passwort" HBox.hgrow="ALWAYS" styleClass="persistent-prompt" />
                         <ComboBox fx:id="difficultyComboBox" promptText="Schwierigkeit" prefWidth="200.0" />
-                        <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0" />
+                        <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0"/>
                     </children>
                 </HBox>
             </children>
