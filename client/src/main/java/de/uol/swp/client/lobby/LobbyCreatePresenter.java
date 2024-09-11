@@ -2,6 +2,7 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;

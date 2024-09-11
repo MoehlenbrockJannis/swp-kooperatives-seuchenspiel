@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -45,30 +44,7 @@
             </VBox>
         </left>
         <right>
-            <VBox spacing="10.0" BorderPane.alignment="CENTER">
-                <BorderPane.margin>
-                    <Insets bottom="20.0" right="20.0" top="20.0"/>
-                </BorderPane.margin>
-                <Label text="Globaler Chat">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-                <ListView fx:id="chatView" focusTraversable="false" maxHeight="1.7976931348623157E308" prefWidth="116.0"
-                          VBox.vgrow="ALWAYS"/>
-                <HBox maxHeight="-Infinity" prefHeight="30.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="NEVER">
-                    <TextField focusTraversable="false" fx:id="chatMessageInput">
-                        <cursor>
-                            <Cursor fx:constant="TEXT"/>
-                        </cursor>
-                    </TextField>
-                    <Button focusTraversable="false" mnemonicParsing="false" prefWidth="80.0" text="Senden" onAction="#onSendChatRequest">
-                        <cursor>
-                            <Cursor fx:constant="HAND"/>
-                        </cursor>
-                    </Button>
-                </HBox>
-            </VBox>
+            <fx:include source="component/ChatComponent.fxml"/>
         </right>
         <center>
             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">

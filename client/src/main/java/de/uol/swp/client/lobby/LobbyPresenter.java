@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.GameService;
+import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.response.GameCreatedResponse;
@@ -14,6 +15,7 @@ import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
 import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -43,7 +46,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private Label lobbyNameLabel;
-
     @Inject
     private LobbyService lobbyService;
 
@@ -51,9 +53,12 @@ public class LobbyPresenter extends AbstractPresenter {
     private GameService gameService;
 
     private Stage stage;
+    @Getter
     private Lobby lobby;
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
+    @FXML
+    private ChatPresenter chatController;
 
     static final String STYLE_SHEET = "css/swp.css";
 
@@ -64,6 +69,7 @@ public class LobbyPresenter extends AbstractPresenter {
         setTitle(lobby.getName());
         stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
         stage.show();
+        chatController.setLobby(lobby);
     }
 
     private void setTitle(final String lobbyName) {
@@ -157,4 +163,5 @@ public class LobbyPresenter extends AbstractPresenter {
             }
         });
     }
+
 }

@@ -1,5 +1,12 @@
 package de.uol.swp.server.lobby;
 
+import de.uol.swp.common.lobby.response.LobbyCreatedResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
+import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
+import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
@@ -125,6 +132,7 @@ public class LobbyService extends AbstractService {
      * @param lobbyLeaveUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.message.UserLeftLobbyMessage
+     * @see de.uol.swp.common.lobby.message.LobbyDroppedServerInternalMessage
      * @since 2019-10-08
      */
     @Subscribe
@@ -136,6 +144,8 @@ public class LobbyService extends AbstractService {
 
             if (lobby.getUsers().size() == 1) {
                 lobbyManagement.dropLobby(lobby.getName());
+                LobbyDroppedServerInternalMessage message = new LobbyDroppedServerInternalMessage(lobby.getName());
+                post(message);
             } else {
                 lobby.leaveUser(lobbyLeaveUserRequest.getUser());
             }
