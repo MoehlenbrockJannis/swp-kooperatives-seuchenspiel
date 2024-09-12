@@ -1,6 +1,8 @@
 package de.uol.swp.common.player;
 
 import java.util.Date;
+
+import de.uol.swp.common.user.User;
 import lombok.*;
 
 /**
@@ -22,5 +24,10 @@ public class AIPlayer extends Player{
     public AIPlayer(Date lastSick, String name) {
         super(lastSick);
         this.name = name;
+    }
+
+    @Override
+    public boolean containsUser(final User user) {
+        return false;
     }
 }

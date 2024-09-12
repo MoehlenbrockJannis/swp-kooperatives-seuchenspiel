@@ -4,20 +4,20 @@ import de.uol.swp.common.card.OverviewCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.user.UserContainerEntity;
 import lombok.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * The Player class represents an abstract player in the game.
  * It holds common player properties and actions that can be performed by any player.
  * This class is intended to be extended by specific types of players.
  */
-public abstract class Player implements Serializable {
+public abstract class Player implements Serializable, UserContainerEntity {
 
     @Getter
     @Setter
@@ -26,10 +26,10 @@ public abstract class Player implements Serializable {
     @Setter
     private Field currentField;
     private List<PlayerCard> handCards;
+    @Getter
     private Date lastSick;
     @Getter
     private OverviewCard overviewCard;
-    private static final Logger logger = Logger.getLogger(Player.class.getName());
 
     /**
      * Constructor for creating a Player instance with the lastSick date.
@@ -64,6 +64,6 @@ public abstract class Player implements Serializable {
      * @param playerCard the card to be removed from the hand
      */
     public void removeHandCard(PlayerCard playerCard) {
-            this.handCards.remove(playerCard);
+        this.handCards.remove(playerCard);
     }
 }

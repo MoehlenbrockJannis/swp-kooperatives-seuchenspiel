@@ -2,11 +2,12 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.role.RoleService;
+import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.game.GameService;
-import de.uol.swp.client.chat.ChatPresenter;
+import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.response.GameCreatedResponse;
 import de.uol.swp.common.lobby.Lobby;
@@ -19,12 +20,11 @@ import de.uol.swp.common.role.message.RolesAvailableMessage;
 import de.uol.swp.common.role.response.RoleAssignedMessage;
 import de.uol.swp.common.role.response.RolesToComboBoxMessage;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserContainerEntity;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -39,7 +39,8 @@ import lombok.Setter;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
-
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -79,18 +80,25 @@ public class LobbyPresenter extends AbstractPresenter {
     private RoleCard selectedRole;
     @FXML
     private ChatPresenter chatController;
+    @FXML
+    private UserContainerEntityListPresenter userContainerEntityListController;
 
     static final String STYLE_SHEET = "css/swp.css";
 
     public void initialize(final Stage stage, final Lobby lobby) {
         this.stage = stage;
         this.lobby = lobby;
+
         updateStartGameButton();
         setTitle(lobby.getName());
         stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
         stage.show();
         initializeComboBox();
+
         chatController.setLobby(lobby);
+
+        userContainerEntityListController.setTitle("Mitspieler");
+        updatePlayerList();
     }
 
     /**
@@ -188,6 +196,7 @@ public class LobbyPresenter extends AbstractPresenter {
         final Runnable executable = () -> lobby.joinUser(userJoinedLobbyMessage.getUser());
         executeOnlyIfMessageIsForThisLobby(userJoinedLobbyMessage, executable);
         updateStartGameButton();
+        updatePlayerList();
     }
 
     @Subscribe
@@ -195,6 +204,7 @@ public class LobbyPresenter extends AbstractPresenter {
         final Runnable executable = () -> lobby.leaveUser(userLeftLobbyMessage.getUser());
         executeOnlyIfMessageIsForThisLobby(userLeftLobbyMessage, executable);
         updateStartGameButton();
+        updatePlayerList();
     }
 
     private void updateStartGameButton() {
@@ -257,4 +267,16 @@ public class LobbyPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Updates the player list by setting it to the users of the associated {@link #lobby}
+     *
+     * @see Lobby#getUsers()
+     * @see UserContainerEntityListPresenter#setList(Collection)
+     */
+    private void updatePlayerList() {
+        userContainerEntityListController.highlightUser(lobby.getOwner());
+
+        final Set<UserContainerEntity> userContainerEntities = new HashSet<>(lobby.getUsers());
+        userContainerEntityListController.setList(userContainerEntities);
+    }
 }
