@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
+          style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.gameboard.GameBoardPresenter">
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+        <ColumnConstraints percentWidth="100"/>
+    </columnConstraints>
+
+    <rowConstraints>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="100"/>
+    </rowConstraints>
+    <!-- Column 0 -->
+    <fx:include source="WorldMapStackPane.fxml" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
+    <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <ImageView fx:id="settingsIcon" preserveRatio="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Image url="@/images/setting-line-icon.png"/>
+        </ImageView>
+        <fx:define>
+            <ContextMenu fx:id="settingsContextMenu">
+                <items>
+                    <MenuItem text="Spielanleitung" />
+                    <MenuItem text="Einstellungen" />
+                    <MenuItem text="Spiel verlassen" />
+                </items>
+            </ContextMenu>
+        </fx:define>
+        <GridPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </GridPane.margin>
+    </Pane>
+    <Pane style="-fx-background-color: red; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.rowSpan="3">
+        <Text layoutX="10.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ausbrüche"/>
+    </Pane>
+
+    <!-- Column 1 -->
+    <Pane style="-fx-background-color: blue; -fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7"
+          GridPane.rowSpan="2">
+        <Text layoutX="127.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eigener Spieler"/>
+    </Pane>
+
+    <!-- Column 2 -->
+
+    <!-- Column 3 -->
+
+    <!-- Column 4 -->
+
+    <!-- Column 5 -->
+    <Pane style="-fx-background-color: slateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
+          GridPane.rowIndex="7">
+        <Text layoutX="100.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Aktionen"/>
+    </Pane>
+    <Pane style="-fx-background-color: darkslateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
+          GridPane.rowIndex="8">
+        <Text layoutX="72.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gegenmittelmarker"/>
+    </Pane>
+
+    <!-- Column 6 -->
+    <Pane style="-fx-background-color: pink; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="0">
+        <Text layoutX="40.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Anzahl Forschungslabore/Seuchenwürfel"/>
+    </Pane>
+    <Pane opacity="0.3" style="-fx-background-color: black;" GridPane.columnIndex="6" GridPane.columnSpan="4"
+          GridPane.rowIndex="4" GridPane.rowSpan="3">
+        <GridPane.margin>
+            <Insets bottom="10.0" right="10.0" />
+        </GridPane.margin>
+    </Pane>
+    <Pane GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="4" GridPane.rowSpan="3">
+        <Text layoutX="135.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Chat"/>
+        <GridPane.margin>
+            <Insets bottom="10.0" right="10.0" />
+        </GridPane.margin>
+    </Pane>
+
+    <!-- Column 7 -->
+
+    <!-- Column 8 -->
+    <Pane style="-fx-background-color: teal; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
+        <Text layoutX="27.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spielerkarten"/>
+    </Pane>
+    <Pane style="-fx-background-color: darkolivegreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
+          GridPane.rowIndex="8">
+        <Text layoutX="19.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Infektionskarten"/>
+    </Pane>
+
+    <!-- Column 9 -->
+
+    <!-- Column 10 -->
+    <Pane style="-fx-background-color: yellowgreen; -fx-border-color: whitesmoke; -fx-border-width: 10 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
+          GridPane.rowIndex="0" GridPane.rowSpan="3">
+        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 2"/>
+    </Pane>
+    <Pane style="-fx-background-color: lime; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2" GridPane.rowIndex="3"
+          GridPane.rowSpan="3">
+        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 3"/>
+    </Pane>
+    <Pane style="-fx-background-color: springgreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
+          GridPane.rowIndex="6" GridPane.rowSpan="3">
+        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 4"/>
+    </Pane>
+
+    <!-- Column 11 -->
+
+</GridPane>

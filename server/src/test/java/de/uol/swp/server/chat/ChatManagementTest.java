@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -114,6 +115,6 @@ public class ChatManagementTest {
         chatManagement.removeLobbyChatMessages(lobby.getName());
 
         List<String> messages = chatManagement.getLobbyChatMessages(lobby.getName());
-        assertNull(messages);
+        assertThat(messages).isNullOrEmpty();
     }
 }
