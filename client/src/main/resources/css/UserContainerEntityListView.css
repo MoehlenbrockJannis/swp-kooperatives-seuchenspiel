@@ -1,0 +1,12 @@
+.list-item-default {
+    -fx-font-weight: normal;
+    -fx-padding: 5;
+}
+
+.logged-in-user-highlighting {
+    -fx-background-color: lightgray;
+}
+
+.lobby-owner-highlighting {
+    -fx-font-weight: bold;
+}

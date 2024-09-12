@@ -17,14 +17,17 @@ public class ChatManagement {
         chatMessages.add(chatMessage);
     }
 
+    private void checkLobbyName(final String lobbyName) {
+        lobbyChatMessages.computeIfAbsent(lobbyName, name -> new ArrayList<>());
+    }
+
     public void addLobbyChatMessage(String lobbyName, String chatMessage) {
-        if (!lobbyChatMessages.containsKey(lobbyName)) {
-            lobbyChatMessages.put(lobbyName, new ArrayList<>());
-        }
+        checkLobbyName(lobbyName);
         lobbyChatMessages.get(lobbyName).add(chatMessage);
     }
 
     public List<String> getLobbyChatMessages(String lobbyName) {
+        checkLobbyName(lobbyName);
         return lobbyChatMessages.get(lobbyName);
     }
 

@@ -22,13 +22,7 @@
                 <BorderPane.margin>
                     <Insets bottom="20.0" left="20.0" top="20.0"/>
                 </BorderPane.margin>
-                <Label text="Eingeloggte Benutzer">
-                    <font>
-                        <Font name="System Bold" size="12.0"/>
-                    </font>
-                </Label>
-                <ListView fx:id="usersView" focusTraversable="false" prefHeight="200.0" prefWidth="200.0"
-                          VBox.vgrow="ALWAYS"/>
+                <fx:include source="component/UserContainerEntityListView.fxml" fx:id="userContainerEntityList"/>
                 <VBox spacing="5.0">
                     <Label text="Statistiken">
                         <font>

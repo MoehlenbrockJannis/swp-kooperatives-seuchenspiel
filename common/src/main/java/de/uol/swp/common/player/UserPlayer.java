@@ -33,4 +33,9 @@ public class UserPlayer extends Player{
     public String getName() {
         return user.getUsername();
     }
+
+    @Override
+    public boolean containsUser(final User user) {
+        return this.user.equals(user);
+    }
 }

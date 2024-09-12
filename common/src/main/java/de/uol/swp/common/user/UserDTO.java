@@ -1,7 +1,5 @@
 package de.uol.swp.common.user;
 
-import de.uol.swp.common.lobby.Lobby;
-
 import java.util.Objects;
 
 /**
@@ -100,5 +98,10 @@ public class UserDTO implements User {
     @Override
     public int hashCode() {
         return Objects.hash(username);
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }

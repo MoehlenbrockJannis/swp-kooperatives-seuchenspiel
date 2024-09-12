@@ -121,7 +121,6 @@ public class RoleService extends AbstractService {
 
         Optional<Lobby> lobbyOptional;
         lobbyOptional = lobbyManagement.getLobby(lobbyName);
-        System.out.println(lobbyManagement.getAllLobbies());
 
         if (lobbyOptional.isEmpty()) {
             roleManagement.dropLobby(roleLogoutRequest.getLobbyName());
