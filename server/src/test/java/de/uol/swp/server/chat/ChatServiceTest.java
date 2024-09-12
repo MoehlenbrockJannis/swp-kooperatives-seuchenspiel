@@ -16,6 +16,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.time.LocalTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,7 +90,7 @@ public class ChatServiceTest extends EventBusBasedTest {
         LobbyDroppedServerInternalMessage lobbyDroppedServerInternalMessage = new LobbyDroppedServerInternalMessage(defaultLobby.getName());
         post(lobbyDroppedServerInternalMessage);
 
-        assertNull(chatManagement.getLobbyChatMessages(this.defaultLobby.getName()));
+        assertThat(chatManagement.getLobbyChatMessages(this.defaultLobby.getName())).isNullOrEmpty();
 
 
     }

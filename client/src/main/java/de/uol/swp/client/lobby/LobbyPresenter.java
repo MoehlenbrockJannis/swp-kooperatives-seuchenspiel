@@ -3,9 +3,9 @@ package de.uol.swp.client.lobby;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
-import de.uol.swp.client.game.GamePresenter;
-import de.uol.swp.client.game.GameService;
+import de.uol.swp.client.gameboard.GameBoardPresenter;
 import de.uol.swp.client.role.RoleService;
+import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
@@ -249,9 +249,9 @@ public class LobbyPresenter extends AbstractPresenter {
     private void loadGameScene(Game game) {
         Platform.runLater(() -> {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/GameBoardView.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/gameboard/GameBoardView.fxml"));
                 final Parent gameView = fxmlLoader.load();
-                final GamePresenter gamePresenter = fxmlLoader.getController();
+                final GameBoardPresenter gameBoardPresenter = fxmlLoader.getController();
 
                 final Scene gameScene = new Scene(gameView);
                 gameScene.getStylesheets().add(STYLE_SHEET);
@@ -260,7 +260,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
                 stage.setTitle("Game: " + game.getLobby().getName());
 
-                gamePresenter.initialize(stage, game);
+                gameBoardPresenter.initialize(stage, game);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -32,6 +32,7 @@ public class ChatManagement {
     }
 
     public void removeLobbyChatMessages(String lobbyName){
+        checkLobbyName(lobbyName);
         this.lobbyChatMessages.remove(lobbyName);
     }
 
