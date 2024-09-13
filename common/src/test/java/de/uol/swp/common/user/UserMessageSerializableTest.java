@@ -1,10 +1,10 @@
 package de.uol.swp.common.user;
 
 import de.uol.swp.common.SerializationTestHelper;
-import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
-import de.uol.swp.common.user.message.UserLoggedInMessage;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
-import de.uol.swp.common.user.message.UsersListMessage;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
+import de.uol.swp.common.user.server_message.LoginServerMessage;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
+import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RegisterUserRequest;
@@ -22,24 +22,24 @@ class UserMessageSerializableTest {
     private static final User defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
 
     private static final int SIZE = 10;
-    private static final List<String> users = new ArrayList<>();
+    private static final List<User> users = new ArrayList<>();
 
     static {
         for (int i = 0; i < SIZE; i++) {
-            users.add("User" + i);
+            users.add(defaultUser.getWithoutPassword());
         }
     }
 
     @Test
     void testUserMessagesSerializable() {
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLoggedInMessage("test"),
-                UserLoggedInMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLoggedOutMessage("test"),
-                UserLoggedOutMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UsersListMessage(users),
-                UsersListMessage.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegistrationExceptionMessage("Error"),
-                RegistrationExceptionMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginServerMessage(defaultUser),
+                LoginServerMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LogoutServerMessage(defaultUser),
+                LogoutServerMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllOnlineUsersServerMessage(users),
+                RetrieveAllOnlineUsersServerMessage.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegisterUserExceptionResponse("Error"),
+                RegisterUserExceptionResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginSuccessfulResponse(defaultUser),
                 LoginSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginRequest("name", "pass"),

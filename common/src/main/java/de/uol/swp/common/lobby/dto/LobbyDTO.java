@@ -3,6 +3,8 @@ package de.uol.swp.common.lobby.dto;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.user.User;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Collections;
@@ -23,10 +25,12 @@ import java.util.TreeSet;
 
 @ToString
 public class LobbyDTO implements Lobby {
-
+    @Getter
     private final String name;
+    @Getter
     private User owner;
     private final Set<User> users = new TreeSet<>();
+    @Setter
     private LobbyStatus status;
 
     /**
@@ -58,11 +62,6 @@ public class LobbyDTO implements Lobby {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
     public void joinUser(User user) {
         this.users.add(user);
     }
@@ -86,11 +85,6 @@ public class LobbyDTO implements Lobby {
             throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of lobby!");
         }
         this.owner = user;
-    }
-
-    @Override
-    public User getOwner() {
-        return owner;
     }
 
     @Override
@@ -122,11 +116,6 @@ public class LobbyDTO implements Lobby {
         } else {
             status = LobbyStatus.RUNNING;
         }
-    }
-
-    @Override
-    public void setStatus(LobbyStatus status) {
-        this.status = status;
     }
 
 }

@@ -8,8 +8,8 @@ import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.message.UpdatedLobbyListMessage;
-import de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse;
+import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
+import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -192,18 +192,18 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * Handles LobbyFindLobbiesResponse found on the EventBus
      *
      * <p>
-     * If a {@link LobbyFindLobbiesResponse} is detected on the EventBus, this method is called.
+     * If a {@link RetrieveAllLobbiesResponse} is detected on the EventBus, this method is called.
      * It calls {@link #setLobbyList(List)} with the list of all lobbies in the lobbyFindLobbiesResponse.
      * </p>
      *
-     * @param lobbyFindLobbiesResponse The LobbyFindLobbiesResponse found on the EventBus
-     * @see de.uol.swp.common.lobby.response.LobbyFindLobbiesResponse
+     * @param retrieveAllLobbiesResponse The LobbyFindLobbiesResponse found on the EventBus
+     * @see RetrieveAllLobbiesResponse
      * @see #setLobbyList(List)
      * @since 2024-08-24
      */
     @Subscribe
-    public void onLobbyFindLobbiesResponse(final LobbyFindLobbiesResponse lobbyFindLobbiesResponse) {
-        setLobbyList(lobbyFindLobbiesResponse.getLobbies());
+    public void onLobbyFindLobbiesResponse(final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse) {
+        setLobbyList(retrieveAllLobbiesResponse.getLobbies());
     }
 
     /**
@@ -285,11 +285,11 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * </p>
      *
      * @param lobby Lobby of the clicked row
-     * @see LobbyService#joinLobby(String, User)
+     * @see LobbyService#joinLobby(Lobby, User)
      */
     private void onLobbyRowClicked(final Lobby lobby) {
         if (lobby.getStatus().equals(LobbyStatus.OPEN)) {
-            lobbyService.joinLobby(lobby.getName(), loggedInUserProvider.get());
+            lobbyService.joinLobby(lobby, loggedInUserProvider.get());
         }
     }
 
@@ -314,19 +314,19 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     }
 
     /**
-     * Handles UpdatedLobbyListMessage detected on the EventBus
+     * Handles UpdatedLobbyListServerMessage detected on the EventBus
      *
      * <p>
-     * If a {@link UpdatedLobbyListMessage} is detected on the EventBus, this method gets
-     * called. It calls {@link #setLobbyList(List)} with the list of all lobbies in the UpdatedLobbyListMessage.
+     * If a {@link RetrieveAllLobbiesServerMessage} is detected on the EventBus, this method gets
+     * called. It calls {@link #setLobbyList(List)} with the list of all lobbies in the UpdatedLobbyListServerMessage.
      * </p>
      *
-     * @param updatedLobbyListMessage The UpdatedLobbyListMessage detected on the EventBus
-     * @see de.uol.swp.common.lobby.message.UpdatedLobbyListMessage
+     * @param message The UpdatedLobbyListServerMessage detected on the EventBus
+     * @see RetrieveAllLobbiesServerMessage
      * @see #setLobbyList(List)
      */
     @Subscribe
-    public void onLobbyStatusUpdatedResponse(final UpdatedLobbyListMessage updatedLobbyListMessage) {
-        setLobbyList(updatedLobbyListMessage.getAllLobbies());
+    public void onLobbyStatusUpdatedResponse(final RetrieveAllLobbiesServerMessage message) {
+        setLobbyList(message.getLobbies());
     }
 }

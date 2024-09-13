@@ -1,7 +1,7 @@
 package de.uol.swp.client.chat;
 
 import de.uol.swp.client.EventBusBasedTest;
-import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -30,13 +30,13 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     public void sendChatRequest() throws InterruptedException {
         ChatService chatService = new ChatService(getBus());
-        chatService.sendChatRequest(defaultUser.getUsername(), "Hello World!", LocalTime.now());
+        chatService.sendChatRequest(defaultUser, "Hello World!", LocalTime.now());
         waitForLock();
     }
 
     public void sendLobbyChatRequest() throws InterruptedException {
         ChatService chatService = new ChatService(getBus());
-        chatService.sendLobbyChatRequest(defaultUser, "Hello World!", LocalTime.now(), "TestLobby");
+        chatService.sendLobbyChatRequest(defaultUser, "Hello World!", LocalTime.now(), defaultLobby);
         waitForLock();
     }
 
@@ -52,7 +52,7 @@ public class ChatServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(RetrieveChatRequest e) {
+    public void onEvent(RetrieveAllChatMessagesRequest e) {
         handleEvent(e);
     }
 
@@ -78,7 +78,7 @@ public class ChatServiceTest extends EventBusBasedTest {
     /**
      * Test for the retrieveChat method
      * <p>
-     * This test checks if the retrieveChat method sends a RetrieveChatRequest to the EventBus
+     * This test checks if the retrieveChat method sends a RetrieveAllChatMessagesRequest to the EventBus
      *
      * @since 2024-08-26
      */
@@ -89,7 +89,7 @@ public class ChatServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(RetrieveChatRequest.class, event);
+        assertInstanceOf(RetrieveAllChatMessagesRequest.class, event);
     }
 
     @Test
@@ -99,6 +99,6 @@ public class ChatServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(RetrieveChatRequest.class, event);
+        assertInstanceOf(RetrieveAllChatMessagesRequest.class, event);
     }
 }

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test for the register user request
  *
- * @see de.uol.swp.common.user.request.RegisterUserRequest
+ * @see RegisterUserRequest
  * @since 2023-05-14
  */
 public class RegisterUserRequestTest {

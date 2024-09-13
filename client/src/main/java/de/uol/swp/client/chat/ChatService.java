@@ -1,7 +1,7 @@
 package de.uol.swp.client.chat;
 
 import com.google.inject.Inject;
-import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -37,13 +37,13 @@ public class ChatService {
     /**
      * Sends a chat message
      *
-     * @param userName The user who sends the message
+     * @param user The user who sends the message
      * @param chatMessage The message to be sent
      * @param timestamp The time the message was sent
      * @since 2024-08-26
      */
-    public void sendChatRequest(String userName, String chatMessage, LocalTime timestamp) {
-        SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(userName, chatMessage, timestamp);
+    public void sendChatRequest(User user, String chatMessage, LocalTime timestamp) {
+        SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(user, chatMessage, timestamp);
         eventBus.post(sendChatMessageRequest);
     }
 
@@ -54,10 +54,8 @@ public class ChatService {
      * @param timestamp The time the message was sent
      * @since 2024-08-26
      */
-    public void sendLobbyChatRequest(User user, String chatMessage, LocalTime timestamp, String lobbyName) {
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest(chatMessage, timestamp);
-        sendLobbyChatMessageRequest.setLobbyName(lobbyName);
-        sendLobbyChatMessageRequest.setUser(user);
+    public void sendLobbyChatRequest(User user, String chatMessage, LocalTime timestamp, Lobby lobby) {
+        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest(lobby, user, chatMessage, timestamp);
         eventBus.post(sendLobbyChatMessageRequest);
     }
 
@@ -66,20 +64,20 @@ public class ChatService {
      *
      */
     public void retrieveChat() {
-        RetrieveChatRequest retrieveChatRequest = new RetrieveChatRequest();
+        RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest();
         eventBus.post(retrieveChatRequest);
     }
 
     /**
      * Retrieves the chat messages for a specific lobby.
      *
-     * This method creates a RetrieveChatRequest with the lobby name and posts it to the EventBus.
+     * This method creates a RetrieveAllChatMessagesRequest with the lobby name and posts it to the EventBus.
      *
      * @param lobby The lobby for which to retrieve chat messages
      * @since 2024-09-09
      */
     public void retrieveChat(Lobby lobby) {
-        RetrieveChatRequest retrieveChatRequest = new RetrieveChatRequest(lobby.getName());
+        RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest(lobby);
         eventBus.post(retrieveChatRequest);
     }
 }

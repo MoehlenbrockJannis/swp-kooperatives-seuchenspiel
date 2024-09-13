@@ -1,0 +1,37 @@
+package de.uol.swp.common.lobby.server_message;
+
+import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.user.UserDTO;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Test for the lobby created message
+ *
+ * @see CreateLobbyServerMessage
+ * @since 2023-05-14
+ */
+class LobbyCreatedMessageTest {
+
+    final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
+    final LobbyDTO lobby = new LobbyDTO("TestLobby" , user);
+
+
+    /**
+     * Test for creation of the LobbyCreatedMessages
+     *
+     * This test checks if the lobbyName and the user of the LobbyCreatedServerMessage gets
+     * set correctly during the creation of the message
+     *
+     * @since 2023-05-14
+     */
+    @Test
+    void createLobbyCreatedMessage() {
+        CreateLobbyServerMessage message = new CreateLobbyServerMessage(lobby, user);
+
+        assertEquals(lobby, message.getLobby());
+        assertEquals(user, message.getUser());
+    }
+
+}

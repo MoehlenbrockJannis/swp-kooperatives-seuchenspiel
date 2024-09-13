@@ -2,6 +2,9 @@ package de.uol.swp.client;
 
 
 import java.net.ConnectException;
+
+import de.uol.swp.common.message.request.RequestMessage;
+import de.uol.swp.common.message.response.ExceptionResponseMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -19,7 +22,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -202,9 +204,9 @@ public class ClientConnection {
 	 * @since 2017-03-17
 	 */
 	@Subscribe
-	public void onExceptionMessage(ExceptionMessage message) {
+	public void onExceptionMessage(ExceptionResponseMessage message) {
 		for (ConnectionListener l : connectionListener) {
-			l.exceptionOccurred(message.getException());
+			l.exceptionOccurred(message.getMessage());
 		}
 	}
 

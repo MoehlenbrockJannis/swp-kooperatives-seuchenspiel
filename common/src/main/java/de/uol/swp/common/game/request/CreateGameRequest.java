@@ -2,7 +2,7 @@ package de.uol.swp.common.game.request;
 
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
-import de.uol.swp.common.message.AbstractRequestMessage;
+import de.uol.swp.common.message.request.AbstractRequestMessage;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import lombok.AllArgsConstructor;
