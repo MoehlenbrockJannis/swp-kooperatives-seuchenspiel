@@ -106,7 +106,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * Sends a request to populate the combo box with available roles for the current lobby.
      */
     private void initializeComboBox() {
-        roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> updateRole());
+        roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> selectRole());
         roleService.sendRolesToComboBoxRequest(lobby);
     }
 
@@ -144,13 +144,11 @@ public class LobbyPresenter extends AbstractPresenter {
      * Updates the selected role and sends a request to assign the selected role
      * to the logged-in user in the current lobby.
      */
-    @FXML
-    private void updateRole() {
+    private void selectRole() {
         selectedRole = roleComboBox.getValue();
         if (selectedRole != null) {
-            Lobby lobbyName = lobby;
             User user = loggedInUserProvider.get();
-            roleService.sendRoleAssignmentRequest(lobbyName, user, selectedRole);
+            roleService.sendRoleAssignmentRequest(lobby, user, selectedRole);
         }
     }
 

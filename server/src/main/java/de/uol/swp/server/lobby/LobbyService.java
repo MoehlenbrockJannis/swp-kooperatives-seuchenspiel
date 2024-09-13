@@ -148,7 +148,7 @@ public class LobbyService extends AbstractService {
                 lobby.leaveUser(lobbyLeaveUserRequest.getUser());
             }
 
-            sendToAllInLobby(lobbyLeaveUserRequest.getLobby(), new LobbyLeaveUserServerMessage(lobbyLeaveUserRequest.getLobby(), lobbyLeaveUserRequest.getUser()));
+            sendToAllInLobby(lobby, new LobbyLeaveUserServerMessage(lobby, lobbyLeaveUserRequest.getUser()));
         }
         // TODO: error handling not existing lobby
     }
@@ -217,8 +217,7 @@ public class LobbyService extends AbstractService {
         }
 
         RetrieveAllLobbiesServerMessage message = new RetrieveAllLobbiesServerMessage(lobbyManagement.getAllLobbies());
-        message.initWithMessage(lobbyUpdateStatusRequest);
-        post(message);
+        sendToAll(message);
     }
 
 }

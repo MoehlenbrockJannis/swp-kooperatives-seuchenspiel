@@ -3,11 +3,7 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.UserPlayer;
 import org.greenrobot.eventbus.EventBus;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Service for the game
@@ -36,14 +32,7 @@ public class GameService {
      */
     public void createGame(Lobby lobby) {
         //TODO: replace null with the correct configuration parameters
-        List<Player> userPlayers = createUserPlayersList(lobby);
-        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, null, userPlayers, null);
+        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, null, null);
         eventBus.post(createGameRequest);
-    }
-
-    private List<Player> createUserPlayersList(Lobby lobby) {
-        List<Player> userPlayers = new ArrayList<>();
-        lobby.getUsers().forEach(user -> userPlayers.add(new UserPlayer(null, user)));
-        return userPlayers;
     }
 }

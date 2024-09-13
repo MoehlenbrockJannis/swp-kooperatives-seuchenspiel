@@ -2,8 +2,8 @@ package de.uol.swp.server.role;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.message.response.ResponseMessage;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
@@ -20,6 +20,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The {@code RoleService} class handles role-related operations within the server.
@@ -67,33 +68,51 @@ public class RoleService extends AbstractService {
      */
     @Subscribe
     public void onRoleAssignmentRequest(RoleAssignmentRequest roleAssignmentRequest) {
-        final Lobby lobby = roleAssignmentRequest.getLobby();
+        final Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(roleAssignmentRequest.getLobby());
+        if(lobbyOptional.isEmpty()) {
+            return;
+        }
+
+        final Lobby lobby = lobbyOptional.get();
         final User user = roleAssignmentRequest.getUser();
         final RoleCard roleCard = roleAssignmentRequest.getRoleCard();
+        final Player player = lobby.getPlayerForUser(user);
 
         ResponseMessage message;
         RoleAssignmentResponse roleAssignedMessage;
-        if (roleManagement.isRoleAvailableForUser(lobby, user, roleCard)) {
-            roleManagement.addUserRoleInLobby(lobby, user, roleCard);
+
+        if (isRoleAvailableForPlayerInLobby(lobby, roleCard)) {
+            player.setRole(roleCard);
+            lobbyManagement.updateLobby(lobby);
+
             message = new RoleAvailableResponse();
 
             roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true);
-
-            roleAssignedMessage.initWithMessage(roleAssignmentRequest);
-            post(roleAssignedMessage);
         } else {
             message = new RoleUnavailableResponse();
 
             roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false);
-            roleAssignedMessage.initWithMessage(roleAssignmentRequest);
-            post(roleAssignedMessage);
         }
+
+        roleAssignedMessage.initWithMessage(roleAssignmentRequest);
+        post(roleAssignedMessage);
 
         message.initWithMessage(roleAssignmentRequest);
         post(message);
 
 
         sendAvailableRolesToClients(lobby);
+    }
+
+    private boolean isRoleAvailableForPlayerInLobby(Lobby lobby, RoleCard roleCard) {
+        Set<Player> players = lobby.getPlayers();
+        for(final Player playerInLobby : players) {
+            RoleCard role = playerInLobby.getRole();
+            if(role != null && role.equals(roleCard) ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -104,34 +123,9 @@ public class RoleService extends AbstractService {
      */
     @Subscribe
     public void onRolesSendToClient(RetrieveAllRolesRequest retrieveAllRolesRequest) {
-        RetrieveAllRolesResponse rolesToComboBoxMessage = new RetrieveAllRolesResponse(roleManagement.getAllRoles(), retrieveAllRolesRequest.getLobby());
-        rolesToComboBoxMessage.initWithMessage(retrieveAllRolesRequest);
-        post(rolesToComboBoxMessage);
-    }
-
-    /**
-     * Handles a {@link LobbyLeaveUserRequest} which occurs when a user leaves a lobby.
-     * It removes the user's role from the lobby and updates the available roles for other users in the lobby.
-     *
-     * @param roleLogoutRequest the request to log out the user from the lobby
-     */
-    @Subscribe
-    public void onRoleLogoutRequest(LobbyLeaveUserRequest roleLogoutRequest) {
-        String lobbyName = roleLogoutRequest.getLobby().getName();
-
-        Optional<Lobby> lobbyOptional;
-        lobbyOptional = lobbyManagement.getLobby(roleLogoutRequest.getLobby());
-
-        if (lobbyOptional.isEmpty()) {
-            roleManagement.dropLobby(roleLogoutRequest.getLobby().getName());
-            return;
-        }
-
-        Lobby lobby = lobbyOptional.get();
-
-        roleManagement.dropUserInLobby(lobby, roleLogoutRequest.getUser());
-
-        //sendAvailableRolesToClients(lobby);
+        RetrieveAllRolesResponse retrieveAllRolesResponse = new RetrieveAllRolesResponse(roleManagement.getAllRoles(), retrieveAllRolesRequest.getLobby());
+        retrieveAllRolesResponse.initWithMessage(retrieveAllRolesRequest);
+        post(retrieveAllRolesResponse);
     }
 
     /**
@@ -140,8 +134,16 @@ public class RoleService extends AbstractService {
      * @param lobby the {@link Lobby} to which the available roles are being sent
      */
     private void sendAvailableRolesToClients(final Lobby lobby) {
-        final RetrieveAllAvailableRolesServerMessage message = new RetrieveAllAvailableRolesServerMessage(lobby, roleManagement.getAvailableRolesInLobby(lobby));
+        final RetrieveAllAvailableRolesServerMessage message = new RetrieveAllAvailableRolesServerMessage(
+                lobby,
+                getAvailableRolesInLobby(lobby)
+        );
         lobbyService.sendToAllInLobby(lobby, message);
+    }
+
+    public Set<RoleCard> getAvailableRolesInLobby(Lobby lobby) {
+        //TODO implement that only availables roles shows in the lobby
+        return null;
     }
 
 }

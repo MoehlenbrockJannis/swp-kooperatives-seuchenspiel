@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The Player class represents an abstract player in the game.
@@ -33,11 +34,8 @@ public abstract class Player implements Serializable, UserContainerEntity {
 
     /**
      * Constructor for creating a Player instance with the lastSick date.
-     *
-     * @param lastSick the date the player was last sick
      */
-    protected Player(Date lastSick) {
-        this.lastSick = lastSick;
+    protected Player() {
         this.handCards = new ArrayList<>();
     }
 
@@ -65,5 +63,17 @@ public abstract class Player implements Serializable, UserContainerEntity {
      */
     public void removeHandCard(PlayerCard playerCard) {
         this.handCards.remove(playerCard);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Player player) {
+            return this.getName().equals(player.getName());
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

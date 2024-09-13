@@ -3,7 +3,7 @@ package de.uol.swp.client.game;
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;

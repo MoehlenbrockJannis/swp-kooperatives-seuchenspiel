@@ -1,16 +1,15 @@
-package de.uol.swp.common.lobby.dto;
+package de.uol.swp.common.lobby;
 
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Object to transfer the information of a game lobby
@@ -30,6 +29,7 @@ public class LobbyDTO implements Lobby {
     @Getter
     private User owner;
     private final Set<User> users = new TreeSet<>();
+    private final Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
 
@@ -44,7 +44,7 @@ public class LobbyDTO implements Lobby {
     public LobbyDTO(String name, User creator) {
         this.name = name;
         this.owner = creator;
-        this.users.add(creator);
+        joinUser(creator);
         this.status = LobbyStatus.OPEN;
     }
 
@@ -64,6 +64,7 @@ public class LobbyDTO implements Lobby {
     @Override
     public void joinUser(User user) {
         this.users.add(user);
+        addPlayer(new UserPlayer(user));
     }
 
     @Override
@@ -73,6 +74,7 @@ public class LobbyDTO implements Lobby {
         }
         if (users.contains(user)) {
             this.users.remove(user);
+            removePlayer(getPlayerForUser(user));
             if (this.owner.equals(user)) {
                 updateOwner(users.iterator().next());
             }
@@ -100,6 +102,33 @@ public class LobbyDTO implements Lobby {
             }
         }
         return false;
+    }
+
+    @Override
+    public Set<Player> getPlayers() {
+        return Collections.unmodifiableSet(players);
+    }
+
+    @Override
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    @Override
+    public void removePlayer(Player player) {
+        players.remove(player);
+    }
+
+    @Override
+    public Player getPlayerForUser(User user) {
+        if(user != null) {
+            for (final Player player : players) {
+                if(player.containsUser(user)) {
+                    return player;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

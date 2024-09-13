@@ -4,7 +4,6 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.message.request.AbstractRequestMessage;
 import de.uol.swp.common.plague.Plague;
-import de.uol.swp.common.player.Player;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +17,6 @@ public class CreateGameRequest extends AbstractRequestMessage {
 
     private final Lobby lobby;
     private final MapType mapType;
-    private final List<Player> players;
     private final List<Plague> plagues;
     private int maxHandCards;
     private int numberOfPlagueCubesPerColor;
@@ -35,13 +33,11 @@ public class CreateGameRequest extends AbstractRequestMessage {
      *
      * @param lobby   The lobby from which the game is to be created
      * @param mapType The mapType of the game
-     * @param players The players of the game
      * @param plagues The plagues of the game
      */
-    public CreateGameRequest(Lobby lobby, MapType mapType, List<Player> players, List<Plague> plagues) {
+    public CreateGameRequest(Lobby lobby, MapType mapType, List<Plague> plagues) {
         this.lobby = lobby;
         this.mapType = mapType;
-        this.players = players;
         this.plagues = plagues;
     }
 
