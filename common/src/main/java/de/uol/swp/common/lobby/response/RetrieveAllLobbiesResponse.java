@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.response;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.message.response.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
 import lombok.EqualsAndHashCode;

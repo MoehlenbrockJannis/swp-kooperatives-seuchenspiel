@@ -1,14 +1,19 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -25,12 +30,55 @@ class LobbyDTOTest {
     private static final int NO_USERS = 10;
     private static final List<UserDTO> users;
 
+    private Lobby lobby;
+
     static {
         users = new ArrayList<>();
         for (int i = 0; i < NO_USERS; i++) {
             users.add(new UserDTO("marco" + i, "marco" + i, "marco" + i + "@grawunder.de"));
         }
         Collections.sort(users);
+    }
+
+    @BeforeEach
+    void setup() {
+        this.lobby = new LobbyDTO("test", defaultUser);
+    }
+
+    @Test
+    @DisplayName("Lobbys should be equal if names are equal")
+    void equalsTest_equal() {
+        final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next());
+
+        assertThat(lobby.equals(equalLobby))
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("Lobbys should be not equal if names are equal")
+    void equalsTest_notEqualLobby() {
+        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next());
+
+        assertThat(lobby.equals(notEqualLobby))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("Lobbys should be not equal if names are equal")
+    void equalsTest_notEqualObject() {
+        final Object object = new Object();
+
+        assertThat(lobby.equals(object))
+                .isFalse();
+    }
+
+    @Test
+    @DisplayName("Hashcode should consist of a hashcode of the lobby's name")
+    void hashCodeTest() {
+        final int hashcode = Objects.hashCode("test");
+
+        assertThat(lobby.hashCode())
+                .isEqualTo(hashcode);
     }
 
     /**
@@ -42,8 +90,6 @@ class LobbyDTOTest {
      */
     @Test
     void createLobbyTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
-
         assertEquals("test", lobby.getName());
         assertEquals(1, lobby.getUsers().size());
         assertEquals(defaultUser, lobby.getUsers().iterator().next());
@@ -60,18 +106,19 @@ class LobbyDTOTest {
      */
     @Test
     void joinUserLobbyTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
-
         lobby.joinUser(users.get(0));
         assertEquals(2,lobby.getUsers().size());
         assertTrue(lobby.getUsers().contains(users.get(0)));
+        assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
         lobby.joinUser(users.get(0));
         assertEquals(2, lobby.getUsers().size());
+        assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
         lobby.joinUser(users.get(1));
         assertEquals(3,lobby.getUsers().size());
         assertTrue(lobby.getUsers().contains(users.get(1)));
+        assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
     /**
@@ -84,14 +131,15 @@ class LobbyDTOTest {
      */
     @Test
     void leaveUserLobbyTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
         users.forEach(lobby::joinUser);
 
         assertEquals(lobby.getUsers().size(), users.size() + 1);
-        lobby.leaveUser(users.get(5));
+        assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
+        lobby.leaveUser(users.get(5));
         assertEquals(lobby.getUsers().size(), users.size() + 1 - 1);
         assertFalse(lobby.getUsers().contains(users.get(5)));
+        assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
     /**
@@ -104,7 +152,6 @@ class LobbyDTOTest {
      */
     @Test
     void removeOwnerFromLobbyTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
         users.forEach(lobby::joinUser);
 
         lobby.leaveUser(defaultUser);
@@ -124,7 +171,6 @@ class LobbyDTOTest {
      */
     @Test
     void updateOwnerTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
         users.forEach(lobby::joinUser);
 
         lobby.updateOwner(users.get(6));
@@ -142,9 +188,51 @@ class LobbyDTOTest {
      */
     @Test
     void assureNonEmptyLobbyTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
-
         assertThrows(IllegalArgumentException.class, () -> lobby.leaveUser(defaultUser));
+    }
+
+    @Test
+    void containsUserTest() {
+        assertThat(lobby.containsUser(defaultUser))
+                .isTrue();
+        assertThat(lobby.containsUser(users.iterator().next()))
+                .isFalse();
+    }
+
+    @Test
+    void addPlayerTest() {
+        final Player player = new UserPlayer(users.iterator().next());
+
+        lobby.addPlayer(player);
+        assertThat(lobby.getPlayers())
+                .contains(player);
+    }
+
+    @Test
+    void removePlayer() {
+        final Player player = new UserPlayer(users.iterator().next());
+
+        lobby.addPlayer(player);
+        assertThat(lobby.getPlayers())
+                .contains(player);
+
+        lobby.removePlayer(player);
+        assertThat(lobby.getPlayers())
+                .doesNotContain(player);
+    }
+
+    @Test
+    void getPlayerForUser_userInLobby() {
+        final Player player = new UserPlayer(defaultUser);
+
+        assertThat(lobby.getPlayerForUser(defaultUser))
+                .isEqualTo(player);
+    }
+
+    @Test
+    void getPlayerForUser_userNotInLobby() {
+        assertThat(lobby.getPlayerForUser(users.iterator().next()))
+                .isNull();
     }
 
     /**
@@ -156,8 +244,6 @@ class LobbyDTOTest {
      */
     @Test
     void determineLobbyStatusTest() {
-        Lobby lobby = new LobbyDTO("test", defaultUser);
-
         assertEquals(LobbyStatus.OPEN, lobby.getStatus());
 
         for (int i = 0; i < 3; i++) {

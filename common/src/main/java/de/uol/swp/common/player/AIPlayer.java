@@ -1,7 +1,5 @@
 package de.uol.swp.common.player;
 
-import java.util.Date;
-
 import de.uol.swp.common.user.User;
 import lombok.*;
 
@@ -18,11 +16,9 @@ public class AIPlayer extends Player{
     /**
      * Constructs an AIPlayer instance with the specified last sickness date and name.
      *
-     * @param lastSick the date when the AI player was last sick
      * @param name the name of the AI player
      */
-    public AIPlayer(Date lastSick, String name) {
-        super(lastSick);
+    public AIPlayer(String name) {
         this.name = name;
     }
 

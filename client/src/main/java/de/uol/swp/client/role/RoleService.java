@@ -24,8 +24,8 @@ public class RoleService {
     }
 
     public void sendRolesToComboBoxRequest(Lobby lobby) {
-        RetrieveAllRolesRequest roleRenderComboBoxRequest = new RetrieveAllRolesRequest(lobby);
-        eventBus.post(roleRenderComboBoxRequest);
+        RetrieveAllRolesRequest retrieveAllRolesRequest = new RetrieveAllRolesRequest(lobby);
+        eventBus.post(retrieveAllRolesRequest);
     }
 
     public void sendRoleAssignmentRequest(Lobby lobby, User user, RoleCard roleCard) {

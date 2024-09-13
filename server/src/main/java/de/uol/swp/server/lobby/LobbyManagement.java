@@ -2,8 +2,7 @@ package de.uol.swp.server.lobby;
 
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.user.User;
+import de.uol.swp.common.lobby.LobbyDTO;
 
 import java.util.*;
 
@@ -11,7 +10,7 @@ import java.util.*;
  * Manages creation, deletion and storing of lobbies
  *
  * @see de.uol.swp.common.lobby.Lobby
- * @see de.uol.swp.common.lobby.dto.LobbyDTO
+ * @see LobbyDTO
  * @author Marco Grawunder
  * @since 2019-10-08
  */
@@ -78,6 +77,16 @@ public class LobbyManagement {
      */
     public List<Lobby> getAllLobbies() {
         return new ArrayList<>(lobbies.values());
+    }
+
+    /**
+     * Updates a lobby
+     *
+     * @param lobby The lobby to update
+     * @since 2024-09-13
+     */
+    public void updateLobby(final Lobby lobby) {
+        lobbies.put(lobby.getName(), lobby);
     }
 
     /**

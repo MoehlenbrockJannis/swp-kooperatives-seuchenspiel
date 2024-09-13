@@ -3,7 +3,7 @@ package de.uol.swp.client.lobby;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;

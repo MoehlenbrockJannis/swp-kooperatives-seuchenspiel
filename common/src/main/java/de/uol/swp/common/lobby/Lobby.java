@@ -1,5 +1,6 @@
 package de.uol.swp.common.lobby;
 
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
 
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.Set;
  * possible that not every client has to have every information of the lobby.
  *
  * @author Marco Grawunder
- * @see de.uol.swp.common.lobby.dto.LobbyDTO
+ * @see LobbyDTO
  * @since 2019-10-08
  */
 public interface Lobby extends Serializable {
@@ -73,6 +74,39 @@ public interface Lobby extends Serializable {
      * @since 2024-08-29
      */
     boolean containsUser(User user);
+
+    /**
+     * Getter for all players in the lobby
+     *
+     * @return A Set containing all players in this lobby
+     * @since 2024-09-13
+     */
+    Set<Player> getPlayers();
+
+    /**
+     * Adds a new Player to the player Set
+     *
+     * @param player The new player to add to the player Set
+     * @since 2024-09-13
+     */
+    void addPlayer(Player player);
+
+    /**
+     * Removes a player from the lobby
+     *
+     * @param player The player to remove from the lobby
+     * @since 2019-10-08
+     */
+    void removePlayer(Player player);
+
+    /**
+     * Gets the Player for the User<br>
+     * Returns null if there's no player for the user
+     *
+     * @param user user of the returned {@link de.uol.swp.common.player.UserPlayer}
+     * @since 2019-10-08
+     */
+    Player getPlayerForUser(User user);
 
     /**
      * Getter for the current status of the lobby

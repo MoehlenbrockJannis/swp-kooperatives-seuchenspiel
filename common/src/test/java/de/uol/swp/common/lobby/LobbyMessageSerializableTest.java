@@ -1,7 +1,6 @@
 package de.uol.swp.common.lobby;
 
 import de.uol.swp.common.SerializationTestHelper;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
 import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
 import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;

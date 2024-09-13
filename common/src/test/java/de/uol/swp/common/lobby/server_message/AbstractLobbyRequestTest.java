@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.server_message;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.AbstractLobbyRequest;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.Test;

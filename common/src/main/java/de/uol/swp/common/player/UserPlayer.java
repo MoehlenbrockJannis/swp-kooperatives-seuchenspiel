@@ -16,11 +16,9 @@ public class UserPlayer extends Player{
     /**
      * Constructs a UserPlayer instance with the specified last sickness date and user account.
      *
-     * @param lastSick the date when the user was last sick
      * @param user the User object associated with this player
      */
-    public UserPlayer(Date lastSick, User user) {
-        super(lastSick);
+    public UserPlayer(User user) {
         this.user = user;
     }
 
