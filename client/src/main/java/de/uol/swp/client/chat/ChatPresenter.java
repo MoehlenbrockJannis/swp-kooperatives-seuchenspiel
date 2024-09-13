@@ -2,12 +2,10 @@ package de.uol.swp.client.chat;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
-import de.uol.swp.common.chat.message.LobbyChatRetrieveAllMessagesMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllLobbyChatMessagesServerMessage;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
@@ -17,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import lombok.Setter;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.time.LocalTime;
@@ -63,11 +60,10 @@ public class ChatPresenter extends AbstractPresenter {
         chatMessageInput.clear();
 
         if (this.lobby != null) {
-            String lobbyName = lobby.getName();
-            chatService.sendLobbyChatRequest(user, chatMessage, timeStamp, lobbyName);
+            chatService.sendLobbyChatRequest(user, chatMessage, timeStamp, lobby);
         }
         else {
-            chatService.sendChatRequest(user.getUsername(), chatMessage, timeStamp);
+            chatService.sendChatRequest(user, chatMessage, timeStamp);
         }
     }
 
@@ -102,15 +98,15 @@ public class ChatPresenter extends AbstractPresenter {
     /**
      * Handles chat responses
      *
-     * If a ChatRetrieveAllMessagesMessage object is posted to the EventBus the chat view is updated
+     * If a RetrieveAllChatMessagesServerMessage object is posted to the EventBus the chat view is updated
      * according to the chat messages in the message received.
      *
-     * @param chatRetrieveAllMessagesMessage the ChatRetrieveAllMessagesMessage object seen on the EventBus
-     * @see ChatRetrieveAllMessagesMessage
+     * @param chatRetrieveAllMessagesMessage the RetrieveAllChatMessagesServerMessage object seen on the EventBus
+     * @see RetrieveAllChatMessagesServerMessage
      * @since 2024-08-26
      */
     @Subscribe
-    public void onChatMessage(ChatRetrieveAllMessagesMessage chatRetrieveAllMessagesMessage) {
+    public void onChatMessage(RetrieveAllChatMessagesServerMessage chatRetrieveAllMessagesMessage) {
         if (this.lobby == null){
             updateChat(chatRetrieveAllMessagesMessage.getChatMessages());
         }
@@ -119,19 +115,18 @@ public class ChatPresenter extends AbstractPresenter {
     /**
      * Handles lobby chat messages.
      *
-     * If a LobbyChatRetrieveAllMessagesMessage object is posted to the EventBus, this method updates the chat view
+     * If a RetrieveAllLobbyChatMessagesServerMessage object is posted to the EventBus, this method updates the chat view
      * according to the chat messages in the received message.
      *
-     * @param lobbyChatRetrieveAllMessagesMessage the LobbyChatRetrieveAllMessagesMessage object seen on the EventBus
-     * @see LobbyChatRetrieveAllMessagesMessage
+     * @param lobbyChatRetrieveAllMessagesMessage the RetrieveAllLobbyChatMessagesServerMessage object seen on the EventBus
+     * @see RetrieveAllLobbyChatMessagesServerMessage
      * @since 2024-09-09
      */
     @Subscribe
-    public void onLobbyChatMessage(LobbyChatRetrieveAllMessagesMessage lobbyChatRetrieveAllMessagesMessage) {
-        if( this.lobby != null && this.lobby.getName().equals(lobbyChatRetrieveAllMessagesMessage.getLobbyName())) {
+    public void onLobbyChatMessage(RetrieveAllLobbyChatMessagesServerMessage lobbyChatRetrieveAllMessagesMessage) {
+        if (this.lobby != null && this.lobby.equals(lobbyChatRetrieveAllMessagesMessage.getLobby())) {
             updateChat(lobbyChatRetrieveAllMessagesMessage.getChatMessage());
         }
-
     }
 
 

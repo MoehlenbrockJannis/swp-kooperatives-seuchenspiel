@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.response;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.message.AbstractResponseMessage;
+import de.uol.swp.common.message.response.AbstractResponseMessage;
 import de.uol.swp.common.user.User;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 /**
  * Response sent to the client containing the joined lobby and the joining user
  *
- * @see de.uol.swp.common.message.AbstractResponseMessage
+ * @see AbstractResponseMessage
  * @see de.uol.swp.common.lobby.Lobby
  * @see de.uol.swp.common.user.User
  * @author Tom Weelborg

@@ -3,7 +3,7 @@ package de.uol.swp.server.game;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.CreateGameRequest;
-import de.uol.swp.common.game.response.GameCreatedResponse;
+import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
@@ -40,7 +40,7 @@ public class GameService extends AbstractService {
     public void onCreateGameRequest(CreateGameRequest createGameRequest) {
         final Game game = gameManagement.createGame(createGameRequest.getLobby(), createGameRequest.getMapType(), createGameRequest.getPlayers(), createGameRequest.getPlagues());
 
-        final GameCreatedResponse response = new GameCreatedResponse(game);
+        final CreateGameServerMessage response = new CreateGameServerMessage(game);
 
         response.initWithMessage(createGameRequest);
         response.setReceiver(authenticationService.getSessions(createGameRequest.getLobby().getUsers()));

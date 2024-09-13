@@ -4,7 +4,7 @@ package de.uol.swp.client;
 import java.net.ConnectException;
 
 import lombok.Getter;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -14,18 +14,15 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.Configuration;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
 import io.netty.channel.Channel;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
-import java.net.ConnectException;
 import java.util.List;
 
 /**
@@ -174,8 +171,8 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * @since 2024-08-29
 	 */
 	@Subscribe
-	public void onLogoutSuccessfulResponse(UserLoggedOutMessage message) {
-		LOG.debug("user logged out successfully {}", message.getUsername());
+	public void onLogoutSuccessfulResponse(LogoutServerMessage message) {
+		LOG.debug("user logged out successfully {}", message.getUser().getUsername());
 		this.user = null;
 	}
 
@@ -192,7 +189,7 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * @since 2019-09-02
 	 */
 	@Subscribe
-	public void onRegistrationExceptionMessage(RegistrationExceptionMessage message){
+	public void onRegistrationExceptionMessage(RegisterUserExceptionResponse message){
 		sceneManager.showServerError(String.format("Registration error %s", message));
 		LOG.error("Registration error {}", message);
 	}
@@ -210,7 +207,7 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * @since 2019-09-02
 	 */
 	@Subscribe
-	public void onRegistrationSuccessfulMessage(RegistrationSuccessfulResponse message) {
+	public void onRegistrationSuccessfulMessage(RegisterUserSuccessResponse message) {
 		LOG.info("Registration successful.");
 		sceneManager.showLoginScreen();
 	}

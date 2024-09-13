@@ -10,8 +10,9 @@ import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.user.UserContainerEntity;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.message.UserLoggedInMessage;
-import de.uol.swp.common.user.message.UsersListMessage;
+import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
+import de.uol.swp.common.user.server_message.LoginServerMessage;
+import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,12 +91,12 @@ public class MainMenuPresenter extends AbstractPresenter {
      * <Username>} logged in." is displayed in the log.
      *
      * @param message the UserLoggedInMessage object seen on the EventBus
-     * @see de.uol.swp.common.user.message.UserLoggedInMessage
+     * @see LoginServerMessage
      * @since 2019-08-29
      */
     @Subscribe
-    public void onUserLoggedInMessage(UserLoggedInMessage message) {
-        LOG.debug("New user {}  logged in,", message.getUsername());
+    public void onUserLoggedInMessage(LoginServerMessage message) {
+        LOG.debug("New user {}  logged in,", message.getUser().getUsername());
         if (loggedInUserProvider.get() != null) {
             userService.retrieveAllUsers();
         }
@@ -110,16 +112,14 @@ public class MainMenuPresenter extends AbstractPresenter {
      * log.
      *
      * @param allUsersResponse the AllOnlineUsersResponse object seen on the EventBus
-     * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
+     * @see RetrieveAllOnlineUsersResponse
      * @see UserContainerEntityListPresenter#setList(Collection)
      * @since 2019-08-29
      */
     @Subscribe
-    public void onAllOnlineUsersResponse(UsersListMessage allUsersResponse) {
+    public void onAllOnlineUsersResponse(RetrieveAllOnlineUsersServerMessage allUsersResponse) {
         LOG.debug("Update of user list {}", allUsersResponse.getUsers());
-        final List<UserContainerEntity> usersWithUsernames = allUsersResponse.getUsers().stream()
-                .map(username -> new UserDTO(username, "", ""))
-                .collect(Collectors.toList());
+        final List<UserContainerEntity> usersWithUsernames = new ArrayList<>(allUsersResponse.getUsers());
         this.userContainerEntityListController.setList(usersWithUsernames);
     }
 

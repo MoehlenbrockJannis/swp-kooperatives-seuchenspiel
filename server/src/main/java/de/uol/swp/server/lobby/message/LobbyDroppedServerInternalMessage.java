@@ -1,5 +1,6 @@
 package de.uol.swp.server.lobby.message;
 
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.server.message.AbstractServerInternalMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LobbyDroppedServerInternalMessage extends AbstractServerInternalMessage {
 
-    private final String lobbyName;
+    private final Lobby lobby;
 
 }

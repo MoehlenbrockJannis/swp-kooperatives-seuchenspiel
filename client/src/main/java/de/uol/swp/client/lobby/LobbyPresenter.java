@@ -9,16 +9,16 @@ import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.response.GameCreatedResponse;
+import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.message.AbstractLobbyMessage;
-import de.uol.swp.common.lobby.message.UserJoinedLobbyMessage;
-import de.uol.swp.common.lobby.message.UserLeftLobbyMessage;
+import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
+import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
+import de.uol.swp.common.lobby.server_message.LobbyLeaveUserServerMessage;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.message.RolesAvailableMessage;
-import de.uol.swp.common.role.response.RoleAssignedMessage;
-import de.uol.swp.common.role.response.RolesToComboBoxMessage;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
+import de.uol.swp.common.role.response.RoleAssignmentResponse;
+import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
 import javafx.application.Platform;
@@ -91,7 +91,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
         updateStartGameButton();
         setTitle(lobby.getName());
-        stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
+        stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby, loggedInUserProvider.get()));
         stage.show();
         initializeComboBox();
 
@@ -117,7 +117,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the message containing the roles to be displayed in the combo box.
      */
     @Subscribe
-    public void onRolesSendToComboBox(RolesToComboBoxMessage message) {
+    public void onRolesSendToComboBox(RetrieveAllRolesResponse message) {
         if (lobby.getName().equals(message.getLobby().getName())) {
             Platform.runLater(() -> {
                 Set<RoleCard> roles = message.getRoleCardSet();
@@ -134,7 +134,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the message containing information about available roles.
      */
     @Subscribe
-    public void onRolesAvailableMessage(RolesAvailableMessage message) {
+    public void onRolesAvailableMessage(RetrieveAllAvailableRolesServerMessage message) {
         Platform.runLater(() -> {
             //TODO Remove unavailable roles or disable them. Implementation available in RoleManagement.java.
         });
@@ -155,17 +155,17 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the role {@link ComboBox} based on the {@link RoleAssignedMessage}.
+     * Updates the role {@link ComboBox} based on the {@link RoleAssignmentResponse}.
      *
      * If a role is assigned, sets the {@link ComboBox} prompt text. If no role is assigned, clears the selection.
      *
      * @param roleAssignedMessage contains role assignment details.
      */
     @Subscribe
-    public void onRoleAssignedMessage(RoleAssignedMessage roleAssignedMessage) {
+    public void onRoleAssignedMessage(RoleAssignmentResponse roleAssignedMessage) {
         Platform.runLater(() -> {
             if(roleAssignedMessage.isRoleAssigned()) {
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCardName());
+                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
             } else {
                 roleComboBox.setValue(null);
             }
@@ -181,27 +181,27 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
-        lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get());
+        lobbyService.leaveLobby(lobby, loggedInUserProvider.get());
         stage.close();
     }
 
-    private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyMessage lobbyMessage, final Runnable executable) {
-        if (lobby.getName().equals(lobbyMessage.getLobbyName())) {
+    private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
+        if (lobby.equals(lobbyMessage.getLobby())) {
             executable.run();
         }
     }
 
     @Subscribe
-    public void onUserJoinedLobbyMessage(final UserJoinedLobbyMessage userJoinedLobbyMessage) {
-        final Runnable executable = () -> lobby.joinUser(userJoinedLobbyMessage.getUser());
+    public void onUserJoinedLobbyMessage(final LobbyJoinUserServerMessage userJoinedLobbyMessage) {
+        final Runnable executable = () -> this.lobby = userJoinedLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userJoinedLobbyMessage, executable);
         updateStartGameButton();
         updatePlayerList();
     }
 
     @Subscribe
-    public void onUserLeftLobbyMessage(final UserLeftLobbyMessage userLeftLobbyMessage) {
-        final Runnable executable = () -> lobby.leaveUser(userLeftLobbyMessage.getUser());
+    public void onUserLeftLobbyMessage(final LobbyLeaveUserServerMessage userLeftLobbyMessage) {
+        final Runnable executable = () -> this.lobby = userLeftLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userLeftLobbyMessage, executable);
         updateStartGameButton();
         updatePlayerList();
@@ -229,7 +229,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param event The event that triggered the method
      */
     @Subscribe
-    public void onGameCreatedResponse(GameCreatedResponse event) {
+    public void onGameCreatedResponse(CreateGameServerMessage event) {
         final Game game = event.getGame();
         final Lobby gameLobby = game.getLobby();
 
@@ -257,7 +257,7 @@ public class LobbyPresenter extends AbstractPresenter {
                 gameScene.getStylesheets().add(STYLE_SHEET);
 
                 stage.setScene(gameScene);
-                stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby.getName(), loggedInUserProvider.get()));
+                stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby, loggedInUserProvider.get()));
                 stage.setTitle("Game: " + game.getLobby().getName());
 
                 gameBoardPresenter.initialize(stage, game);

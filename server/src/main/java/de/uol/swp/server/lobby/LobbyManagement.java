@@ -24,19 +24,17 @@ public class LobbyManagement {
      *
      * @implNote the primary key of the lobbies is the name therefore the name has
      *           to be unique
-     * @param name the name of the lobby to create
-     * @param owner the user who wants to create a lobby
+     * @param lobby the lobby to create
      * @see de.uol.swp.common.user.User
      * @throws IllegalArgumentException name already taken
      * @since 2019-10-08
      */
-    public Lobby createLobby(String name, User owner) {
-        if (lobbies.containsKey(name)) {
-            throw new IllegalArgumentException("Lobby name " + name + " already exists!");
+    public Lobby createLobby(Lobby lobby) {
+        if (lobbies.containsKey(lobby.getName())) {
+            throw new IllegalArgumentException("Lobby " + lobby + " already exists!");
         }
-        final Lobby lobby = new LobbyDTO(name, owner);
 
-        lobbies.put(name, lobby);
+        lobbies.put(lobby.getName(), lobby);
 
         return lobby;
     }
@@ -44,30 +42,30 @@ public class LobbyManagement {
     /**
      * Deletes lobby with requested name
      *
-     * @param name String containing the name of the lobby to delete
+     * @param lobby lobby to delete
      * @throws IllegalArgumentException there exists no lobby with the  requested
      *                                  name
      * @since 2019-10-08
      */
-    public void dropLobby(String name) {
-        if (!lobbies.containsKey(name)) {
-            throw new IllegalArgumentException("Lobby name " + name + " not found!");
+    public void dropLobby(Lobby lobby) {
+        if (!lobbies.containsKey(lobby.getName())) {
+            throw new IllegalArgumentException("Lobby " + lobby + " not found!");
         }
-        lobbies.remove(name);
+        lobbies.remove(lobby.getName());
     }
 
     /**
      * Searches for the lobby with the requested name
      *
-     * @param name String containing the name of the lobby to search for
+     * @param lobby the lobby to search for
      * @return either empty Optional or Optional containing the lobby
      * @see Optional
      * @since 2019-10-08
      */
-    public Optional<Lobby> getLobby(String name) {
-        Lobby lobby = lobbies.get(name);
-        if (lobby != null) {
-            return Optional.of(lobby);
+    public Optional<Lobby> getLobby(Lobby lobby) {
+        Lobby lobbyInStore = lobbies.get(lobby.getName());
+        if (lobbyInStore != null) {
+            return Optional.of(lobbyInStore);
         }
         return Optional.empty();
     }
@@ -85,11 +83,11 @@ public class LobbyManagement {
     /**
      * Updates the status of a lobby
      *
-     * @param lobbyName The name of the lobby to update
+     * @param lobby The lobby to update
      * @param status The new status of the lobby
      * @since 2024-08-29
      */
-    public void updateLobbyStatus(String lobbyName, LobbyStatus status) {
-        lobbies.get(lobbyName).setStatus(status);
+    public void updateLobbyStatus(Lobby lobby, LobbyStatus status) {
+        lobbies.get(lobby.getName()).setStatus(status);
     }
 }

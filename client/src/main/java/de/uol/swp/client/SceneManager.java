@@ -19,8 +19,8 @@ import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
-import de.uol.swp.common.role.response.RoleAvailableMessage;
-import de.uol.swp.common.role.response.RoleUnavailableMessage;
+import de.uol.swp.common.role.response.RoleAvailableResponse;
+import de.uol.swp.common.role.response.RoleUnavailableResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -528,7 +528,7 @@ public class SceneManager {
      * @param roleUnavailableMessage The message containing information about the unavailable role.
      */
     @Subscribe
-    public void onRoleUnavailableMessage(RoleUnavailableMessage roleUnavailableMessage) {
+    public void onRoleUnavailableMessage(RoleUnavailableResponse roleUnavailableMessage) {
         onShowRoleIsUnavailable();
     }
 
@@ -539,7 +539,7 @@ public class SceneManager {
      * @param roleAvailableMessage The message containing information about the available role.
      */
     @Subscribe
-    public void onRoleAvailableMessage(RoleAvailableMessage roleAvailableMessage) {
+    public void onRoleAvailableMessage(RoleAvailableResponse roleAvailableMessage) {
         onShowRoleSelected();
     }
 

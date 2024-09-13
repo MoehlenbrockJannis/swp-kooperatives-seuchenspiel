@@ -1,6 +1,6 @@
 package de.uol.swp.server.chat;
 
-import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
@@ -46,13 +46,13 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onChatRequestTest() throws InterruptedException {
-        SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(defaultUser.getUsername(), "Test", LocalTime.now());
+        SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(defaultUser, "Test", LocalTime.now());
         post(sendChatMessageRequest);
 
         assertNotNull(chatManagement.getChatMessages());
         assertEquals(1, chatManagement.getChatMessages().size());
 
-        SendChatMessageRequest sendChatMessageRequest2 = new SendChatMessageRequest(defaultUser.getUsername(), "Test2", LocalTime.now());
+        SendChatMessageRequest sendChatMessageRequest2 = new SendChatMessageRequest(defaultUser, "Test2", LocalTime.now());
         post(sendChatMessageRequest2);
 
         assertEquals(2, chatManagement.getChatMessages().size());
@@ -64,20 +64,16 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onLobbyChatRequestTest() throws InterruptedException {
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest( "Test", LocalTime.now());
-        sendLobbyChatMessageRequest.setUser(defaultUser);
-        sendLobbyChatMessageRequest.setLobbyName(defaultLobby.getName());
+        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
         post(sendLobbyChatMessageRequest);
 
-        assertNotNull(chatManagement.getLobbyChatMessages(this.defaultLobby.getName()));
-        assertEquals(1, chatManagement.getLobbyChatMessages(this.defaultLobby.getName()).size());
+        assertNotNull(chatManagement.getLobbyChatMessages(this.defaultLobby));
+        assertEquals(1, chatManagement.getLobbyChatMessages(this.defaultLobby).size());
 
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest2 = new SendLobbyChatMessageRequest( "Test", LocalTime.now());
-        sendLobbyChatMessageRequest2.setUser(defaultUser);
-        sendLobbyChatMessageRequest2.setLobbyName(defaultLobby.getName());
+        SendLobbyChatMessageRequest sendLobbyChatMessageRequest2 = new SendLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
         post(sendLobbyChatMessageRequest2);
 
-        assertEquals(2, chatManagement.getLobbyChatMessages(this.defaultLobby.getName()).size());
+        assertEquals(2, chatManagement.getLobbyChatMessages(this.defaultLobby).size());
     }
 
     /**
@@ -86,11 +82,11 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onLobbyDroppedServerInternalMessage() throws InterruptedException {
-        chatManagement.addLobbyChatMessage(defaultLobby.getName(), "Test");
-        LobbyDroppedServerInternalMessage lobbyDroppedServerInternalMessage = new LobbyDroppedServerInternalMessage(defaultLobby.getName());
+        chatManagement.addLobbyChatMessage(defaultLobby, "Test");
+        LobbyDroppedServerInternalMessage lobbyDroppedServerInternalMessage = new LobbyDroppedServerInternalMessage(defaultLobby);
         post(lobbyDroppedServerInternalMessage);
 
-        assertThat(chatManagement.getLobbyChatMessages(this.defaultLobby.getName())).isNullOrEmpty();
+        assertThat(chatManagement.getLobbyChatMessages(this.defaultLobby)).isNullOrEmpty();
 
 
     }
@@ -101,7 +97,7 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onRetrieveChatRequestTest() throws InterruptedException {
-        RetrieveChatRequest retrieveChatRequest = new RetrieveChatRequest();
+        RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest();
         post(retrieveChatRequest);
 
         assertNotNull(chatManagement.getChatMessages());
@@ -113,10 +109,10 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onRetrieveLobbyRequestTest() throws InterruptedException {
-        chatManagement.addLobbyChatMessage(defaultLobby.getName(), "Test");
-        RetrieveChatRequest retrieveChatRequest = new RetrieveChatRequest(this.defaultLobby.getName());
+        chatManagement.addLobbyChatMessage(defaultLobby, "Test");
+        RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest(this.defaultLobby);
         post(retrieveChatRequest);
 
-        assertNotNull(chatManagement.getLobbyChatMessages(retrieveChatRequest.getLobbyName()));
+        assertNotNull(chatManagement.getLobbyChatMessages(retrieveChatRequest.getLobby()));
     }
 }

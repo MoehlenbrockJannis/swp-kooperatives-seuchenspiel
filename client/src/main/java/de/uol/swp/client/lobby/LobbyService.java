@@ -1,16 +1,12 @@
 package de.uol.swp.client.lobby;
 
+import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
-import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
+import de.uol.swp.common.lobby.dto.LobbyDTO;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
-import com.google.inject.Inject;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.user.UserDTO;
 
 /**
  * Classes that manages lobbies
@@ -42,50 +38,51 @@ public class LobbyService {
     /**
      * Posts a request to create a lobby on the EventBus
      *
-     * @param name Name chosen for the new lobby
-     * @param user User who wants to create the new lobby
-     * @see de.uol.swp.common.lobby.message.CreateLobbyRequest
+     * @param lobbyName Name chosen for the new lobby
+     * @param owner User who wants to create the new lobby
+     * @see CreateLobbyRequest
      * @since 2019-11-20
      */
-    public void createNewLobby(String name, UserDTO user) {
-        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(name, user);
+    public void createNewLobby(String lobbyName, User owner) {
+        LobbyDTO lobby = new LobbyDTO(lobbyName, owner);
+        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(lobby, owner);
         eventBus.post(createLobbyRequest);
     }
 
     /**
      * Posts a request to join a specified lobby on the EventBus
      *
-     * @param name Name of the lobby the user wants to join
+     * @param lobby Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @see de.uol.swp.common.lobby.message.LobbyJoinUserRequest
+     * @see LobbyJoinUserRequest
      * @since 2019-11-20
      */
-    public void joinLobby(final String name, final User user) {
-        final LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(name, user);
+    public void joinLobby(final Lobby lobby, final User user) {
+        final LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(lobby, user);
         eventBus.post(joinUserRequest);
     }
 
     /**
      * Posts a request to find all lobbies to the EventBus
      *
-     * @see de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest
+     * @see RetrieveAllLobbiesRequest
      * @since 2024-08-24
      */
     public void findLobbies() {
-        final LobbyFindLobbiesRequest lobbyFindLobbiesRequest = new LobbyFindLobbiesRequest();
-        eventBus.post(lobbyFindLobbiesRequest);
+        final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest = new RetrieveAllLobbiesRequest();
+        eventBus.post(retrieveAllLobbiesRequest);
     }
 
     /**
      * Posts a request to leave a lobby on the EventBus
      *
-     * @param lobbyName Name of the lobby to leave
+     * @param lobby Name of the lobby to leave
      * @param user User who wants to leave the lobby
-     * @see de.uol.swp.common.lobby.message.LobbyLeaveUserRequest
+     * @see LobbyLeaveUserRequest
      * @since 2024-08-28
      */
-    public void leaveLobby(final String lobbyName, final User user) {
-        final LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobbyName, (UserDTO) user);
+    public void leaveLobby(final Lobby lobby, final User user) {
+        final LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobby, user);
         eventBus.post(leaveLobbyRequest);
     }
 

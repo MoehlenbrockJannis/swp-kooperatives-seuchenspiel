@@ -1,9 +1,9 @@
 package de.uol.swp.server.chat;
 
-import de.uol.swp.common.chat.message.ChatRetrieveAllMessagesMessage;
-import de.uol.swp.common.chat.message.LobbyChatRetrieveAllMessagesMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllLobbyChatMessagesServerMessage;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
-import de.uol.swp.common.chat.request.RetrieveChatRequest;
+import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
@@ -39,8 +39,8 @@ public class ChatService extends AbstractService {
      */
     @Subscribe
     public void onChatRequest(SendChatMessageRequest sendChatMessageRequest) {
-        chatManagement.addChatMessage(getChatMessage(sendChatMessageRequest.getTimestamp(), sendChatMessageRequest.getUserName(), sendChatMessageRequest.getChatMessage()));
-        ChatRetrieveAllMessagesMessage response = new ChatRetrieveAllMessagesMessage(chatManagement.getChatMessages());
+        chatManagement.addChatMessage(getChatMessage(sendChatMessageRequest.getTimestamp(), sendChatMessageRequest.getUser().getUsername(), sendChatMessageRequest.getChatMessage()));
+        RetrieveAllChatMessagesServerMessage response = new RetrieveAllChatMessagesServerMessage(chatManagement.getChatMessages());
         response.initWithMessage(sendChatMessageRequest);
         post(response);
     }
@@ -55,10 +55,10 @@ public class ChatService extends AbstractService {
      */
     @Subscribe
     public void onLobbyChatRequest(SendLobbyChatMessageRequest sendLobbyChatMessageRequest) {
-        chatManagement.addLobbyChatMessage(sendLobbyChatMessageRequest.getLobbyName(), getChatMessage(sendLobbyChatMessageRequest.getTimestamp(), sendLobbyChatMessageRequest.getUser().getUsername(), sendLobbyChatMessageRequest.getChatMessage()));
+        chatManagement.addLobbyChatMessage(sendLobbyChatMessageRequest.getLobby(), getChatMessage(sendLobbyChatMessageRequest.getTimestamp(), sendLobbyChatMessageRequest.getUser().getUsername(), sendLobbyChatMessageRequest.getChatMessage()));
 
-        LobbyChatRetrieveAllMessagesMessage response = new LobbyChatRetrieveAllMessagesMessage(chatManagement.getLobbyChatMessages(sendLobbyChatMessageRequest.getLobbyName()));
-        response.setLobbyName(sendLobbyChatMessageRequest.getLobbyName());
+        RetrieveAllLobbyChatMessagesServerMessage response = new RetrieveAllLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(sendLobbyChatMessageRequest.getLobby()));
+        response.setLobby(sendLobbyChatMessageRequest.getLobby());
         response.initWithMessage(sendLobbyChatMessageRequest);
         post(response);
 
@@ -66,7 +66,7 @@ public class ChatService extends AbstractService {
 
     @Subscribe
     public  void onLobbyDropServerInternalMessage(LobbyDroppedServerInternalMessage lobbyDroppedServerInternalMessage){
-        chatManagement.removeLobbyChatMessages(lobbyDroppedServerInternalMessage.getLobbyName());
+        chatManagement.removeLobbyChatMessages(lobbyDroppedServerInternalMessage.getLobby());
     }
 
     /**
@@ -81,21 +81,21 @@ public class ChatService extends AbstractService {
     /**
      * Handles RetrieveChatRequests found on the EventBus
      *
-     * If a RetrieveChatRequest is detected on the EventBus, this method is called.
-     * It sends a ChatRetrieveAllMessagesMessage or a LobbyChatRetrieveAllMessagesMassage with all chat messages to the EventBus.
+     * If a RetrieveAllChatMessagesRequest is detected on the EventBus, this method is called.
+     * It sends a RetrieveAllChatMessagesServerMessage or a LobbyChatRetrieveAllMessagesMassage with all chat messages to the EventBus.
      *
-     * @param msg The RetrieveChatRequest found on the EventBus
+     * @param msg The RetrieveAllChatMessagesRequest found on the EventBus
      */
     @Subscribe
-    public void onRetrieveChatRequest(RetrieveChatRequest msg) {
-        if(msg.getLobbyName() == null) {
-            ChatRetrieveAllMessagesMessage response = new ChatRetrieveAllMessagesMessage(chatManagement.getChatMessages());
+    public void onRetrieveChatRequest(RetrieveAllChatMessagesRequest msg) {
+        if(msg.getLobby() == null) {
+            RetrieveAllChatMessagesServerMessage response = new RetrieveAllChatMessagesServerMessage(chatManagement.getChatMessages());
             response.initWithMessage(msg);
             post(response);
         }
         else {
-            LobbyChatRetrieveAllMessagesMessage response = new LobbyChatRetrieveAllMessagesMessage(chatManagement.getLobbyChatMessages(msg.getLobbyName()));
-            response.setLobbyName(msg.getLobbyName());
+            RetrieveAllLobbyChatMessagesServerMessage response = new RetrieveAllLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(msg.getLobby()));
+            response.setLobby(msg.getLobby());
             response.initWithMessage(msg);
             post(response);
         }

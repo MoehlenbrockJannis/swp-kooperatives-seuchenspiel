@@ -1,18 +1,18 @@
 package de.uol.swp.server.usermanagement;
 
 
-import de.uol.swp.common.user.message.UsersListMessage;
+import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.server.EventBusBasedTest;
 import org.greenrobot.eventbus.Subscribe;
 
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
+import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
@@ -46,17 +46,17 @@ public class AuthenticationServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(UserLoggedOutMessage e) {
+    public void onEvent(LogoutServerMessage e) {
         handleEvent(e);
     }
 
     @Subscribe
-    public void onEvent(AllOnlineUsersResponse e) {
+    public void onEvent(RetrieveAllOnlineUsersResponse e) {
         handleEvent(e);
     }
 
     @Subscribe
-    public void onEvent(UsersListMessage e) {
+    public void onEvent(RetrieveAllOnlineUsersServerMessage e) {
         handleEvent(e);
     }
 
@@ -112,10 +112,10 @@ public class AuthenticationServiceTest extends EventBusBasedTest {
 
         RetrieveAllOnlineUsersRequest request = new RetrieveAllOnlineUsersRequest();
         postAndWait(request);
-        assertTrue(event instanceof UsersListMessage);
+        assertTrue(event instanceof RetrieveAllOnlineUsersServerMessage);
 
-        assertEquals(1, ((UsersListMessage) event).getUsers().size());
-        assertEquals(user.getUsername(), ((UsersListMessage) event).getUsers().get(0));
+        assertEquals(1, ((RetrieveAllOnlineUsersServerMessage) event).getUsers().size());
+        assertEquals(user, ((RetrieveAllOnlineUsersServerMessage) event).getUsers().get(0));
 
     }
 
@@ -132,14 +132,14 @@ public class AuthenticationServiceTest extends EventBusBasedTest {
         RetrieveAllOnlineUsersRequest request = new RetrieveAllOnlineUsersRequest();
         postAndWait(request);
 
-        assertTrue(event instanceof UsersListMessage);
+        assertTrue(event instanceof RetrieveAllOnlineUsersServerMessage);
 
-        List<String> returnedUsers = new ArrayList<>(((UsersListMessage) event).getUsers());
+        List<User> returnedUsers = new ArrayList<>(((RetrieveAllOnlineUsersServerMessage) event).getUsers());
 
         assertEquals(2,returnedUsers.size());
 
         Collections.sort(returnedUsers);
-        assertEquals(returnedUsers, users.stream().map(User::getUsername).toList());
+        assertEquals(returnedUsers, users);
 
     }
 
@@ -148,9 +148,9 @@ public class AuthenticationServiceTest extends EventBusBasedTest {
     void loggedInUsersEmpty() throws InterruptedException {
         RetrieveAllOnlineUsersRequest request = new RetrieveAllOnlineUsersRequest();
         postAndWait(request);
-        assertTrue(event instanceof UsersListMessage);
+        assertTrue(event instanceof RetrieveAllOnlineUsersServerMessage);
 
-        assertTrue(((UsersListMessage) event).getUsers().isEmpty());
+        assertTrue(((RetrieveAllOnlineUsersServerMessage) event).getUsers().isEmpty());
 
     }
 

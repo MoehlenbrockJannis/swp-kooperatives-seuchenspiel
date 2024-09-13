@@ -4,10 +4,10 @@ import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.dto.LobbyDTO;
-import de.uol.swp.common.lobby.message.CreateLobbyRequest;
-import de.uol.swp.common.lobby.message.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.request.LobbyFindLobbiesRequest;
+import de.uol.swp.common.lobby.request.CreateLobbyRequest;
+import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
 import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -20,40 +20,40 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LobbyServiceTest extends EventBusBasedTest {
     private LobbyService lobbyService;
 
-    private String lobbyName;
+    private Lobby lobby;
     private User user;
 
 
     @BeforeEach
     void setUp() {
         this.lobbyService = new LobbyService(getBus());
-        this.lobbyName = "test";
         this.user = new UserDTO("testo", "", "");
+        this.lobby = new LobbyDTO("TestLobby", user);
     }
 
     @Test
     void createNewLobby() throws InterruptedException {
-        lobbyService.createNewLobby(lobbyName, (UserDTO) user);
+        lobbyService.createNewLobby(lobby.getName(), user);
 
         waitForLock();
 
         assertTrue(event instanceof CreateLobbyRequest);
 
         final CreateLobbyRequest createLobbyRequest = (CreateLobbyRequest) event;
-        assertEquals(createLobbyRequest.getLobbyName(), lobbyName);
-        assertEquals(createLobbyRequest.getOwner(), user);
+        assertEquals(createLobbyRequest.getLobby(), lobby);
+        assertEquals(createLobbyRequest.getUser(), user);
     }
 
     @Test
     void joinLobby() throws InterruptedException {
-        lobbyService.joinLobby(lobbyName, (UserDTO) user);
+        lobbyService.joinLobby(lobby, user);
 
         waitForLock();
 
         assertTrue(event instanceof LobbyJoinUserRequest);
 
         final LobbyJoinUserRequest lobbyJoinUserRequest = (LobbyJoinUserRequest) event;
-        assertEquals(lobbyJoinUserRequest.getLobbyName(), lobbyName);
+        assertEquals(lobbyJoinUserRequest.getLobby(), lobby);
         assertEquals(lobbyJoinUserRequest.getUser(), user);
     }
 
@@ -63,25 +63,24 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof LobbyFindLobbiesRequest);
+        assertTrue(event instanceof RetrieveAllLobbiesRequest);
     }
 
     @Test
     void leaveLobby() throws InterruptedException {
-        lobbyService.leaveLobby(lobbyName, user);
+        lobbyService.leaveLobby(lobby, user);
 
         waitForLock();
 
         assertTrue(event instanceof LobbyLeaveUserRequest);
 
         final LobbyLeaveUserRequest lobbyLeaveUserRequest = (LobbyLeaveUserRequest) event;
-        assertEquals(lobbyLeaveUserRequest.getLobbyName(), lobbyName);
+        assertEquals(lobbyLeaveUserRequest.getLobby(), lobby);
         assertEquals(lobbyLeaveUserRequest.getUser(), user);
     }
 
     @Test
     void updateLobbyStatus() throws InterruptedException {
-        Lobby lobby = new LobbyDTO(lobbyName, user);
         lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
 
         waitForLock();
@@ -103,8 +102,8 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final LobbyFindLobbiesRequest lobbyFindLobbiesRequest) {
-        handleEvent(lobbyFindLobbiesRequest);
+    public void onEvent(final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest) {
+        handleEvent(retrieveAllLobbiesRequest);
     }
 
     @Subscribe

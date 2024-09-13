@@ -2,16 +2,16 @@ package de.uol.swp.server.role;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.message.LobbyLeaveUserRequest;
-import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
+import de.uol.swp.common.message.response.ResponseMessage;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.message.RolesAvailableMessage;
-import de.uol.swp.common.role.response.RoleAssignedMessage;
-import de.uol.swp.common.role.response.RoleAvailableMessage;
-import de.uol.swp.common.role.response.RoleUnavailableMessage;
-import de.uol.swp.common.role.response.RolesToComboBoxMessage;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
+import de.uol.swp.common.role.response.RoleAssignmentResponse;
+import de.uol.swp.common.role.response.RoleAvailableResponse;
+import de.uol.swp.common.role.response.RoleUnavailableResponse;
+import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.request.RoleAssignmentRequest;
-import de.uol.swp.common.role.request.RolesToComboBoxRequest;
+import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.LobbyManagement;
@@ -72,19 +72,19 @@ public class RoleService extends AbstractService {
         final RoleCard roleCard = roleAssignmentRequest.getRoleCard();
 
         ResponseMessage message;
-        RoleAssignedMessage roleAssignedMessage;
+        RoleAssignmentResponse roleAssignedMessage;
         if (roleManagement.isRoleAvailableForUser(lobby, user, roleCard)) {
             roleManagement.addUserRoleInLobby(lobby, user, roleCard);
-            message = new RoleAvailableMessage();
+            message = new RoleAvailableResponse();
 
-            roleAssignedMessage = new RoleAssignedMessage(roleAssignmentRequest.getRoleCard().getName(), true);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true);
 
             roleAssignedMessage.initWithMessage(roleAssignmentRequest);
             post(roleAssignedMessage);
         } else {
-            message = new RoleUnavailableMessage();
+            message = new RoleUnavailableResponse();
 
-            roleAssignedMessage = new RoleAssignedMessage(roleAssignmentRequest.getRoleCard().getName(), false);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false);
             roleAssignedMessage.initWithMessage(roleAssignmentRequest);
             post(roleAssignedMessage);
         }
@@ -97,15 +97,15 @@ public class RoleService extends AbstractService {
     }
 
     /**
-     * Handles a {@link RolesToComboBoxRequest} which requests the available roles to be rendered in a ComboBox
+     * Handles a {@link RetrieveAllRolesRequest} which requests the available roles to be rendered in a ComboBox
      * on the client side. This sends back all available roles.
      *
-     * @param rolesToComboBoxRequest the request to render the roles in the ComboBox
+     * @param retrieveAllRolesRequest the request to render the roles in the ComboBox
      */
     @Subscribe
-    public void onRolesSendToClient(RolesToComboBoxRequest rolesToComboBoxRequest) {
-        RolesToComboBoxMessage rolesToComboBoxMessage = new RolesToComboBoxMessage(roleManagement.getAllRoles(), rolesToComboBoxRequest.getLobby());
-        rolesToComboBoxMessage.initWithMessage(rolesToComboBoxRequest);
+    public void onRolesSendToClient(RetrieveAllRolesRequest retrieveAllRolesRequest) {
+        RetrieveAllRolesResponse rolesToComboBoxMessage = new RetrieveAllRolesResponse(roleManagement.getAllRoles(), retrieveAllRolesRequest.getLobby());
+        rolesToComboBoxMessage.initWithMessage(retrieveAllRolesRequest);
         post(rolesToComboBoxMessage);
     }
 
@@ -117,13 +117,13 @@ public class RoleService extends AbstractService {
      */
     @Subscribe
     public void onRoleLogoutRequest(LobbyLeaveUserRequest roleLogoutRequest) {
-        String lobbyName = roleLogoutRequest.getLobbyName();
+        String lobbyName = roleLogoutRequest.getLobby().getName();
 
         Optional<Lobby> lobbyOptional;
-        lobbyOptional = lobbyManagement.getLobby(lobbyName);
+        lobbyOptional = lobbyManagement.getLobby(roleLogoutRequest.getLobby());
 
         if (lobbyOptional.isEmpty()) {
-            roleManagement.dropLobby(roleLogoutRequest.getLobbyName());
+            roleManagement.dropLobby(roleLogoutRequest.getLobby().getName());
             return;
         }
 
@@ -140,8 +140,8 @@ public class RoleService extends AbstractService {
      * @param lobby the {@link Lobby} to which the available roles are being sent
      */
     private void sendAvailableRolesToClients(final Lobby lobby) {
-        final RolesAvailableMessage message = new RolesAvailableMessage(lobby, roleManagement.getAvailableRolesInLobby(lobby));
-        lobbyService.sendToAllInLobby(lobby.getName(), message);
+        final RetrieveAllAvailableRolesServerMessage message = new RetrieveAllAvailableRolesServerMessage(lobby, roleManagement.getAvailableRolesInLobby(lobby));
+        lobbyService.sendToAllInLobby(lobby, message);
     }
 
 }

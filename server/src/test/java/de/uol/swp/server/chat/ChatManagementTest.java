@@ -29,7 +29,7 @@ public class ChatManagementTest {
     void setUp() {
         chatManagement = new ChatManagement();
         chatManagement2 = new ChatManagement();
-        chatManagement2.addLobbyChatMessage(lobby.getName(), "Hello World!");
+        chatManagement2.addLobbyChatMessage(lobby, "Hello World!");
     }
 
     /**
@@ -51,9 +51,9 @@ public class ChatManagementTest {
     @Test
     void testAddLobbyChatMessageTrue() {
         String message = "Hello World!";
-        chatManagement.addLobbyChatMessage(lobby.getName(), message);
+        chatManagement.addLobbyChatMessage(lobby, message);
 
-        List<String> messages = chatManagement.getLobbyChatMessages(lobby.getName());
+        List<String> messages = chatManagement.getLobbyChatMessages(lobby);
         assertEquals(1, messages.size());
         assertEquals(message, messages.get(0));
     }
@@ -64,9 +64,9 @@ public class ChatManagementTest {
     @Test
     void testAddLobbyChatMessageFalse() {
         String message = "Hello World!";
-        chatManagement2.addLobbyChatMessage(lobby.getName(), message);
+        chatManagement2.addLobbyChatMessage(lobby, message);
 
-        List<String> messages = chatManagement2.getLobbyChatMessages(lobby.getName());
+        List<String> messages = chatManagement2.getLobbyChatMessages(lobby);
         assertEquals(2, messages.size());
         assertEquals(message, messages.get(0));
     }
@@ -94,10 +94,10 @@ public class ChatManagementTest {
     void testGetLobbyChatMessages() {
         String message1 = "Hello World!";
         String message2 = "Another message";
-        chatManagement.addLobbyChatMessage(lobby.getName(), message1);
-        chatManagement.addLobbyChatMessage(lobby.getName(), message2);
+        chatManagement.addLobbyChatMessage(lobby, message1);
+        chatManagement.addLobbyChatMessage(lobby, message2);
 
-        List<String> messages = chatManagement.getLobbyChatMessages(lobby.getName());
+        List<String> messages = chatManagement.getLobbyChatMessages(lobby);
         assertEquals(2, messages.size());
         assertTrue(messages.contains(message1));
         assertTrue(messages.contains(message2));
@@ -110,11 +110,11 @@ public class ChatManagementTest {
     void testRemoveLobbyChatMessages() {
         String message1 = "Hello World!";
         String message2 = "Another message";
-        chatManagement.addLobbyChatMessage(lobby.getName(), message1);
-        chatManagement.addLobbyChatMessage(lobby.getName(), message2);
-        chatManagement.removeLobbyChatMessages(lobby.getName());
+        chatManagement.addLobbyChatMessage(lobby, message1);
+        chatManagement.addLobbyChatMessage(lobby, message2);
+        chatManagement.removeLobbyChatMessages(lobby);
 
-        List<String> messages = chatManagement.getLobbyChatMessages(lobby.getName());
+        List<String> messages = chatManagement.getLobbyChatMessages(lobby);
         assertThat(messages).isNullOrEmpty();
     }
 }

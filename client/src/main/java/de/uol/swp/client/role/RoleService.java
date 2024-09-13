@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.role.request.RoleAssignmentRequest;
-import de.uol.swp.common.role.request.RolesToComboBoxRequest;
+import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
 
@@ -24,7 +24,7 @@ public class RoleService {
     }
 
     public void sendRolesToComboBoxRequest(Lobby lobby) {
-        RolesToComboBoxRequest roleRenderComboBoxRequest = new RolesToComboBoxRequest(lobby);
+        RetrieveAllRolesRequest roleRenderComboBoxRequest = new RetrieveAllRolesRequest(lobby);
         eventBus.post(roleRenderComboBoxRequest);
     }
 
