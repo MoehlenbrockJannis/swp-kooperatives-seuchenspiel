@@ -2,10 +2,11 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.chat.ChatPresenter;
+import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.gameboard.GameBoardPresenter;
 import de.uol.swp.client.role.RoleService;
-import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
@@ -16,15 +17,16 @@ import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyLeaveUserServerMessage;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
-import de.uol.swp.common.role.response.RoleAssignmentResponse;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
+import de.uol.swp.common.role.response.RoleAssignmentResponse;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -33,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -83,7 +86,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private UserContainerEntityListPresenter userContainerEntityListController;
 
-    static final String STYLE_SHEET = "css/swp.css";
+    private GameBoardPresenter gameBoardPresenter;
 
     public void initialize(final Stage stage, final Lobby lobby) {
         this.stage = stage;
@@ -91,7 +94,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
         updateStartGameButton();
         setTitle(lobby.getName());
-        stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby, loggedInUserProvider.get()));
+        stage.setOnCloseRequest(this::onCloseLobbyWindow);
         stage.show();
         initializeComboBox();
 
@@ -99,6 +102,25 @@ public class LobbyPresenter extends AbstractPresenter {
 
         userContainerEntityListController.setTitle("Mitspieler");
         updatePlayerList();
+    }
+
+    /**
+     * Method called when the {@link javafx.stage.Window} of the {@link Stage} of the {@link Lobby} or {@link Game} is closed
+     *
+     * <p>
+     *     When the window is closed, this method calls the {@link #lobbyService} to make the currently logged in user leave the lobby.
+     *     This {@link LobbyPresenter} object and the associated {@link GameBoardPresenter} object are also unregistered from the {@link #eventBus}.
+     * </p>
+     *
+     * @param event The {@link WindowEvent} that closes the {@link javafx.stage.Window}
+     * @see #clearEventBus()
+     * @see LobbyService#leaveLobby(Lobby, User)
+     * @see WindowEvent
+     * @since 2024-09-13
+     */
+    private void onCloseLobbyWindow(final WindowEvent event) {
+        lobbyService.leaveLobby(lobby, loggedInUserProvider.get());
+        clearEventBus();
     }
 
     /**
@@ -179,8 +201,24 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
-        lobbyService.leaveLobby(lobby, loggedInUserProvider.get());
-        stage.close();
+        closeStage();
+    }
+
+    /**
+     * Creates a {@link WindowEvent} on the {@link #stage} to close it.
+     *
+     * <p>
+     *     An event is fired instead of using {@link Stage#close()}
+     *     because the latter does not trigger the EventHandler associated with {@link Stage#setOnCloseRequest(EventHandler)}.
+     * </p>
+     *
+     * @see Stage#close()
+     * @see Stage#setOnCloseRequest(EventHandler)
+     * @see WindowEvent
+     * @since 2024-09-13
+     */
+    private void closeStage() {
+        stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
     private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
@@ -249,10 +287,11 @@ public class LobbyPresenter extends AbstractPresenter {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/gameboard/GameBoardView.fxml"));
                 final Parent gameView = fxmlLoader.load();
-                final GameBoardPresenter gameBoardPresenter = fxmlLoader.getController();
+                gameBoardPresenter = fxmlLoader.getController();
+                associatedPresenters.add(gameBoardPresenter);
 
                 final Scene gameScene = new Scene(gameView);
-                gameScene.getStylesheets().add(STYLE_SHEET);
+                gameScene.getStylesheets().add(SceneManager.STYLE_SHEET);
 
                 stage.setScene(gameScene);
                 stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby, loggedInUserProvider.get()));
