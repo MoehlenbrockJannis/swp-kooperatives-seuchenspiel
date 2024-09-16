@@ -48,7 +48,7 @@ import java.net.URL;
 public class SceneManager {
 
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
-    static final String STYLE_SHEET = "css/swp.css";
+    public static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
     static final String ERROR_DIALOG_STYLE_SHEET = "css/errorDialog.css";
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";

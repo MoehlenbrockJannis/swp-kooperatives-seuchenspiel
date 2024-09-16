@@ -6,6 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is the base for creating a new Presenter.
  *
@@ -25,6 +28,8 @@ public class AbstractPresenter {
     protected ClientUserService userService;
 
     protected EventBus eventBus;
+
+    protected List<AbstractPresenter> associatedPresenters = new ArrayList<>();
 
     /**
      * Sets the field eventBus
@@ -51,15 +56,21 @@ public class AbstractPresenter {
     /**
      * Clears the field eventBus
      *
-     * This method clears the field eventBus. Before clearing it unregisters this
-     * class from EventBus previously used.
+     * <p>
+     *     This method unregisters this presenter object and all {@link #associatedPresenters} from the {@link #eventBus}.
+     *     After unregistering all presenters, it sets the {@link #eventBus} to null.
+     * </p>
      *
      * @implNote This method does not check whether the field eventBus is null.
      *           The field is cleared by setting it to null.
-     * @since 2019-08-29
+     * @see org.greenrobot.eventbus.EventBus#unregister(Object)
+     * @since 2024-09-15
      */
     public void clearEventBus(){
         this.eventBus.unregister(this);
+        for (final AbstractPresenter presenter : associatedPresenters) {
+            presenter.clearEventBus();
+        }
         this.eventBus = null;
     }
 }
