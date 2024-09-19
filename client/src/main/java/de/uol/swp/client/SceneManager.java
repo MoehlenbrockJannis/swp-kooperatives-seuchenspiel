@@ -24,7 +24,6 @@ import de.uol.swp.common.role.response.RoleUnavailableResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
@@ -37,7 +36,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -54,22 +52,22 @@ public class SceneManager {
     static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
     static final String ERROR_ICON_IMAGE_PATH = "/images/ErrorIcon.png";
 
-    static final String GAME_INSTRUCTIONS_STYLE_SHEET = "css/gameInstructions.css";
+    public static final String GAME_INSTRUCTIONS_STYLE_SHEET = "css/gameInstructions.css";
 
     private final Stage primaryStage;
     private final Image iconImage;
     private final Image errorIconImage;
-    private Scene loginScene;
-    private String lastTitle;
-    private Scene registrationScene;
-    private Scene lobbyOverviewScene;
-    private Scene mainScene;
-    private Scene lobbyCreateScene;
     private Scene lastScene = null;
     private Scene currentScene = null;
+    private String lastTitle;
+
+    private final LoginPresenter loginPresenter = AbstractPresenter.loadFXMLPresenter(LoginPresenter.class);
+    private final RegistrationPresenter registrationPresenter = AbstractPresenter.loadFXMLPresenter(RegistrationPresenter.class);
+    private final MainMenuPresenter mainMenuPresenter = AbstractPresenter.loadFXMLPresenter(MainMenuPresenter.class);
+    private final LobbyCreatePresenter lobbyCreatePresenter = AbstractPresenter.loadFXMLPresenter(LobbyCreatePresenter.class);
+    private final LobbyOverviewPresenter lobbyOverviewPresenter = AbstractPresenter.loadFXMLPresenter(LobbyOverviewPresenter.class);
 
     private final Provider<FXMLLoader> loaderProvider;
-    private LobbyPresenter lobbyPresenter;
 
     @Inject
     public SceneManager(EventBus eventBus, Provider<FXMLLoader> loaderProvider, @Assisted Stage primaryStage) throws IOException {
@@ -79,148 +77,6 @@ public class SceneManager {
         this.iconImage = new Image(getClass().getResourceAsStream(ICON_IMAGE_PATH));
         this.errorIconImage = new Image(getClass().getResourceAsStream(ERROR_ICON_IMAGE_PATH));
         primaryStage.getIcons().add(iconImage);
-
-        initViews();
-    }
-
-    /**
-     * Subroutine to initialize all views
-     *
-     * This is a subroutine of the constructor to initialize all views
-     * @since 2019-09-03
-     */
-    private void initViews() throws IOException {
-        initLoginView();
-        initMainView();
-        initRegistrationView();
-        initLobbyOverviewView();
-        initLobbyCreateView();
-    }
-
-    /**
-     * Subroutine creating parent panes from FXML files
-     *
-     * This Method tries to create a parent pane from the FXML file specified by
-     * the URL String given to it. If the LOG-Level is set to Debug or higher loading
-     * is written to the LOG.
-     * If it fails to load the view a RuntimeException is thrown.
-     *
-     * @param fxmlFile FXML file to load the view from
-     * @return view loaded from FXML or null
-     * @since 2019-09-03
-     */
-    private Parent initPresenter(String fxmlFile) throws IOException {
-        try {
-            return initFXMLLoader(fxmlFile).load();
-        } catch (Exception e) {
-            throw new IOException(String.format("Could not load View! %s", e.getMessage()), e);
-        }
-    }
-
-    /**
-     * Creates an FXMLLoader that has its location set to the resource at destination path fxmlFile
-     *
-     * @param fxmlFile Path to the FXML file to target
-     * @return {@link FXMLLoader} with FXML file at fxmlFile targeted
-     */
-    private FXMLLoader initFXMLLoader(final String fxmlFile) throws Exception {
-        final FXMLLoader loader = loaderProvider.get();
-        final URL url = getClass().getResource(fxmlFile);
-        LOG.debug("Loading {}", url);
-        loader.setLocation(url);
-        return loader;
-    }
-
-    /**
-     * Initializes the main menu view
-     *
-     * If the mainScene is null it gets set to a new scene containing the
-     * a pane showing the main menu view as specified by the MainMenuView
-     * FXML file.
-     *
-     * @see de.uol.swp.client.main.MainMenuPresenter
-     * @since 2019-09-03
-     */
-    private void initMainView() throws IOException {
-        if (mainScene == null) {
-            Parent rootPane = initPresenter(MainMenuPresenter.FXML);
-            mainScene = new Scene(rootPane, 1000, 500);
-            mainScene.getStylesheets().add(STYLE_SHEET);
-            mainScene.getStylesheets().add(GAME_INSTRUCTIONS_STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the login view
-     *
-     * If the loginScene is null it gets set to a new scene containing the
-     * a pane showing the login view as specified by the LoginView FXML file.
-     *
-     * @see de.uol.swp.client.auth.LoginPresenter
-     * @since 2019-09-03
-     */
-    private void initLoginView() throws IOException {
-        if (loginScene == null) {
-            Parent rootPane = initPresenter(LoginPresenter.FXML);
-            loginScene = new Scene(rootPane);
-            loginScene.getStylesheets().add(STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the registration view
-     *
-     * If the registrationScene is null it gets set to a new scene containing the
-     * a pane showing the registration view as specified by the RegistrationView
-     * FXML file.
-     *
-     * @see de.uol.swp.client.register.RegistrationPresenter
-     * @since 2019-09-03
-     */
-    private void initRegistrationView() throws IOException {
-        if (registrationScene == null){
-            Parent rootPane = initPresenter(RegistrationPresenter.FXML);
-            registrationScene = new Scene(rootPane);
-            registrationScene.getStylesheets().add(STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the lobby create view
-     *
-     * If the {@link #lobbyCreateScene} is null, it gets set to a new scene containing
-     * a pane showing the lobby create view as specified by the LobbyCreateView
-     * FXML file.
-     *
-     * @see de.uol.swp.client.lobby.LobbyCreatePresenter
-     * @since 2024-08-28
-     */
-    private void initLobbyCreateView() throws IOException {
-        if (lobbyCreateScene == null){
-            final Parent rootPane = initPresenter(LobbyCreatePresenter.FXML);
-            lobbyCreateScene = new Scene(rootPane);
-            lobbyCreateScene.getStylesheets().add(STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the lobbyOverview view
-     *
-     * <p>
-     * If the lobbyOverviewScene is null, it gets set to a new scene containing
-     * a pane showing the lobbyOverview view as specified by the LobbyOverviewView
-     * FXML file.
-     * </p>
-     *
-     * @see de.uol.swp.client.lobby.LobbyOverviewPresenter
-     * @since 2024-08-23
-     */
-    private void initLobbyOverviewView() throws IOException {
-        if (lobbyOverviewScene == null){
-            Parent rootPane = initPresenter(LobbyOverviewPresenter.FXML);
-            lobbyOverviewScene = new Scene(rootPane);
-            lobbyOverviewScene.getStylesheets().add(STYLE_SHEET);
-        }
     }
 
     /**
@@ -438,7 +294,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
-        showScene(mainScene, "Welcome " + currentUser.getUsername());
+        showScene(mainMenuPresenter.getScene(), "Welcome " + currentUser.getUsername());
     }
 
     /**
@@ -450,7 +306,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showLoginScreen() {
-        showScene(loginScene,"Login");
+        showScene(loginPresenter.getScene(),"Login");
     }
 
     /**
@@ -462,19 +318,19 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationScene,"Registrierung");
+        showScene(registrationPresenter.getScene(),"Registrierung");
     }
 
     /**
      * Shows the lobby create screen
      *
-     * Switches the current Scene to the {@link #lobbyCreateScene} and sets the title of
+     * Switches the current Scene to the {@link #lobbyCreatePresenter} screen and sets the title of
      * the window to "Lobby erstellen"
      *
      * @since 2024-08-28
      */
     public void showLobbyCreateScreen() {
-        showScene(lobbyCreateScene,"Lobby erstellen");
+        showScene(lobbyCreatePresenter.getScene(),"Lobby erstellen");
     }
 
     /**
@@ -487,7 +343,7 @@ public class SceneManager {
      * @since 2024-08-23
      */
     public void showLobbyOverviewScreen() {
-        showScene(lobbyOverviewScene, "Lobby-Übersicht");
+        showScene(lobbyOverviewPresenter.getScene(), "Lobby-Übersicht");
     }
 
     /**
@@ -501,24 +357,13 @@ public class SceneManager {
      * @since 2024-08-28
      */
     public void showLobbyScreen(final Lobby lobby) {
-        Platform.runLater(() -> {
-            try {
-                final FXMLLoader fxmlLoader = initFXMLLoader(LobbyPresenter.FXML);
-                final Parent lobbyView = fxmlLoader.load();
-                this.lobbyPresenter = fxmlLoader.getController();  // Speichere den LobbyPresenter
-
-                final Scene lobbyScene = new Scene(lobbyView);
-                lobbyScene.getStylesheets().add(STYLE_SHEET);
-
-                final Stage lobbyStage = new Stage();
-                lobbyStage.setScene(lobbyScene);
-                lobbyStage.getIcons().add(iconImage);
-
-                lobbyPresenter.initialize(lobbyStage, lobby);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-        });
+        try {
+            final LobbyPresenter lobbyPresenter = AbstractPresenter.loadFXMLPresenter(LobbyPresenter.class);
+            lobbyPresenter.openInNewWindow(iconImage);
+            lobbyPresenter.initialize(lobby);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     /**

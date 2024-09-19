@@ -21,8 +21,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class ChatPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/component/ChatComponent.fxml";
     private Lobby lobby;
     @FXML
     private ListView<String> chatView;
@@ -33,6 +31,18 @@ public class ChatPresenter extends AbstractPresenter {
     private ChatService chatService;
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
+
+    /**
+     * <p>
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #COMPONENT_FXML_FOLDER_PATH}
+     * </p>
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFXMLFolderPath() {
+        return DEFAULT_FXML_FOLDER_PATH + COMPONENT_FXML_FOLDER_PATH;
+    }
 
     public void initialize() {
         chatMessageInput.setOnKeyPressed(event -> {
