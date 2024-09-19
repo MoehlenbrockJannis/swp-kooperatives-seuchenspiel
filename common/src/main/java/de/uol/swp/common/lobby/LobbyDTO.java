@@ -1,7 +1,6 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
@@ -14,9 +13,11 @@ import java.util.*;
 /**
  * Object to transfer the information of a game lobby
  *
+ * <p>
  * This object is used to communicate the current state of game lobbies between
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
+ * </p>
  *
  * @author Marco Grawunder
  * @since 2019-10-08
@@ -138,9 +139,9 @@ public class LobbyDTO implements Lobby {
     }
 
     private void determineLobbyStatus() {
-        if (users.size() < 4 && !status.equals(LobbyStatus.RUNNING)) {
+        if (users.size() < Game.MAX_NUMBER_OF_PLAYERS && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
-        } else if (users.size() == 4 && !status.equals(LobbyStatus.RUNNING)) {
+        } else if (users.size() == Game.MAX_NUMBER_OF_PLAYERS && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.FULL;
         } else {
             status = LobbyStatus.RUNNING;
