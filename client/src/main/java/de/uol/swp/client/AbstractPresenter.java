@@ -72,6 +72,8 @@ public abstract class AbstractPresenter {
      * @see #getFXMLFilePath()
      * @see #createScene(Parent)
      * @see FXMLLoader
+     * @see Platform#runLater(Runnable)
+     * @implNote Must be called on FX application thread for {@link javafx.scene.web.WebView}
      * @since 2024-09-17
      */
     public static <T extends AbstractPresenter> T loadFXMLPresenter(final Class<T> presenterClass) throws RuntimeException {
