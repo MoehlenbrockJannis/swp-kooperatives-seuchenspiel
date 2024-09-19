@@ -275,15 +275,19 @@ public class LobbyPresenter extends AbstractPresenter {
      * Loads the game scene
      *
      * @param game The game to be loaded
+     * @implNote Must be called on FX application thread for {@link javafx.scene.web.WebView}
+     * @see AbstractPresenter#loadFXMLPresenter(Class) 
      */
     private void loadGameScene(Game game) {
-        try {
-            gameBoardPresenter = AbstractPresenter.loadFXMLPresenter(GameBoardPresenter.class);
-            associatedPresenters.add(gameBoardPresenter);
-            gameBoardPresenter.initialize(stage, game);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Platform.runLater(() -> {
+            try {
+                gameBoardPresenter = AbstractPresenter.loadFXMLPresenter(GameBoardPresenter.class);
+                associatedPresenters.add(gameBoardPresenter);
+                gameBoardPresenter.initialize(stage, game);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
