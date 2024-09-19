@@ -23,9 +23,6 @@ import org.greenrobot.eventbus.Subscribe;
  */
 @NoArgsConstructor
 public class LobbyCreatePresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/LobbyCreateView.fxml";
-
     @FXML
     private TextField lobbyNameField;
 

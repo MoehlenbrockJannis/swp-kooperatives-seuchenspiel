@@ -3,6 +3,8 @@ package de.uol.swp.client;
 
 import java.net.ConnectException;
 
+import de.uol.swp.client.di.FXMLLoaderProvider;
+import javafx.fxml.FXMLLoader;
 import lombok.Getter;
 import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -87,6 +89,13 @@ public class ClientApp extends Application implements ConnectionListener {
         // Client app is created by java, so injection must
         // be handled here manually
 		Injector injector = Guice.createInjector(new ClientModule(this));
+
+		AbstractPresenter.setFxmlLoaderProvider(new FXMLLoaderProvider() {
+			@Override
+			public FXMLLoader get() {
+				return injector.getInstance(FXMLLoader.class);
+			}
+		});
 
         // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);

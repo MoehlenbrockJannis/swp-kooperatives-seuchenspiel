@@ -35,9 +35,6 @@ import java.util.Set;
  */
 @NoArgsConstructor
 public class LobbyOverviewPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/LobbyOverviewView.fxml";
-
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
     @Inject

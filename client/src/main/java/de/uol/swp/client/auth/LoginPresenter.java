@@ -16,9 +16,6 @@ import javafx.scene.control.TextField;
  *
  */
 public class LoginPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/LoginView.fxml";
-
     private static final ShowRegistrationViewEvent showRegViewMessage = new ShowRegistrationViewEvent();
 
     @FXML
@@ -26,15 +23,6 @@ public class LoginPresenter extends AbstractPresenter {
 
     @FXML
     private TextField loginField;
-
-    /**
-     * Default Constructor
-     * @since 2019-08-18
-     *
-     */
-    public LoginPresenter() {
-        // needed for javafx
-    }
 
     /**
      * Method called when the login button is pressed

@@ -2,6 +2,7 @@ package de.uol.swp.client.main;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
@@ -16,6 +17,7 @@ import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,9 +37,6 @@ import java.util.stream.Collectors;
  *
  */
 public class MainMenuPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/MainMenuView.fxml";
-
     private static final Logger LOG = LogManager.getLogger(MainMenuPresenter.class);
 
     private static final ShowLobbyOverviewViewEvent showLobbyOverviewViewEvent = new ShowLobbyOverviewViewEvent();
@@ -53,6 +52,32 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     @FXML
     private UserContainerEntityListPresenter userContainerEntityListController;
+
+    /**
+     * Returns 1000
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public double getWidth() {
+        return 1000;
+    }
+
+    /**
+     * Returns 500
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public double getHeight() {
+        return 500;
+    }
+
+    @Override
+    protected void createScene(final Parent root) {
+        super.createScene(root);
+        this.scene.getStylesheets().add(SceneManager.GAME_INSTRUCTIONS_STYLE_SHEET);
+    }
 
     /**
      * Initializes the MainMenuPresenter

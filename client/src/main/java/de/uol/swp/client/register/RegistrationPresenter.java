@@ -1,6 +1,7 @@
 package de.uol.swp.client.register;
 
 import com.google.common.base.Strings;
+import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
@@ -21,10 +22,8 @@ import javafx.scene.control.TextField;
  * @since 2019-08-29
  *
  */
+@NoArgsConstructor
 public class RegistrationPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/RegistrationView.fxml";
-
     private static final RegistrationCanceledEvent registrationCanceledEvent = new RegistrationCanceledEvent();
 
     @FXML
@@ -38,14 +37,6 @@ public class RegistrationPresenter extends AbstractPresenter {
 
     @FXML
     private TextField emailField;
-
-    /**
-     * Default Constructor
-     *
-     * @since 2019-09-18
-     */
-    public RegistrationPresenter() {
-    }
 
     /**
      * Constructor

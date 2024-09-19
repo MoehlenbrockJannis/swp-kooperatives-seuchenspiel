@@ -13,8 +13,8 @@ import javafx.stage.Stage;
  * Manages the game board window
  */
 public class GameBoardPresenter extends AbstractPresenter {
+    public static final String GAME_FXML_FOLDER_PATH = "gameboard/";
 
-    private Stage stage;
     private Game game;
 
     @FXML
@@ -27,6 +27,18 @@ public class GameBoardPresenter extends AbstractPresenter {
     private ContextMenu settingsContextMenu;
 
     /**
+     * <p>
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
+     * </p>
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFXMLFolderPath() {
+        return DEFAULT_FXML_FOLDER_PATH + GAME_FXML_FOLDER_PATH;
+    }
+
+    /**
      * Initializes the game board window
      *
      * @param stage The stage to display the game board window
@@ -34,8 +46,10 @@ public class GameBoardPresenter extends AbstractPresenter {
      */
     @FXML
     public void initialize(final Stage stage, final Game game) {
-        this.stage = stage;
+        setStage(stage);
         this.game = game;
+
+        stage.setTitle("Game: " + game.getLobby().getName());
         stage.show();
 
         settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());

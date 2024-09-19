@@ -57,9 +57,6 @@ import java.util.Set;
 @Getter
 @Setter
 public class LobbyPresenter extends AbstractPresenter {
-
-    public static final String FXML = "/fxml/LobbyView.fxml";
-
     @FXML
     private Button startGameButton;
 
@@ -75,7 +72,6 @@ public class LobbyPresenter extends AbstractPresenter {
     private LoggedInUserProvider loggedInUserProvider;
     @FXML
     private ComboBox<RoleCard> roleComboBox;
-    private Stage stage;
     private Lobby lobby;
     private ObservableList<RoleCard> availableRoles;
     @Inject
@@ -88,14 +84,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private GameBoardPresenter gameBoardPresenter;
 
-    public void initialize(final Stage stage, final Lobby lobby) {
-        this.stage = stage;
+    public void initialize(final Lobby lobby) {
         this.lobby = lobby;
 
         updateStartGameButton();
         setTitle(lobby.getName());
-        stage.setOnCloseRequest(this::onCloseLobbyWindow);
-        stage.show();
         initializeComboBox();
 
         chatController.setLobby(lobby);
@@ -118,9 +111,10 @@ public class LobbyPresenter extends AbstractPresenter {
      * @see WindowEvent
      * @since 2024-09-13
      */
-    private void onCloseLobbyWindow(final WindowEvent event) {
+    @Override
+    protected void onCloseStageEvent(final WindowEvent event) {
+        super.onCloseStageEvent(event);
         lobbyService.leaveLobby(lobby, loggedInUserProvider.get());
-        clearEventBus();
     }
 
     /**
@@ -283,25 +277,13 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param game The game to be loaded
      */
     private void loadGameScene(Game game) {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/gameboard/GameBoardView.fxml"));
-                final Parent gameView = fxmlLoader.load();
-                gameBoardPresenter = fxmlLoader.getController();
-                associatedPresenters.add(gameBoardPresenter);
-
-                final Scene gameScene = new Scene(gameView);
-                gameScene.getStylesheets().add(SceneManager.STYLE_SHEET);
-
-                stage.setScene(gameScene);
-                stage.getScene().getWindow().setOnCloseRequest(event -> lobbyService.leaveLobby(lobby, loggedInUserProvider.get()));
-                stage.setTitle("Game: " + game.getLobby().getName());
-
-                gameBoardPresenter.initialize(stage, game);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            gameBoardPresenter = AbstractPresenter.loadFXMLPresenter(GameBoardPresenter.class);
+            associatedPresenters.add(gameBoardPresenter);
+            gameBoardPresenter.initialize(stage, game);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

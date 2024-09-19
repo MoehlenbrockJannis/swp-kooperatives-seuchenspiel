@@ -23,6 +23,18 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
+    /**
+     * <p>
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #COMPONENT_FXML_FOLDER_PATH}
+     * </p>
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFXMLFolderPath() {
+        return DEFAULT_FXML_FOLDER_PATH + COMPONENT_FXML_FOLDER_PATH;
+    }
+
     @FXML
     private void initialize() {
         highlightUserCellFactory = new HighlightUserCellFactory();

@@ -29,6 +29,18 @@ public class WorldMapPresenter extends AbstractPresenter {
     @FXML
     private WebView webView;
 
+    /**
+     * <p>
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value GameBoardPresenter#GAME_FXML_FOLDER_PATH}
+     * </p>
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFXMLFolderPath() {
+        return DEFAULT_FXML_FOLDER_PATH + GameBoardPresenter.GAME_FXML_FOLDER_PATH;
+    }
+
     @FXML
     public void initialize() {
         bindSizePropertyOfWorldMapWebView();
