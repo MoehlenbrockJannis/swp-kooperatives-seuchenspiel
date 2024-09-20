@@ -4,14 +4,12 @@ import de.uol.swp.common.card.OverviewCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * The Player class represents an abstract player in the game.
@@ -76,4 +74,9 @@ public abstract class Player implements Serializable, UserContainerEntity {
     public int hashCode() {
         return Objects.hash(getName());
     }
+
+    public List<PlayerCard> getHandCards() {
+        return Collections.unmodifiableList(this.handCards);
+    }
+
 }

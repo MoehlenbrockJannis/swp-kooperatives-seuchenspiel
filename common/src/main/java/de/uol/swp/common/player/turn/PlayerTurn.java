@@ -9,6 +9,7 @@ import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +44,10 @@ public class PlayerTurn {
         this.player = player;
         this.numberOfActionsToDo = numberOfActionsToDo;
         this.numberOfPlayerCardsToDraw = numberOfPlayerCardsToDraw;
+        this.executedCommands = new ArrayList<>();
+        this.possibleActions = new ArrayList<>();
+        this.autoTriggerables = new ArrayList<>();
+        this.manualTriggerables = new ArrayList<>();
     }
 
     /**
