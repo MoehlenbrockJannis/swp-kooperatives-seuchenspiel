@@ -7,6 +7,7 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.Map;
  * @since 2024-09-02
  */
 @EqualsAndHashCode
-public class Field {
+public class Field implements Serializable {
     private GameMap map;
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;

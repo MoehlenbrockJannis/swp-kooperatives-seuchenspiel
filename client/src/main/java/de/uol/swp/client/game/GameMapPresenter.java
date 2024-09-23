@@ -1,6 +1,8 @@
-package de.uol.swp.client.gameboard;
+package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.MapSlot;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
@@ -12,16 +14,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class WorldMapPresenter extends AbstractPresenter {
+/**
+ * Manages the window representing the game map
+ *
+ * @see AbstractPresenter
+ * @author David Scheffler
+ * @since 2024-09-09
+ */
+public class GameMapPresenter extends AbstractPresenter {
 
-    private static final Logger LOG = LogManager.getLogger(WorldMapPresenter.class);
+    private Game game;
+
+    private static final Logger LOG = LogManager.getLogger(GameMapPresenter.class);
 
     private static final int SVG_VIEW_BOX_WIDTH = 2097;
     private static final int SVG_VIEW_BOX_HEIGHT = 1075;
 
     private static final double ASPECT_RATIO = (double) SVG_VIEW_BOX_WIDTH / SVG_VIEW_BOX_HEIGHT;
-
-    private final TempMapType MAP_TYPE = new TempMapType();
 
     @FXML
     private Pane pane;
@@ -31,18 +40,26 @@ public class WorldMapPresenter extends AbstractPresenter {
 
     /**
      * <p>
-     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value GameBoardPresenter#GAME_FXML_FOLDER_PATH}
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value GamePresenter#GAME_FXML_FOLDER_PATH}
      * </p>
      *
      * {@inheritDoc}
      */
     @Override
     public String getFXMLFolderPath() {
-        return DEFAULT_FXML_FOLDER_PATH + GameBoardPresenter.GAME_FXML_FOLDER_PATH;
+        return DEFAULT_FXML_FOLDER_PATH + GamePresenter.GAME_FXML_FOLDER_PATH;
     }
 
+    /**
+     * Initializes the game map window
+     *
+     * @author David Scheffler
+     * @since 2024-09-09
+     */
     @FXML
-    public void initialize() {
+    public void initialize(Game game) {
+        this.game = game;
+
         bindSizePropertyOfWorldMapWebView();
 
         loadSvgIntoWebView();
@@ -50,6 +67,12 @@ public class WorldMapPresenter extends AbstractPresenter {
         addCityMarkers();
     }
 
+    /**
+     * Binds the width and height of the webView to the pane
+     *
+     * @author David Scheffler
+     * @since 2024-09-09
+     */
     private void bindSizePropertyOfWorldMapWebView() {
         pane.widthProperty().addListener((obs, oldVal, newVal) -> {
             double newWidth = newVal.doubleValue();
@@ -76,6 +99,12 @@ public class WorldMapPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Loads svg file of the game map into the webView
+     *
+     * @author David Scheffler
+     * @since 2024-09-09
+     */
     private void loadSvgIntoWebView() {
         WebEngine webEngine = webView.getEngine();
         try {
@@ -92,8 +121,15 @@ public class WorldMapPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Adds all cities of the mapType to the pane as CityMarkers
+     *
+     * @see CityMarker
+     * @author David Scheffler
+     * @since 2024-09-10
+     */
     private void addCityMarkers() {
-        for (TempMapSlot mapSlot : MAP_TYPE.getMAP_SLOT_LIST()){
+        for (MapSlot mapSlot : game.getMap().getType().getMap()){
             CityMarker cityMarker = new CityMarker(mapSlot);
 
             pane.getChildren().add(cityMarker);

@@ -3,7 +3,11 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.plague.Plague;
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.List;
 
 /**
  * Service for the game
@@ -30,9 +34,8 @@ public class GameService {
      * @param lobby The lobby from which the game is to be created
      * @see de.uol.swp.common.game.request.CreateGameRequest
      */
-    public void createGame(Lobby lobby) {
-        //TODO: replace null with the correct configuration parameters
-        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, null, null);
+    public void createGame(Lobby lobby, MapType mapType, List<Plague> plagueList) {
+        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagueList);
         eventBus.post(createGameRequest);
     }
 }

@@ -9,7 +9,7 @@
 <?import javafx.scene.control.MenuItem?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
-          xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.gameboard.GameBoardPresenter">
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
 
     <columnConstraints>
         <ColumnConstraints percentWidth="100"/>
@@ -38,7 +38,7 @@
         <RowConstraints percentHeight="100"/>
     </rowConstraints>
     <!-- Column 0 -->
-    <fx:include source="WorldMapStackPane.fxml" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
+    <fx:include source="GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
     <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
         <ImageView fx:id="settingsIcon" preserveRatio="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Image url="@/images/setting-line-icon.png"/>

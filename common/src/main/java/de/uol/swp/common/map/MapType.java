@@ -2,6 +2,7 @@ package de.uol.swp.common.map;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
  * @since 2024-09-02
  */
 @Getter
-public class MapType {
+public class MapType implements Serializable {
     private byte[] backgroundImage;
     private List<MapSlot> map;
     private City startingCity;

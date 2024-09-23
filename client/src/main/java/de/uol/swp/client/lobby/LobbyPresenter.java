@@ -2,10 +2,9 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.game.GameService;
-import de.uol.swp.client.gameboard.GameBoardPresenter;
+import de.uol.swp.client.game.GamePresenter;
 import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
@@ -16,6 +15,10 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyLeaveUserServerMessage;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.map.response.RetrieveOriginalGameMapTypeResponse;
+import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.plague.response.RetrieveAllPlaguesResponse;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
@@ -28,9 +31,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -41,9 +41,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -82,7 +82,10 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private UserContainerEntityListPresenter userContainerEntityListController;
 
-    private GameBoardPresenter gameBoardPresenter;
+    private GamePresenter gamePresenter;
+
+    private MapType selectedMapType;
+    private List<Plague> plagueList;
 
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
@@ -102,7 +105,7 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * <p>
      *     When the window is closed, this method calls the {@link #lobbyService} to make the currently logged in user leave the lobby.
-     *     This {@link LobbyPresenter} object and the associated {@link GameBoardPresenter} object are also unregistered from the {@link #eventBus}.
+     *     This {@link LobbyPresenter} object and the associated {@link GamePresenter} object are also unregistered from the {@link #eventBus}.
      * </p>
      *
      * @param event The {@link WindowEvent} that closes the {@link javafx.stage.Window}
@@ -242,15 +245,46 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Starts the game
+     * Starts the game by retrieving the mapType and plague list first and creating the game afterwards in {@link LobbyPresenter#onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse)}
      *
      * @param event The event that triggered the method
      */
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
-        //TODO: add configuration as import parameters in createGame method
         lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
-        gameService.createGame(lobby);
+        lobbyService.getOriginalGameMapType();
+    }
+
+    /**
+     * Handles the response with the mapType of the original game and creates a request to get a list of all plagues.
+     * After the plague list has been received, the game will be created in {@link LobbyPresenter#onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse)}
+     *
+     * @param response The response with the mapType based on the original game
+     * @see RetrieveOriginalGameMapTypeResponse
+     * @author David Scheffler
+     * @since 2024-09-23
+     */
+    @Subscribe
+    public void onRetrieveOriginalGameMapTypeResponse(RetrieveOriginalGameMapTypeResponse response) {
+        selectedMapType= response.getMapType();
+        lobbyService.getPlagues();
+    }
+
+    /**
+     * Handles the response with the plague list and creates a new game
+     *
+     * @param response The response with the plague list
+     * @see RetrieveOriginalGameMapTypeResponse
+     * @author David Scheffler
+     * @since 2024-09-23
+     */
+    @Subscribe
+    public void onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse response) {
+        plagueList = response.getPlagueSet().stream().toList();
+
+        if (selectedMapType != null) {
+            gameService.createGame(lobby, selectedMapType, plagueList);
+        }
     }
 
     /**
@@ -281,9 +315,9 @@ public class LobbyPresenter extends AbstractPresenter {
     private void loadGameScene(Game game) {
         Platform.runLater(() -> {
             try {
-                gameBoardPresenter = AbstractPresenter.loadFXMLPresenter(GameBoardPresenter.class);
-                associatedPresenters.add(gameBoardPresenter);
-                gameBoardPresenter.initialize(stage, game);
+                gamePresenter = AbstractPresenter.loadFXMLPresenter(GamePresenter.class);
+                associatedPresenters.add(gamePresenter);
+                gamePresenter.initialize(stage, game);
             } catch (Exception e) {
                 e.printStackTrace();
             }
