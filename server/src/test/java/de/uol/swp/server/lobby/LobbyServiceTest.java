@@ -19,7 +19,7 @@ class LobbyServiceTest {
 
     static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     static final UserDTO secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
-    static final Lobby lobby = new LobbyDTO("TestLobby", firstOwner);
+    static final Lobby lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
 
     // Special version of event bus for testing
     final EventBus bus = EventBus.builder()

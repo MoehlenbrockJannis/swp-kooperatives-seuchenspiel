@@ -33,6 +33,10 @@ public class LobbyDTO implements Lobby {
     private final Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
+    @Getter
+    private int minPlayers;
+    @Getter
+    private int maxPlayers;
 
     /**
      * Constructor
@@ -40,13 +44,17 @@ public class LobbyDTO implements Lobby {
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
+     * @param minPlayers The minimum number of players that can join the lobby
+     * @param maxPlayers The maximum number of players that can join the lobby
      * @since 2019-10-08
      */
-    public LobbyDTO(String name, User creator) {
+    public LobbyDTO(String name, User creator, int minPlayers, int maxPlayers) {
         this.name = name;
         this.owner = creator;
         joinUser(creator);
         this.status = LobbyStatus.OPEN;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
     }
 
     @Override
@@ -139,9 +147,9 @@ public class LobbyDTO implements Lobby {
     }
 
     private void determineLobbyStatus() {
-        if (users.size() < Game.MAX_NUMBER_OF_PLAYERS && !status.equals(LobbyStatus.RUNNING)) {
+        if (users.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
-        } else if (users.size() == Game.MAX_NUMBER_OF_PLAYERS && !status.equals(LobbyStatus.RUNNING)) {
+        } else if (users.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.FULL;
         } else {
             status = LobbyStatus.RUNNING;

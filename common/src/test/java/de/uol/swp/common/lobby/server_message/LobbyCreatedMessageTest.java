@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class LobbyCreatedMessageTest {
 
     final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    final LobbyDTO lobby = new LobbyDTO("TestLobby" , user);
+    final LobbyDTO lobby = new LobbyDTO("TestLobby" , user, 2, 4);
 
 
     /**

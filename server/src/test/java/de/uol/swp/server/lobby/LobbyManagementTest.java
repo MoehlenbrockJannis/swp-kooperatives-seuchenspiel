@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LobbyManagementTest {
 
     static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner);
+    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
 
     final EventBus bus = EventBus.getDefault();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
@@ -64,8 +64,8 @@ public class LobbyManagementTest {
     @Test
     void getAllLobbiesTest() {
         final List<Lobby> lobbies = List.of(
-                new LobbyDTO("1", new UserDTO("Test", "", "")),
-                new LobbyDTO("2", new UserDTO("Tom", "", ""))
+                new LobbyDTO("1", new UserDTO("Test", "", ""), 2, 4),
+                new LobbyDTO("2", new UserDTO("Tom", "", ""), 2, 4)
         );
 
         lobbies.forEach(lobbyManagement::createLobby);

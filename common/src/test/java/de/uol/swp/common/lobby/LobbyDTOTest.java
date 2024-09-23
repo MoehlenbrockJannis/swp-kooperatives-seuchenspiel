@@ -42,13 +42,13 @@ class LobbyDTOTest {
 
     @BeforeEach
     void setup() {
-        this.lobby = new LobbyDTO("test", defaultUser);
+        this.lobby = new LobbyDTO("test", defaultUser, 2, 4);
     }
 
     @Test
     @DisplayName("Lobbys should be equal if names are equal")
     void equalsTest_equal() {
-        final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next());
+        final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next(), 2, 4);
 
         assertThat(lobby.equals(equalLobby))
                 .isTrue();
@@ -57,7 +57,7 @@ class LobbyDTOTest {
     @Test
     @DisplayName("Lobbys should be not equal if names are equal")
     void equalsTest_notEqualLobby() {
-        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next());
+        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next() , 2, 4);
 
         assertThat(lobby.equals(notEqualLobby))
                 .isFalse();

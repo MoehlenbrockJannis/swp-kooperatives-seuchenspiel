@@ -241,7 +241,7 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     private void updateStartGameButton() {
-        startGameButton.setDisable(!lobby.getOwner().equals(loggedInUserProvider.get()) || lobby.getUsers().size() < 2);
+        startGameButton.setDisable(!lobby.getOwner().equals(loggedInUserProvider.get()) || lobby.getUsers().size() < lobby.getMinPlayers());
     }
 
     /**
