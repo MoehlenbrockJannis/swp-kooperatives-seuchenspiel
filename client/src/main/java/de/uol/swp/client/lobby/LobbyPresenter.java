@@ -191,31 +191,16 @@ public class LobbyPresenter extends AbstractPresenter {
 
 
     private void setTitle(final String lobbyName) {
-        final String title = "Lobby: " + lobbyName;
-        stage.setTitle(title);
-        lobbyNameLabel.setText(title);
+        Platform.runLater(() -> {
+            final String title = "Lobby: " + lobbyName;
+            stage.setTitle(title);
+            lobbyNameLabel.setText(title);
+        });
     }
 
     @FXML
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
         closeStage();
-    }
-
-    /**
-     * Creates a {@link WindowEvent} on the {@link #stage} to close it.
-     *
-     * <p>
-     *     An event is fired instead of using {@link Stage#close()}
-     *     because the latter does not trigger the EventHandler associated with {@link Stage#setOnCloseRequest(EventHandler)}.
-     * </p>
-     *
-     * @see Stage#close()
-     * @see Stage#setOnCloseRequest(EventHandler)
-     * @see WindowEvent
-     * @since 2024-09-13
-     */
-    private void closeStage() {
-        stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
     private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
