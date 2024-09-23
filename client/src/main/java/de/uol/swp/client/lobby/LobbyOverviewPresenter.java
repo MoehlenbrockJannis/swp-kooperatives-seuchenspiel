@@ -141,7 +141,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
                     final Lobby lobby = getTableRow().getItem();
                     final Set<User> users = lobby.getUsers();
                     if (users != null) {
-                        setText(String.valueOf(users.size()));
+                        setText(users.size() + " / " + lobby.getMaxPlayers());
 
                         final Tooltip tooltip = new Tooltip(users.stream()
                                 .map(User::getUsername)
@@ -285,9 +285,27 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * @see LobbyService#joinLobby(Lobby, User)
      */
     private void onLobbyRowClicked(final Lobby lobby) {
-        if (lobby.getStatus().equals(LobbyStatus.OPEN)) {
+        LobbyStatus clickedLobbyStatus = lobby.getStatus();
+        if (clickedLobbyStatus.equals(LobbyStatus.OPEN)) {
             lobbyService.joinLobby(lobby, loggedInUserProvider.get());
+        } else {
+            showLobbyJoinAlert(clickedLobbyStatus);
         }
+    }
+
+    /**
+     * Shows an alert when a user tries to join a lobby that is not open based on the lobby status
+     *
+     * @param clickedLobbyStatus The status of the lobby the user tried to join
+     * @since 2024-09-22
+     */
+    private void showLobbyJoinAlert(LobbyStatus clickedLobbyStatus) {
+        String statusText = clickedLobbyStatus.getStatus();
+        Alert lobbyJoinAlert = new Alert(Alert.AlertType.INFORMATION);
+        lobbyJoinAlert.setTitle("Das hat leider nicht geklappt!");
+        lobbyJoinAlert.setHeaderText("Ups! Diese Lobby ist gerade " + statusText + ".");
+        lobbyJoinAlert.setContentText("Die Lobby, welcher Du beitreten wolltest, ist gerade leider " + statusText + ". Bitte versuche es bei einer anderen Lobby!");
+        lobbyJoinAlert.showAndWait();
     }
 
     /**

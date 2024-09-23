@@ -121,4 +121,18 @@ public interface Lobby extends Serializable {
      * @param status The new status of the lobby
      */
     void setStatus(LobbyStatus status);
+
+    /**
+     * Getter for the minimum number of players
+     *
+     * @return The minimum number of players
+     */
+    int getMinPlayers();
+
+    /**
+     * Getter for the maximum number of players
+     *
+     * @return The maximum number of players
+     */
+    int getMaxPlayers();
 }

@@ -39,7 +39,7 @@ public class RetrieveAllLobbiesResponse extends AbstractResponseMessage {
      */
     public RetrieveAllLobbiesResponse(final Collection<Lobby> lobbies) {
         for (final Lobby lobby : lobbies) {
-            final Lobby lobbyDTO = new LobbyDTO(lobby.getName(), lobby.getOwner().getWithoutPassword());
+            final Lobby lobbyDTO = new LobbyDTO(lobby.getName(), lobby.getOwner().getWithoutPassword(), lobby.getMinPlayers(), lobby.getMaxPlayers());
             lobbyDTO.setStatus(lobby.getStatus());
             for (final User user : lobby.getUsers()) {
                 lobbyDTO.joinUser(user.getWithoutPassword());

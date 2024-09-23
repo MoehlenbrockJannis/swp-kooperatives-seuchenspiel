@@ -9,6 +9,7 @@ import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.NoArgsConstructor;
@@ -29,14 +30,54 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     @FXML
     private PasswordField lobbyPasswordField;
 
+    @FXML
+    private ComboBox<Integer> maxPlayersComboBox;
+
     @Inject
     private LobbyService lobbyService;
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
+    private static final int MIN_NUMBER_OF_PLAYERS = 2;
+    private static final int MAX_NUMBER_OF_PLAYERS = 4;
+
+    /**
+     * Initializes the presenter
+     *
+     * Initializes the presenter by setting the range of the player amount combobox
+     * and resetting the max players combobox selection.
+     *
+     */
+    public void initialize() {
+        setPlayerAmountRange(MIN_NUMBER_OF_PLAYERS, MAX_NUMBER_OF_PLAYERS);
+        resetMaxPlayersComboBoxSelection();
+    }
+
+    /**
+     * Resets the max players combobox selection to the first item.
+     */
+    private void resetMaxPlayersComboBoxSelection() {
+        maxPlayersComboBox.getSelectionModel().selectFirst();
+    }
+
+    /**
+     * Sets the range of the player amount combobox
+     *
+     * Sets the range of the player amount combobox to the given values.
+     *
+     * @param minNumberOfPlayers The minimum number of players
+     * @param maxNumberOfPlayers The maximum number of players
+     */
+    private void setPlayerAmountRange(int minNumberOfPlayers, int maxNumberOfPlayers) {
+        for (int i = minNumberOfPlayers; i <= maxNumberOfPlayers; i++) {
+            maxPlayersComboBox.getItems().add(i);
+        }
+    }
+
     @FXML
     private void onCreateLobbyButtonClicked(final ActionEvent event) {
         final String lobbyName = lobbyNameField.getText();
+        final int selectedMaxPlayers = maxPlayersComboBox.getValue();
 
         if (lobbyName.isEmpty()) {
             // TODO: throw exception and show error message
@@ -50,7 +91,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
         }
 
         clearInputFields();
-        lobbyService.createNewLobby(lobbyName, loggedInUser);
+        lobbyService.createNewLobby(lobbyName, loggedInUser, MIN_NUMBER_OF_PLAYERS, selectedMaxPlayers);
     }
 
     /**
@@ -62,6 +103,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     private void clearInputFields() {
         lobbyNameField.clear();
         lobbyPasswordField.clear();
+        resetMaxPlayersComboBoxSelection();
     }
 
     @FXML

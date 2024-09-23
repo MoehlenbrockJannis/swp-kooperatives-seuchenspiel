@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum LobbyStatus {
-    OPEN ("Offen"),
-    FULL ("Voll"),
-    RUNNING ("Im Spiel");
+    OPEN ("offen"),
+    FULL ("voll"),
+    RUNNING ("im Spiel");
 
     private final String status;
 }

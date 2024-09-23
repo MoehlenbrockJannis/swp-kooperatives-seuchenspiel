@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LobbyMessageSerializableTest {
 
     private static final UserDTO defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
-    Lobby lobby = new LobbyDTO("TestLobby", defaultUser);
+    Lobby lobby = new LobbyDTO("TestLobby", defaultUser, 2, 4);
 
     @Test
     void testLobbyMessagesSerializable() {
