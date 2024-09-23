@@ -1,6 +1,7 @@
 package de.uol.swp.common.role;
 
 import de.uol.swp.common.card.Card;
+import de.uol.swp.common.util.Color;
 import lombok.*;
 
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Objects;
 public class RoleCard extends Card {
 
     private String name;
-    private RoleCardColor color;
+    private Color color;
     //private Image image;
     private RoleAbility ability;
 

@@ -153,6 +153,8 @@ public class Game implements Serializable {
         this.isWon = false;
         this.isLost = false;
         this.indexOfCurrentPlayer = 0;
+
+        this.map = new GameMap(this, type);
     }
 
     /**

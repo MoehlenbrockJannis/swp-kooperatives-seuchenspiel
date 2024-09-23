@@ -5,6 +5,8 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
+import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
 
@@ -96,5 +98,29 @@ public class LobbyService {
     public void updateLobbyStatus(Lobby lobby, LobbyStatus lobbyStatus) {
         final LobbyUpdateStatusRequest updateStatusRequest = new LobbyUpdateStatusRequest(lobby, lobbyStatus);
         eventBus.post(updateStatusRequest);
+    }
+
+    /**
+     * Posts a request to get the mapType from the original game to the EventBus
+     *
+     * @see RetrieveOriginalGameMapTypeRequest
+     * @author David Scheffler
+     * @since 2024-09-23
+     */
+    public void getOriginalGameMapType(){
+        RetrieveOriginalGameMapTypeRequest request = new RetrieveOriginalGameMapTypeRequest();
+        eventBus.post(request);
+    }
+
+    /**
+     * Posts a request to get all plagues to the EventBus
+     *
+     * @see RetrieveAllPlaguesRequest
+     * @author David Scheffler
+     * @since 2024-09-23
+     */
+    public void getPlagues(){
+        RetrieveAllPlaguesRequest request = new RetrieveAllPlaguesRequest();
+        eventBus.post(request);
     }
 }

@@ -1,4 +1,4 @@
-package de.uol.swp.client.gameboard;
+package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.common.game.Game;
@@ -11,9 +11,12 @@ import javafx.stage.Stage;
 
 /**
  * Manages the game board window
+ *
+ * @author David Scheffler
+ * @since 2024-09-09
  */
-public class GameBoardPresenter extends AbstractPresenter {
-    public static final String GAME_FXML_FOLDER_PATH = "gameboard/";
+public class GamePresenter extends AbstractPresenter {
+    public static final String GAME_FXML_FOLDER_PATH = "game/";
 
     private Game game;
 
@@ -25,6 +28,9 @@ public class GameBoardPresenter extends AbstractPresenter {
 
     @FXML
     private ContextMenu settingsContextMenu;
+
+    @FXML
+    private GameMapPresenter gameMapController;
 
     /**
      * <p>
@@ -43,6 +49,8 @@ public class GameBoardPresenter extends AbstractPresenter {
      *
      * @param stage The stage to display the game board window
      * @param game  The game to be displayed
+     * @author David Scheffler
+     * @since 2024-09-09
      */
     @FXML
     public void initialize(final Stage stage, final Game game) {
@@ -60,5 +68,8 @@ public class GameBoardPresenter extends AbstractPresenter {
                 settingsContextMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
             }
         });
+
+        gameMapController.initialize(game);
     }
+
 }

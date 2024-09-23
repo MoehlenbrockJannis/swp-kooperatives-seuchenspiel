@@ -4,6 +4,7 @@ import de.uol.swp.common.plague.Plague;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ import java.util.List;
  */
 @AllArgsConstructor
 @Getter
-public class MapSlot {
+public class MapSlot implements Serializable {
     private City city;
     private List<City> connectedCities;
     private Plague plague;

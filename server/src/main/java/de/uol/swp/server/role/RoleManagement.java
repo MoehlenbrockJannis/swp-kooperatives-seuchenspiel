@@ -1,7 +1,7 @@
 package de.uol.swp.server.role;
 
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.RoleCardColor;
+import de.uol.swp.common.util.Color;
 import lombok.Getter;
 
 import java.util.Set;
@@ -16,11 +16,11 @@ import java.util.Set;
  */
 @Getter
 public class RoleManagement {
-    private final RoleCard logistiker = new RoleCard("Logistiker", new RoleCardColor(), null);
-    private final RoleCard arzt = new RoleCard("Arzt", new RoleCardColor(), null);
-    private final RoleCard betriebsexperte = new RoleCard("Betriebsexperte", new RoleCardColor(), null);
-    private final RoleCard wissenschaftler = new RoleCard("Wissenschaftler", new RoleCardColor(), null);
-    private final RoleCard forscherin = new RoleCard("Forscherin", new RoleCardColor(), null);
+    private final RoleCard logistiker = new RoleCard("Logistiker", new Color(), null);
+    private final RoleCard arzt = new RoleCard("Arzt", new Color(), null);
+    private final RoleCard betriebsexperte = new RoleCard("Betriebsexperte", new Color(), null);
+    private final RoleCard wissenschaftler = new RoleCard("Wissenschaftler", new Color(), null);
+    private final RoleCard forscherin = new RoleCard("Forscherin", new Color(), null);
 
     /**
      * Returns a set of all available roles that can be assigned to users.

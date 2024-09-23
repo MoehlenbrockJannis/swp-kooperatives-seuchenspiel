@@ -6,6 +6,7 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,9 @@ import java.util.List;
  * @author Tom Weelborg
  * @since 2024-09-02
  */
-public class GameMap {
+public class GameMap implements Serializable {
     private Game game;
+    @Getter
     private MapType type;
     @Getter
     private List<Field> fields;
