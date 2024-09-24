@@ -1,7 +1,13 @@
 package de.uol.swp.common.action;
 
-
+/**
+ * The {@code RoleAction} interface represents an action associated with a specific role in the game.
+ * It extends the {@link Action} interface, serving as a marker for role-based actions.
+ *
+ *  @author Jannis Moehlenbrock
+ *  @since 2024-09-17
+ */
 public interface RoleAction extends Action {
 
-    //TODO "extends Action" hinzufügen bei Implementierung der Actions
 }
+
