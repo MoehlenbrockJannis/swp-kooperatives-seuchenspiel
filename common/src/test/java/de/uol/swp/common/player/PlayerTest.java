@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit test class for the UserPlayer class.
@@ -127,7 +128,7 @@ class PlayerTest {
      */
     @Test
     void shouldAddHandCardSuccessfully() {
-        CityCard card = new CityCard();
+        CityCard card = mock(CityCard.class);
 
         this.player1.addHandCard(card);
         assertThat(this.player1.getHandCards()).contains(card);
@@ -144,7 +145,7 @@ class PlayerTest {
      */
     @Test
     void shouldAddAndRemoveCardFromHand() {
-        CityCard card = new CityCard();
+        CityCard card = mock(CityCard.class);
 
         this.player1.addHandCard(card);
 
@@ -160,8 +161,8 @@ class PlayerTest {
     void getHandCardsTest() {
         List<PlayerCard> expectedHandCards = new ArrayList<>();
 
-        CityCard card1 = new CityCard();
-        CityCard card2 = new CityCard();
+        CityCard card1 = mock(CityCard.class);
+        CityCard card2 = mock(CityCard.class);
 
         this.player1.addHandCard(card1);
         this.player1.addHandCard(card2);

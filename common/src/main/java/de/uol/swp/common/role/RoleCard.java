@@ -40,4 +40,8 @@ public class RoleCard extends Card {
         return Objects.hashCode(name);
     }
 
+    @Override
+    public String getTitel() {
+        return this.name;
+    }
 }

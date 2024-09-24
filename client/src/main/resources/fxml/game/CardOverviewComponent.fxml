@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="stackVBox"  xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.CardOverviewPresenter">
+    <HBox onMouseClicked="#drawCard" VBox.vgrow="ALWAYS" prefWidth="Infinity" alignment="CENTER">
+        <ImageView HBox.hgrow="ALWAYS">
+            <Image url="@/images/question-mark-line-icon.png"/>
+        </ImageView>
+        <Label fx:id="drawStackNumberOfCardsLabel" HBox.hgrow="ALWAYS" text="00"/>
+    </HBox>
+    <HBox VBox.vgrow="ALWAYS" prefWidth="-Infinity" alignment="CENTER">
+        <ImageView HBox.hgrow="ALWAYS">
+            <Image url="@/images/question-mark-line-icon.png"/>
+        </ImageView>
+        <Label fx:id="discardStackNumberOfCardsLabel" text="00" HBox.hgrow="ALWAYS"/>
+    </HBox>
+</VBox>

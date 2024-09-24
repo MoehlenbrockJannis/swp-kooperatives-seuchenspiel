@@ -1,7 +1,9 @@
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.card.*;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.stack.CardStack;
+import de.uol.swp.common.map.*;
 import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapType;
@@ -14,11 +16,11 @@ import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.marker.InfectionMarker;
 import de.uol.swp.common.marker.OutbreakMarker;
 import lombok.*;
-
+import org.reflections.Reflections;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 
 /**
@@ -34,6 +36,7 @@ public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
+    private static final String PATH_TO_EVENT_CARDS = "de.uol.swp.common.card.event_card";
 
     private static final Map<Integer, Integer> AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS = Map.of(
             4, 2,
@@ -41,6 +44,9 @@ public class Game implements Serializable {
             2, 4
     );
 
+    @Getter
+    @Setter
+    private int id;
     @Getter
     private Lobby lobby;
     @Getter
@@ -52,10 +58,12 @@ public class Game implements Serializable {
     private int numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution;
     @Getter
     private int maxNumberOfPlagueCubesPerField;
+    @Getter
     private int numberOfActionsPerTurn;
     private int numberOfPlayerCardsToDrawPerTurn;
     @Getter
     private GameMap map;
+    @Getter
     private int indexOfCurrentPlayer;
     @Getter
     private List<Player> playersInTurnOrder;
@@ -66,7 +74,9 @@ public class Game implements Serializable {
     private List<AntidoteMarker> antidoteMarkers;
     private OutbreakMarker outbreakMarker;
     private InfectionMarker infectionMarker;
+    @Getter
     private CardStack<PlayerCard> playerDrawStack;
+    @Getter
     private CardStack<PlayerCard> playerDiscardStack;
     private CardStack<InfectionCard> infectionDrawStack;
     private CardStack<InfectionCard> infectionDiscardStack;
@@ -100,6 +110,18 @@ public class Game implements Serializable {
             4,
             2
         );
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Game game = (Game) obj;
+        return this.id == game.id;
     }
 
     /**
@@ -155,6 +177,7 @@ public class Game implements Serializable {
         this.indexOfCurrentPlayer = 0;
 
         this.map = new GameMap(this, type);
+        createPlayerStacks();
     }
 
     /**
@@ -194,7 +217,9 @@ public class Game implements Serializable {
      * This method organizes the player cards into draw and discard stacks.
      */
     private void createPlayerStacks () {
-
+        createPlayerDrawStack();
+        Collections.shuffle(this.playerDrawStack,new Random());
+        this.playerDiscardStack = new CardStack<PlayerCard>();
     }
 
     /**
@@ -202,6 +227,15 @@ public class Game implements Serializable {
      * This method initializes and shuffles the player card stack.
      */
     private void createPlayerDrawStack () {
+        this.playerDrawStack = new CardStack<PlayerCard>();
+        List<Field> fields = map.getFields();
+        for (Field field: fields) {
+            this.playerDrawStack.push(new CityCard(field));
+        }
+        List<EventCard> eventCards = createEventCards();
+        for (EventCard eventCard: eventCards) {
+            this.playerDrawStack.push(eventCard);
+        }
 
     }
 
@@ -229,7 +263,24 @@ public class Game implements Serializable {
      * @return a list of EventCard objects
      */
     private List<EventCard> createEventCards () {
-        return new ArrayList<EventCard>();
+        List<EventCard> eventCards = new ArrayList<>();
+        Reflections reflections = new Reflections(PATH_TO_EVENT_CARDS);
+        for (Class<? extends EventCard> eventCard : reflections.getSubTypesOf(EventCard.class)) {
+            if(!Modifier.isAbstract(eventCard.getModifiers())) {
+                eventCards.add(createEventCard(eventCard));
+            }
+        }
+        return eventCards;
+    }
+
+    private EventCard createEventCard (Class<? extends EventCard> eventCard) {
+        EventCard eventCardInstance = null;
+        try {
+            eventCardInstance = eventCard.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return eventCardInstance;
     }
 
     /**

@@ -1,5 +1,6 @@
 package de.uol.swp.server.game;
 
+import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
@@ -7,11 +8,14 @@ import de.uol.swp.common.plague.Plague;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Manages the game
  */
 public class GameManagement {
+
+    private final List<Game> games = new ArrayList<>();
 
     /**
      * Creates a game
@@ -22,6 +26,67 @@ public class GameManagement {
      * @return The created game
      */
     public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues) {
-        return new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        newGame.setId(generateUniqueGameId());
+        return newGame;
+    }
+
+    /**
+     * Adds a game to the list of managed games.
+     *
+     * @param game The game to be added
+     */
+    public void addGame(Game game) {
+        games.add(game);
+    }
+
+    /**
+     * Draws a player card from the player draw stack of a game.
+     *
+     * @param game The game from which the player card is to be drawn
+     * @return The drawn player card
+     */
+    public PlayerCard drawPlayerCard(Game game) {
+        return game.getPlayerDrawStack().pop();
+
+    }
+
+    /**
+     * Updates a game in the list of managed games.
+     *
+     * @param game The game to be updated
+     */
+    public void updateGame(Game game) {
+        this.games.set(this.games.indexOf(game), game);
+    }
+
+    /**
+     * Retrieves a game from the list of managed games.
+     *
+     * @param game The game to be retrieved
+     * @return An Optional containing the game if found, otherwise an empty Optional
+     */
+    public Optional<Game> getGame(Game game) {
+        try {
+            Game gameInStore = games.get(games.indexOf(game));
+            return Optional.of(gameInStore);
+        }catch (IndexOutOfBoundsException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Generates a unique game ID.
+     *
+     * @return A unique game ID
+     */
+    int generateUniqueGameId() {
+        var ref = new Object() {
+            int uniqueGameId;
+        };
+        do {
+            ref.uniqueGameId = (int) (Math.random() * 1000000);
+        } while (games.stream().anyMatch(game -> game.getId() == ref.uniqueGameId));
+        return ref.uniqueGameId;
     }
 }
