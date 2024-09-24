@@ -12,6 +12,8 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.lobby.server_message.*;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyLeaveUserServerMessage;
@@ -31,6 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -97,6 +100,7 @@ public class LobbyPresenter extends AbstractPresenter {
         chatController.setLobby(lobby);
 
         userContainerEntityListController.setTitle("Mitspieler");
+        userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
     }
 
@@ -203,9 +207,11 @@ public class LobbyPresenter extends AbstractPresenter {
         closeStage();
     }
 
+
     private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
         if (lobby.equals(lobbyMessage.getLobby())) {
             executable.run();
+            updateStartGameButton();
         }
     }
 
@@ -213,7 +219,6 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onUserJoinedLobbyMessage(final LobbyJoinUserServerMessage userJoinedLobbyMessage) {
         final Runnable executable = () -> this.lobby = userJoinedLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userJoinedLobbyMessage, executable);
-        updateStartGameButton();
         updatePlayerList();
     }
 
@@ -221,8 +226,34 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onUserLeftLobbyMessage(final LobbyLeaveUserServerMessage userLeftLobbyMessage) {
         final Runnable executable = () -> this.lobby = userLeftLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userLeftLobbyMessage, executable);
-        updateStartGameButton();
         updatePlayerList();
+    }
+
+    /**
+     * Handles LobbyKickUserServerMessage events from the EventBus.
+     *
+     * When a LobbyKickUserServerMessage is detected, this method checks if the kicked user
+     * matches the currently logged-in user. If the logged-in user has been kicked, a message
+     * is shown to inform them that they have been removed from the lobby, and the lobby stage
+     * is closed.
+     *
+     * The method first ensures the message pertains to the current lobby by using
+     * executeOnlyIfMessageIsForThisLobby. If it does, the action is executed.
+     *
+     * @param kickUserServerMessage The message containing information about the user kicked
+     *                              from the lobby.
+     * @see LobbyKickUserServerMessage
+     * @since 2024-09-23
+     */
+    @Subscribe
+    public void onLobbyKickUserServerMessage(final LobbyKickUserServerMessage kickUserServerMessage) {
+        final Runnable executable = () -> {
+            if (kickUserServerMessage.getUser().equals(loggedInUserProvider.get())) {
+                Platform.runLater(() -> showInformationAlert("Du wurdest aus der Lobby gekickt"));
+                closeStage();
+            }
+        };
+        executeOnlyIfMessageIsForThisLobby(kickUserServerMessage, executable);
     }
 
     private void updateStartGameButton() {
@@ -310,15 +341,110 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the player list by setting it to the users of the associated {@link #lobby}
+     * Updates the player list by setting it to the players of the associated {@link #lobby}
      *
-     * @see Lobby#getUsers()
+     * @see Lobby#getPlayers()
      * @see UserContainerEntityListPresenter#setList(Collection)
      */
     private void updatePlayerList() {
         userContainerEntityListController.highlightUser(lobby.getOwner());
 
-        final Set<UserContainerEntity> userContainerEntities = new HashSet<>(lobby.getUsers());
+        final Set<UserContainerEntity> userContainerEntities = new HashSet<>(lobby.getPlayers());
         userContainerEntityListController.setList(userContainerEntities);
     }
+
+    /**
+     * Displays a context menu for a user list cell in the lobby, allowing the lobby owner to kick a player.
+     * This method checks if the currently logged-in user is the owner of the lobby. If not, it removes any
+     * existing context menu from the list cell. If the user is the owner, it creates a context menu with
+     * an option to kick a player. When the "Spieler Kicken" menu item is selected, it calls the kickUser
+     * method for the selected user player.
+     *
+     * @param listCell The list cell for which the context menu is being created.
+     * @since 2024-09-23
+     */
+    private void showPlayerListCellContextMenu(final ListCell<UserContainerEntity> listCell) {
+        User currentUser = loggedInUserProvider.get();
+        User lobbyOwner = this.lobby.getOwner();
+        UserContainerEntity listCellItem = listCell.getItem();
+
+        if (!currentUser.equals(lobbyOwner) || listCellItem.containsUser(lobbyOwner)) {
+            listCell.setContextMenu(null);
+            return;
+        }
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem kickPlayer = new MenuItem("Spieler Kicken");
+
+        contextMenu.getItems().addAll(kickPlayer);
+
+        kickPlayer.setOnAction(event -> {
+            if (listCellItem instanceof UserPlayer userPlayer) {
+                kickUser(userPlayer.getUser());
+            }
+        });
+
+        listCell.setContextMenu(contextMenu);
+    }
+
+    /**
+     * Kicks a specified user from the lobby if they are not the lobby owner.
+     * This method checks if the provided user is the owner of the lobby.
+     * If the user is not the owner, it displays a confirmation alert
+     * to proceed with kicking the user and logs a message indicating
+     * the user has been removed from the lobby. If the user is the owner,
+     * it logs a message indicating that the owner cannot kick themselves.
+     *
+     * @param user The user to be kicked from the lobby.
+     * @since 2024-09-23
+     */
+    private void kickUser(User user) {
+        if (!user.equals(this.lobby.getOwner())) {
+            showConfirmationAlertForKickUser(user);
+        }
+    }
+
+    /**
+     * Displays a confirmation alert to kick a specified user from the lobby.
+     * This method creates a confirmation alert.
+     * If the user confirms, it shows an informational alert indicating
+     * that the user has been kicked and proceeds to call the kickUser method
+     * of the lobby service. If the user cancels, it shows an alert indicating
+     * that the operation has been aborted.
+     *
+     * @param user The user to be kicked from the lobby.
+     * @since 2024-09-23
+     */
+    private void showConfirmationAlertForKickUser(User user) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Bestätigung");
+        confirmationAlert.setHeaderText("Benutzer kicken");
+        confirmationAlert.setContentText("Möchten Sie den Benutzer wirklich kicken?");
+
+        confirmationAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                showInformationAlert("Der Benutzer wurde gekickt!");
+                this.lobbyService.kickUser(this.lobby, user);
+            } else {
+                showInformationAlert("Vorgang abgebrochen.");
+            }
+        });
+    }
+
+    /**
+     * Displays an informational alert dialog with the specified message.
+     * This method creates an alert with a default title.
+     * The alert has no header text and displays the provided message as the content.
+     * It waits for the user to close the alert before returning control to the calling method.
+     *
+     * @param message The message to be displayed in the alert dialog.
+     * @since 2024-09-23
+     */
+    private void showInformationAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText("Hinweis");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }

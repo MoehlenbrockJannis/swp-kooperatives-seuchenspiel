@@ -4,6 +4,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.CreateLobbyRequest;
 import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.LobbyKickUserRequest;
 import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.AuthenticationService;
@@ -102,6 +103,23 @@ class LobbyServiceTest {
         bus.post(request);
 
         // Check if the user is no longer listed in the lobby
+        if (lobbyManagement.getLobby(lobby).isPresent()) {
+            assertFalse(lobbyManagement.getLobby(lobby).get().getUsers().contains(secondOwner));
+        }
+    }
+
+    @Test
+    void lobbyKickUserTest() {
+        lobbyManagement.createLobby(lobby);
+
+        if (lobbyManagement.getLobby(lobby).isPresent()) {
+            lobbyManagement.getLobby(lobby).get().joinUser(secondOwner);
+        }
+
+        final LobbyKickUserRequest request = new LobbyKickUserRequest(lobby, secondOwner);
+
+        bus.post(request);
+
         if (lobbyManagement.getLobby(lobby).isPresent()) {
             assertFalse(lobbyManagement.getLobby(lobby).get().getUsers().contains(secondOwner));
         }

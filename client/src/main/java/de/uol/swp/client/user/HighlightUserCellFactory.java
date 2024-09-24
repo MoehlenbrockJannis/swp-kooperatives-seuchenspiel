@@ -5,7 +5,10 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,9 @@ public class HighlightUserCellFactory implements Callback<ListView<UserContainer
     public interface HighlightingFunction extends Consumer<ListCell<UserContainerEntity>> {}
 
     private Map<Provider<User>, HighlightingFunction> highlightingTable = new HashMap<>();
+
+    @Setter
+    private Consumer<ListCell<UserContainerEntity>> rightClickFunction;
 
     public void reset() {
         highlightingTable = new HashMap<>();
@@ -27,7 +33,7 @@ public class HighlightUserCellFactory implements Callback<ListView<UserContainer
 
     @Override
     public ListCell<UserContainerEntity> call(final ListView<UserContainerEntity> listView) {
-        return new ListCell<>() {
+        final ListCell<UserContainerEntity> listCell = new ListCell<>() {
             @Override
             protected void updateItem(final UserContainerEntity item, final boolean empty) {
                 super.updateItem(item, empty);
@@ -62,5 +68,13 @@ public class HighlightUserCellFactory implements Callback<ListView<UserContainer
                 }
             }
         };
+
+        listCell.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getButton() == MouseButton.SECONDARY && !listCell.isEmpty() && rightClickFunction != null) {
+                rightClickFunction.accept(listCell);
+            }
+        });
+
+        return listCell;
     }
 }

@@ -4,11 +4,7 @@ import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.LobbyDTO;
-import de.uol.swp.common.lobby.request.CreateLobbyRequest;
-import de.uol.swp.common.lobby.request.LobbyJoinUserRequest;
-import de.uol.swp.common.lobby.request.LobbyLeaveUserRequest;
-import de.uol.swp.common.lobby.request.RetrieveAllLobbiesRequest;
-import de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest;
+import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;
@@ -80,6 +76,19 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Test
+    void kickUser() throws InterruptedException {
+        lobbyService.kickUser(lobby, user);
+
+        waitForLock();
+
+        assertTrue(event instanceof LobbyKickUserRequest);
+
+        final LobbyKickUserRequest kickUserRequest = (LobbyKickUserRequest) event;
+        assertEquals(kickUserRequest.getLobby(), lobby);
+        assertEquals(kickUserRequest.getUser(), user);
+    }
+
+    @Test
     void updateLobbyStatus() throws InterruptedException {
         lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
 
@@ -109,6 +118,11 @@ public class LobbyServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final LobbyLeaveUserRequest lobbyLeaveUserRequest) {
         handleEvent(lobbyLeaveUserRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final LobbyKickUserRequest lobbyKickUserRequest) {
+        handleEvent(lobbyKickUserRequest);
     }
 
     @Subscribe

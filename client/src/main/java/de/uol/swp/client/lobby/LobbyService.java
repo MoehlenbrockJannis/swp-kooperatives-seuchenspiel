@@ -91,6 +91,22 @@ public class LobbyService {
     }
 
     /**
+     * Sends a request to kick a specified user from a given lobby.
+     * This method creates a LobbyKickUserRequest with the provided lobby and user,
+     * and posts it to the event bus for further processing. This action is typically
+     * triggered when the lobby owner decides to remove a user from the lobby.
+     *
+     * @param lobby The lobby from which the user will be kicked.
+     * @param user The user to be kicked from the lobby.
+     * @since 2024-09-23
+     */
+    public void kickUser(final Lobby lobby, final User user) {
+        final LobbyKickUserRequest kickUserRequest = new LobbyKickUserRequest(lobby, user);
+        eventBus.post(kickUserRequest);
+    }
+
+
+    /**
      * Updates the status of a lobby
      *
      * @param lobby The lobby to update

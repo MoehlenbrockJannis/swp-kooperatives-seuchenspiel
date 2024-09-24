@@ -1,6 +1,7 @@
 package de.uol.swp.common.player;
 
 import de.uol.swp.common.user.User;
+import lombok.Getter;
 
 import java.util.Date;
 
@@ -11,6 +12,7 @@ import java.util.Date;
  */
 public class UserPlayer extends Player{
 
+    @Getter
     private User user;
 
     /**
