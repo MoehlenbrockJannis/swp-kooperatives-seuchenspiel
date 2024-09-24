@@ -19,15 +19,16 @@ public class GamePresenter extends AbstractPresenter {
     public static final String GAME_FXML_FOLDER_PATH = "game/";
 
     private Game game;
-
     @FXML
     private Pane settingsPane;
-
+    @FXML
+    private Pane playerCardStackPane;
     @FXML
     private ImageView settingsIcon;
-
     @FXML
     private ContextMenu settingsContextMenu;
+    @FXML
+    private CardOverviewPresenter playerCardsOverviewController;
 
     @FXML
     private GameMapPresenter gameMapController;
@@ -52,13 +53,14 @@ public class GamePresenter extends AbstractPresenter {
      * @author David Scheffler
      * @since 2024-09-09
      */
-    @FXML
     public void initialize(final Stage stage, final Game game) {
         setStage(stage);
         this.game = game;
 
         stage.setTitle("Game: " + game.getLobby().getName());
         stage.show();
+        playerCardsOverviewController.initialize(game, game.getPlayerDrawStack(), game.getPlayerDiscardStack(), this.playerCardStackPane);
+        playerCardsOverviewController.setWindow(stage);
 
         settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
         settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());

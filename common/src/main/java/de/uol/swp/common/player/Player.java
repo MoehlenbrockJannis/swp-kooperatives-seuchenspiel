@@ -24,6 +24,7 @@ public abstract class Player implements Serializable, UserContainerEntity {
     @Getter
     @Setter
     private Field currentField;
+    @Getter
     private List<PlayerCard> handCards;
     @Getter
     private Date lastSick;
@@ -78,5 +79,4 @@ public abstract class Player implements Serializable, UserContainerEntity {
     public List<PlayerCard> getHandCards() {
         return Collections.unmodifiableList(this.handCards);
     }
-
 }
