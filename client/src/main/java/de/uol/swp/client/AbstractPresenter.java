@@ -301,6 +301,23 @@ public abstract class AbstractPresenter {
     }
 
     /**
+     * Creates a {@link WindowEvent} on the {@link #stage} to close it.
+     *
+     * <p>
+     *     An event is fired instead of using {@link Stage#close()}
+     *     because the latter does not trigger the EventHandler associated with {@link Stage#setOnCloseRequest(EventHandler)}.
+     * </p>
+     *
+     * @see Stage#close()
+     * @see Stage#setOnCloseRequest(EventHandler)
+     * @see WindowEvent
+     * @since 2024-09-13
+     */
+    protected void closeStage() {
+        Platform.runLater(() -> stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST)));
+    }
+
+    /**
      * Sets the field eventBus
      *
      * This method sets the field eventBus to the EventBus given via parameter.
