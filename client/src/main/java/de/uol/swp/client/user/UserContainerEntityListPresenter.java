@@ -8,10 +8,15 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class UserContainerEntityListPresenter extends AbstractPresenter {
     @FXML
@@ -40,6 +45,7 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
         highlightUserCellFactory = new HighlightUserCellFactory();
         resetHighlighting();
         listView.setCellFactory(highlightUserCellFactory);
+
     }
 
     private void resetHighlighting() {
@@ -78,5 +84,9 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
     public void highlightUser(final User user) {
         resetHighlighting();
         highlightUserCellFactory.addHighlightingConfiguration(() -> user, listCell -> listCell.getStyleClass().add("lobby-owner-highlighting"));
+    }
+
+    public void setRightClickFunctionToListCells(Consumer<ListCell<UserContainerEntity>> rightClickFunction) {
+        this.highlightUserCellFactory.setRightClickFunction(rightClickFunction);
     }
 }

@@ -38,6 +38,11 @@ public abstract class Player implements Serializable, UserContainerEntity {
         this.handCards = new ArrayList<>();
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     /**
      * Retrieves the player's name.
      * This method should be overridden by subclasses to return the actual player's name.

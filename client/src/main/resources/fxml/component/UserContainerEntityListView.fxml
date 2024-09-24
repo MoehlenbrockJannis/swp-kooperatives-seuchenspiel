@@ -15,7 +15,6 @@
         </font>
     </Label>
     <ListView fx:id="listView"
-              mouseTransparent="true"
               focusTraversable="false"
               prefHeight="400.0"
               prefWidth="200.0"
