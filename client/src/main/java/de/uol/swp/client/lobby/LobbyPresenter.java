@@ -212,6 +212,7 @@ public class LobbyPresenter extends AbstractPresenter {
         if (lobby.equals(lobbyMessage.getLobby())) {
             executable.run();
             updateStartGameButton();
+            updatePlayerList();
         }
     }
 
@@ -219,14 +220,12 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onUserJoinedLobbyMessage(final LobbyJoinUserServerMessage userJoinedLobbyMessage) {
         final Runnable executable = () -> this.lobby = userJoinedLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userJoinedLobbyMessage, executable);
-        updatePlayerList();
     }
 
     @Subscribe
     public void onUserLeftLobbyMessage(final LobbyLeaveUserServerMessage userLeftLobbyMessage) {
         final Runnable executable = () -> this.lobby = userLeftLobbyMessage.getLobby();
         executeOnlyIfMessageIsForThisLobby(userLeftLobbyMessage, executable);
-        updatePlayerList();
     }
 
     /**
@@ -248,6 +247,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void onLobbyKickUserServerMessage(final LobbyKickUserServerMessage kickUserServerMessage) {
         final Runnable executable = () -> {
+            this.lobby = kickUserServerMessage.getLobby();
             if (kickUserServerMessage.getUser().equals(loggedInUserProvider.get())) {
                 Platform.runLater(() -> showInformationAlert("Du wurdest aus der Lobby gekickt"));
                 closeStage();
