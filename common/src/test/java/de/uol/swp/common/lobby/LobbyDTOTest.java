@@ -8,10 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,36 +46,28 @@ class LobbyDTOTest {
     @DisplayName("Lobbys should be equal if names are equal")
     void equalsTest_equal() {
         final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next(), 2, 4);
-
-        assertThat(lobby.equals(equalLobby))
-                .isTrue();
+        assertThat(lobby).isEqualTo(equalLobby);
     }
 
     @Test
-    @DisplayName("Lobbys should be not equal if names are equal")
+    @DisplayName("Lobbys should not be equal if names are different")
     void equalsTest_notEqualLobby() {
-        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next() , 2, 4);
-
-        assertThat(lobby.equals(notEqualLobby))
-                .isFalse();
+        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next(), 2, 4);
+        assertThat(lobby).isNotEqualTo(notEqualLobby);
     }
 
     @Test
-    @DisplayName("Lobbys should be not equal if names are equal")
+    @DisplayName("Lobby should not be equal to objects of different types")
     void equalsTest_notEqualObject() {
         final Object object = new Object();
-
-        assertThat(lobby.equals(object))
-                .isFalse();
+        assertThat(lobby).isNotEqualTo(object);
     }
 
     @Test
     @DisplayName("Hashcode should consist of a hashcode of the lobby's name")
     void hashCodeTest() {
         final int hashcode = Objects.hashCode("test");
-
-        assertThat(lobby.hashCode())
-                .isEqualTo(hashcode);
+        assertThat(lobby.hashCode()).isEqualTo(hashcode);
     }
 
     /**
@@ -89,11 +78,15 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Lobby should be created correctly")
     void createLobbyTest() {
-        assertEquals("test", lobby.getName());
-        assertEquals(1, lobby.getUsers().size());
-        assertEquals(defaultUser, lobby.getUsers().iterator().next());
-
+        assertThat(lobby.getName()).isEqualTo("test");
+        assertThat(lobby.getUsers()).hasSize(1);
+        assertThat(lobby.getUsers()).contains(defaultUser);
+        assertThat(lobby.getOwner()).isEqualTo(defaultUser);
+        assertThat(lobby.getMinPlayers()).isEqualTo(2);
+        assertThat(lobby.getMaxPlayers()).isEqualTo(4);
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.OPEN);
     }
 
     /**
@@ -105,19 +98,20 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Users should be able to join the lobby")
     void joinUserLobbyTest() {
         lobby.joinUser(users.get(0));
-        assertEquals(2,lobby.getUsers().size());
-        assertTrue(lobby.getUsers().contains(users.get(0)));
+        assertThat(lobby.getUsers()).hasSize(2);
+        assertThat(lobby.getUsers()).contains(users.get(0));
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
         lobby.joinUser(users.get(0));
-        assertEquals(2, lobby.getUsers().size());
+        assertThat(lobby.getUsers()).hasSize(2);
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
         lobby.joinUser(users.get(1));
-        assertEquals(3,lobby.getUsers().size());
-        assertTrue(lobby.getUsers().contains(users.get(1)));
+        assertThat(lobby.getUsers()).hasSize(3);
+        assertThat(lobby.getUsers()).contains(users.get(1));
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
@@ -130,15 +124,16 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Users should be able to leave the lobby")
     void leaveUserLobbyTest() {
         users.forEach(lobby::joinUser);
 
-        assertEquals(lobby.getUsers().size(), users.size() + 1);
+        assertThat(lobby.getUsers()).hasSize(users.size() + 1);
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
 
         lobby.leaveUser(users.get(5));
-        assertEquals(lobby.getUsers().size(), users.size() + 1 - 1);
-        assertFalse(lobby.getUsers().contains(users.get(5)));
+        assertThat(lobby.getUsers()).hasSize(users.size());
+        assertThat(lobby.getUsers()).doesNotContain(users.get(5));
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
@@ -151,14 +146,14 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Owner should be able to leave the lobby and a new owner should be assigned")
     void removeOwnerFromLobbyTest() {
         users.forEach(lobby::joinUser);
 
         lobby.leaveUser(defaultUser);
 
-        assertNotEquals(defaultUser, lobby.getOwner() );
-        assertTrue(users.contains(lobby.getOwner()));
-
+        assertThat(lobby.getOwner()).isNotEqualTo(defaultUser);
+        assertThat(users).anyMatch(user -> user.equals(lobby.getOwner()));
     }
 
     /**
@@ -170,11 +165,12 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Owner should be updatable to a user in the lobby")
     void updateOwnerTest() {
         users.forEach(lobby::joinUser);
 
         lobby.updateOwner(users.get(6));
-        assertEquals(lobby.getOwner(), users.get(6));
+        assertThat(lobby.getOwner()).isEqualTo(users.get(6));
 
         assertThrows(IllegalArgumentException.class, () -> lobby.updateOwner(notInLobbyUser));
     }
@@ -187,52 +183,51 @@ class LobbyDTOTest {
      * @since 2019-10-08
      */
     @Test
+    @DisplayName("Lobby should not be allowed to be empty")
     void assureNonEmptyLobbyTest() {
         assertThrows(IllegalArgumentException.class, () -> lobby.leaveUser(defaultUser));
     }
 
     @Test
+    @DisplayName("Lobby should correctly report if it contains a user")
     void containsUserTest() {
-        assertThat(lobby.containsUser(defaultUser))
-                .isTrue();
-        assertThat(lobby.containsUser(users.iterator().next()))
-                .isFalse();
+        assertThat(lobby.containsUser(defaultUser)).isTrue();
+        assertThat(lobby.containsUser(users.iterator().next())).isFalse();
     }
 
     @Test
+    @DisplayName("Players should be able to be added to the lobby")
     void addPlayerTest() {
         final Player player = new UserPlayer(users.iterator().next());
 
         lobby.addPlayer(player);
-        assertThat(lobby.getPlayers())
-                .contains(player);
+        assertThat(lobby.getPlayers()).contains(player);
     }
 
     @Test
-    void removePlayer() {
+    @DisplayName("Players should be able to be removed from the lobby")
+    void removePlayerTest() {
         final Player player = new UserPlayer(users.iterator().next());
 
         lobby.addPlayer(player);
-        assertThat(lobby.getPlayers())
-                .contains(player);
+        assertThat(lobby.getPlayers()).contains(player);
 
         lobby.removePlayer(player);
-        assertThat(lobby.getPlayers())
-                .doesNotContain(player);
+        assertThat(lobby.getPlayers()).doesNotContain(player);
     }
 
     @Test
+    @DisplayName("Lobby should return the correct player for a user in the lobby")
     void getPlayerForUser_userInLobby() {
         final Player player = new UserPlayer(defaultUser);
 
-        assertThat(lobby.getPlayerForUser(defaultUser))
-                .isEqualTo(player);
+        assertThat(lobby.getPlayerForUser(defaultUser)).isEqualTo(player);
     }
 
     @Test
+    @DisplayName("Lobby should return null for a user not in the lobby")
     void getPlayerForUser_userNotInLobby() {
-        assertThat(lobby.getPlayerForUser(users.iterator().next()))
-                .isNull();
+        assertThat(lobby.getPlayerForUser(users.iterator().next())).isNull();
     }
 
     /**
@@ -243,17 +238,84 @@ class LobbyDTOTest {
      *
      */
     @Test
+    @DisplayName("Lobby status should be determined correctly")
     void determineLobbyStatusTest() {
-        assertEquals(LobbyStatus.OPEN, lobby.getStatus());
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.OPEN);
 
         for (int i = 0; i < 3; i++) {
             lobby.joinUser(users.get(i));
         }
 
-        assertEquals(LobbyStatus.FULL, lobby.getStatus());
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.FULL);
 
         lobby.leaveUser(users.get(0));
 
-        assertEquals(LobbyStatus.OPEN, lobby.getStatus());
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.OPEN);
+    }
+
+    @Test
+    @DisplayName("Lobby status should be updatable")
+    void setStatusTest() {
+        ((LobbyDTO)lobby).setStatus(LobbyStatus.RUNNING);
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.RUNNING);
+    }
+
+    @Test
+    @DisplayName("ToString should return a non-empty string")
+    void toStringTest() {
+        assertThat(lobby.toString()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("User should not be removed if not in lobby")
+    void leaveUserNotInLobbyTest() {
+        lobby.joinUser(users.get(0));
+        Set<User> initialUsers = lobby.getUsers();
+        lobby.leaveUser(notInLobbyUser);
+        assertThat(lobby.getUsers()).containsExactlyInAnyOrderElementsOf(initialUsers);
+        assertThat(lobby.getOwner()).isEqualTo(defaultUser);
+    }
+
+    @Test
+    @DisplayName("Owner should be updated when leaving and other users present")
+    void leaveUserUpdateOwnerTest() {
+        lobby.joinUser(users.get(0));
+        lobby.leaveUser(defaultUser);
+        assertThat(lobby.getOwner()).isEqualTo(users.get(0));
+    }
+
+    @Test
+    @DisplayName("getPlayerForUser should return null for null user")
+    void getPlayerForNullUserTest() {
+        assertThat(lobby.getPlayerForUser(null)).isNull();
+    }
+
+    @Test
+    @DisplayName("getPlayerForUser should return correct player for user in lobby")
+    void getPlayerForUserInLobbyTest() {
+        User testUser = users.get(0);
+        lobby.joinUser(testUser);
+        Player player = lobby.getPlayerForUser(testUser);
+        assertThat(player).isNotNull();
+        assertThat(player.containsUser(testUser)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Lobby status should be FULL when maximum players joined")
+    void lobbyStatusFullTest() {
+        for (int i = 0; i < 3; i++) {
+            lobby.joinUser(users.get(i));
+        }
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.FULL);
+    }
+
+    @Test
+    @DisplayName("Lobby status should remain RUNNING even when full")
+    void lobbyStatusRunningWhenFullTest() {
+        for (int i = 0; i < 3; i++) {
+            lobby.joinUser(users.get(i));
+        }
+        ((LobbyDTO)lobby).setStatus(LobbyStatus.RUNNING);
+        assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.RUNNING);
     }
 }

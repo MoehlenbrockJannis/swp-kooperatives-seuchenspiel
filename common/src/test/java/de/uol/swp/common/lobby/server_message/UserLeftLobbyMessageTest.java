@@ -2,6 +2,7 @@ package de.uol.swp.common.lobby.server_message;
 
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.user.UserDTO;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see LobbyLeaveUserServerMessage
  * @since 2023-05-14
  */
+@DisplayName("UserLeftLobbyMessage Test")
 class UserLeftLobbyMessageTest {
 
     final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     final LobbyDTO lobby = new LobbyDTO("TestLobby", user, 2, 4);
-
 
     /**
      * Test for creation of the UserLeftLobbyMessages
@@ -27,11 +28,11 @@ class UserLeftLobbyMessageTest {
      * @since 2023-05-14
      */
     @Test
+    @DisplayName("Create UserLeftLobbyServerMessage")
     void createUserLeftLobbyMessage() {
         LobbyLeaveUserServerMessage message = new LobbyLeaveUserServerMessage(lobby, user);
 
         assertEquals(lobby, message.getLobby());
         assertEquals(user, message.getUser());
     }
-
 }
