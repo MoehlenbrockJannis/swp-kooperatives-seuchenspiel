@@ -46,9 +46,9 @@
         <fx:define>
             <ContextMenu fx:id="settingsContextMenu">
                 <items>
-                    <MenuItem text="Spielanleitung" />
-                    <MenuItem text="Einstellungen" />
-                    <MenuItem text="Spiel verlassen" />
+                    <MenuItem fx:id="instructionsMenuItem" text="Spielanleitung" />
+                    <MenuItem fx:id="settingsMenuItem" text="Einstellungen" />
+                    <MenuItem fx:id="leaveGameMenuItem" text="Spiel verlassen" />
                 </items>
             </ContextMenu>
         </fx:define>
