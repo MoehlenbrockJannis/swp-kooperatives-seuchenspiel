@@ -30,7 +30,7 @@ public class CardPopup extends Popup {
         this.setX(getWindowCenterX()-150);
         this.setY(getWindowCenterY()-150);
         this.getContent().addAll(new Rectangle(150, 150, convertColor()));
-        Label label = new Label(card.getTitel());
+        Label label = new Label(card.getTitle());
         this.getContent().add(label);
         this.show(this.window);
         // Close the popup after 3 seconds

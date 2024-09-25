@@ -4,7 +4,7 @@ import de.uol.swp.common.util.Color;
 
 public class InfectionCard extends Card{
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return "";
     }
 

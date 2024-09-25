@@ -154,8 +154,7 @@ public class PlayerTurn {
      */
     public void drawPlayerCards() {
         for (int i = 0; i < numberOfPlayerCardsToDraw; i++) {
-            this.player.addHandCard(new PlayerCard() {
-            });
+            this.player.addHandCard(null);
         }
     }
 

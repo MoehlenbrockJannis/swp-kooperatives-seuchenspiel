@@ -111,18 +111,6 @@ public class Game implements Serializable {
         );
     }
 
-    @Override
-    public boolean equals (Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Game game = (Game) obj;
-        return this.id == game.id;
-    }
-
     /**
      * Constructs a Game instance with detailed configuration.
      *
@@ -177,6 +165,18 @@ public class Game implements Serializable {
 
         this.map = new GameMap(this, type);
         createPlayerStacks();
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Game game = (Game) obj;
+        return this.id == game.id;
     }
 
     /**
