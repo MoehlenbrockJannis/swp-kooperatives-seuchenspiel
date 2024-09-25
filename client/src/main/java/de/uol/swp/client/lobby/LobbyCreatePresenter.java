@@ -5,6 +5,7 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
@@ -38,9 +39,6 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
-    private static final int MIN_NUMBER_OF_PLAYERS = 2;
-    private static final int MAX_NUMBER_OF_PLAYERS = 4;
-
     /**
      * Initializes the presenter
      *
@@ -49,7 +47,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
      *
      */
     public void initialize() {
-        setPlayerAmountRange(MIN_NUMBER_OF_PLAYERS, MAX_NUMBER_OF_PLAYERS);
+        setPlayerAmountRange(Game.MIN_NUMBER_OF_PLAYERS, Game.MAX_NUMBER_OF_PLAYERS);
         resetMaxPlayersComboBoxSelection();
     }
 
@@ -91,7 +89,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
         }
 
         clearInputFields();
-        lobbyService.createNewLobby(lobbyName, loggedInUser, MIN_NUMBER_OF_PLAYERS, selectedMaxPlayers);
+        lobbyService.createNewLobby(lobbyName, loggedInUser, Game.MIN_NUMBER_OF_PLAYERS, selectedMaxPlayers);
     }
 
     /**
