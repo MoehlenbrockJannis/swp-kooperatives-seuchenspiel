@@ -22,7 +22,7 @@ public abstract class EventCard extends PlayerCard {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return title;
     }
 

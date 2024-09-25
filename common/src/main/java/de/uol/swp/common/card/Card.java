@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public abstract class Card implements Serializable {
 
-    public abstract String getTitel();
+    public abstract String getTitle();
 
     public abstract Color getColor();
 

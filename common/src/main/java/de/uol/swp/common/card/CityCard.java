@@ -29,7 +29,7 @@ public class CityCard extends PlayerCard{
 
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return this.getCity().getName();
     }
 

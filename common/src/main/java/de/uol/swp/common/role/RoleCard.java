@@ -41,7 +41,7 @@ public class RoleCard extends Card {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return this.name;
     }
 }
