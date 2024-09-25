@@ -4,6 +4,7 @@ import de.uol.swp.common.action.simple.SimpleAction;
 import de.uol.swp.common.map.Field;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -20,17 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 public abstract class MoveAction extends SimpleAction {
 
+    @Getter
     @Setter
     private Field targetField;
-
-    /**
-     * Returns the target field for the move action.
-     *
-     * @return the {@link Field} that is the target for this action
-     */
-    public Field getTargetField() {
-        return this.targetField;
-    }
 
     /**
      * Returns the current field for the move action.
