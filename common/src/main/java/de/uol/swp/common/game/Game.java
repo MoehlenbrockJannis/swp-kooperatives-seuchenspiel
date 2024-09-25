@@ -36,7 +36,6 @@ public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
-    private static final String PATH_TO_EVENT_CARDS = "de.uol.swp.common.card.event_card";
 
     private static final Map<Integer, Integer> AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS = Map.of(
             4, 2,
@@ -218,8 +217,7 @@ public class Game implements Serializable {
      */
     private void createPlayerStacks () {
         createPlayerDrawStack();
-        Collections.shuffle(this.playerDrawStack,new Random());
-        this.playerDiscardStack = new CardStack<PlayerCard>();
+        this.playerDiscardStack = new CardStack<>();
     }
 
     /**
@@ -227,16 +225,10 @@ public class Game implements Serializable {
      * This method initializes and shuffles the player card stack.
      */
     private void createPlayerDrawStack () {
-        this.playerDrawStack = new CardStack<PlayerCard>();
-        List<Field> fields = map.getFields();
-        for (Field field: fields) {
-            this.playerDrawStack.push(new CityCard(field));
-        }
-        List<EventCard> eventCards = createEventCards();
-        for (EventCard eventCard: eventCards) {
-            this.playerDrawStack.push(eventCard);
-        }
-
+        this.playerDrawStack = new CardStack<>();
+        this.playerDrawStack.addAll(createCityCards());
+        this.playerDrawStack.addAll(createEventCards());
+        this.playerDrawStack.shuffle();
     }
 
     /**
@@ -254,7 +246,12 @@ public class Game implements Serializable {
      * @return a list of CityCard objects
      */
     private List<CityCard> createCityCards () {
-        return new ArrayList<CityCard>();
+        CardStack<CityCard> cityCards = new CardStack<>();
+        List<Field> fields = map.getFields();
+        for (Field field: fields) {
+            cityCards.push(new CityCard(field));
+        }
+        return cityCards;
     }
 
     /**
@@ -264,7 +261,7 @@ public class Game implements Serializable {
      */
     private List<EventCard> createEventCards () {
         List<EventCard> eventCards = new ArrayList<>();
-        Reflections reflections = new Reflections(PATH_TO_EVENT_CARDS);
+        Reflections reflections = new Reflections(EventCard.class.getPackageName());
         for (Class<? extends EventCard> eventCard : reflections.getSubTypesOf(EventCard.class)) {
             if(!Modifier.isAbstract(eventCard.getModifiers())) {
                 eventCards.add(createEventCard(eventCard));

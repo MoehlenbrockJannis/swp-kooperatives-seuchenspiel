@@ -68,7 +68,7 @@ public class CardServiceTest extends EventBusBasedTest {
         User user = new UserDTO("Test", "Test", "Test@test.de");
         List<Plague> plagues = List.of(mock(Plague.class));
         MapType mapType = mock(MapType.class);
-        Lobby lobby = new LobbyDTO("Test", user);
+        Lobby lobby = new LobbyDTO("Test", user,2,4);
         Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
 
         PlayerCard playerCard = new AirBridgeEventCard();
