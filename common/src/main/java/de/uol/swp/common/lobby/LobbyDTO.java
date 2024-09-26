@@ -1,14 +1,15 @@
 package de.uol.swp.common.lobby;
 
-import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserContainerEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Object to transfer the information of a game lobby
@@ -29,7 +30,6 @@ public class LobbyDTO implements Lobby {
     private final String name;
     @Getter
     private User owner;
-    private final Set<User> users = new TreeSet<>();
     private final Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
@@ -72,27 +72,30 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public void joinUser(User user) {
-        this.users.add(user);
         addPlayer(new UserPlayer(user));
     }
 
     @Override
     public void leaveUser(User user) {
+        final Set<User> users = getUsers();
         if (users.size() == 1) {
             throw new IllegalArgumentException("Lobby must contain at least one user!");
         }
         if (users.contains(user)) {
-            this.users.remove(user);
             removePlayer(getPlayerForUser(user));
-            if (this.owner.equals(user)) {
-                updateOwner(users.iterator().next());
-            }
+            updateOwnerIfLeavingUserIsOwner(user);
+        }
+    }
+
+    private void updateOwnerIfLeavingUserIsOwner(UserContainerEntity leavingUser) {
+        if (leavingUser.containsUser(this.owner)) {
+            updateOwner(getUsers().iterator().next());
         }
     }
 
     @Override
     public void updateOwner(User user) {
-        if (!this.users.contains(user)) {
+        if (!this.getUsers().contains(user)) {
             throw new IllegalArgumentException("User " + user.getUsername() + "not found. Owner must be member of lobby!");
         }
         this.owner = user;
@@ -100,12 +103,16 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public Set<User> getUsers() {
-        return Collections.unmodifiableSet(users);
+        return getPlayers().stream()
+                .filter(UserPlayer.class::isInstance)
+                .map(UserPlayer.class::cast)
+                .map(UserPlayer::getUser)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public boolean containsUser(final User user) {
-        for (final User userInLobby : users) {
+        for (final User userInLobby : getUsers()) {
             if (userInLobby.equals(user)) {
                 return true;
             }
@@ -126,6 +133,7 @@ public class LobbyDTO implements Lobby {
     @Override
     public void removePlayer(Player player) {
         players.remove(player);
+        updateOwnerIfLeavingUserIsOwner(player);
     }
 
     @Override
@@ -147,6 +155,7 @@ public class LobbyDTO implements Lobby {
     }
 
     private void determineLobbyStatus() {
+        final Set<User> users = getUsers();
         if (users.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
         } else if (users.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
