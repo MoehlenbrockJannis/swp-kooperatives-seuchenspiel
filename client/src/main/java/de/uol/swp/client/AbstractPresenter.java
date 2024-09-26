@@ -23,8 +23,10 @@ import java.util.List;
 /**
  * This class is the base for creating a new Presenter.
  *
+ * <p>
  * This class prepares the child classes to have the UserService and EventBus set
  * in order to reduce unnecessary code repetition.
+ * </p>
  *
  * @author Marco Grawunder
  * @since 2019-08-29
@@ -265,20 +267,39 @@ public abstract class AbstractPresenter {
      * Sets the {@link #stage}
      *
      * <p>
+     *     Calls {@link #setStage(Stage, boolean)} with {@code assignOnCloseStageEvent} as {@code true},
+     *     setting the close listener of {@link #stage} to {@link #onCloseStageEvent(WindowEvent)}.
+     * </p>
+     *
+     * @param stage Stage to set
+     * @see #setStage(Stage, boolean)
+     * @since 2024-09-26
+     */
+    public void setStage(final Stage stage) {
+        setStage(stage, true);
+    }
+
+    /**
+     * Sets the {@link #stage}
+     *
+     * <p>
      *     Populates the {@link #stage} field and sets the {@link #scene} to it.
      *     Also sets a listener to the stage and executes {@link #onCloseStageEvent(WindowEvent)} when closing it.
      * </p>
      *
      * @param stage Stage to set
+     * @param assignOnCloseStageEvent Sets the {@link #stage} close listener to {@link #onCloseStageEvent(WindowEvent)}
      * @see Stage#setScene(Scene)
      * @see Stage#setOnCloseRequest(EventHandler)
      * @see #onCloseStageEvent(WindowEvent)
-     * @since 2024-09-17
+     * @since 2024-09-26
      */
-    public void setStage(final Stage stage) {
+    public void setStage(final Stage stage, final boolean assignOnCloseStageEvent) {
         this.stage = stage;
         Platform.runLater(() -> this.stage.setScene(this.scene));
-        stage.setOnCloseRequest(this::onCloseStageEvent);
+        if (assignOnCloseStageEvent) {
+            stage.setOnCloseRequest(this::onCloseStageEvent);
+        }
     }
 
     /**
@@ -320,8 +341,10 @@ public abstract class AbstractPresenter {
     /**
      * Sets the field eventBus
      *
+     * <p>
      * This method sets the field eventBus to the EventBus given via parameter.
      * Afterwards it registers this class to the new EventBus.
+     * </p>
      *
      * @implNote This method does not unregister this class from any EventBus it
      *           may already be registered to.
