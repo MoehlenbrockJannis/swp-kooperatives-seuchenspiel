@@ -2,12 +2,9 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -17,7 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.util.Optional;
 
@@ -82,7 +78,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param game  The game to be displayed
      */
     public void initialize(final Stage stage, final Game game) {
-        setStage(stage);
+        setStage(stage, false);
         this.game = game;
 
         stage.setTitle("Game: " + game.getLobby().getName());
@@ -100,26 +96,6 @@ public class GamePresenter extends AbstractPresenter {
         });
         gameMapController.initialize(game);
         initializeMenuItems();
-    }
-
-    /**
-     * Method called when the {@link javafx.stage.Window} of the {@link Stage} of the {@link Lobby} or {@link Game} is closed
-     *
-     * <p>
-     *     When the window is closed, this method calls the {@link #lobbyService} to make the currently logged in user leave the lobby.
-     *     This {@link LobbyPresenter} object and the associated {@link GamePresenter} object are also unregistered from the {@link #eventBus}.
-     * </p>
-     *
-     * @param event The {@link WindowEvent} that closes the {@link javafx.stage.Window}
-     * @see #clearEventBus()
-     * @see LobbyService#leaveLobby(Lobby, User)
-     * @see WindowEvent
-     * @since 2024-09-13
-     */
-    @Override
-    protected void onCloseStageEvent(final WindowEvent event) {
-        super.onCloseStageEvent(event);
-        lobbyService.leaveLobby(game.getLobby(), loggedInUserProvider.get());
     }
 
     /**
