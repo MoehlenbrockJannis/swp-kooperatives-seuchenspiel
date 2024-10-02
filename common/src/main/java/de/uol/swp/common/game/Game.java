@@ -163,6 +163,12 @@ public class Game implements Serializable {
         this.isLost = false;
         this.indexOfCurrentPlayer = 0;
 
+        List<Integer> infectionLevels = Arrays.asList(2, 2, 2, 3, 3, 4, 4);
+        this.infectionMarker = new InfectionMarker(infectionLevels);
+
+        List<Integer> outbreakLevels = Arrays.asList(0, 1, 2, 3, 4, 5, 8);
+        this.outbreakMarker = new OutbreakMarker(outbreakLevels);
+
         this.map = new GameMap(this, type);
         createPlayerStacks();
     }
@@ -392,7 +398,7 @@ public class Game implements Serializable {
      * @param marker the AntidoteMarker to be added to the game
      */
     public void addAntidoteMarker (AntidoteMarker marker) {
-
+        this.antidoteMarkers.add(marker);
     }
 
     /**
