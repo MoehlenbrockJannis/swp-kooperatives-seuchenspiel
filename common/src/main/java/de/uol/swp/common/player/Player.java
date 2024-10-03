@@ -40,6 +40,9 @@ public abstract class Player implements Serializable, UserContainerEntity {
 
     @Override
     public String toString() {
+        if(this.role != null) {
+            return getName() + " (" + this.role.getName() + ")";
+        }
         return getName();
     }
 

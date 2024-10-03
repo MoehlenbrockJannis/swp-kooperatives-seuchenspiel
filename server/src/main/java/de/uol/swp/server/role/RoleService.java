@@ -16,11 +16,14 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The {@code RoleService} class handles role-related operations within the server.
@@ -104,7 +107,19 @@ public class RoleService extends AbstractService {
         sendAvailableRolesToClients(lobby);
     }
 
-    private boolean isRoleAvailableForPlayerInLobby(Lobby lobby, RoleCard roleCard) {
+    /**
+     * Checks if a specific role card is available for assignment in a given lobby.
+     *
+     * This method iterates through all players in the lobby to determine if the
+     * specified role card is already assigned to any player. The role is considered
+     * available if no player currently holds it.
+     *
+     * @param lobby The lobby in which to check for role availability
+     * @param roleCard The role card to check for availability
+     * @return true if the role card is available (not assigned to any player),
+     *         false otherwise
+     */
+    public boolean isRoleAvailableForPlayerInLobby(Lobby lobby, RoleCard roleCard) {
         Set<Player> players = lobby.getPlayers();
         for(final Player playerInLobby : players) {
             RoleCard role = playerInLobby.getRole();
@@ -123,7 +138,7 @@ public class RoleService extends AbstractService {
      */
     @Subscribe
     public void onRolesSendToClient(RetrieveAllRolesRequest retrieveAllRolesRequest) {
-        RetrieveAllRolesResponse retrieveAllRolesResponse = new RetrieveAllRolesResponse(roleManagement.getAllRoles(), retrieveAllRolesRequest.getLobby());
+        RetrieveAllRolesResponse retrieveAllRolesResponse = new RetrieveAllRolesResponse(getAvailableRolesInLobby(retrieveAllRolesRequest.getLobby()), retrieveAllRolesRequest.getLobby());
         retrieveAllRolesResponse.initWithMessage(retrieveAllRolesRequest);
         post(retrieveAllRolesResponse);
     }
@@ -141,9 +156,39 @@ public class RoleService extends AbstractService {
         lobbyService.sendToAllInLobby(lobby, message);
     }
 
+    /**
+     * Retrieves the set of available role cards in a given lobby.
+     *
+     * This method determines which role cards are still available for assignment
+     * by comparing all existing roles with those already assigned to players in the lobby.
+     *
+     * @param lobby The lobby for which to determine available role cards
+     * @return A Set of RoleCard objects representing the roles that are not yet assigned in the lobby
+     */
     public Set<RoleCard> getAvailableRolesInLobby(Lobby lobby) {
-        //TODO implement that only availables roles shows in the lobby
-        return null;
+        Set<RoleCard> allRoles = roleManagement.getAllRoles();
+
+        Set<RoleCard> assignedRoles = lobby.getPlayers().stream()
+                .map(Player::getRole)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        return allRoles.stream()
+                .filter(role -> !assignedRoles.contains(role))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Handles the event when a user leaves a lobby, updating available roles.
+     *
+     * This method is triggered by a UserLeaveLobbyServerInternalMessage event.
+     * It responds by sending updated available roles information to all clients in the affected lobby.
+     *
+     * @param userLeaveLobbyServerInternalMessage The message containing information about the user leaving the lobby
+     */
+    @Subscribe
+    public void onRemoveUserFromRole(UserLeaveLobbyServerInternalMessage userLeaveLobbyServerInternalMessage) {
+        sendAvailableRolesToClients(userLeaveLobbyServerInternalMessage.getLobby());
     }
 
 }

@@ -31,7 +31,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -140,7 +139,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the message containing the roles to be displayed in the combo box.
      */
     @Subscribe
-    public void onRolesSendToComboBox(RetrieveAllRolesResponse message) {
+    public void onRetrieveAllRolesResponse(RetrieveAllRolesResponse message) {
         if (lobby.getName().equals(message.getLobby().getName())) {
             Platform.runLater(() -> {
                 Set<RoleCard> roles = message.getRoleCardSet();
@@ -152,14 +151,18 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles the message regarding available roles. Updates the UI based on role availability.
-     * The method is a placeholder for future role filtering logic.
      *
      * @param message the message containing information about available roles.
      */
     @Subscribe
-    public void onRolesAvailableMessage(RetrieveAllAvailableRolesServerMessage message) {
+    public void onRolesAvailableServerMessage(RetrieveAllAvailableRolesServerMessage message) {
         Platform.runLater(() -> {
-            //TODO Remove unavailable roles or disable them. Implementation available in RoleManagement.java.
+            Set<RoleCard> roles = message.getRoleCards();
+            availableRoles = FXCollections.observableArrayList(roles);
+            roleComboBox.setItems(availableRoles);
+
+            final Runnable executable = () -> this.lobby = message.getLobby();
+            executeOnlyIfMessageIsForThisLobby(message, executable);
         });
     }
 
@@ -177,18 +180,16 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Updates the role {@link ComboBox} based on the {@link RoleAssignmentResponse}.
-     *
      * If a role is assigned, sets the {@link ComboBox} prompt text. If no role is assigned, clears the selection.
      *
      * @param roleAssignedMessage contains role assignment details.
      */
     @Subscribe
-    public void onRoleAssignedMessage(RoleAssignmentResponse roleAssignedMessage) {
+    public void onRoleAssignedResponse(RoleAssignmentResponse roleAssignedMessage) {
         Platform.runLater(() -> {
-            if(roleAssignedMessage.isRoleAssigned()) {
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
-            } else {
-                roleComboBox.setValue(null);
+            if (roleAssignedMessage.isRoleAssigned()) {
+                roleComboBox.getSelectionModel().clearSelection();
+                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName()); //TODO Der Titel der Combpbx bleibt noch leer.
             }
         });
     }
@@ -206,7 +207,6 @@ public class LobbyPresenter extends AbstractPresenter {
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
         closeStage();
     }
-
 
     private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
         if (lobby.equals(lobbyMessage.getLobby())) {
