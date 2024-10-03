@@ -16,6 +16,7 @@ import java.util.Set;
  */
 @Getter
 public class RoleManagement {
+
     private final RoleCard logistiker = new RoleCard("Logistiker", new Color(), null);
     private final RoleCard arzt = new RoleCard("Arzt", new Color(), null);
     private final RoleCard betriebsexperte = new RoleCard("Betriebsexperte", new Color(), null);

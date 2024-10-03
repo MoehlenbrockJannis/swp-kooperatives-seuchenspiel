@@ -4,8 +4,8 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
-import de.uol.swp.common.user.Session;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
+import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -141,6 +141,9 @@ public class LobbyService extends AbstractService {
         handleLobbyLeave(lobbyLeaveUserRequest, lobby -> {
             final AbstractLobbyServerMessage message = new LobbyLeaveUserServerMessage(lobby, lobbyLeaveUserRequest.getUser());
             sendToAllInLobby(lobby, message);
+
+            UserLeaveLobbyServerInternalMessage removeUserFromRoleInternalMessage = new UserLeaveLobbyServerInternalMessage(lobby, lobbyLeaveUserRequest.getUser());
+            post(removeUserFromRoleInternalMessage);
         });
         // TODO: error handling not existing lobby
     }
