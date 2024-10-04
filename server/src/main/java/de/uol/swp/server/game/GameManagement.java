@@ -52,6 +52,16 @@ public class GameManagement {
     }
 
     /**
+     * Discards a player card by pushing it onto the player's discard stack.
+     *
+     * @param game       The game from which the player card is to be discarded
+     * @param playerCard The player card to be discarded
+     */
+    public void discardPlayerCard(Game game, PlayerCard playerCard) {
+        game.getPlayerDiscardStack().push(playerCard);
+    }
+
+    /**
      * Updates a game in the list of managed games.
      *
      * @param game The game to be updated

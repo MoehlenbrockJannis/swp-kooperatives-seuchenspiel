@@ -1,6 +1,8 @@
 package de.uol.swp.client.card;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
@@ -39,4 +41,20 @@ public class CardService {
         eventBus.post(drawPlayerCardRequest);
     }
 
+    /**
+     * Sends a request to discard a player card.
+     * <p>
+     * This method creates a {@link DiscardPlayerCardRequest} with the specified game, player, and player card,
+     * and posts it to the {@link EventBus}.
+     * </p>
+     *
+     * @param game      The game from which to discard the player card
+     * @param player    The player who is discarding the card
+     * @param playerCard The player card to be discarded
+     * @since 2024-09-20
+     */
+    public void sendDiscardPlayerCardRequest(Game game, Player player, PlayerCard playerCard) {
+        DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest = new DiscardPlayerCardRequest<>(game, player, playerCard);
+        eventBus.post(discardPlayerCardRequest);
+    }
 }
