@@ -1,5 +1,7 @@
 package de.uol.swp.common.marker;
 
-public abstract class Marker {
+import java.io.Serializable;
+
+public abstract class Marker implements Serializable {
     protected Marker() {}
 }
