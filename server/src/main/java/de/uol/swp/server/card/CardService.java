@@ -65,12 +65,14 @@ public class CardService extends AbstractService {
                 //TODO: Send response that the game has been lost
                 return;
             }
-            final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
-            player.addHandCard(playerCard);
-            if (player.getHandCards().size() > game.getMaxHandCards()) {
+
+            if (player.getHandCards().size() >= game.getMaxHandCards()) {
                 //TODO: Send response that the player has to discard a card
                 return;
             }
+
+            final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
+            player.addHandCard(playerCard);
 
             DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard);
             response.initWithMessage(drawPlayerCardRequest);
