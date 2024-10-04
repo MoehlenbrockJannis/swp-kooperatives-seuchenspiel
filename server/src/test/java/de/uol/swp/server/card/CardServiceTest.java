@@ -2,6 +2,7 @@ package de.uol.swp.server.card;
 
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AirBridgeEventCard;
+import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
@@ -25,19 +26,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class CardServiceTest extends EventBusBasedTest {
+class CardServiceTest extends EventBusBasedTest {
 
     private CardService cardService;
     private GameManagement gameManagement;
     private LobbyService lobbyService;
-    private EventBus eventBus;
+    private Game game;
 
     @BeforeEach
     void setUp() {
         gameManagement = mock(GameManagement.class);
         lobbyService = mock(LobbyService.class);
-        eventBus = getBus();
+        EventBus eventBus = getBus();
         cardService = new CardService(eventBus, gameManagement, lobbyService);
+
+        User user = new UserDTO("Test", "Test", "Test@test.de");
+        List<Plague> plagues = List.of(mock(Plague.class));
+        MapType mapType = mock(MapType.class);
+        Lobby lobby = new LobbyDTO("Test", user,2,4);
+        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
     }
 
     @Test
@@ -52,11 +59,15 @@ public class CardServiceTest extends EventBusBasedTest {
 
     @Test
     void onDrawPlayerCardRequest_playerDrawStackEmpty() {
-        Game game = mock(Game.class);
-        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
-        when(game.getPlayerDrawStack()).thenReturn(new CardStack<>());
+        Game mockedGame = mock(Game.class);
+        List<Player> players = new ArrayList<>();
+        players.add(mock(Player.class));
 
-        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, mock(Player.class));
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockedGame));
+        when(mockedGame.getPlayerDrawStack()).thenReturn(new CardStack<>());
+        when(mockedGame.getPlayersInTurnOrder()).thenReturn(players);
+
+        DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockedGame, mock(Player.class));
         cardService.onDrawPlayerCardRequest(request);
 
         verify(gameManagement, never()).drawPlayerCard(any(Game.class));
@@ -65,23 +76,58 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     void onDrawPlayerCardRequest_successfulDraw() {
 
-        User user = new UserDTO("Test", "Test", "Test@test.de");
-        List<Plague> plagues = List.of(mock(Plague.class));
-        MapType mapType = mock(MapType.class);
-        Lobby lobby = new LobbyDTO("Test", user,2,4);
-        Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
 
         PlayerCard playerCard = new AirBridgeEventCard();
 
-        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
         when(gameManagement.drawPlayerCard(any(Game.class))).thenReturn(playerCard);
 
-        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, lobby.getPlayerForUser(user));
+        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
         post(request);
 
-        assertThat(lobby.getPlayerForUser(user).getHandCards()).contains(playerCard);
         verify(gameManagement, times(1)).updateGame(game);
-        verify(lobbyService, times(1)).sendToAllInLobby(eq(lobby), any());
+        verify(lobbyService, times(1)).sendToAllInLobby(eq(this.game.getLobby()), any());
+    }
+
+    @Test
+    void onDiscardPlayerCardRequest_successfulDiscard() {
+
+        Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
+        PlayerCard playerCard = new AirBridgeEventCard();
+        player.addHandCard(playerCard);
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
+
+        DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(game, player, playerCard);
+        post(request);
+
+
+
+        verify(gameManagement, times(1)).updateGame(game);
+        verify(lobbyService, times(1)).sendToAllInLobby(eq(this.game.getLobby()), any());
+    }
+
+    @Test
+    void onDiscardPlayerCardRequest_cardNotInHand() {
+        List<Plague> plagues = List.of(mock(Plague.class));
+        MapType mapType = mock(MapType.class);
+        List<Player> players = new ArrayList<>();
+        players.add(mock(Player.class));
+        Lobby lobby = mock(LobbyDTO.class);
+        Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues);
+        PlayerCard playerCard = new AirBridgeEventCard();
+        Player player = players.get(0);
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(gameWithMockedPlayer));
+        doNothing().when(player).removeHandCard(playerCard);
+
+        DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(gameWithMockedPlayer, player, playerCard);
+        post(request);
+
+        assertThat(player.getHandCards()).doesNotContain(playerCard);
+        verify(player, never()).removeHandCard(playerCard);
+        verify(gameManagement, never()).discardPlayerCard(this.game, playerCard);
+        verify(gameManagement, never()).updateGame(this.game);
     }
 
 

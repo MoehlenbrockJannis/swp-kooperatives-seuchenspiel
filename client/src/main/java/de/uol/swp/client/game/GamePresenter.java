@@ -2,9 +2,12 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.card.CardOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameMessage;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -14,8 +17,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lombok.Getter;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Manages the game board window
@@ -23,6 +29,7 @@ import java.util.Optional;
 public class GamePresenter extends AbstractPresenter {
     public static final String GAME_FXML_FOLDER_PATH = "game/";
 
+    @Getter
     private Game game;
 
     @FXML
@@ -80,11 +87,21 @@ public class GamePresenter extends AbstractPresenter {
     public void initialize(final Stage stage, final Game game) {
         setStage(stage, false);
         this.game = game;
+        final Supplier<Game> gameSupplier = () -> getGame();
 
         stage.setTitle("Game: " + game.getLobby().getName());
         stage.show();
-        playerCardsOverviewController.initialize(game, game.getPlayerDrawStack(), game.getPlayerDiscardStack(), this.playerCardStackPane);
+
+        playerCardsOverviewController.initialize(
+                gameSupplier,
+                g -> g.getPlayerDrawStack(),
+                g -> g.getPlayerDiscardStack(),
+                this.playerCardStackPane,
+                (player, cardService) -> cardService.sendDrawPlayerCardRequest(this.game, player),
+                (player, cardService, playerCard) -> cardService.sendDiscardPlayerCardRequest(this.game, player, (PlayerCard) playerCard)
+        );
         playerCardsOverviewController.setWindow(stage);
+        this.associatedPresenters.add(playerCardsOverviewController);
 
         settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
         settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());
@@ -96,6 +113,12 @@ public class GamePresenter extends AbstractPresenter {
         });
         gameMapController.initialize(game);
         initializeMenuItems();
+    }
+
+    @Subscribe
+    public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameMessage message) {
+        this.game = message.getGame();
+        playerCardsOverviewController.updateLabels();
     }
 
     /**

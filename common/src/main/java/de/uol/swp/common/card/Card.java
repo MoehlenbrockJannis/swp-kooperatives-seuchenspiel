@@ -10,4 +10,8 @@ public abstract class Card implements Serializable {
 
     public abstract Color getColor();
 
+    @Override
+    public String toString() {
+        return getTitle();
+    }
 }

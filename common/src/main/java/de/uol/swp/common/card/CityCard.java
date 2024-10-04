@@ -12,19 +12,19 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CityCard extends PlayerCard{
 
-    private Field assosiatedField;
+    private Field associatedField;
 
     public City getCity() {
-        return assosiatedField.getCity();
+        return associatedField.getCity();
     }
 
     public Plague getPlague() {
-        return assosiatedField.getPlague();
+        return associatedField.getPlague();
     }
 
     @Override
     public Color getColor() {
-        return assosiatedField.getPlague().getColor();
+        return associatedField.getPlague().getColor();
     }
 
 
