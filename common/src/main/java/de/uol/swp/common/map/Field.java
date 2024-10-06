@@ -130,7 +130,11 @@ public class Field implements Serializable {
     }
 
     /**
-     * Cures one {@link PlagueCube} of the given plague from {@link #plagueCubes} by removing and returning it
+     * Cures one {@link PlagueCube} of the given plague from {@link #plagueCubes} by removing and returning it.
+     *
+     * <p>
+     *     Also checks by calling the {@link #map} whether the {@link Plague} has been completely exterminated.
+     * </p>
      *
      * @param plague Plague to cure
      * @return {@link PlagueCube} of plague
@@ -142,13 +146,29 @@ public class Field implements Serializable {
     public PlagueCube cure(final Plague plague) throws NoPlagueCubesOfPlagueOnFieldException {
         final List<PlagueCube> plagueCubeList = plagueCubes.getOrDefault(plague, List.of());
 
-        if (plagueCubeList.isEmpty()) {
+        if (!isCurable(plague)) {
             throw new NoPlagueCubesOfPlagueOnFieldException(plague.toString(), getCity().getName());
         }
 
         final PlagueCube plagueCube = plagueCubeList.get(0);
         plagueCubeList.remove(0);
+
+        map.isPlagueExterminated(plague);
+
         return plagueCube;
+    }
+
+    /**
+     * <p>
+     *     Returns whether the specified {@link Plague} can be cured or not.
+     * </p>
+     *
+     * @param plague The {@link Plague} to check curability for
+     * @return {@code true} if there is at least one {@link PlagueCube}
+     */
+    public boolean isCurable(final Plague plague) {
+        final List<PlagueCube> plagueCubeList = plagueCubes.getOrDefault(plague, List.of());
+        return !plagueCubeList.isEmpty();
     }
 
     /**
@@ -158,10 +178,68 @@ public class Field implements Serializable {
      * @throws ResearchLaboratoryAlreadyBuiltOnFieldException if there is already a {@link ResearchLaboratory} on this field
      */
     public void buildResearchLaboratory(final ResearchLaboratory researchLaboratory) throws ResearchLaboratoryAlreadyBuiltOnFieldException {
-        if (this.researchLaboratory != null) {
+        if (hasResearchLaboratory()) {
             throw new ResearchLaboratoryAlreadyBuiltOnFieldException(getCity().getName());
         }
 
         this.researchLaboratory = researchLaboratory;
+    }
+
+    /**
+     * <p>
+     *     Removes the {@link #researchLaboratory} from this {@link Field}.
+     * </p>
+     *
+     * <p>
+     *     Sets {@link #researchLaboratory} to {@code null} and returns the previously stored {@link ResearchLaboratory}.
+     * </p>
+     *
+     * @return The {@link #researchLaboratory} of this {@link Field}
+     * @throws IllegalStateException if {@link #researchLaboratory} is null
+     * @see #hasResearchLaboratory()
+     */
+    public ResearchLaboratory removeResearchLaboratory() {
+        if (!hasResearchLaboratory()) {
+            throw new IllegalStateException("Field does not have a ResearchLaboratory on it.");
+        }
+        final ResearchLaboratory rl = researchLaboratory;
+        this.researchLaboratory = null;
+        return rl;
+    }
+
+    /**
+     * Returns whether this field has a research laboratory or not
+     *
+     * @return {@code true} if {@link #researchLaboratory} is not {@code null}, {@code false} otherwise
+     */
+    public boolean hasResearchLaboratory() {
+        return this.researchLaboratory != null;
+    }
+
+    /**
+     * <p>
+     *     Returns {@code true} if given {@link Plague} is equal to {@link Plague} on {@link #mapSlot}, {@code false} otherwise.
+     * </p>
+     *
+     * <p>
+     *     Delegates to {@link MapSlot#hasPlague(Plague)}.
+     * </p>
+     *
+     * @param plague {@link Plague} to check equality with {@link Plague} on {@link #mapSlot} for
+     * @return {@code true} if given {@link Plague} is equal to {@link Plague} on {@link #mapSlot}, {@code false} otherwise
+     * @see MapSlot#hasPlague(Plague)
+     */
+    public boolean hasPlague(final Plague plague) {
+        return mapSlot.hasPlague(plague);
+    }
+
+    /**
+     * Returns a {@link List} of all fields neighboring this {@link Field}
+     *
+     * @return {@link List} of fields neighboring this {@link Field}
+     * @see GameMap#getNeighborFields(Field)
+     */
+    public List<Field> getNeighborFields() {
+        return map.getNeighborFields(this);
     }
 }

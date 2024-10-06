@@ -1,4 +1,4 @@
-package de.uol.swp.common.action;
+package de.uol.swp.common.util;
 
 import de.uol.swp.common.player.Player;
 

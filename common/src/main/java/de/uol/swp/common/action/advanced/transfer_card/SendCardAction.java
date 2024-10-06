@@ -1,6 +1,7 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
-import lombok.NoArgsConstructor;
+import de.uol.swp.common.card.CityCard;
+import de.uol.swp.common.player.Player;
 
 /**
  * The {@code SendCardAction} class represents an action where a player sends a card to another player.
@@ -10,15 +11,27 @@ import lombok.NoArgsConstructor;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-@NoArgsConstructor
 public class SendCardAction extends ShareKnowledgeAction {
 
+    @Override
+    protected Player getSender() {
+        return getExecutingPlayer();
+    }
+
+    @Override
+    protected Player getReceiver() {
+        return getTargetPlayer();
+    }
+
     /**
-     * Returns the class representing the action where the opponent receives the card.
+     * <p>
+     *     Returns the {@link Class} object of the class that the receiving {@link Player} would use to receive a {@link CityCard}.
+     * </p>
      *
      * @return the {@link ReceiveCardAction} class for the receiving opponent
      */
+    @SuppressWarnings("unchecked")
     public Class<? extends ReceiveCardAction> getReceiveCardActionOfOpponent() {
-        return ReceiveCardAction.class;
+        return (Class<? extends ReceiveCardAction>) getReceiver().getRoleSpecificActionClassOrDefault(ReceiveCardAction.class);
     }
 }

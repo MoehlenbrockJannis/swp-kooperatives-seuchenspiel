@@ -3,24 +3,29 @@ package de.uol.swp.common.game;
 import de.uol.swp.common.card.*;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.stack.CardStack;
-import de.uol.swp.common.map.*;
-import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapType;
-import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
+import de.uol.swp.common.marker.AntidoteMarker;
+import de.uol.swp.common.marker.InfectionMarker;
+import de.uol.swp.common.marker.OutbreakMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import de.uol.swp.common.marker.AntidoteMarker;
-import de.uol.swp.common.marker.InfectionMarker;
-import de.uol.swp.common.marker.OutbreakMarker;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.reflections.Reflections;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -392,6 +397,15 @@ public class Game implements Serializable {
     }
 
     /**
+     * Returns whether there are any research laboratories on this game.
+     *
+     * @return {@code true} if {@link #researchLaboratories} is not empty, {@code false} otherwise
+     */
+    public boolean hasResearchLaboratory() {
+        return !researchLaboratories.isEmpty();
+    }
+
+    /**
      * Adds an antidote marker to the game.
      * This method is used to track the progress of finding a cure for a disease.
      *
@@ -399,6 +413,23 @@ public class Game implements Serializable {
      */
     public void addAntidoteMarker (AntidoteMarker marker) {
         this.antidoteMarkers.add(marker);
+    }
+
+    /**
+     * <p>
+     *     Returns whether an {@link AntidoteMarker} of the specified {@link Plague} already exists on this {@link Game}.
+     * </p>
+     *
+     * @param plague The {@link Plague} to look for
+     * @return {@code true} if there is an {@link AntidoteMarker} of the specified {@link Plague}, {@code false} otherwise
+     */
+    public boolean hasAntidoteMarkerForPlague(final Plague plague) {
+        for (final AntidoteMarker antidoteMarker : antidoteMarkers) {
+            if (antidoteMarker.getPlague().equals(plague)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -426,5 +457,16 @@ public class Game implements Serializable {
     public PlayerTurn getCurrentTurn () {
         // TODO: 05.09.2024  
         return null;
+    }
+
+    /**
+     * Returns the {@link List} of fields stored on the {@link #map}.
+     *
+     * @return {@link List} of fields
+     * @see Field
+     * @see GameMap#getFields()
+     */
+    public List<Field> getFields() {
+        return map.getFields();
     }
 }

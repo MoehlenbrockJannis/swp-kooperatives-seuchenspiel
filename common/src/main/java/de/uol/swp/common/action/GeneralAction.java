@@ -17,7 +17,6 @@ import lombok.*;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @ToString
 public abstract class GeneralAction implements Action {
 

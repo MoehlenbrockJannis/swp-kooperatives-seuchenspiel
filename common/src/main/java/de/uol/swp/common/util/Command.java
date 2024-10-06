@@ -1,4 +1,4 @@
-package de.uol.swp.common.action;
+package de.uol.swp.common.util;
 
 /**
  * The {@code Command} interface represents an executable action or task.
@@ -10,7 +10,9 @@ package de.uol.swp.common.action;
 public interface Command {
 
     /**
+     * <p>
      * Executes the command.
+     * </p>
      */
     void execute();
 }

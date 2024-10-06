@@ -1,7 +1,9 @@
 package de.uol.swp.common.action.advanced.build_research_laboratory;
 
 import de.uol.swp.common.action.RoleAction;
-import lombok.NoArgsConstructor;
+import de.uol.swp.common.card.CityCard;
+
+import java.util.List;
 
 /**
  * The {@code ReducedCostBuildResearchLaboratoryAction} class represents an action where a player builds a research laboratory
@@ -11,6 +13,17 @@ import lombok.NoArgsConstructor;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-@NoArgsConstructor
 public class ReducedCostBuildResearchLaboratoryAction extends BuildResearchLaboratoryAction implements RoleAction {
+
+    /**
+     * <p>
+     *     Returns an empty {@link List}.
+     * </p>
+     *
+     * @return empty {@link List}
+     */
+    @Override
+    public List<CityCard> getDiscardedCards() {
+        return List.of();
+    }
 }

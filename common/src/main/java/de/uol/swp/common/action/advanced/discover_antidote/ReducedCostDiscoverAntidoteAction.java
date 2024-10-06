@@ -16,12 +16,10 @@ import de.uol.swp.common.action.RoleAction;
 public class ReducedCostDiscoverAntidoteAction extends DiscoverAntidoteAction implements RoleAction {
 
     /**
-     * Constructs a new {@code ReducedCostDiscoverAntidoteAction} with the specified reduced number of discarded cards.
-     *
-     * @param requiredAmountOfDiscardedCards the reduced number of cards required to discover the antidote
+     * Constructs a new {@code ReducedCostDiscoverAntidoteAction} with the specified reduced number of required discarded cards.
      */
-    protected ReducedCostDiscoverAntidoteAction(int requiredAmountOfDiscardedCards) {
-        super(requiredAmountOfDiscardedCards);
+    public ReducedCostDiscoverAntidoteAction() {
+        super(4);
     }
 
 }

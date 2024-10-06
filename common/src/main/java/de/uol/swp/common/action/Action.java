@@ -2,6 +2,7 @@ package de.uol.swp.common.action;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.util.Command;
 
 /**
  * Represents an action that can be executed by a player within a game.
@@ -15,38 +16,58 @@ import de.uol.swp.common.player.Player;
 public interface Action extends Command {
 
     /**
+     * <p>
      * Retrieves the player who is executing this action.
+     * </p>
      *
      * @return the {@link Player} executing the action, or null if not set.
      */
     Player getExecutingPlayer();
 
     /**
+     * <p>
      * Sets the player who is executing this action.
+     * </p>
      *
      * @param player the {@link Player} to set as the executing player.
      */
     void setExecutingPlayer(Player player);
 
     /**
+     * <p>
      * Retrieves the game in which this action is being executed.
+     * </p>
      *
      * @return the {@link Game} associated with this action, or null if not set.
      */
     Game getGame();
 
     /**
+     * <p>
      * Sets the game in which this action is being executed.
+     * </p>
      *
      * @param game the {@link Game} to associate with this action.
      */
     void setGame(Game game);
 
     /**
-     * Determines whether this action is currently available for execution.
+     * <p>
+     * Determines whether this action is currently available to be filled.
      * This may depend on the current game state, player state, or other factors.
+     * </p>
      *
-     * @return true if the action is available, false otherwise.
+     * @return true if the action is available to be filled, false otherwise.
      */
     boolean isAvailable();
+
+    /**
+     * <p>
+     * Determines whether this action is currently available for execution.
+     * This may depend on the current game state, player state, or other factors.
+     * </p>
+     *
+     * @return true if the action is available for execution, false otherwise.
+     */
+    boolean isExecutable();
 }

@@ -2,7 +2,8 @@ package de.uol.swp.common.action.simple.shuttle_flight;
 
 import de.uol.swp.common.action.simple.MoveAllyAction;
 import de.uol.swp.common.player.Player;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * This class represent and realized the shuttle flight action for ally.
@@ -10,30 +11,24 @@ import lombok.NoArgsConstructor;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-@NoArgsConstructor
+@Getter
 public class ShuttleFlightActionForAlly extends ShuttleFlightAction implements MoveAllyAction {
-    @Override
-    public Player getApprovingPlayer() {
-        return null;
-    }
+    @Setter
+    private Player movedAlly;
+    private boolean isApproved;
 
     @Override
-    public boolean isApproved() {
-        return false;
+    public Player getApprovingPlayer() {
+        return getMovedPlayer();
     }
 
     @Override
     public void approve() {
-
+        this.isApproved = true;
     }
 
     @Override
-    public Player getMovedAlly() {
-        return null;
-    }
-
-    @Override
-    public void setMovedAlly(Player player) {
-
+    public Player getMovedPlayer() {
+        return movedAlly;
     }
 }
