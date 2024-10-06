@@ -1,18 +1,24 @@
 package de.uol.swp.common.player.turn;
 
-import de.uol.swp.common.action.Command;
+import de.uol.swp.common.action.ActionFactory;
 import de.uol.swp.common.game.Game;
-
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
+import de.uol.swp.common.role.RoleAbility;
+import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.Color;
+import de.uol.swp.common.util.Command;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 /**
  * This class contains unit tests for the PlayerTurn class.
@@ -37,6 +43,8 @@ class PlayerTurnTest {
 
     private User defaultUser;
     private Player defaultPlayer;
+    private RoleCard roleCard;
+    private RoleAbility roleAbility;
     private Game defaultGame;
     private PlayerTurn defaultPlayerTurn;
     private int numberOfActionsToDo;
@@ -64,39 +72,48 @@ class PlayerTurnTest {
     @BeforeEach
     public void setUp() {
         this.defaultUser = new UserDTO("Joerg", "333", "Joerg@mail.com");
+        this.roleAbility = mock(RoleAbility.class);
+        this.roleCard = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
+        this.defaultPlayer.setRole(roleCard);
         this.defaultGame = mock(Game.class);
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
 
-        this.defaultPlayerTurn = new PlayerTurn(
-                defaultGame,
-                this.defaultPlayer,
-                this.numberOfActionsToDo,
-                this.numberOfPlayerCardsToDraw
-        );
+        try (MockedConstruction<ActionFactory> mockedActionFactory = mockConstruction(ActionFactory.class)) {
+            this.defaultPlayerTurn = new PlayerTurn(
+                    defaultGame,
+                    this.defaultPlayer,
+                    this.numberOfActionsToDo,
+                    this.numberOfPlayerCardsToDraw
+            );
+        }
 
         this.command = mock(Command.class);
     }
 
 
     @Test
+    @DisplayName("")
     void getNextAutoTriggerable() {
         // TODO: 17.09.2024
     }
 
     
     @Test
+    @DisplayName("Should return false if there is no next auto triggerable to check")
     void hasNoNextAutoTriggerable() {
         assertThat(this.defaultPlayerTurn.hasNextAutoTriggerable()).isFalse();
     }
 
     @Test
+    @DisplayName("")
     void getNextManualTriggerable() {
         // TODO: 17.09.2024
     }
 
     @Test
+    @DisplayName("Should return false if there is no next manual triggerable to check")
     void hasNoNextManualTriggerable() {
         assertThat(this.defaultPlayerTurn.hasNextManualTriggerable()).isFalse();
     }
@@ -110,6 +127,7 @@ class PlayerTurnTest {
      * @since 2024-09-18
      */
     @Test
+    @DisplayName("Should return true if there are still actions to do")
     void hasActionsToDo() {
         assertThat(this.defaultPlayerTurn.hasActionsToDo()).isTrue();
     }
@@ -123,6 +141,7 @@ class PlayerTurnTest {
      * @since 2024-09-18
      */
     @Test
+    @DisplayName("Should return false if there are no more actions to do")
     void hasNoActionsToDo() {
         this.defaultPlayerTurn = new PlayerTurn(
                 defaultGame,
@@ -142,12 +161,14 @@ class PlayerTurnTest {
      * @since 2024-09-18
      */
     @Test
+    @DisplayName("Should call the execute() method on the given command")
     void testExecuteCommand() {
         defaultPlayerTurn.executeCommand(this.command);
         verify(command).execute();
     }
 
     @Test
+    @DisplayName("")
     void testDrawPlayerCards() {
         // TODO: 18.09.2024  
     }
@@ -161,6 +182,7 @@ class PlayerTurnTest {
      * @since 2024-09-18
      */
     @Test
+    @DisplayName("Should throw exception if carrier has already been played")
     void playCarrier() {
         this.defaultPlayerTurn.playCarrier();
         Exception exception = assertThrows(IllegalStateException.class, defaultPlayerTurn::playCarrier);
@@ -169,11 +191,13 @@ class PlayerTurnTest {
     }
 
     @Test
+    @DisplayName("Should return false if turn is not over")
     void isNotOver() {
         assertThat(this.defaultPlayerTurn.isOver()).isFalse();
     }
 
     @Test
+    @DisplayName("Should return true if there are no more actions to do")
     void isOver() {
         this.defaultPlayerTurn = new PlayerTurn(
                 defaultGame,

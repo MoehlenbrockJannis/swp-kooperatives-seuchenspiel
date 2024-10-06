@@ -2,6 +2,7 @@ package de.uol.swp.common.map;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
+import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import lombok.Getter;
@@ -145,6 +146,19 @@ public class GameMap implements Serializable {
      * @see Field
      */
     public List<Field> getNeighborFieldsExcludingFields(final Field field, final List<Field> excludedFields) {
+        return getNeighborFields(field).stream()
+                .filter(neighborField -> !excludedFields.contains(neighborField))
+                .toList();
+    }
+
+    /**
+     * Returns a {@link List} of all fields neighboring the given {@link Field}
+     *
+     * @param field {@link Field} to search neighbors for
+     * @return {@link List} of fields neighboring the given {@link Field}
+     * @see Field#getConnectedCities()
+     */
+    public List<Field> getNeighborFields(final Field field) {
         final List<Field> neighborFields = new ArrayList<>();
 
         final List<City> neighborCities = field.getConnectedCities();
@@ -155,8 +169,36 @@ public class GameMap implements Serializable {
             }
         }
 
-        return neighborFields.stream()
-                .filter(neighborField -> !excludedFields.contains(neighborField))
-                .toList();
+        return neighborFields;
+    }
+
+    /**
+     * <p>
+     *     Checks whether the given {@link Plague} has been exterminated.
+     *     Calls {@link Plague#exterminate()} if it has been exterminated.
+     * </p>
+     *
+     * <p>
+     *     A {@link Plague} is exterminated if
+     *      no {@link Field} has a {@link PlagueCube} of it and
+     *      the {@link Game} has an {@link AntidoteMarker} to it.
+     * </p>
+     *
+     * @param plague {@link Plague} to check extermination status for
+     * @return {@code true} if the given {@link Plague} is exterminated, {@code false} otherwise
+     */
+    public boolean isPlagueExterminated(final Plague plague) {
+        if (!game.hasAntidoteMarkerForPlague(plague)) {
+            return false;
+        }
+
+        for (final Field field : fields) {
+            if (field.isCurable(plague)) {
+                return false;
+            }
+        }
+
+        plague.exterminate();
+        return true;
     }
 }

@@ -1,10 +1,16 @@
 package de.uol.swp.common.role;
 
+import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.GeneralAction;
+import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.card.Card;
 import de.uol.swp.common.util.Color;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * This class represent a RoleCard
@@ -43,5 +49,50 @@ public class RoleCard extends Card {
     @Override
     public String getTitle() {
         return this.name;
+    }
+
+    /**
+     * <p>
+     *     Delegates to {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)} of {@link #ability}.
+     * </p>
+     *
+     * @param actionClass {@link Action} {@link Class} to pass to {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)}
+     * @return result of {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)} called with given {@code actionClass}
+     * @see RoleAbility#getRoleSpecificActionClassOrDefault(Class)
+     */
+    public Class<? extends Action> getRoleSpecificActionClassOrDefault(final Class<? extends Action> actionClass) {
+        return ability.getRoleSpecificActionClassOrDefault(actionClass);
+    }
+
+    /**
+     * <p>
+     *     Returns an unmodifiable {@link Set} of all {@link RoleAction} classes that the associated role can execute in addition to the general actions.
+     * </p>
+     *
+     * <p>
+     *     Delegates to {@link RoleAbility#getRoleSpecificAdditionallyAvailableActionClasses()} of {@link #ability}.
+     * </p>
+     *
+     * @return unmodifiable {@link Set} of all available {@link RoleAction} classes the associated role can execute
+     * @see RoleAbility#getRoleSpecificAdditionallyAvailableActionClasses()
+     */
+    public Set<Class<? extends RoleAction>> getRoleSpecificAdditionallyAvailableActionClasses() {
+        return ability.getRoleSpecificAdditionallyAvailableActionClasses();
+    }
+
+    /**
+     * <p>
+     *     Returns an unmodifiable {@link Set} of all {@link GeneralAction} classes that the associated role can no longer execute as they are replace by role actions.
+     * </p>
+     *
+     * <p>
+     *     Delegates to {@link RoleAbility#getRoleSpecificUnavailableActionClasses()} of {@link #ability}.
+     * </p>
+     *
+     * @return unmodifiable {@link Set} of all unavailable {@link GeneralAction} classes the associated role cannot execute
+     * @see RoleAbility#getRoleSpecificUnavailableActionClasses()
+     */
+    public Set<Class<? extends GeneralAction>> getRoleSpecificUnavailableActionClasses() {
+        return ability.getRoleSpecificUnavailableActionClasses();
     }
 }

@@ -1,16 +1,17 @@
 package de.uol.swp.common.player.turn;
 
-import de.uol.swp.common.action.Action;
-import de.uol.swp.common.action.Command;
-import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.action.*;
+import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
+import de.uol.swp.common.util.Command;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The PlayerTurn class represents a player's turn in a game.
@@ -30,6 +31,7 @@ public class PlayerTurn {
     private int currentManualTriggerable;
     private List<ManualTriggerable> manualTriggerables;
     private List<Command> executedCommands;
+    private ActionFactory actionFactory = new ActionFactory();
 
     /**
      * Constructor for creating a new PlayerTurn instance.
@@ -48,6 +50,7 @@ public class PlayerTurn {
         this.possibleActions = new ArrayList<>();
         this.autoTriggerables = new ArrayList<>();
         this.manualTriggerables = new ArrayList<>();
+        createPossibleActions();
     }
 
     /**
@@ -57,17 +60,76 @@ public class PlayerTurn {
         this.possibleActions.clear();
 
         if (this.hasActionsToDo()) {
-            if (this.player.getRole() != null && this.player.getRole().getAbility() != null) {
-                RoleAbility roleAbility = this.player.getRole().getAbility();
-                // TODO: Actions müssen hier festgelegt werden
-            }
+            final List<Action> actions = createAllActions();
+            determineAvailabilityOfActions(actions);
+        }
+    }
 
-            if (hasNextAutoTriggerable()) {
-                // TODO: Auto-Trigger Actions
-            }
-            if (hasNextManualTriggerable()) {
-                // TODO: Manual Trigger Actions
-            }
+    /**
+     * <p>
+     *     Creates a {@link List} of all actions according to the role of the {@link #player}.
+     *     Factors in role actions that are only available to that role and general actions that are no longer available to that role.
+     * </p>
+     *
+     * <p>
+     *     Creates actions by calling factory method: {@link ActionFactory#createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(Collection, Collection)}
+     * </p>
+     *
+     * @return {@link List} of all actions
+     * @see Player#getRoleSpecificAdditionallyAvailableActionClasses()
+     * @see Player#getRoleSpecificUnavailableActionClasses()
+     * @see ActionFactory#createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(Collection, Collection)
+     */
+    private List<Action> createAllActions() {
+        final Set<Class<? extends RoleAction>> includeActionClasses = player.getRoleSpecificAdditionallyAvailableActionClasses();
+        final Set<Class<? extends GeneralAction>> excludedActionClasses = player.getRoleSpecificUnavailableActionClasses();
+        return actionFactory.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(
+                excludedActionClasses,
+                includeActionClasses
+        );
+    }
+
+    /**
+     * <p>
+     *     Determines for a given {@link List} of actions which one of them is currently available to potentially be executed by {@link #player}.
+     * </p>
+     *
+     * @param actions {@link List} of actions to check availability for
+     * @see #determineAvailabilityOfAction(Action)
+     */
+    private void determineAvailabilityOfActions(final List<Action> actions) {
+        for (final Action action : actions) {
+            determineAvailabilityOfAction(action);
+        }
+    }
+
+    /**
+     * <p>
+     *     Determines for a given {@link Action} if it is currently available to potentially be executed by {@link #player}.
+     *     If it is available, it gets added to {@link #possibleActions}.
+     * </p>
+     *
+     * <p>
+     *     To be able to check availability for the given {@link Action},
+     *     some methods are called first (
+     *      {@link Action#setExecutingPlayer(Player)},
+     *      {@link Action#setGame(Game)}
+     *     ).
+     *     After that, the {@link Action#isAvailable()} method is called
+     *     so that the given {@link Action} can determine itself
+     *     whether or not the current game state allows for it.
+     * </p>
+     *
+     * @param action {@link Action} to check availability for
+     * @see Action#setExecutingPlayer(Player)
+     * @see Action#setGame(Game)
+     * @see Action#isAvailable()
+     */
+    private void determineAvailabilityOfAction(final Action action) {
+        action.setExecutingPlayer(player);
+        action.setGame(game);
+        if (action.isAvailable()) {
+            this.possibleActions.add(action);
         }
     }
 
@@ -144,9 +206,18 @@ public class PlayerTurn {
      * @param command the command to be executed
      */
     public void executeCommand(Command command) {
+        if (command instanceof DiscardCardsAction discardCardsAction) {
+            final List<CityCard> cards = discardCardsAction.getDiscardedCards();
+            for (final CityCard card : cards) {
+                game.getPlayerDiscardStack().add(card);
+            }
+        }
         command.execute();
         this.executedCommands.add(command);
-        reduceNumberOfActionsToDo();
+        if (command instanceof Action) {
+            reduceNumberOfActionsToDo();
+        }
+        createPossibleActions();
     }
 
     /**

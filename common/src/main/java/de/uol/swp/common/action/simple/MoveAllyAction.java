@@ -1,6 +1,6 @@
 package de.uol.swp.common.action.simple;
 
-import de.uol.swp.common.action.Approvable;
+import de.uol.swp.common.util.Approvable;
 import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.player.Player;
 
@@ -18,14 +18,18 @@ import de.uol.swp.common.player.Player;
 public interface MoveAllyAction extends RoleAction, Approvable {
 
     /**
+     * <p>
      * Gets the ally that is being moved.
+     * </p>
      *
      * @return the {@link Player} representing the moved ally
      */
     Player getMovedAlly();
 
     /**
+     * <p>
      * Sets the ally to be moved.
+     * </p>
      *
      * @param player the {@link Player} to be moved as an ally
      */

@@ -1,9 +1,6 @@
 package de.uol.swp.common.action.advanced.cure_plague;
 
 import de.uol.swp.common.action.RoleAction;
-import de.uol.swp.common.map.Field;
-import de.uol.swp.common.plague.Plague;
-import lombok.NoArgsConstructor;
 
 /**
  * The {@code IncreasedEffectivenessCurePlagueAction} class represents an enhanced action for curing a plague,
@@ -16,22 +13,19 @@ import lombok.NoArgsConstructor;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-@NoArgsConstructor
 public class IncreasedEffectivenessCurePlagueAction extends CurePlagueAction implements RoleAction {
 
     /**
-     * Constructs a new {@code IncreasedEffectivenessCurePlagueAction} with the specified parameters for plague removal.
+     * <p>
+     *     Always true
+     * </p>
      *
-     * @param removeAllAvailable whether all available plague cubes should be removed
-     * @param field the {@link Field} where the plague is located
-     * @param plague the {@link Plague} being cured
+     * {@inheritDoc}
+     *
+     * @return true
      */
-    public IncreasedEffectivenessCurePlagueAction(boolean removeAllAvailable, Field field, Plague plague) {
-        super(removeAllAvailable, field, plague);
-    }
-
     @Override
-    public void removeOnePlagueCube() {
-        super.removeOnePlagueCube();
+    public boolean isRemoveAllPlagueCubesAvailable() {
+        return true;
     }
 }

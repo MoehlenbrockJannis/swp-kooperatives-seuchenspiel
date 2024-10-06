@@ -1,10 +1,12 @@
 package de.uol.swp.common.action.advanced.cure_plague;
 
 import de.uol.swp.common.action.advanced.AdvancedAction;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import de.uol.swp.common.player.Player;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents an action that allows a player to cure the plague on a given field.
@@ -15,20 +17,9 @@ import lombok.NoArgsConstructor;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 public class CurePlagueAction extends AdvancedAction {
-
-    /**
-     * Determines whether the option to remove all plague cubes from the field is available.
-     */
-    private boolean removeAllAvailable;
-
-    /**
-     * The field where the plague cubes are being cured.
-     */
-    private Field field;
-
     /**
      * The specific type of plague to be cured on the field.
      */
@@ -39,8 +30,10 @@ public class CurePlagueAction extends AdvancedAction {
      * It checks if there is a plague on the field and, if so, cures one cube of the specified plague type.
      */
     public void removeOnePlagueCube() {
-        if (field.getPlague() != null) {
-            field.cure(plague);
+        final Field currentField = getExecutingPlayer().getCurrentField();
+        final Game game = getGame();
+        if (currentField.isCurable(plague)) {
+            game.addPlagueCube(currentField.cure(plague));
         }
     }
 
@@ -49,10 +42,10 @@ public class CurePlagueAction extends AdvancedAction {
      * This method iterates through all the plague cubes on the field and cures them one by one.
      */
     public void removeAllPlagueCubes() {
-        if (isRemoveAllPlagueCubesAvailable()) {
-            while (field.getPlague() != null) {
-                field.cure(field.getPlague());
-            }
+        final Field currentField = getExecutingPlayer().getCurrentField();
+        final Game game = getGame();
+        while (currentField.isCurable(plague)) {
+            game.addPlagueCube(currentField.cure(plague));
         }
     }
 
@@ -63,15 +56,69 @@ public class CurePlagueAction extends AdvancedAction {
      * @return true if removing all plague cubes is available, false otherwise.
      */
     public boolean isRemoveAllPlagueCubesAvailable() {
-        return removeAllAvailable;
+        return getGame().hasAntidoteMarkerForPlague(plague);
     }
 
+    /**
+     * <p>
+     *     Returns {@code true} if the current {@link Field} is infected with any {@link Plague}.
+     * </p>
+     *
+     * {@inheritDoc}
+     *
+     * @return {@code true} if the current {@link Field} is infected with any {@link Plague}, {@code false} otherwise
+     * @see #getExecutingPlayer()
+     * @see Player#getCurrentField()
+     * @see Game#getPlagues()
+     * @see Field#isCurable(Plague)
+     */
     @Override
     public boolean isAvailable() {
+        final Field currentField = getExecutingPlayer().getCurrentField();
+        final Game game = getGame();
+        for (final Plague plagueOnGame : game.getPlagues()) {
+            if (currentField.isCurable(plagueOnGame)) {
+                return true;
+            }
+        }
         return false;
     }
 
+    /**
+     * <p>
+     *     A {@link CurePlagueAction} is executable if it is available.
+     * </p>
+     *
+     * @return {@code true} if it is available, {@code false} otherwise
+     * @see #isAvailable()
+     */
+    @Override
+    public boolean isExecutable() {
+        return isAvailable();
+    }
+
+    /**
+     * <p>
+     *     If this {@link CurePlagueAction} is executable,
+     *     removes either one or all plague cubes from the current {@link Field}.
+     * </p>
+     *
+     * @throws IllegalStateException if the {@link CurePlagueAction} is not executable
+     * @see #isExecutable()
+     * @see #isRemoveAllPlagueCubesAvailable()
+     * @see #removeAllPlagueCubes()
+     * @see #removeOnePlagueCube()
+     */
     @Override
     public void execute() {
+        if (!isExecutable()) {
+            throw new IllegalStateException("This Action may not be executed.");
+        }
+
+        if (isRemoveAllPlagueCubesAvailable()) {
+            removeAllPlagueCubes();
+        } else {
+            removeOnePlagueCube();
+        }
     }
 }

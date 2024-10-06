@@ -29,4 +29,16 @@ public class MapSlot implements Serializable {
     private Plague plague;
     private int xCoordinate;
     private int yCoordinate;
+
+    /**
+     * <p>
+     *     Returns {@code true} if given {@link Plague} is equal to {@link #plague}, {@code false} otherwise.
+     * </p>
+     *
+     * @param plague {@link Plague} to check equality with {@link #plague} for
+     * @return {@code true} if given {@link Plague} is equal to {@link #plague}, {@code false} otherwise
+     */
+    public boolean hasPlague(final Plague plague) {
+        return this.plague.equals(plague);
+    }
 }
