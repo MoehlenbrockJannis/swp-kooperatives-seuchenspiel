@@ -378,17 +378,6 @@ public class SceneManager {
     }
 
     /**
-     * Handles the event when a role becomes available.
-     * Displays an information alert with a message confirming that the role has been successfully selected.
-     *
-     * @param roleAvailableMessage The message containing information about the available role.
-     */
-    @Subscribe
-    public void onRoleAvailableMessage(RoleAvailableResponse roleAvailableMessage) {
-        onShowRoleSelected();
-    }
-
-    /**
      * Shows an alert indicating that the selected role is unavailable.
      * The alert provides the user with instructions to choose a different role.
      */
@@ -399,26 +388,6 @@ public class SceneManager {
             a.setContentText("Die Rolle ist bereits vergeben.");
             DialogPane pane = a.getDialogPane();
             ImageView imageView = new ImageView(this.errorIconImage);
-            a.setGraphic(imageView);
-            if (pane.getScene().getWindow() instanceof Stage stage) {
-                stage.getIcons().add(iconImage);
-            }
-            pane.getStylesheets().add(ERROR_DIALOG_STYLE_SHEET);
-            a.showAndWait();
-        });
-    }
-
-    /**
-     * Shows an alert indicating that the role has been successfully selected.
-     * The alert provides a confirmation message to the user.
-     */
-    public void onShowRoleSelected() {
-        Platform.runLater(() -> {
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setTitle("Erfolgreich!");
-            a.setContentText("Du hast die Rolle ausgewählt. :)");
-            DialogPane pane = a.getDialogPane();
-            ImageView imageView = new ImageView(this.iconImage);
             a.setGraphic(imageView);
             if (pane.getScene().getWindow() instanceof Stage stage) {
                 stage.getIcons().add(iconImage);

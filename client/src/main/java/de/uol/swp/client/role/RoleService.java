@@ -3,6 +3,7 @@ package de.uol.swp.client.role;
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.role.request.RetrieveAllAvailableRolesRequest;
 import de.uol.swp.common.role.request.RoleAssignmentRequest;
 import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
 import de.uol.swp.common.user.User;
@@ -23,7 +24,7 @@ public class RoleService {
         this.eventBus = eventBus;
     }
 
-    public void sendRolesToComboBoxRequest(Lobby lobby) {
+    public void sendRetrieveAllRolesRequest(Lobby lobby) {
         RetrieveAllRolesRequest retrieveAllRolesRequest = new RetrieveAllRolesRequest(lobby);
         eventBus.post(retrieveAllRolesRequest);
     }
@@ -31,6 +32,11 @@ public class RoleService {
     public void sendRoleAssignmentRequest(Lobby lobby, User user, RoleCard roleCard) {
         RoleAssignmentRequest roleAssignmentRequest = new RoleAssignmentRequest(lobby, user, roleCard);
         eventBus.post(roleAssignmentRequest);
+    }
+
+    public void sendRetrieveAllAvailableRolesRequest(Lobby lobby) {
+        RetrieveAllAvailableRolesRequest retrieveAllAvailableRolesRequest = new RetrieveAllAvailableRolesRequest(lobby);
+        eventBus.post(retrieveAllAvailableRolesRequest);
     }
 
 }
