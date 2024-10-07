@@ -5,6 +5,7 @@ import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
 import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.player.Player;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -56,7 +57,21 @@ public class GameMap implements Serializable {
         final List<MapSlot> mapSlots = type.getMap();
         for (final MapSlot mapSlot : mapSlots) {
             final Field field = new Field(this, mapSlot);
+            checkForStartingCityField(field);
             this.fields.add(field);
+        }
+    }
+
+    /**
+     * Checks if the given {@link Field} is the starting field of the game and adds all players to the field if it is
+     *
+     * @param field Field to check
+     */
+    private void checkForStartingCityField(Field field) {
+        if (field.getCity() == type.getStartingCity()) {
+            List<Player> playersInTurnOrder = game.getPlayersInTurnOrder();
+            List<Player> playersOnField = field.getPlayersOnField();
+            playersOnField.addAll(playersInTurnOrder);
         }
     }
 
