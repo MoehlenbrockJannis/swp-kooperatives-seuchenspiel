@@ -29,6 +29,7 @@ import de.uol.swp.common.role.response.RoleAssignmentResponse;
 import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -40,6 +41,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -262,14 +264,24 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Starts the game by retrieving the mapType and plague list first and creating the game afterwards in {@link LobbyPresenter#onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse)}
-     *
+     * <br>
+     * There is a pause here so that all the roles are loaded correctly and no errors occur.
+     * Without this pause, the game would start without the server having finished loading all the roles.
+     * <br>
      * @param event The event that triggered the method
      */
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
-        roleService.sendRetrieveAllAvailableRolesRequest(lobby);
-        lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
-        lobbyService.getOriginalGameMapType();
+        Platform.runLater(() -> {
+            roleService.sendRetrieveAllAvailableRolesRequest(lobby);
+
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(e -> {
+                lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
+                lobbyService.getOriginalGameMapType();
+            });
+            pause.play();
+        });
     }
 
     /**
