@@ -7,7 +7,9 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.role.request.RetrieveAllAvailableRolesRequest;
 import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
+import de.uol.swp.common.role.response.RetrieveAllAvailableRolesResponse;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.EventBusBasedTest;
@@ -144,5 +146,17 @@ class RoleServiceTest extends EventBusBasedTest {
         roleService.onRolesSendToClient(mockRequest);
 
         verify(eventBus).post(any(RetrieveAllRolesResponse.class));
+    }
+
+    @DisplayName("The method should send the required response the event bus")
+    @Test
+    void testOnRetrieveAllAvailableRoles() {
+        RetrieveAllAvailableRolesRequest mockRequest = mock(RetrieveAllAvailableRolesRequest.class);
+        Lobby mockLobby = mock(Lobby.class);
+        when(mockRequest.getLobby()).thenReturn(mockLobby);
+
+        roleService.onRetrieveAllAvailableRoles(mockRequest);
+
+        verify(eventBus).post(any(RetrieveAllAvailableRolesResponse.class));
     }
 }

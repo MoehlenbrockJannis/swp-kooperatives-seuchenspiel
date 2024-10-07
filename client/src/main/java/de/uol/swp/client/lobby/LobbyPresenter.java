@@ -13,6 +13,7 @@ import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.server_message.*;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
@@ -22,6 +23,7 @@ import de.uol.swp.common.map.response.RetrieveOriginalGameMapTypeResponse;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.response.RetrieveAllPlaguesResponse;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.role.response.RetrieveAllAvailableRolesResponse;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
 import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
@@ -43,10 +45,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Manages the lobby window
@@ -129,7 +128,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     private void initializeComboBox() {
         roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> selectRole());
-        roleService.sendRolesToComboBoxRequest(lobby);
+        roleService.sendRetrieveAllRolesRequest(lobby);
     }
 
     /**
@@ -155,7 +154,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the message containing information about available roles.
      */
     @Subscribe
-    public void onRolesAvailableServerMessage(RetrieveAllAvailableRolesServerMessage message) {
+    public void onRetrieveAllAvailableRolesServerMessage(RetrieveAllAvailableRolesServerMessage message) {
         Platform.runLater(() -> {
             Set<RoleCard> roles = message.getRoleCards();
             availableRoles = FXCollections.observableArrayList(roles);
@@ -189,7 +188,7 @@ public class LobbyPresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             if (roleAssignedMessage.isRoleAssigned()) {
                 roleComboBox.getSelectionModel().clearSelection();
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName()); //TODO Der Titel der Combpbx bleibt noch leer.
+                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName()); //TODO Der Titel der Combobx bleibt noch leer.
             }
         });
     }
@@ -268,8 +267,52 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
+        roleService.sendRetrieveAllAvailableRolesRequest(lobby);
         lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
         lobbyService.getOriginalGameMapType();
+    }
+
+    /**
+     * Automatically assigns random roles to players without roles at the start of a game.
+     * This method is called when a RetrieveAllAvailableRolesResponse message is received,
+     * typically when a new game is being started.
+     *
+     * The method performs the following actions:
+     * 1. Updates the list of available roles in the user interface.
+     * 2. Creates a shuffled list of all available roles.
+     * 3. Iterates through all users in the lobby.
+     * 4. Assigns a random role from the available roles to each user without a role.
+     * 5. Sends a role assignment request to the server for each assigned role.
+     *
+     * The assignment process stops if no more roles are available.
+     * This ensures that at the beginning of the game, as many players as possible have a role.
+     *
+     * @param message The RetrieveAllAvailableRolesResponse message containing the set of available roles.
+     *
+     * @author Jannis Möhlenbrock
+     */
+    @Subscribe
+    public void onRetrieveAllAvailableRolesResponse(RetrieveAllAvailableRolesResponse message) {
+        Platform.runLater(() -> {
+            Set<RoleCard> roles = message.getRoleCards();
+            availableRoles = FXCollections.observableArrayList(roles);
+
+            List<RoleCard> availableRolesList = new ArrayList<>(roles);
+            Collections.shuffle(availableRolesList);
+
+            for (User user : lobby.getUsers()) {
+                Player player = lobby.getPlayerForUser(user);
+                if (player != null && player.getRole() == null) {
+                    if (!availableRolesList.isEmpty()) {
+                        RoleCard randomRole = availableRolesList.get(0);
+                        availableRolesList.remove(0);
+                        roleService.sendRoleAssignmentRequest(lobby, user, randomRole);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     /**

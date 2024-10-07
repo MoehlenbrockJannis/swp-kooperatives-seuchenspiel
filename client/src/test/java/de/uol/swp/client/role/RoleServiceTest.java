@@ -2,6 +2,7 @@ package de.uol.swp.client.role;
 
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.common.role.request.RetrieveAllAvailableRolesRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,8 +39,8 @@ class RoleServiceTest extends EventBusBasedTest {
 
     @DisplayName("A request to fill the ComboBox is sent to the server")
     @Test
-    void testSendRolesToComboBoxRequest() {
-        roleService.sendRolesToComboBoxRequest(lobby);
+    void testRetrieveAllRolesRequest() {
+        roleService.sendRetrieveAllRolesRequest(lobby);
         verify(eventBusMock).post(any(RetrieveAllRolesRequest.class));
     }
 
@@ -49,6 +50,13 @@ class RoleServiceTest extends EventBusBasedTest {
         RoleCard roleCard = mock(RoleCard.class);
         roleService.sendRoleAssignmentRequest(lobby, user, roleCard);
         verify(eventBusMock).post(any(RoleAssignmentRequest.class));
+    }
+
+    @DisplayName("A request for all available roles before the game starts")
+    @Test
+    void testSendRetrieveAllAvailableRolesRequest() {
+        roleService.sendRetrieveAllAvailableRolesRequest(lobby);
+        verify(eventBusMock).post(any(RetrieveAllAvailableRolesRequest.class));
     }
 
 }

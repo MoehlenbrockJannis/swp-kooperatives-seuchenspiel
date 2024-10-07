@@ -171,6 +171,9 @@ public class LobbyService extends AbstractService {
         handleLobbyLeave(lobbyKickUserRequest, lobby -> {
             final AbstractLobbyServerMessage message = new LobbyKickUserServerMessage(lobby, lobbyKickUserRequest.getUser());
             sendToAllInLobby(lobbyKickUserRequest.getLobby(), message);
+
+            UserLeaveLobbyServerInternalMessage removeUserFromRoleInternalMessage = new UserLeaveLobbyServerInternalMessage(lobby, lobbyKickUserRequest.getUser());
+            post(removeUserFromRoleInternalMessage);
         });
         // TODO: error handling not existing lobby
     }
