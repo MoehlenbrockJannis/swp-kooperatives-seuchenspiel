@@ -5,7 +5,9 @@ import de.uol.swp.common.map.exception.ResearchLaboratoryAlreadyBuiltOnFieldExce
 import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.player.Player;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,9 +34,12 @@ import java.util.Map;
 @EqualsAndHashCode
 public class Field implements Serializable {
     private GameMap map;
+    @Getter
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
     private Map<Plague, List<PlagueCube>> plagueCubes;
+    @Getter
+    private List<Player> playersOnField;
 
     /**
      * Constructor
@@ -46,6 +51,23 @@ public class Field implements Serializable {
         this.map = map;
         this.mapSlot = mapSlot;
         this.plagueCubes = new HashMap<>();
+        this.playersOnField = new ArrayList<>();
+    }
+
+    /**
+     * @return X coordinate of the {@link #mapSlot}
+     * @see MapSlot#getXCoordinate()
+     */
+    public int getXCoordinate() {
+        return mapSlot.getXCoordinate();
+    }
+
+    /**
+     * @return Y coordinate of the {@link #mapSlot}
+     * @see MapSlot#getYCoordinate()
+     */
+    public int getYCoordinate() {
+        return mapSlot.getYCoordinate();
     }
 
     /**
