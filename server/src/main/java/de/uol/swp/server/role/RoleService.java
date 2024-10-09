@@ -5,11 +5,13 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.response.ResponseMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.request.RetrieveAllAvailableRolesRequest;
-import de.uol.swp.common.role.response.*;
-import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
-import de.uol.swp.common.role.request.RoleAssignmentRequest;
 import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
+import de.uol.swp.common.role.request.RoleAssignmentRequest;
+import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
+import de.uol.swp.common.role.response.RoleAssignmentResponse;
+import de.uol.swp.common.role.response.RoleAvailableResponse;
+import de.uol.swp.common.role.response.RoleUnavailableResponse;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.LobbyManagement;
@@ -189,17 +191,4 @@ public class RoleService extends AbstractService {
         sendAvailableRolesToClients(userLeaveLobbyServerInternalMessage.getLobby());
     }
 
-    /**
-     * Sends all free roles to the owner of the lobby and sends a message to all players in the lobby
-     * @param retrieveAllAvailableRolesRequest with the lobby
-     */
-    @Subscribe
-    public void onRetrieveAllAvailableRoles(RetrieveAllAvailableRolesRequest retrieveAllAvailableRolesRequest) {
-        RetrieveAllAvailableRolesResponse retrieveAllAvailableRolesResponse =
-                new RetrieveAllAvailableRolesResponse(getAvailableRolesInLobby(retrieveAllAvailableRolesRequest.getLobby())
-                        , retrieveAllAvailableRolesRequest.getLobby());
-
-        retrieveAllAvailableRolesResponse.initWithMessage(retrieveAllAvailableRolesRequest);
-        post(retrieveAllAvailableRolesResponse);
-    }
 }
