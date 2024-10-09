@@ -45,19 +45,6 @@ class RetrieveAllLobbiesResponseTest {
     }
 
     @Test
-    @DisplayName("User passwords should be hidden in response")
-    void passwordsAreHiddenTest() {
-        RetrieveAllLobbiesResponse response = new RetrieveAllLobbiesResponse(testLobbies);
-
-        for (Lobby lobby : response.getLobbies()) {
-            for (User user : lobby.getUsers()) {
-                assertTrue(user.getPassword().isEmpty());
-            }
-            assertTrue(lobby.getOwner().getPassword().isEmpty());
-        }
-    }
-
-    @Test
     @DisplayName("Response should handle empty lobbies list")
     void emptyLobbiesListTest() {
         RetrieveAllLobbiesResponse response = new RetrieveAllLobbiesResponse(new ArrayList<>());

@@ -4,6 +4,7 @@ import de.uol.swp.common.user.User;
 import lombok.Getter;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * The UserPlayer class represents a human player in the game, associated with a User account.

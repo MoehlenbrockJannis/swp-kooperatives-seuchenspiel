@@ -2,7 +2,7 @@ package de.uol.swp.server.chat;
 
 import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
-import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
+import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.user.User;
@@ -64,13 +64,13 @@ public class ChatServiceTest extends EventBusBasedTest {
      */
     @Test
     void onLobbyChatRequestTest() throws InterruptedException {
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
+        SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendUserLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
         post(sendLobbyChatMessageRequest);
 
         assertNotNull(chatManagement.getLobbyChatMessages(this.defaultLobby));
         assertEquals(1, chatManagement.getLobbyChatMessages(this.defaultLobby).size());
 
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest2 = new SendLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
+        SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest2 = new SendUserLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
         post(sendLobbyChatMessageRequest2);
 
         assertEquals(2, chatManagement.getLobbyChatMessages(this.defaultLobby).size());

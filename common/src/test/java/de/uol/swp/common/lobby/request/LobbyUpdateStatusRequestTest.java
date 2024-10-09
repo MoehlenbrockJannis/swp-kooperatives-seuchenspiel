@@ -26,13 +26,13 @@ class LobbyUpdateStatusRequestTest {
     @Test
     @DisplayName("Constructor should accept null lobby without throwing exception")
     void nullLobbyTest() {
-        assertDoesNotThrow(() -> new LobbyUpdateStatusRequest(null, testStatus));
+        assertDoesNotThrow(() -> new UpdateUserLobbyStatusRequest(null, testStatus));
     }
 
     @Test
     @DisplayName("Constructor should allow null status")
     void nullStatusTest() {
-        LobbyUpdateStatusRequest request = new LobbyUpdateStatusRequest(testLobby, null);
+        UpdateUserLobbyStatusRequest request = new UpdateUserLobbyStatusRequest(testLobby, null);
 
         assertNotNull(request.getLobby());
         assertNull(request.getStatus());

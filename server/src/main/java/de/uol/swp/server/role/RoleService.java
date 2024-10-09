@@ -11,7 +11,7 @@ import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
 import de.uol.swp.common.role.response.RoleAvailableResponse;
 import de.uol.swp.common.role.response.RoleUnavailableResponse;
-import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessageUser;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.LobbyManagement;
@@ -149,7 +149,7 @@ public class RoleService extends AbstractService {
      * @param lobby the {@link Lobby} to which the available roles are being sent
      */
     private void sendAvailableRolesToClients(final Lobby lobby) {
-        final RetrieveAllAvailableRolesServerMessage message = new RetrieveAllAvailableRolesServerMessage(
+        final RetrieveAllAvailableRolesServerMessageUser message = new RetrieveAllAvailableRolesServerMessageUser(
                 lobby,
                 getAvailableRolesInLobby(lobby)
         );

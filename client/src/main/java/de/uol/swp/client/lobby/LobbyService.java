@@ -7,6 +7,7 @@ import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
 
@@ -44,12 +45,12 @@ public class LobbyService {
      * @param owner User who wants to create the new lobby
      * @param minPlayers Minimum number of players for the lobby
      * @param maxPlayers Maximum number of players for the lobby
-     * @see CreateLobbyRequest
+     * @see CreateUserLobbyRequest
      * @since 2019-11-20
      */
     public void createNewLobby(String lobbyName, User owner, int minPlayers, int maxPlayers) {
         LobbyDTO lobby = new LobbyDTO(lobbyName, owner, minPlayers, maxPlayers);
-        CreateLobbyRequest createLobbyRequest = new CreateLobbyRequest(lobby, owner);
+        CreateUserLobbyRequest createLobbyRequest = new CreateUserLobbyRequest(lobby, owner);
         eventBus.post(createLobbyRequest);
     }
 
@@ -58,22 +59,39 @@ public class LobbyService {
      *
      * @param lobby Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @see LobbyJoinUserRequest
+     * @see UserLobbyJoinUserRequest
      * @since 2019-11-20
      */
     public void joinLobby(final Lobby lobby, final User user) {
-        final LobbyJoinUserRequest joinUserRequest = new LobbyJoinUserRequest(lobby, user);
+        final UserLobbyJoinUserRequest joinUserRequest = new UserLobbyJoinUserRequest(lobby, user);
         eventBus.post(joinUserRequest);
+    }
+
+    /**
+     * Sends a request to add a player to a lobby.
+     *
+     * This method creates a new {@link JoinPlayerLobbyRequest} with the provided lobby and player.
+     * It then posts this request to the event bus, initiating the process of adding the player to
+     * the specified lobby. The request will be handled by the relevant subscribers listening for
+     * player join events.
+     *
+     * @param lobby  The lobby to which the player is joining.
+     * @param player The player who is attempting to join the lobby.
+     * @since 2024-10-06
+     */
+    public void playerJoinLobby(final Lobby lobby, final Player player) {
+        final JoinPlayerLobbyRequest lobbyJoinPlayerRequest = new JoinPlayerLobbyRequest(lobby, player);
+        eventBus.post(lobbyJoinPlayerRequest);
     }
 
     /**
      * Posts a request to find all lobbies to the EventBus
      *
-     * @see RetrieveAllLobbiesRequest
+     * @see RetrieveAllLobbiesRequestUser
      * @since 2024-08-24
      */
     public void findLobbies() {
-        final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest = new RetrieveAllLobbiesRequest();
+        final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest = new RetrieveAllLobbiesRequestUser();
         eventBus.post(retrieveAllLobbiesRequest);
     }
 
@@ -81,28 +99,28 @@ public class LobbyService {
      * Posts a request to leave a lobby on the EventBus
      *
      * @param lobby Name of the lobby to leave
-     * @param user User who wants to leave the lobby
-     * @see LobbyLeaveUserRequest
+     * @param player player who wants to leave the lobby
+     * @see LeavePlayerLobbyRequest
      * @since 2024-08-28
      */
-    public void leaveLobby(final Lobby lobby, final User user) {
-        final LobbyLeaveUserRequest leaveLobbyRequest = new LobbyLeaveUserRequest(lobby, user);
+    public void leaveLobby(final Lobby lobby, final Player player) {
+        final LeavePlayerLobbyRequest leaveLobbyRequest = new LeavePlayerLobbyRequest(lobby, player);
         eventBus.post(leaveLobbyRequest);
     }
 
     /**
-     * Sends a request to kick a specified user from a given lobby.
-     * This method creates a LobbyKickUserRequest with the provided lobby and user,
+     * Sends a request to kick a specified player from a given lobby.
+     * This method creates a LobbyKickUserRequest with the provided lobby and player,
      * and posts it to the event bus for further processing. This action is typically
-     * triggered when the lobby owner decides to remove a user from the lobby.
+     * triggered when the lobby owner decides to remove a player from the lobby.
      *
      * @param lobby The lobby from which the user will be kicked.
-     * @param user The user to be kicked from the lobby.
+     * @param player The player to be kicked from the lobby.
      * @since 2024-09-23
      */
-    public void kickUser(final Lobby lobby, final User user) {
-        final LobbyKickUserRequest kickUserRequest = new LobbyKickUserRequest(lobby, user);
-        eventBus.post(kickUserRequest);
+    public void kickPlayer(final Lobby lobby, final Player player) {
+        final KickPlayerLobbyRequest request = new KickPlayerLobbyRequest(lobby, player);
+        eventBus.post(request);
     }
 
 
@@ -114,7 +132,7 @@ public class LobbyService {
      * @since 2024-08-29
      */
     public void updateLobbyStatus(Lobby lobby, LobbyStatus lobbyStatus) {
-        final LobbyUpdateStatusRequest updateStatusRequest = new LobbyUpdateStatusRequest(lobby, lobbyStatus);
+        final UpdateUserLobbyStatusRequest updateStatusRequest = new UpdateUserLobbyStatusRequest(lobby, lobbyStatus);
         eventBus.post(updateStatusRequest);
     }
 

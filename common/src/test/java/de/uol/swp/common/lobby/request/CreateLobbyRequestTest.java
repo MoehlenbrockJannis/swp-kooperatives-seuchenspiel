@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test for the create lobby request
  *
- * @see CreateLobbyRequest
+ * @see CreateUserLobbyRequest
  * @since 2023-05-14
  */
 @DisplayName("CreateLobbyRequest Test")
@@ -32,7 +32,7 @@ class CreateLobbyRequestTest {
     @Test
     @DisplayName("Create CreateLobbyRequest")
     void createCreateLobbyRequest() {
-        CreateLobbyRequest request = new CreateLobbyRequest(lobby, user);
+        CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, user);
 
         assertEquals(lobby, request.getLobby());
         assertEquals(user, request.getUser());
@@ -49,7 +49,7 @@ class CreateLobbyRequestTest {
     @Test
     @DisplayName("Set new user in CreateLobbyRequest")
     void setCreateLobbyRequestNameAndUser() {
-        CreateLobbyRequest request = new CreateLobbyRequest(lobby, user);
+        CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, user);
 
         assertEquals(user, request.getUser());
 

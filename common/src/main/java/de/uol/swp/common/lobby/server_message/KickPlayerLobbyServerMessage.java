@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.server_message;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
+import de.uol.swp.common.player.Player;
 
 /**
  * Represents a server message indicating that a user has been kicked from a lobby.
@@ -12,7 +12,7 @@ import de.uol.swp.common.user.User;
  *
  * @since 2024-09-22
  */
-public class LobbyKickUserServerMessage extends AbstractLobbyServerMessage {
+public class KickPlayerLobbyServerMessage extends AbstractPlayerLobbyServerMessage {
 
     /**
      * Constructs a LobbyKickUserServerMessage with the specified lobby and user.
@@ -21,10 +21,10 @@ public class LobbyKickUserServerMessage extends AbstractLobbyServerMessage {
      * AbstractLobbyServerMessage superclass.
      *
      * @param lobby The lobby from which the user was kicked.
-     * @param user The user who was kicked from the lobby.
+     * @param player The player who was kicked from the lobby.
      * @since 2024-09-22
      */
-    public LobbyKickUserServerMessage(Lobby lobby, User user) {
-        super(lobby, user);
+    public KickPlayerLobbyServerMessage(Lobby lobby, Player player) {
+        super(lobby, player);
     }
 }

@@ -4,6 +4,8 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
 import org.greenrobot.eventbus.EventBus;
@@ -61,11 +63,11 @@ public class LobbyService extends AbstractService {
      *
      * @param createLobbyRequest The CreateLobbyRequest found on the EventBus
      * @see de.uol.swp.server.lobby.LobbyManagement#createLobby(Lobby)
-     * @see CreateLobbyServerMessage
+     * @see CreateUserLobbyServerMessage
      * @since 2019-10-08
      */
     @Subscribe
-    public void onCreateLobbyRequest(CreateLobbyRequest createLobbyRequest) {
+    public void onCreateLobbyRequest(CreateUserLobbyRequest createLobbyRequest) {
         final Lobby lobby = lobbyManagement.createLobby(createLobbyRequest.getLobby());
 
         final CreateLobbyResponse response = new CreateLobbyResponse(lobby);
@@ -82,11 +84,11 @@ public class LobbyService extends AbstractService {
      *
      * @param lobbyJoinUserRequest The LobbyJoinUserRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
-     * @see LobbyJoinUserServerMessage
+     * @see JoinUserLobbyServerMessage
      * @since 2019-10-08
      */
     @Subscribe
-    public void onLobbyJoinUserRequest(LobbyJoinUserRequest lobbyJoinUserRequest) {
+    public void onLobbyJoinUserRequest(UserLobbyJoinUserRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinUserRequest.getLobby());
 
         if (lobbyOptional.isEmpty()) {
@@ -116,7 +118,41 @@ public class LobbyService extends AbstractService {
         response.initWithMessage(lobbyJoinUserRequest);
         post(response);
 
-        final LobbyJoinUserServerMessage userJoinedLobbyMessage = new LobbyJoinUserServerMessage(lobby, user.getWithoutPassword());
+        final JoinUserLobbyServerMessage userJoinedLobbyMessage = new JoinUserLobbyServerMessage(lobby, user.getWithoutPassword());
+        sendToAllInLobby(lobby, userJoinedLobbyMessage);
+    }
+
+
+    /**
+     * Handles JoinPlayerLobbyRequests found on the EventBus.
+     *
+     * When a JoinPlayerLobbyRequest is detected on the EventBus, this method is called.
+     * It attempts to retrieve the lobby associated with the request. If the lobby does not exist,
+     * appropriate error handling should be implemented. If the lobby exists, the specified player
+     * is added to the lobby, and a JoinPlayerLobbyServerMessage is sent to notify all users in the
+     * lobby that a new player has joined.
+     *
+     * @param lobbyJoinPlayerRequest The JoinPlayerLobbyRequest containing information about the
+     *                                lobby and the player attempting to join.
+     * @see de.uol.swp.common.lobby.Lobby
+     * @see JoinPlayerLobbyServerMessage
+     * @since 2024-10-06
+     */
+    @Subscribe
+    public void onLobbyJoinPlayerRequest(JoinPlayerLobbyRequest lobbyJoinPlayerRequest) {
+        Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinPlayerRequest.getLobby());
+
+        if (lobbyOptional.isEmpty()) {
+            // TODO: error handling not existing lobby
+            return;
+        }
+
+        final Lobby lobby = lobbyOptional.get();
+        final Player player = lobbyJoinPlayerRequest.getPlayer();
+
+        lobby.addPlayer(player);
+
+        final JoinPlayerLobbyServerMessage userJoinedLobbyMessage = new JoinPlayerLobbyServerMessage(lobby, player);
         sendToAllInLobby(lobby, userJoinedLobbyMessage);
     }
 
@@ -133,17 +169,14 @@ public class LobbyService extends AbstractService {
      * @param lobbyLeaveUserRequest The LobbyLeaveUserRequest detected on the EventBus, containing
      *                              information about the user leaving and the associated lobby.
      * @see de.uol.swp.common.lobby.Lobby
-     * @see LobbyLeaveUserServerMessage
+     * @see LeavePlayerLobbyServerMessage
      * @since 2019-10-08
      */
     @Subscribe
-    public void onLobbyLeaveUserRequest(LobbyLeaveUserRequest lobbyLeaveUserRequest) {
+    public void onLobbyLeaveUserRequest(LeavePlayerLobbyRequest lobbyLeaveUserRequest) {
         handleLobbyLeave(lobbyLeaveUserRequest, lobby -> {
-            final AbstractLobbyServerMessage message = new LobbyLeaveUserServerMessage(lobby, lobbyLeaveUserRequest.getUser());
+            final AbstractPlayerLobbyServerMessage message = new LeavePlayerLobbyServerMessage(lobby, lobbyLeaveUserRequest.getPlayer());
             sendToAllInLobby(lobby, message);
-
-            UserLeaveLobbyServerInternalMessage removeUserFromRoleInternalMessage = new UserLeaveLobbyServerInternalMessage(lobby, lobbyLeaveUserRequest.getUser());
-            post(removeUserFromRoleInternalMessage);
         });
         // TODO: error handling not existing lobby
     }
@@ -160,26 +193,23 @@ public class LobbyService extends AbstractService {
      * and performs further handling such as notifying all users in the lobby. If the
      * lobby does not exist, error handling is needed.
      *
-     * @param lobbyKickUserRequest The LobbyKickUserRequest detected on the EventBus, containing
+     * @param lobbyKickPlayerRequest The LobbyKickUserRequest detected on the EventBus, containing
      *                             the user to be kicked and the associated lobby information.
      * @see de.uol.swp.common.lobby.Lobby
-     * @see LobbyKickUserServerMessage
+     * @see KickPlayerLobbyServerMessage
      * @since 2024-09-23
      */
     @Subscribe
-    public void onLobbyKickUserRequest(LobbyKickUserRequest lobbyKickUserRequest) {
-        handleLobbyLeave(lobbyKickUserRequest, lobby -> {
-            final AbstractLobbyServerMessage message = new LobbyKickUserServerMessage(lobby, lobbyKickUserRequest.getUser());
-            sendToAllInLobby(lobbyKickUserRequest.getLobby(), message);
-
-            UserLeaveLobbyServerInternalMessage removeUserFromRoleInternalMessage = new UserLeaveLobbyServerInternalMessage(lobby, lobbyKickUserRequest.getUser());
-            post(removeUserFromRoleInternalMessage);
+    public void onLobbyKickUserRequest(KickPlayerLobbyRequest lobbyKickPlayerRequest) {
+        handleLobbyLeave(lobbyKickPlayerRequest, lobby -> {
+            final AbstractPlayerLobbyServerMessage message = new KickPlayerLobbyServerMessage(lobby, lobbyKickPlayerRequest.getPlayer());
+            sendToAllInLobby(lobbyKickPlayerRequest.getLobby(), message);
         });
         // TODO: error handling not existing lobby
     }
 
     /**
-     * Handles the process of a user leaving or being removed from a lobby.
+     * Handles the process of a player leaving or being removed from a lobby.
      *
      * This method checks if the lobby exists and contains only one user. If so, it triggers the lobby
      * to be dropped by the LobbyManagement and sends a LobbyDroppedServerInternalMessage
@@ -193,28 +223,83 @@ public class LobbyService extends AbstractService {
      * @param callback     A Consumer function that is executed after the lobby has been updated.
      * @see de.uol.swp.common.lobby.Lobby
      * @see LobbyDroppedServerInternalMessage
-     * @since 2024-09-23
+     * @since 2024-10-06
      */
-    private void handleLobbyLeave(AbstractLobbyRequest lobbyRequest, Consumer<Lobby> callback) {
+    private void handleLobbyLeave(AbstractPlayerLobbyRequest lobbyRequest, Consumer<Lobby> callback) {
         Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyRequest.getLobby());
 
         if (lobbyOptional.isPresent()) {
             final Lobby lobby = lobbyOptional.get();
+            final Player player = lobbyRequest.getPlayer();
 
-            if (!lobby.getUsers().contains(lobbyRequest.getUser())) {
+            if (isPlayerNotInLobby(lobby, player)) {
                 return;
             }
 
-            if (lobby.getUsers().size() == 1) {
+            if (isLobbyDroppable(lobby, player)) {
                 lobbyManagement.dropLobby(lobby);
                 LobbyDroppedServerInternalMessage message = new LobbyDroppedServerInternalMessage(lobby);
                 post(message);
             } else {
-                lobby.leaveUser(lobbyRequest.getUser());
+                lobby.removePlayer(player);
+
+                UserLeaveLobbyServerInternalMessage removeUserFromRoleInternalMessage = new UserLeaveLobbyServerInternalMessage(lobby);
+                post(removeUserFromRoleInternalMessage);
             }
 
             callback.accept(lobby);
         }
+
+    }
+
+    /**
+     * Checks if a player is not in the specified lobby.
+     *
+     * This method verifies whether the given player is absent from the specified
+     * lobby's list of players.
+     *
+     * @param lobby The lobby to check for the player's presence.
+     * @param player The player to check for absence in the lobby.
+     * @return true if the player is not in the lobby; false otherwise.
+     * @since 2024-09-23
+     */
+    public boolean isPlayerNotInLobby(Lobby lobby, Player player) {
+        return !lobby.getPlayers().contains(player);
+    }
+
+    /**
+     * Determines if the specified lobby can be dropped.
+     *
+     * This method checks whether the lobby can be removed based on the number of players
+     * currently in the lobby.
+     *
+     * @param lobby The lobby to evaluate for droppability.
+     * @param player The player being considered for the lobby drop condition.
+     * @return true if the lobby can be dropped; false otherwise.
+     * @since 2024-09-23
+     */
+    public boolean isLobbyDroppable(Lobby lobby, Player player) {
+        return lobby.getPlayers().size() == 1 || (hasOnlyOneUserPlayer(lobby) && player instanceof UserPlayer);
+    }
+
+    /**
+     * Checks if the specified lobby contains exactly one UserPlayer.
+     *
+     * This method iterates through the players in the given lobby and counts how many of them
+     * are instances of UserPlayer. It returns true if there is exactly one UserPlayer in the lobby,
+     * and false otherwise.
+     *
+     * @param lobby The Lobby to check for UserPlayer instances.
+     * @return true if there is exactly one UserPlayer in the lobby; false otherwise.
+     * @see Player
+     * @see UserPlayer
+     * @since 2024-10-06
+     */
+    private boolean hasOnlyOneUserPlayer(Lobby lobby) {
+        final Set<Player> players = lobby.getPlayers();
+        return players.stream()
+                .filter(UserPlayer.class::isInstance)
+                .count() == 1;
     }
 
     /**
@@ -240,18 +325,18 @@ public class LobbyService extends AbstractService {
      * Handles LobbyFindLobbiesRequests found on the EventBus
      *
      * <p>
-     * If a {@link RetrieveAllLobbiesRequest} is detected on the EventBus, this method is called.
+     * If a {@link RetrieveAllLobbiesRequestUser} is detected on the EventBus, this method is called.
      * It creates a {@link RetrieveAllLobbiesResponse} containing all lobbies and posts it to the EventBus.
      * </p>
      *
      * @param retrieveAllLobbiesRequest The LobbyFindLobbiesRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
-     * @see RetrieveAllLobbiesRequest
+     * @see RetrieveAllLobbiesRequestUser
      * @see RetrieveAllLobbiesResponse
      * @since 2024-08-24
      */
     @Subscribe
-    public void onLobbyFindLobbiesRequest(final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest) {
+    public void onLobbyFindLobbiesRequest(final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest) {
         final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse = new RetrieveAllLobbiesResponse(lobbyManagement.getAllLobbies());
         retrieveAllLobbiesResponse.initWithMessage(retrieveAllLobbiesRequest);
         post(retrieveAllLobbiesResponse);
@@ -261,18 +346,18 @@ public class LobbyService extends AbstractService {
      * Handles LobbyUpdateStatusRequests found on the EventBus
      *
      * <p>
-     * If a {@link LobbyUpdateStatusRequest} is detected on the EventBus, this method is called.
+     * If a {@link UpdateUserLobbyStatusRequest} is detected on the EventBus, this method is called.
      * It updates the status of a lobby and sends an {@link RetrieveAllLobbiesServerMessage} to all users.
      * </p>
      *
      * @param lobbyUpdateStatusRequest The LobbyUpdateStatusRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.LobbyStatus
-     * @see de.uol.swp.common.lobby.request.LobbyUpdateStatusRequest
+     * @see UpdateUserLobbyStatusRequest
      * @see RetrieveAllLobbiesServerMessage
      */
     @Subscribe
-    public void onLobbyUpdateStatusRequest(LobbyUpdateStatusRequest lobbyUpdateStatusRequest) {
+    public void onLobbyUpdateStatusRequest(UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest) {
         Lobby lobby = lobbyUpdateStatusRequest.getLobby();
 
         if (lobbyManagement.getLobby(lobby).isPresent()) {

@@ -30,7 +30,7 @@ public class LobbyDTO implements Lobby {
     private final String name;
     @Getter
     private User owner;
-    private final Set<Player> players = new HashSet<>();
+    private Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
     @Getter
@@ -55,6 +55,15 @@ public class LobbyDTO implements Lobby {
         this.status = LobbyStatus.OPEN;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
+    }
+
+    public LobbyDTO(Lobby lobby) {
+        this.name = lobby.getName();
+        this.owner = lobby.getOwner();
+        this.status = lobby.getStatus();
+        this.minPlayers = lobby.getMinPlayers();
+        this.maxPlayers = lobby.getMaxPlayers();
+        this.players = lobby.getPlayers();
     }
 
     @Override
@@ -155,10 +164,10 @@ public class LobbyDTO implements Lobby {
     }
 
     private void determineLobbyStatus() {
-        final Set<User> users = getUsers();
-        if (users.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        final Set<Player> players = getPlayers();
+        if (players.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
-        } else if (users.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        } else if (players.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.FULL;
         } else {
             status = LobbyStatus.RUNNING;

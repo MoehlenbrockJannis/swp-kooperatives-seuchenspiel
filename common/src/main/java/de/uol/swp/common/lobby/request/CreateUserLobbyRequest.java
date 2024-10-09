@@ -7,13 +7,12 @@ import lombok.NoArgsConstructor;
 /**
  * Request sent to the server when a user wants to create a new lobby
  *
- * @see AbstractLobbyRequest
+ * @see AbstractUserLobbyRequest
  * @see de.uol.swp.common.user.User
  * @author Marco Grawunder
  * @since 2019-10-08
  */
-@NoArgsConstructor
-public class CreateLobbyRequest extends AbstractLobbyRequest {
+public class CreateUserLobbyRequest extends AbstractUserLobbyRequest {
 
     /**
      * Constructor
@@ -22,7 +21,7 @@ public class CreateLobbyRequest extends AbstractLobbyRequest {
      * @param owner User trying to create the lobby
      * @since 2019-10-08
      */
-    public CreateLobbyRequest(Lobby lobby, User owner) {
+    public CreateUserLobbyRequest(Lobby lobby, User owner) {
         super(lobby, owner);
     }
 }

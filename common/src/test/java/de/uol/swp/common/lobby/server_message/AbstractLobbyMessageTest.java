@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test for the abstract lobby message
  *
- * @see AbstractLobbyServerMessage
+ * @see AbstractUserLobbyServerMessage
  * @since 2023-05-14
  */
 @DisplayName("AbstractLobbyServerMessage Test")
@@ -31,7 +31,7 @@ class AbstractLobbyMessageTest {
     @Test
     @DisplayName("Create AbstractLobbyServerMessage")
     void createAbstractLobbyMessage() {
-        AbstractLobbyServerMessage message = new AbstractLobbyServerMessage(lobby, user);
+        AbstractUserLobbyServerMessage message = new AbstractUserLobbyServerMessage(lobby, user);
 
         assertEquals(lobby, message.getLobby());
         assertEquals(user, message.getUser());
@@ -48,7 +48,7 @@ class AbstractLobbyMessageTest {
     @Test
     @DisplayName("Set new lobby and user in AbstractLobbyServerMessage")
     void setAbstractLobbyNameAndUser() {
-        AbstractLobbyServerMessage message = new AbstractLobbyServerMessage(lobby, user);
+        AbstractUserLobbyServerMessage message = new AbstractUserLobbyServerMessage(lobby, user);
 
         assertEquals(lobby, message.getLobby());
         assertEquals(user, message.getUser());

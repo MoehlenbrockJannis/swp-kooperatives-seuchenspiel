@@ -3,9 +3,9 @@ package de.uol.swp.common.lobby.server_message;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
 
-public class CreateLobbyServerMessage extends AbstractLobbyServerMessage {
+public class CreateUserLobbyServerMessage extends AbstractUserLobbyServerMessage {
 
-    public CreateLobbyServerMessage(Lobby lobby, User user) {
+    public CreateUserLobbyServerMessage(Lobby lobby, User user) {
         super(lobby, user);
     }
 

@@ -3,7 +3,7 @@ package de.uol.swp.client.chat;
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
-import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
+import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.user.User;
@@ -47,7 +47,7 @@ public class ChatServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(SendLobbyChatMessageRequest e) {
+    public void onEvent(SendUserLobbyChatMessageRequest e) {
         handleEvent(e);
     }
 
@@ -72,7 +72,7 @@ public class ChatServiceTest extends EventBusBasedTest {
     @Test
     public void testSendLobbyChatRequest() throws InterruptedException {
         sendLobbyChatRequest();
-        assertInstanceOf(SendLobbyChatMessageRequest.class, event);
+        assertInstanceOf(SendUserLobbyChatMessageRequest.class, event);
     }
 
     /**
