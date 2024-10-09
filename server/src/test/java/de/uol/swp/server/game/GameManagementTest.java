@@ -38,7 +38,11 @@ class GameManagementTest {
     void setUp() {
         lobbyManagement = mock(LobbyManagement.class);
         roleManagement = mock(RoleManagement.class);
-        gameManagement = new GameManagement(lobbyManagement, roleManagement);
+
+        gameManagement = new GameManagement();
+        gameManagement.setLobbyManagement(lobbyManagement);
+        gameManagement.setRoleManagement(roleManagement);
+
         mockLobby = mock(Lobby.class);
         mockMapType = mock(MapType.class);
         mockPlagues = new ArrayList<>();
