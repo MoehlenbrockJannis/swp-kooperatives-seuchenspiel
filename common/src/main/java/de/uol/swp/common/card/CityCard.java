@@ -5,14 +5,12 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.util.Color;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
  * Represents a card associated with a city.
  */
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
 @Getter
 public class CityCard extends PlayerCard{
 
