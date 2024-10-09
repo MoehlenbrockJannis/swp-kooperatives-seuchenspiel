@@ -8,6 +8,7 @@ import de.uol.swp.common.card.Card;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
+import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
@@ -148,11 +149,12 @@ public class CardOverviewPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onPlayerCardDrawnResponse(DrawPlayerCardResponse drawPlayerCardResponse) {
-        Platform.runLater(() -> {
-            CardPopup cardPopup = new CardPopup(drawPlayerCardResponse.getPlayerCard(), window);
-            cardPopup.generatePopup();
-        });
+        handleCardPopup(drawPlayerCardResponse.getGame().getId(), drawPlayerCardResponse.getPlayerCard());
+    }
 
+    @Subscribe
+    public void onDrawInfectionCardServerMessage(DrawInfectionCardServerMessage drawInfectionCardServerMessage) {
+        handleCardPopup(drawInfectionCardServerMessage.getGame().getId(), drawInfectionCardServerMessage.getInfectionCard());
     }
 
     /**
@@ -189,5 +191,15 @@ public class CardOverviewPresenter extends AbstractPresenter {
         dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
         dialog.showAndWait();
         return cardListView;
+    }
+
+    private void handleCardPopup(int gameID, Card card) {
+        if (this.gameSupplier.get().getId() == gameID) {
+            Platform.runLater(() -> {
+                CardPopup cardPopup = new CardPopup(card, window);
+                cardPopup.generatePopup();
+            });
+        }
+
     }
 }

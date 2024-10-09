@@ -20,4 +20,13 @@ public class CardStack<C extends Card> extends Stack<C> {
         Collections.shuffle(this, new Random());
     }
 
+    /**
+     * Removes and returns the first card from the stack.
+     *
+     * @return the first card from the stack
+     */
+    public C removeFirstCard() {
+       return this.remove(0);
+    }
+
 }

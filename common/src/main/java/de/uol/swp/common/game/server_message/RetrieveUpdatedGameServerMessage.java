@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class RetrieveUpdatedGameMessage extends AbstractServerMessage {
+public class RetrieveUpdatedGameServerMessage extends AbstractServerMessage {
 
     private Game game;
 }

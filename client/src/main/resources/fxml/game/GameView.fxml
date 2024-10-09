@@ -107,9 +107,9 @@
         <!--<Text layoutX="27.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spielerkarten"/>-->
         <fx:include source="CardOverviewComponent.fxml" fx:id="playerCardsOverview"/>
     </Pane>
-    <Pane style="-fx-background-color: darkolivegreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
+    <Pane fx:id="infectionCardStackPane" style="-fx-background-color: darkolivegreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
           GridPane.rowIndex="8">
-        <Text layoutX="19.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Infektionskarten"/>
+        <fx:include source="CardOverviewComponent.fxml" fx:id="infectionCardsOverview"/>
     </Pane>
 
     <!-- Column 9 -->

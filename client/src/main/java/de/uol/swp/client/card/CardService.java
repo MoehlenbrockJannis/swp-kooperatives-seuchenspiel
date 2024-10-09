@@ -1,8 +1,11 @@
 package de.uol.swp.client.card;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
+import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
@@ -48,13 +51,32 @@ public class CardService {
      * and posts it to the {@link EventBus}.
      * </p>
      *
-     * @param game      The game from which to discard the player card
-     * @param player    The player who is discarding the card
+     * @param game       The game from which to discard the player card
+     * @param player     The player who is discarding the card
      * @param playerCard The player card to be discarded
      * @since 2024-09-20
      */
     public void sendDiscardPlayerCardRequest(Game game, Player player, PlayerCard playerCard) {
         DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest = new DiscardPlayerCardRequest<>(game, player, playerCard);
         eventBus.post(discardPlayerCardRequest);
+    }
+
+    /**
+     * @param game
+     * @param player
+     */
+    public void sendDrawInfectionCardRequest(Game game, Player player) {
+        DrawInfectionCardRequest drawInfectionCardRequest = new DrawInfectionCardRequest(game, player);
+        eventBus.post(drawInfectionCardRequest);
+    }
+
+    /**
+     * @param game
+     * @param player
+     * @param infectionCard
+     */
+    public void sendDiscardInfectionCardRequest(Game game, Player player, InfectionCard infectionCard) {
+        DiscardInfectionCardRequest discardInfectionCardRequest = new DiscardInfectionCardRequest(game, player, infectionCard);
+        eventBus.post(discardInfectionCardRequest);
     }
 }

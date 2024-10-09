@@ -2,12 +2,10 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.game.request.CreateGameRequest;
-import de.uol.swp.common.game.server_message.RetrieveUpdatedGameMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
