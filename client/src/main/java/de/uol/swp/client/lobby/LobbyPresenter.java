@@ -5,15 +5,13 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.game.GamePresenter;
-import de.uol.swp.client.role.RoleService;
+import de.uol.swp.client.role.*;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.server_message.*;
-import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.lobby.server_message.AbstractLobbyServerMessage;
 import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
@@ -23,13 +21,11 @@ import de.uol.swp.common.map.response.RetrieveOriginalGameMapTypeResponse;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.response.RetrieveAllPlaguesResponse;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.response.RetrieveAllAvailableRolesResponse;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
 import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +37,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -102,6 +97,8 @@ public class LobbyPresenter extends AbstractPresenter {
         userContainerEntityListController.setTitle("Mitspieler");
         userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
+        lobbyService.getOriginalGameMapType();
+        lobbyService.getPlagues();
     }
 
     /**
@@ -265,66 +262,13 @@ public class LobbyPresenter extends AbstractPresenter {
     /**
      * Starts the game by retrieving the mapType and plague list first and creating the game afterwards in {@link LobbyPresenter#onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse)}
      * <br>
-     * There is a pause here so that all the roles are loaded correctly and no errors occur.
-     * Without this pause, the game would start without the server having finished loading all the roles.
-     * <br>
      * @param event The event that triggered the method
      */
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
-        Platform.runLater(() -> {
-            roleService.sendRetrieveAllAvailableRolesRequest(lobby);
-
-            PauseTransition pause = new PauseTransition(Duration.seconds(2));
-            pause.setOnFinished(e -> {
-                lobbyService.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
-                lobbyService.getOriginalGameMapType();
-            });
-            pause.play();
-        });
-    }
-
-    /**
-     * Automatically assigns random roles to players without roles at the start of a game.
-     * This method is called when a RetrieveAllAvailableRolesResponse message is received,
-     * typically when a new game is being started.
-     *
-     * The method performs the following actions:
-     * 1. Updates the list of available roles in the user interface.
-     * 2. Creates a shuffled list of all available roles.
-     * 3. Iterates through all users in the lobby.
-     * 4. Assigns a random role from the available roles to each user without a role.
-     * 5. Sends a role assignment request to the server for each assigned role.
-     *
-     * The assignment process stops if no more roles are available.
-     * This ensures that at the beginning of the game, as many players as possible have a role.
-     *
-     * @param message The RetrieveAllAvailableRolesResponse message containing the set of available roles.
-     *
-     * @author Jannis Möhlenbrock
-     */
-    @Subscribe
-    public void onRetrieveAllAvailableRolesResponse(RetrieveAllAvailableRolesResponse message) {
-        Platform.runLater(() -> {
-            Set<RoleCard> roles = message.getRoleCards();
-            availableRoles = FXCollections.observableArrayList(roles);
-
-            List<RoleCard> availableRolesList = new ArrayList<>(roles);
-            Collections.shuffle(availableRolesList);
-
-            for (User user : lobby.getUsers()) {
-                Player player = lobby.getPlayerForUser(user);
-                if (player != null && player.getRole() == null) {
-                    if (!availableRolesList.isEmpty()) {
-                        RoleCard randomRole = availableRolesList.get(0);
-                        availableRolesList.remove(0);
-                        roleService.sendRoleAssignmentRequest(lobby, user, randomRole);
-                    } else {
-                        break;
-                    }
-                }
-            }
-        });
+        if (selectedMapType != null && plagueList != null) {
+            gameService.createGame(lobby, selectedMapType, plagueList);
+        }
     }
 
     /**
@@ -339,7 +283,6 @@ public class LobbyPresenter extends AbstractPresenter {
     @Subscribe
     public void onRetrieveOriginalGameMapTypeResponse(RetrieveOriginalGameMapTypeResponse response) {
         selectedMapType= response.getMapType();
-        lobbyService.getPlagues();
     }
 
     /**
@@ -352,11 +295,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse response) {
-        plagueList = response.getPlagueSet().stream().toList();
-
-        if (selectedMapType != null) {
-            gameService.createGame(lobby, selectedMapType, plagueList);
-        }
+        plagueList = new ArrayList<>(response.getPlagueSet());
     }
 
     /**

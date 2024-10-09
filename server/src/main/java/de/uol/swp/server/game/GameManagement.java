@@ -1,11 +1,15 @@
 package de.uol.swp.server.game;
 
+import com.google.inject.Inject;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.role.RoleManagement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,10 @@ import java.util.Random;
  * Manages the game
  */
 public class GameManagement {
+    @Inject
+    private LobbyManagement lobbyManagement;
+    @Inject
+    private RoleManagement roleManagement;
 
     private final List<Game> games = new ArrayList<>();
     private final Random random = new Random();
@@ -29,6 +37,9 @@ public class GameManagement {
      * @return The created game
      */
     public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues) {
+        lobbyManagement.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
+        roleManagement.assignRolesToPlayers(lobby);
+
         Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
         newGame.setId(generateUniqueGameId());
         return newGame;
