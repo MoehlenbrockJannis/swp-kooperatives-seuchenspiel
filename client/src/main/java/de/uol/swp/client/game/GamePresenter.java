@@ -5,9 +5,10 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.card.CardOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.server_message.RetrieveUpdatedGameMessage;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -63,6 +64,12 @@ public class GamePresenter extends AbstractPresenter {
     private CardOverviewPresenter playerCardsOverviewController;
 
     @FXML
+    private CardOverviewPresenter infectionCardsOverviewController;
+
+    @FXML
+    private Pane infectionCardStackPane;
+
+    @FXML
     private GameMapPresenter gameMapController;
 
 
@@ -94,14 +101,26 @@ public class GamePresenter extends AbstractPresenter {
 
         playerCardsOverviewController.initialize(
                 gameSupplier,
-                g -> g.getPlayerDrawStack(),
-                g -> g.getPlayerDiscardStack(),
+                Game::getPlayerDrawStack,
+                Game::getPlayerDiscardStack,
                 this.playerCardStackPane,
                 (player, cardService) -> cardService.sendDrawPlayerCardRequest(this.game, player),
                 (player, cardService, playerCard) -> cardService.sendDiscardPlayerCardRequest(this.game, player, (PlayerCard) playerCard)
         );
         playerCardsOverviewController.setWindow(stage);
         this.associatedPresenters.add(playerCardsOverviewController);
+
+        infectionCardsOverviewController.initialize(
+                gameSupplier,
+                Game::getInfectionDrawStack,
+                Game::getInfectionDiscardStack,
+                this.infectionCardStackPane,
+                (player, cardService) -> cardService.sendDrawInfectionCardRequest(this.game, player),
+                (player, cardService, infectionCard) -> cardService.sendDiscardInfectionCardRequest(this.game, player, (InfectionCard) infectionCard)
+
+        );
+        infectionCardsOverviewController.setWindow(stage);
+        this.associatedPresenters.add(infectionCardsOverviewController);
 
         settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
         settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());
@@ -116,9 +135,9 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     @Subscribe
-    public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameMessage message) {
-        this.game = message.getGame();
-        playerCardsOverviewController.updateLabels();
+    public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameServerMessage message) {
+        Runnable executable = () -> this.game = message.getGame();
+        executeIfTheUpdatedGameMessageRetrieves(message, executable);
     }
 
     /**
@@ -160,5 +179,14 @@ public class GamePresenter extends AbstractPresenter {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             closeStage();
         }
+    }
+
+    private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
+        if(retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
+            executable.run();
+            playerCardsOverviewController.updateLabels();
+            infectionCardsOverviewController.updateLabels();
+        }
+
     }
 }

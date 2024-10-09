@@ -1,5 +1,6 @@
 package de.uol.swp.server.game;
 
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
@@ -7,12 +8,10 @@ import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -27,6 +26,7 @@ class GameManagementTest {
     private Game mockGame;
     private Player mockPlayer;
     private PlayerCard mockPlayerCard;
+    private InfectionCard mockInfectionCard;
 
     @BeforeEach
     void setUp() {
@@ -37,9 +37,11 @@ class GameManagementTest {
         mockGame = mock(Game.class);
         mockPlayer = mock(Player.class);
         mockPlayerCard = mock(PlayerCard.class);
+        mockInfectionCard = mock(InfectionCard.class);
     }
 
     @Test
+    @DisplayName("Test creating a game")
     void testCreateGame() {
         when(mockLobby.getPlayers()).thenReturn(Set.of(mockPlayer));
         Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
@@ -51,12 +53,14 @@ class GameManagementTest {
     }
 
     @Test
+    @DisplayName("Test adding a game")
     void testAddGame() {
         gameManagement.addGame(mockGame);
         assertThat(gameManagement.getGame(mockGame)).contains(mockGame);
     }
 
     @Test
+    @DisplayName("Test generating unique game ID does not collide with existing IDs")
     void generateUniqueGameId_doesNotCollideWithExistingIds() {
         Game existingGame = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(existingGame);
@@ -68,6 +72,7 @@ class GameManagementTest {
     }
 
     @Test
+    @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
         Game game = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(game);
@@ -76,6 +81,7 @@ class GameManagementTest {
     }
 
     @Test
+    @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
         Game game = new Game(mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(game);
@@ -84,6 +90,7 @@ class GameManagementTest {
     }
 
     @Test
+    @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
         Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
         gameManagement.addGame(game);
@@ -92,6 +99,59 @@ class GameManagementTest {
         gameManagement.updateGame(game);
         Game updatedGame = gameManagement.getGame(game).orElseThrow();
         assertThat(gameManagement.getGame(updatedGame)).contains(updatedGame);
+    }
+
+    @Test
+    @DisplayName("Test drawing a player card")
+    void drawPlayerCard() {
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        gameManagement.addGame(game);
+        PlayerCard playerCard = gameManagement.drawPlayerCard(game);
+        assertThat(playerCard).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test discarding a player card")
+    void discardPlayerCard() {
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        gameManagement.addGame(game);
+        gameManagement.discardPlayerCard(game, mockPlayerCard);
+        assertThat(game.getPlayerDiscardStack()).contains(mockPlayerCard);
+    }
+
+    @Test
+    @DisplayName("Test drawing an infection card from the top")
+    void drawInfectionCard_fromTheTop() {
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        gameManagement.addGame(game);
+        Optional<Game> optionalGame = gameManagement.getGame(game);
+        optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
+        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheTop(optionalGame.get());
+
+        assertThat(infectionCard).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Test drawing an infection card from the bottom")
+    void drawInfectionCard_fromTheBottom() {
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        gameManagement.addGame(game);
+        Optional<Game> optionalGame = gameManagement.getGame(game);
+        optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
+        optionalGame.get().getInfectionDrawStack().push(mock(InfectionCard.class));
+        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheBottom(optionalGame.get());
+
+        assertThat(infectionCard).isNotNull();
+        assertThat(infectionCard).isEqualTo(mockInfectionCard);
+    }
+
+    @Test
+    @DisplayName("Test discarding an infection card")
+    void discardInfectionCard() {
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        gameManagement.addGame(game);
+        gameManagement.discardInfectionCard(game, mockInfectionCard);
+        assertThat(game.getInfectionDiscardStack()).contains(mockInfectionCard);
     }
 
 }

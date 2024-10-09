@@ -1,6 +1,7 @@
 package de.uol.swp.common.card.response;
 
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.message.response.AbstractResponseMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,4 +14,5 @@ import lombok.Getter;
 public class DrawPlayerCardResponse extends AbstractResponseMessage {
 
     private PlayerCard playerCard;
+    private Game game;
 }

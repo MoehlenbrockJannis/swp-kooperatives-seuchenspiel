@@ -1,13 +1,17 @@
 package de.uol.swp.server.card;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
+import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
+import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
-import de.uol.swp.common.game.server_message.RetrieveUpdatedGameMessage;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameManagement;
@@ -66,15 +70,14 @@ public class CardService extends AbstractService {
                 return;
             }
 
-            if (player.getHandCards().size() >= game.getMaxHandCards()) {
+            if (player.getHandCards().size()  >= game.getMaxHandCards()) {
                 //TODO: Send response that the player has to discard a card
-                return;
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
             player.addHandCard(playerCard);
 
-            DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard);
+            DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard, game);
             response.initWithMessage(drawPlayerCardRequest);
             post(response);
 
@@ -108,6 +111,48 @@ public class CardService extends AbstractService {
     }
 
     /**
+     * Handles the DrawInfectionCardRequest.
+     * <p>
+     * This method processes the DrawInfectionCardRequest by retrieving the game and player from the GameManagement,
+     * drawing an infection card from the top of the infection draw stack, sending a message to all players in the lobby,
+     * and updating the game state.
+     * </p>
+     *
+     * @param drawInfectionCardRequest the DrawInfectionCardRequest containing the game and player information
+     */
+    @Subscribe
+    public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
+        getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
+            InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheTop(game);
+
+            DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
+            lobbyService.sendToAllInLobby(game.getLobby(), message);
+
+            sendGameUpdateMessage(game);
+
+        });
+    }
+
+    /**
+     * Handles the DiscardInfectionCardRequest.
+     * <p>
+     * This method processes the DiscardInfectionCardRequest by retrieving the game and player from the GameManagement,
+     * discarding the infection card, updating the game state, and sending the updated game state to all players in the lobby.
+     * </p>
+     *
+     * @param discardInfectionCardRequest the DiscardInfectionCardRequest containing the game and infection card information
+     */
+    @Subscribe
+    public void onDiscardInfectionCardRequest(DiscardInfectionCardRequest discardInfectionCardRequest) {
+        getGameAndPlayer(discardInfectionCardRequest,(game, player) -> {
+            final InfectionCard infectionCard = discardInfectionCardRequest.getCard();
+            gameManagement.discardInfectionCard(game, infectionCard);
+
+            sendGameUpdateMessage(game);
+        });
+    }
+
+    /**
      * Sends an updated game state message to all players in the lobby.
      * <p>
      * This method updates the game state using the GameManagement service and then creates a
@@ -120,7 +165,7 @@ public class CardService extends AbstractService {
     private void sendGameUpdateMessage(Game game) {
         gameManagement.updateGame(game);
 
-        RetrieveUpdatedGameMessage message = new RetrieveUpdatedGameMessage(game);
+        RetrieveUpdatedGameServerMessage message = new RetrieveUpdatedGameServerMessage(game);
         lobbyService.sendToAllInLobby(game.getLobby(), message);
     }
 

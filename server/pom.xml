@@ -92,12 +92,12 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+<!--            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.4.1</version>
                 <executions>
-                    <!-- Remove existing image from local repo -->
+                    &lt;!&ndash; Remove existing image from local repo &ndash;&gt;
                     <execution>
                         <id>docker-clean</id>
                         <phase>clean</phase>
@@ -125,7 +125,7 @@
                             <workingDirectory>${project.basedir}</workingDirectory>
                             <arguments>
                                 <argument>build</argument>
-                                <argument>--platform</argument>
+                                <argument>&#45;&#45;platform</argument>
                                 <argument>${platform.value}</argument>
                                 <argument>-t</argument>
                                 <argument>${image.tag.value}</argument>
@@ -133,7 +133,7 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <!-- Push the image to a docker repo. -->
+                    &lt;!&ndash; Push the image to a docker repo. &ndash;&gt;
                     <execution>
                         <id>docker-push</id>
                         <phase>install</phase>
@@ -150,7 +150,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>

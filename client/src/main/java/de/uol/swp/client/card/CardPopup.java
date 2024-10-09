@@ -1,5 +1,6 @@
 package de.uol.swp.client.card;
 
+import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.card.Card;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -18,19 +19,18 @@ import lombok.AllArgsConstructor;
 public class CardPopup extends Popup {
 
     private static final int DURATION = 3000;
-
     private Card card;
     private Stage window;
 
     /**
      * Generates and displays the popup with card information.
-     * @Author Dominik Horn
      */
     public void generatePopup() {
         this.setX(getWindowCenterX()-150);
         this.setY(getWindowCenterY()-150);
-        this.getContent().addAll(new Rectangle(150, 150, convertColor()));
+        this.getContent().addAll(new Rectangle(150, 150, ColorService.convertColorToJavaFXColor(this.card.getColor())));
         Label label = new Label(card.getTitle());
+        label.setTextFill(getContrastingColor(ColorService.convertColorToJavaFXColor(this.card.getColor())));
         this.getContent().add(label);
         this.show(this.window);
         // Close the popup after 3 seconds
@@ -42,7 +42,6 @@ public class CardPopup extends Popup {
      * Calculates the center X coordinate of the window.
      *
      * @return the center X coordinate of the window
-     * @Author Dominik Horn
      */
     private Double getWindowCenterX(){
         return (this.window.getWidth()/2) + this.window.getX();
@@ -52,7 +51,6 @@ public class CardPopup extends Popup {
      * Calculates the center Y coordinate of the window.
      *
      * @return the center Y coordinate of the window
-     * @Author Dominik Horn
      */
     private Double getWindowCenterY(){
         return (this.window.getHeight()/3) + this.window.getY();
@@ -60,7 +58,6 @@ public class CardPopup extends Popup {
 
     /**
      * Closes the popup after a specified duration.
-     * @Author Dominik Horn
      */
     private void closePopup(){
         Timeline timeline = new Timeline(new KeyFrame(
@@ -70,16 +67,8 @@ public class CardPopup extends Popup {
         timeline.play();
     }
 
-    /**
-     * Converts the card's color to a JavaFX Color object.
-     *
-     * @return the converted Color object
-     * @Author Dominik Horn
-     */
-    private Color convertColor(){
-        double r = this.card.getColor().getR() / 255.0;
-        double g = this.card.getColor().getG() / 255.0;
-        double b = this.card.getColor().getB() / 255.0;
-        return new Color(r, g, b, 1.0);
+    private Color getContrastingColor(Color color) {
+        double brightness = (color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
+        return brightness > 0.5 ? Color.BLACK : Color.WHITE;
     }
 }

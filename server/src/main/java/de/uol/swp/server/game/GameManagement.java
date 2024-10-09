@@ -1,5 +1,6 @@
 package de.uol.swp.server.game;
 
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
@@ -9,6 +10,7 @@ import de.uol.swp.common.plague.Plague;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Manages the game
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class GameManagement {
 
     private final List<Game> games = new ArrayList<>();
+    private final Random random = new Random();
 
     /**
      * Creates a game
@@ -62,6 +65,28 @@ public class GameManagement {
     }
 
     /**
+     * Draws an infection card from the top of the infection draw stack of a game.
+     *
+     * @param game The game from which the infection card is to be drawn
+     */
+    public InfectionCard drawInfectionCardFromTheTop(Game game) {
+        return game.getInfectionDrawStack().pop();
+    }
+
+    /**
+     * Draws an infection card from the bottom of the infection draw stack of a game.
+     *
+     * @param game The game from which the infection card is to be drawn
+     */
+    public InfectionCard drawInfectionCardFromTheBottom(Game game) {
+       return game.getInfectionDrawStack().removeFirstCard();
+    }
+
+    public void discardInfectionCard(Game game, InfectionCard infectionCard) {
+        game.getInfectionDiscardStack().push(infectionCard);
+    }
+
+    /**
      * Updates a game in the list of managed games.
      *
      * @param game The game to be updated
@@ -95,7 +120,8 @@ public class GameManagement {
             int uniqueGameId;
         };
         do {
-            ref.uniqueGameId = (int) (Math.random() * 1000000);
+
+            ref.uniqueGameId = this.random.nextInt(100000);
         } while (games.stream().anyMatch(game -> game.getId() == ref.uniqueGameId));
         return ref.uniqueGameId;
     }

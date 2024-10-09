@@ -2,6 +2,7 @@ package de.uol.swp.common.game;
 
 import de.uol.swp.common.card.*;
 import de.uol.swp.common.card.event_card.EventCard;
+import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.Field;
@@ -15,8 +16,11 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import lombok.Getter;
-import lombok.Setter;
+import de.uol.swp.common.marker.AntidoteMarker;
+import de.uol.swp.common.marker.InfectionMarker;
+import de.uol.swp.common.marker.OutbreakMarker;
+import de.uol.swp.common.util.Color;
+import lombok.*;
 import org.reflections.Reflections;
 
 import java.io.Serializable;
@@ -82,7 +86,9 @@ public class Game implements Serializable {
     private CardStack<PlayerCard> playerDrawStack;
     @Getter
     private CardStack<PlayerCard> playerDiscardStack;
+    @Getter
     private CardStack<InfectionCard> infectionDrawStack;
+    @Getter
     private CardStack<InfectionCard> infectionDiscardStack;
     private List<PlayerTurn> turns;
     @Getter
@@ -176,6 +182,7 @@ public class Game implements Serializable {
 
         this.map = new GameMap(this, type);
         createPlayerStacks();
+        createInfectionStacks();
     }
 
     @Override
@@ -238,7 +245,8 @@ public class Game implements Serializable {
     private void createPlayerDrawStack () {
         this.playerDrawStack = new CardStack<>();
         this.playerDrawStack.addAll(createCityCards());
-        this.playerDrawStack.addAll(createEventCards());
+        EventCardFactory eventCardFactory = new EventCardFactory();
+        this.playerDrawStack.addAll(eventCardFactory.createEventCards());
         this.playerDrawStack.shuffle();
     }
 
@@ -263,32 +271,6 @@ public class Game implements Serializable {
             cityCards.push(new CityCard(field));
         }
         return cityCards;
-    }
-
-    /**
-     * Creates the event cards for the game.
-     *
-     * @return a list of EventCard objects
-     */
-    private List<EventCard> createEventCards () {
-        List<EventCard> eventCards = new ArrayList<>();
-        Reflections reflections = new Reflections(EventCard.class.getPackageName());
-        for (Class<? extends EventCard> eventCard : reflections.getSubTypesOf(EventCard.class)) {
-            if(!Modifier.isAbstract(eventCard.getModifiers())) {
-                eventCards.add(createEventCard(eventCard));
-            }
-        }
-        return eventCards;
-    }
-
-    private EventCard createEventCard (Class<? extends EventCard> eventCard) {
-        EventCard eventCardInstance = null;
-        try {
-            eventCardInstance = eventCard.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return eventCardInstance;
     }
 
     /**
@@ -319,7 +301,8 @@ public class Game implements Serializable {
      * This method sets up the draw and discard stacks for infection cards.
      */
     private void createInfectionStacks () {
-
+        createInfectionDrawStack();
+        this.infectionDiscardStack = new CardStack<>();
     }
 
     /**
@@ -327,7 +310,23 @@ public class Game implements Serializable {
      * This method initializes and shuffles the infection cards.
      */
     private void createInfectionDrawStack () {
+        this.infectionDrawStack = new CardStack<>();
+        this.infectionDrawStack.addAll(createInfectionCards());
+        this.infectionDrawStack.shuffle();
+    }
 
+    /**
+     * Creates the infection cards for the game.
+     *
+     * @return a list of InfectionCard objects
+     */
+    private CardStack<InfectionCard> createInfectionCards () {
+        CardStack<InfectionCard> infectionCards = new CardStack<>();
+        List<Field> fields = map.getFields();
+        for (Field field: fields) {
+            infectionCards.push(new InfectionCard(new Color(66, 104, 55), field));
+        }
+        return infectionCards;
     }
 
     /**

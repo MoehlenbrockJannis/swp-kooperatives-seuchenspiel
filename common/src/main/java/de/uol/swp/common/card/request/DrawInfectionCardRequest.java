@@ -16,7 +16,7 @@ public class DrawInfectionCardRequest extends AbstractGameRequest {
      * @param game   the game in which the request is made
      * @param player the player making the request
      */
-    private DrawInfectionCardRequest(Game game, Player player) {
+    public DrawInfectionCardRequest(Game game, Player player) {
         super(game, player);
     }
 }
