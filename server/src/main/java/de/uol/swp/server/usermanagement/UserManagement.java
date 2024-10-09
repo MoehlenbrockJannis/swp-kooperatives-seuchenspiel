@@ -42,7 +42,7 @@ public class UserManagement extends AbstractUserManagement {
             this.loggedInUsers.put(username, user.get());
             return user.get();
         }else{
-            throw new SecurityException("Cannot auth user " + username);
+            throw new SecurityException("Der Nutzer: " + username + " kann nicht authentifiziert werden");
         }
     }
 
@@ -55,7 +55,7 @@ public class UserManagement extends AbstractUserManagement {
     public User createUser(User userToCreate){
         Optional<User> user = userStore.findUser(userToCreate.getUsername());
         if (user.isPresent()){
-            throw new UserManagementException("Username already used!");
+            throw new UserManagementException("Nutzername existiert bereits!");
         }
         return userStore.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
     }
@@ -64,7 +64,7 @@ public class UserManagement extends AbstractUserManagement {
     public User updateUser(User userToUpdate){
         Optional<User> user = userStore.findUser(userToUpdate.getUsername());
         if (!user.isPresent()){
-            throw new UserManagementException("Username unknown!");
+            throw new UserManagementException("Nutzername unbekannt!");
         }
         // Only update if there are new values
         String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
@@ -77,7 +77,7 @@ public class UserManagement extends AbstractUserManagement {
     public void dropUser(User userToDrop) {
         Optional<User> user = userStore.findUser(userToDrop.getUsername());
         if (!user.isPresent()) {
-            throw new UserManagementException("Username unknown!");
+            throw new UserManagementException("Nutzername unbekannt!");
         }
         userStore.removeUser(userToDrop.getUsername());
 

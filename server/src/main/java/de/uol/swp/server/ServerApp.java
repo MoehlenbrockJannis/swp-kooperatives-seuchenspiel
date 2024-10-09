@@ -4,11 +4,19 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.common.Configuration;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.card.CardService;
+import de.uol.swp.server.chat.ChatManagement;
+import de.uol.swp.server.chat.ChatService;
 import de.uol.swp.server.communication.ServerHandler;
 import de.uol.swp.server.communication.netty.NettyServerHandler;
 import de.uol.swp.server.communication.netty.Server;
 import de.uol.swp.server.di.ServerModule;
+import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.map.MapTypeService;
+import de.uol.swp.server.plague.PlagueService;
+import de.uol.swp.server.role.RoleManagement;
+import de.uol.swp.server.role.RoleService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
@@ -44,7 +52,7 @@ class ServerApp {
 			try{
 				port = Integer.parseInt(args[0]);
 			}catch(Exception e){
-				// Ignore and use default value
+				//Ignore and use default value
 			}
 		}
 		if (port < 0){
@@ -81,6 +89,14 @@ class ServerApp {
 		injector.getInstance(UserService.class);
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);
+        injector.getInstance(ChatService.class);
+		injector.getInstance(ChatManagement.class);
+		injector.getInstance(RoleService.class);
+		injector.getInstance(RoleManagement.class);
+		injector.getInstance(GameService.class);
+		injector.getInstance(MapTypeService.class);
+		injector.getInstance(PlagueService.class);
+		injector.getInstance(CardService.class);
 	}
 
 }

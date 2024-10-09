@@ -1,0 +1,60 @@
+package de.uol.swp.common.lobby.request;
+
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.user.UserDTO;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * Test for the create lobby request
+ *
+ * @see CreateUserLobbyRequest
+ * @since 2023-05-14
+ */
+@DisplayName("CreateLobbyRequest Test")
+class CreateLobbyRequestTest {
+
+    final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
+    final UserDTO user1 = new UserDTO("Marco1", "Marco1", "Marco1@Grawunder.com");
+    final Lobby lobby = new LobbyDTO("TestLobby", user, 2, 4);
+
+    /**
+     * Test for creation of the CreateLobbyRequests
+     *
+     * This test checks if the lobbyName and the user of the CreateLobbyRequest gets
+     * set correctly during the creation of the request
+     *
+     * @since 2023-05-14
+     */
+    @Test
+    @DisplayName("Create CreateLobbyRequest")
+    void createCreateLobbyRequest() {
+        CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, user);
+
+        assertEquals(lobby, request.getLobby());
+        assertEquals(user, request.getUser());
+    }
+
+    /**
+     * Test for set new owner of the AbstractLobbyRequests
+     *
+     * This test checks if the owner of the AbstractLobbyRequest gets
+     * set correctly during setting new owner of the request
+     *
+     * @since 2023-05-14
+     */
+    @Test
+    @DisplayName("Set new user in CreateLobbyRequest")
+    void setCreateLobbyRequestNameAndUser() {
+        CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, user);
+
+        assertEquals(user, request.getUser());
+
+        request.setUser(user1);
+
+        assertEquals(user1, request.getUser());
+    }
+}

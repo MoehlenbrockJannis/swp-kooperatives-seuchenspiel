@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane prefHeight="500.0" prefWidth="1000.0" styleClass="dialog-pane" stylesheets="@../css/myDialog.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.lobby.LobbyPresenter">
+    <top>
+        <Label fx:id="lobbyNameLabel" alignment="CENTER" text="Lobby:" BorderPane.alignment="CENTER">
+            <font>
+                <Font size="24.0"/>
+            </font>
+            <BorderPane.margin>
+                <Insets bottom="20.0" top="20.0" />
+            </BorderPane.margin>
+        </Label>
+    </top>
+    <left>
+        <fx:include source="component/UserContainerEntityListView.fxml" fx:id="userContainerEntityList"/>
+    </left>
+    <center>
+        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox spacing="10.0">
+                    <children>
+                        <ComboBox fx:id="mapComboBox" promptText="Map" prefWidth="200.0" />
+                        <ComboBox fx:id="playerCountComboBox" promptText="Spieleranzahl" prefWidth="200.0" />
+                    </children>
+                </HBox>
+                <HBox spacing="10.0">
+                    <children>
+                        <ComboBox fx:id="difficultyComboBox" promptText="Schwierigkeit" prefWidth="200.0" />
+                        <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0"/>
+                    </children>
+                </HBox>
+                <HBox spacing="10.0">
+                    <children>
+                        <Button fx:id="addAIButton" text="KI-Hinzufügen" prefWidth="200.0" onAction="#onAddAIButtonClicked"/>
+                    </children>
+                </HBox>
+
+            </children>
+            <BorderPane.margin>
+                <Insets left="20.0" right="20.0" />
+            </BorderPane.margin>
+        </VBox>
+    </center>
+    <right>
+        <fx:include source="component/ChatComponent.fxml" fx:id="chat"/>
+    </right>
+    <bottom>
+        <HBox spacing="10.0" BorderPane.alignment="BOTTOM_LEFT">
+            <children>
+                <Button fx:id="startGameButton" mnemonicParsing="false" text="Spiel starten" onAction="#onStartGameButtonClicked" />
+                <Button fx:id="leaveLobbyButton" mnemonicParsing="false" text="Verlassen" onAction="#onLeaveLobbyButtonClicked"/>
+            </children>
+            <BorderPane.margin>
+                <Insets bottom="20.0" left="20.0" top="20.0" />
+            </BorderPane.margin>
+        </HBox>
+    </bottom>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</BorderPane>

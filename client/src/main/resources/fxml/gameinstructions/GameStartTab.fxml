@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<Tab closable="false" text="Spielstart">
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="10.0" styleClass="tab-vbox">
+            <TextFlow>
+                <Text text="1. Zunächst erhält jeder Spieler eine Rolle, wobei die Rolle zufällig zugeteilt oder selbst ausgewählt werden kann."/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="2. Beim Start des Spiels ist bereits ein Forschungslabor in Atlanta vorhanden und alle Spieler befinden sich beim Start in Atlanta."/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="3. Der Ausbruchsmarker befindet sich auf der Position 0 und die Infektionsmarke ist auf dem ersten Feld welches den Wert 2 hat."/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="4. Je nach Spieleranzahl erhält jeder Spieler folgende Anzahl an Karten:"/>
+                <Text text="&#10;"/>
+                <Text text="    4 Mitspieler: je 2 Karten"/>
+                <Text text="&#10;"/>
+                <Text text="    3 Mitspieler: je 3 Karten"/>
+                <Text text="&#10;"/>
+                <Text text="    2 Mitspieler: je 4 Karten"/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="5. Je nach gewähltem Schwierigkeitsgrad befinden sich 4 bis 6 Epidemiekarten im Spieler-Zugstapel."/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="6. Zuletzt zieht das Spiel 9 Infektionskarten vom Infektions-Zugstapel und plaziert in den dazugehörigen Städten Seuchenwürfel. Dabei werden für die ersten 3 Karten 3 Würfel pro Stadt platziert, für die nächsten 3 Karten werden jeweils 2 Würfel platziert und für die letzen 3 Karten wird jeweils 1 Würfel platziert."/>
+                <Text text="&#10;"/>
+                <Text text="&#10;"/>
+                <Text text="Nachdem diese Schritte durchgeführt wurden, kann das Spiel beginnen und der erste Spieler fängt mit seinem Spielzug an."/>
+            </TextFlow>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </VBox>
+    </ScrollPane>
+</Tab>

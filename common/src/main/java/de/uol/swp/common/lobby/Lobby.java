@@ -1,7 +1,9 @@
 package de.uol.swp.common.lobby;
 
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -11,10 +13,10 @@ import java.util.Set;
  * possible that not every client has to have every information of the lobby.
  *
  * @author Marco Grawunder
- * @see de.uol.swp.common.lobby.dto.LobbyDTO
+ * @see LobbyDTO
  * @since 2019-10-08
  */
-public interface Lobby {
+public interface Lobby extends Serializable {
 
     /**
      * Getter for the lobby's name
@@ -64,4 +66,73 @@ public interface Lobby {
      */
     Set<User> getUsers();
 
+    /**
+     * Checks whether a given user is in this lobby
+     *
+     * @param user The user to check
+     * @return true if user is in lobby, false otherwise
+     * @since 2024-08-29
+     */
+    boolean containsUser(User user);
+
+    /**
+     * Getter for all players in the lobby
+     *
+     * @return A Set containing all players in this lobby
+     * @since 2024-09-13
+     */
+    Set<Player> getPlayers();
+
+    /**
+     * Adds a new Player to the player Set
+     *
+     * @param player The new player to add to the player Set
+     * @since 2024-09-13
+     */
+    void addPlayer(Player player);
+
+    /**
+     * Removes a player from the lobby
+     *
+     * @param player The player to remove from the lobby
+     * @since 2019-10-08
+     */
+    void removePlayer(Player player);
+
+    /**
+     * Gets the Player for the User<br>
+     * Returns null if there's no player for the user
+     *
+     * @param user user of the returned {@link de.uol.swp.common.player.UserPlayer}
+     * @since 2019-10-08
+     */
+    Player getPlayerForUser(User user);
+
+    /**
+     * Getter for the current status of the lobby
+     *
+     * @return The current status of the lobby
+     */
+    LobbyStatus getStatus();
+
+    /**
+     * Sets the status of the lobby
+     *
+     * @param status The new status of the lobby
+     */
+    void setStatus(LobbyStatus status);
+
+    /**
+     * Getter for the minimum number of players
+     *
+     * @return The minimum number of players
+     */
+    int getMinPlayers();
+
+    /**
+     * Getter for the maximum number of players
+     *
+     * @return The maximum number of players
+     */
+    int getMaxPlayers();
 }

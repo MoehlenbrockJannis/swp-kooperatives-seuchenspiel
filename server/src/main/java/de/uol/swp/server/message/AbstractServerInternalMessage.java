@@ -9,7 +9,7 @@ import de.uol.swp.common.message.AbstractMessage;
  * @author Marco Grawunder
  * @since 2019-08-07
  */
-abstract class AbstractServerInternalMessage extends AbstractMessage implements ServerInternalMessage {
+public abstract class AbstractServerInternalMessage extends AbstractMessage implements ServerInternalMessage {
 
 
 }

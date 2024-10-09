@@ -5,17 +5,14 @@ import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uol.swp.common.message.MessageContext;
-import de.uol.swp.common.message.ResponseMessage;
+import de.uol.swp.common.message.response.ResponseMessage;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
 import de.uol.swp.common.user.request.RegisterUserRequest;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
 import de.uol.swp.server.AbstractService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Optional;
 
 /**
  * Mapping vom event bus calls to user management calls
@@ -57,9 +54,9 @@ public class UserService extends AbstractService {
      *
      * @param msg The RegisterUserRequest found on the EventBus
      * @see de.uol.swp.server.usermanagement.UserManagement#createUser(User)
-     * @see de.uol.swp.common.user.request.RegisterUserRequest
-     * @see de.uol.swp.common.user.response.RegistrationSuccessfulResponse
-     * @see de.uol.swp.common.user.exception.RegistrationExceptionMessage
+     * @see RegisterUserRequest
+     * @see RegisterUserSuccessResponse
+     * @see RegisterUserExceptionResponse
      * @since 2019-09-02
      */
     @Subscribe
@@ -70,10 +67,10 @@ public class UserService extends AbstractService {
         ResponseMessage returnMessage;
         try {
             userManagement.createUser(msg.getUser());
-            returnMessage = new RegistrationSuccessfulResponse();
+            returnMessage = new RegisterUserSuccessResponse();
         }catch (Exception e){
             LOG.error(e);
-            returnMessage = new RegistrationExceptionMessage("Cannot create user "+msg.getUser()+" "+e.getMessage());
+            returnMessage = new RegisterUserExceptionResponse("Nutzer konnte nicht erstellt werden "+msg.getUser()+" "+e.getMessage());
         }
         msg.getMessageContext().ifPresent(returnMessage::setMessageContext);
         post(returnMessage);

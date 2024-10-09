@@ -1,19 +1,19 @@
 package de.uol.swp.server.usermanagement;
 
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
+import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uol.swp.common.message.MessageContext;
-import de.uol.swp.common.message.ServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
-import de.uol.swp.common.user.response.AllOnlineUsersResponse;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
@@ -120,7 +120,7 @@ public class AuthenticationService extends AbstractService {
             returnMessage.setSession(newSession);
         } catch (Exception e) {
             LOG.error(e);
-            returnMessage = new ServerExceptionMessage(new LoginException("Cannot auth user " + msg.getUsername()));
+            returnMessage = new ServerExceptionMessage(new LoginException( msg.getUsername() + " kann nicht authentifiziert werden"));
         }
         msg.getMessageContext().ifPresent(returnMessage::setMessageContext);
         post(returnMessage);
@@ -136,7 +136,7 @@ public class AuthenticationService extends AbstractService {
      *
      * @param msg the LogoutRequest
      * @see de.uol.swp.common.user.request.LogoutRequest
-     * @see de.uol.swp.common.user.message.UserLoggedOutMessage
+     * @see LogoutServerMessage
      * @since 2019-08-30
      */
     @Subscribe
@@ -157,8 +157,11 @@ public class AuthenticationService extends AbstractService {
                 userManagement.logout(userToLogOut);
                 userSessions.remove(userSession);
 
-                ServerMessage returnMessage = new UserLoggedOutMessage(userToLogOut.getUsername());
+                Message returnMessage = new LogoutServerMessage(userToLogOut);
+                returnMessage.initWithMessage(msg);
                 post(returnMessage);
+
+                sendAllOnlineUsersToAllClients();
 
             }
         }
@@ -173,14 +176,25 @@ public class AuthenticationService extends AbstractService {
      *
      * @param msg RetrieveAllOnlineUsersRequest found on the EventBus
      * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
-     * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
+     * @see RetrieveAllOnlineUsersResponse
      * @since 2019-08-30
      */
     @Subscribe
     public void onRetrieveAllOnlineUsersRequest(RetrieveAllOnlineUsersRequest msg) {
-        AllOnlineUsersResponse response = new AllOnlineUsersResponse(userSessions.values());
-        response.initWithMessage(msg);
-        post(response);
+        sendAllOnlineUsersToAllClients();
+    }
+
+    /**
+     * Sends a message to all clients
+     *
+     * @since 2019-08-30
+     */
+    private void sendAllOnlineUsersToAllClients() {
+        List<User> users = userSessions.values().stream()
+                .distinct()
+                .toList();
+        RetrieveAllOnlineUsersServerMessage response = new RetrieveAllOnlineUsersServerMessage(users);
+        sendToAll(response);
     }
 
 

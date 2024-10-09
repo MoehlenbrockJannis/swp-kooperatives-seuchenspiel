@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<Tab closable="false" text="Aktionen">
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="10.0" styleClass="tab-vbox">
+            <TextFlow>
+                <Text styleClass="tab-h1" text="Einfache Aktionen"/>
+            </TextFlow>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Auto (oder Fähre)"/>
+                    <Text text="&#10;"/>
+                    <Text text="Ziehen Sie Ihre Spielfigur in eine benachbarte Stadt. Städte gelten als benachbart, wenn sie durch eine rote Linie verbunden sind. Rote Linien, die über den Rand des Spielbretts hinausgehen, „winden“ sich um die Erde auf die andere Seite des Spielplans und enden dann dort in der angegebenen Stadt (so gelten beispielsweise Sydney und Los Angeles als benachbart)."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Direktflug"/>
+                    <Text text="&#10;"/>
+                    <Text text="Legen Sie eine Karte von Ihrer Hand ab, um Ihre Spielfigur in die auf der Karte abgebildete Stadt zu bewegen. Die abgelegte Karte kommt auf den Spieler-Ablagestapel."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Charterflug"/>
+                    <Text text="&#10;"/>
+                    <Text text="Legen Sie die Karte ab, auf der Ihr jetziger Standort abgebildet ist, um Ihre Spielfigur zu einer beliebigen Stadt auf dem Spielbrett zu bewegen. Die abgelegte Karte kommt auf den Spieler-Ablagestapel."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Zubringerflug"/>
+                    <Text text="&#10;"/>
+                    <Text text="Wenn Sie sich in einer Stadt mit einem Forschungslabor befinden, bewegen Sie Ihre Spielfigur in eine andere Stadt mit einem Forschungslabor."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Verzicht"/>
+                    <Text text="&#10;"/>
+                    <Text text="Sie können auch auf eine oder mehrere Aktionen verzichten (also nichts tun)."/>
+                </TextFlow>
+            </HBox>
+
+            <TextFlow>
+                <Text text="&#10;"/>
+                <Text styleClass="tab-h1" text="Besondere Aktionen"/>
+            </TextFlow>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Forschungslabor errichten"/>
+                    <Text text="&#10;"/>
+                    <Text text="Die Errichtung eines Forschungslabors erleichtert Ihrem Team die Bewegung von Ort zu Ort. Forschungslabors sind zudem Voraussetzung für das Entdecken von Gegenmitteln."/>
+                    <Text text="&#10;"/>
+                    <Text text="Legen Sie die Karte ab, auf der Ihr jetziger Standort abgebildet ist, um dort ein Forschungslabor zu errichten. Die abgelegte Karte kommt auf den Spieler-Ablagestapel. Befinden sich bereits alle Forschungslabors auf dem Spielplan, verschieben Sie ein Labor Ihrer Wahl in die Stadt, in der sich Ihre Spielfigur gerade befindet."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Gegenmittel entdecken"/>
+                    <Text text="&#10;"/>
+                    <Text text="Sobald Ihr Team alle vier Gegenmittel entdeckt hat, haben Sie gewonnen!"/>
+                    <Text text="&#10;"/>
+                    <Text text="Legen Sie 5 Karten derselben Farbe ab, um die Seuche mit dieser Farbe zu heilen. Ihre Spielfigur muss sich dazu in einer Stadt mit einem Forschungslabor befinden. Legen Sie den Gegenmittelmarker dieser Farbe mit der Phiolenseite nach oben in den Bereich für entdeckte Gegenmittel auf dem Spielplan. Die abgelegten Karten kommen auf den Spieler-Ablagestapel."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Seuche behandeln"/>
+                    <Text text="&#10;"/>
+                    <Text text="Im Verlauf des Spiels kann Ihr Team ausgebrochene Seuchen behandeln, um Zeit zu gewinnen, ein Gegenmittel zu entdecken. Entfernen Sie aus der Stadt, in der sich Ihre Spielfigur befindet, 1 Seuchenwürfel (jeder Würfel kostet 1 Aktion). Der entfernte Würfel wird neben den Spielplan zu den anderen Würfeln seiner Farbe gelegt. Haben die Spieler zu dieser Seuche bereits ein Gegenmittel entdeckt, entfernen Sie mit 1 Aktion alle Würfel dieser Farbe aus der Stadt."/>
+                    <Text text="&#10;"/>
+                    <Text text="&#10;"/>
+                    <Text styleClass="tab-text-bold" text="Eine Seuche auslöschen"/>
+                    <Text text="&#10;"/>
+                    <Text text="Wurde das Gegenmittel für eine Seuche entdeckt, und es befindet sich kein einziger Würfel in der Farbe dieser Seuche mehr auf dem Spielplan, drehen Sie den Gegenmittelmarker für diese Seuche auf die „Sonnenuntergangsseite“ um. Alle Würfel der ausgelöschten Farbe kommen zurück in die Schachtel – sie finden für den Rest des Spiels keine Verwendung mehr. Müssten aufgrund eines Überträgers oder einer Epidemie Würfel dieser Farbe auf den Plan gelegt werden, passiert stattdessen einfach nichts."/>
+                </TextFlow>
+            </HBox>
+            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="100.0" fitWidth="100.0">
+                    <Image url="@/images/question-mark-line-icon.png"/>
+                </ImageView>
+                <TextFlow>
+                    <Text styleClass="tab-h2" text="Wissen teilen"/>
+                    <Text text="&#10;"/>
+                    <Text text="Es ist nicht immer einfach, die für das Entdecken eines Gegenmittels benötigten Karten auf die Hand zu bekommen. Die Aktion Wissen teilen benötigt zwar ein wenig Vorbereitung, kann aber in einem solchen Fall durchaus nützlich werden."/>
+                    <Text text="&#10;"/>
+                    <Text text="Sie können eine Karte an einen anderen Spieler weitergeben oder von einem anderen Spieler bekommen. Dieser Vorgang kostet 1 Aktion. Die Spielfiguren beider Spieler müssen sich in derselben Stadt befinden, und Sie dürfen nur die Karte weitergeben, auf der diese Stadt abgebildet ist. (Befinden sich beispielsweise beide Spielfiguren in Moskau, kann nur die Moskau-Karte weitergegeben werden.) Hält ein Spieler nach einer solchen Übergabe mehr als 7 Karten auf der Hand, müssen die überzähligen Karten sofort auf den Spieler-Ablagestapel gelegt werden."/>
+                </TextFlow>
+            </HBox>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </VBox>
+    </ScrollPane>
+</Tab>

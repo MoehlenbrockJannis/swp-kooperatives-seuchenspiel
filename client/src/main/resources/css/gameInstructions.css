@@ -1,0 +1,27 @@
+.background-pane {
+    -fx-background-color: black;
+    -fx-opacity: 60%;
+}
+
+.main-vbox {
+    -fx-background-color: white;
+    -fx-padding: 20;
+}
+
+.tab-vbox {
+    -fx-padding: 10;
+}
+
+.tab-h1 {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+}
+
+.tab-h2 {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.tab-text-bold {
+    -fx-font-weight: bold;
+}

@@ -2,6 +2,11 @@ package de.uol.swp.client;
 
 
 import java.net.ConnectException;
+
+import de.uol.swp.client.di.FXMLLoaderProvider;
+import javafx.fxml.FXMLLoader;
+import lombok.Getter;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -11,9 +16,9 @@ import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.Configuration;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.exception.RegistrationExceptionMessage;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegistrationSuccessfulResponse;
+import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
 import io.netty.channel.Channel;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -44,6 +49,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	private ClientUserService userService;
 
+	@Getter
 	private User user;
 
 	private ClientConnection clientConnection;
@@ -82,7 +88,14 @@ public class ClientApp extends Application implements ConnectionListener {
 
         // Client app is created by java, so injection must
         // be handled here manually
-		Injector injector = Guice.createInjector(new ClientModule());
+		Injector injector = Guice.createInjector(new ClientModule(this));
+
+		AbstractPresenter.setFxmlLoaderProvider(new FXMLLoaderProvider() {
+			@Override
+			public FXMLLoader get() {
+				return injector.getInstance(FXMLLoader.class);
+			}
+		});
 
         // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);
@@ -155,6 +168,24 @@ public class ClientApp extends Application implements ConnectionListener {
 	}
 
 	/**
+	 * Handles successful logout
+	 *
+	 * If an UserLoggedOutMessage object is detected on the EventBus this
+	 * method is called. If the loglevel is set to DEBUG or higher "user
+     * logged out successfully " and the username of the logged out user
+     * are written to the log.
+	 *
+	 * @param message The UserLoggedOutMessage object detected on the EventBus
+	 * @see de.uol.swp.client.SceneManager
+	 * @since 2024-08-29
+	 */
+	@Subscribe
+	public void onLogoutSuccessfulResponse(LogoutServerMessage message) {
+		LOG.debug("user logged out successfully {}", message.getUser().getUsername());
+		this.user = null;
+	}
+
+	/**
 	 * Handles unsuccessful registrations
 	 *
 	 * If an RegistrationExceptionMessage object is detected on the EventBus this
@@ -167,7 +198,7 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * @since 2019-09-02
 	 */
 	@Subscribe
-	public void onRegistrationExceptionMessage(RegistrationExceptionMessage message){
+	public void onRegistrationExceptionMessage(RegisterUserExceptionResponse message){
 		sceneManager.showServerError(String.format("Registration error %s", message));
 		LOG.error("Registration error {}", message);
 	}
@@ -185,7 +216,7 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * @since 2019-09-02
 	 */
 	@Subscribe
-	public void onRegistrationSuccessfulMessage(RegistrationSuccessfulResponse message) {
+	public void onRegistrationSuccessfulMessage(RegisterUserSuccessResponse message) {
 		LOG.info("Registration successful.");
 		sceneManager.showLoginScreen();
 	}
