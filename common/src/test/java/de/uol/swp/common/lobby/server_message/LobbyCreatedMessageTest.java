@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test for the lobby created message
  *
- * @see CreateLobbyServerMessage
+ * @see CreateUserLobbyServerMessage
  * @since 2023-05-14
  */
 @DisplayName("LobbyCreatedMessage Test")
@@ -30,7 +30,7 @@ class LobbyCreatedMessageTest {
     @Test
     @DisplayName("Create LobbyCreatedServerMessage")
     void createLobbyCreatedMessage() {
-        CreateLobbyServerMessage message = new CreateLobbyServerMessage(lobby, user);
+        CreateUserLobbyServerMessage message = new CreateUserLobbyServerMessage(lobby, user);
 
         assertEquals(lobby, message.getLobby());
         assertEquals(user, message.getUser());

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
-import de.uol.swp.common.chat.server_message.RetrieveAllLobbyChatMessagesServerMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllUserLobbyChatMessagesServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
@@ -129,11 +129,11 @@ public class ChatPresenter extends AbstractPresenter {
      * according to the chat messages in the received message.
      *
      * @param lobbyChatRetrieveAllMessagesMessage the RetrieveAllLobbyChatMessagesServerMessage object seen on the EventBus
-     * @see RetrieveAllLobbyChatMessagesServerMessage
+     * @see RetrieveAllUserLobbyChatMessagesServerMessage
      * @since 2024-09-09
      */
     @Subscribe
-    public void onLobbyChatMessage(RetrieveAllLobbyChatMessagesServerMessage lobbyChatRetrieveAllMessagesMessage) {
+    public void onLobbyChatMessage(RetrieveAllUserLobbyChatMessagesServerMessage lobbyChatRetrieveAllMessagesMessage) {
         if (this.lobby != null && this.lobby.equals(lobbyChatRetrieveAllMessagesMessage.getLobby())) {
             updateChat(lobbyChatRetrieveAllMessagesMessage.getChatMessage());
         }

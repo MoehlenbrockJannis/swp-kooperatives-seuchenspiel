@@ -5,11 +5,11 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import lombok.Getter;
 
 @Getter
-public class LobbyUpdateStatusRequest extends AbstractLobbyRequest {
+public class UpdateUserLobbyStatusRequest extends AbstractLobbyRequest {
     private final LobbyStatus status;
 
-    public LobbyUpdateStatusRequest(final Lobby lobby, final LobbyStatus status) {
-        super(lobby, null);
+    public UpdateUserLobbyStatusRequest(final Lobby lobby, final LobbyStatus status) {
+        super(lobby);
         this.status = status;
     }
 }

@@ -33,6 +33,12 @@
                         <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0"/>
                     </children>
                 </HBox>
+                <HBox spacing="10.0">
+                    <children>
+                        <Button fx:id="addAIButton" text="KI-Hinzufügen" prefWidth="200.0" onAction="#onAddAIButtonClicked"/>
+                    </children>
+                </HBox>
+
             </children>
             <BorderPane.margin>
                 <Insets left="20.0" right="20.0" />

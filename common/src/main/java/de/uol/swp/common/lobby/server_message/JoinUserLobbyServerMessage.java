@@ -5,23 +5,23 @@ import de.uol.swp.common.user.User;
 import lombok.NoArgsConstructor;
 
 /**
- * Message sent by the server when a user successfully leaves a lobby
+ * Message sent by the server when a user successfully joins a lobby
  *
- * @see AbstractLobbyServerMessage
+ * @see AbstractUserLobbyServerMessage
  * @see de.uol.swp.common.user.User
  * @author Marco Grawunder
  * @since 2019-10-08
  */
 @NoArgsConstructor
-public class LobbyLeaveUserServerMessage extends AbstractLobbyServerMessage {
+public class JoinUserLobbyServerMessage extends AbstractUserLobbyServerMessage {
     /**
      * Constructor
      *
      * @param lobby lobby
-     * @param user user who left the lobby
+     * @param user user who joined the lobby
      * @since 2019-10-08
      */
-    public LobbyLeaveUserServerMessage(Lobby lobby, User user) {
+    public JoinUserLobbyServerMessage(Lobby lobby, User user) {
         super(lobby, user);
     }
 }

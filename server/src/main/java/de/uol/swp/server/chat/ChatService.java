@@ -1,10 +1,10 @@
 package de.uol.swp.server.chat;
 
 import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
-import de.uol.swp.common.chat.server_message.RetrieveAllLobbyChatMessagesServerMessage;
+import de.uol.swp.common.chat.server_message.RetrieveAllUserLobbyChatMessagesServerMessage;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
 import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
-import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
+import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import jakarta.inject.Inject;
@@ -54,10 +54,10 @@ public class ChatService extends AbstractService {
      * @param sendLobbyChatMessageRequest The SendChatMessage found on the EventBus
      */
     @Subscribe
-    public void onLobbyChatRequest(SendLobbyChatMessageRequest sendLobbyChatMessageRequest) {
+    public void onLobbyChatRequest(SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest) {
         chatManagement.addLobbyChatMessage(sendLobbyChatMessageRequest.getLobby(), getChatMessage(sendLobbyChatMessageRequest.getTimestamp(), sendLobbyChatMessageRequest.getUser().getUsername(), sendLobbyChatMessageRequest.getChatMessage()));
 
-        RetrieveAllLobbyChatMessagesServerMessage response = new RetrieveAllLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(sendLobbyChatMessageRequest.getLobby()));
+        RetrieveAllUserLobbyChatMessagesServerMessage response = new RetrieveAllUserLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(sendLobbyChatMessageRequest.getLobby()));
         response.setLobby(sendLobbyChatMessageRequest.getLobby());
         response.initWithMessage(sendLobbyChatMessageRequest);
         post(response);
@@ -94,7 +94,7 @@ public class ChatService extends AbstractService {
             post(response);
         }
         else {
-            RetrieveAllLobbyChatMessagesServerMessage response = new RetrieveAllLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(msg.getLobby()));
+            RetrieveAllUserLobbyChatMessagesServerMessage response = new RetrieveAllUserLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(msg.getLobby()));
             response.setLobby(msg.getLobby());
             response.initWithMessage(msg);
             post(response);

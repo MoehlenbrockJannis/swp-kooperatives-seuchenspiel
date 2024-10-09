@@ -11,6 +11,7 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
 import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
 import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -139,12 +140,12 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
                     setTooltip(null);
                 } else {
                     final Lobby lobby = getTableRow().getItem();
-                    final Set<User> users = lobby.getUsers();
-                    if (users != null) {
-                        setText(users.size() + " / " + lobby.getMaxPlayers());
+                    final Set<Player> players = lobby.getPlayers();
+                    if (players != null) {
+                        setText(players.size() + " / " + lobby.getMaxPlayers());
 
-                        final Tooltip tooltip = new Tooltip(users.stream()
-                                .map(User::getUsername)
+                        final Tooltip tooltip = new Tooltip(players.stream()
+                                .map(Player::getName)
                                 .reduce((a, b) -> a + "\n" + b)
                                 .orElse(""));
                         setTooltip(tooltip);

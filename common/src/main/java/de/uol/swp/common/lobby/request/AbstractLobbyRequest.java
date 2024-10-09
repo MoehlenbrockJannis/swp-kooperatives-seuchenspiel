@@ -2,23 +2,25 @@ package de.uol.swp.common.lobby.request;
 
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.request.AbstractRequestMessage;
-import de.uol.swp.common.user.User;
 import lombok.*;
 
 /**
- * Base class of all lobby request messages. Basic handling of lobby data.
+ * Represents a generic request message related to a specific lobby.
  *
- * @see de.uol.swp.common.user.User
- * @see AbstractRequestMessage
- * @author Marco Grawunder
- * @since 2019-10-08
+ * This abstract class extends {@link AbstractRequestMessage} and contains a protected
+ * {@link Lobby} object, representing the lobby involved in the request.
+ * It is the base class for various lobby-related request messages, such as requests for
+ * joining, leaving, or kicking users from a lobby.
+ *
+ * The class uses Lombok annotations for boilerplate code reduction
+ *
+ * @since 2024-10-06
  */
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@NoArgsConstructor
+@AllArgsConstructor
 @Setter
+@NoArgsConstructor
 public class AbstractLobbyRequest extends AbstractRequestMessage {
     protected Lobby lobby;
-    protected User user;
 }

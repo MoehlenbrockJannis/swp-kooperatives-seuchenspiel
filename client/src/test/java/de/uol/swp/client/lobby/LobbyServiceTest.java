@@ -7,6 +7,8 @@ import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.greenrobot.eventbus.Subscribe;
@@ -22,12 +24,14 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
     private Lobby lobby;
     private User user;
+    private Player defaultPlayer;
 
     @BeforeEach
     void setUp() {
         this.lobbyService = new LobbyService(getBus());
         this.user = new UserDTO("testo", "", "");
         this.lobby = new LobbyDTO("TestLobby", user, 2, 4);
+        this.defaultPlayer = new UserPlayer(this.user);
     }
 
     @Test
@@ -37,9 +41,9 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(CreateLobbyRequest.class, event);
+        assertInstanceOf(CreateUserLobbyRequest.class, event);
 
-        final CreateLobbyRequest createLobbyRequest = (CreateLobbyRequest) event;
+        final CreateUserLobbyRequest createLobbyRequest = (CreateUserLobbyRequest) event;
         assertEquals(createLobbyRequest.getLobby(), lobby);
         assertEquals(createLobbyRequest.getUser(), user);
     }
@@ -51,11 +55,25 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(LobbyJoinUserRequest.class, event);
+        assertInstanceOf(UserLobbyJoinUserRequest.class, event);
 
-        final LobbyJoinUserRequest lobbyJoinUserRequest = (LobbyJoinUserRequest) event;
+        final UserLobbyJoinUserRequest lobbyJoinUserRequest = (UserLobbyJoinUserRequest) event;
         assertEquals(lobbyJoinUserRequest.getLobby(), lobby);
         assertEquals(lobbyJoinUserRequest.getUser(), user);
+    }
+
+    @Test
+    @DisplayName("Player join lobby")
+    void playerJoinLobby() throws InterruptedException {
+        lobbyService.playerJoinLobby(this.lobby, this.defaultPlayer);
+
+        waitForLock();
+
+        assertInstanceOf(JoinPlayerLobbyRequest.class, this.event);
+
+        final JoinPlayerLobbyRequest lobbyJoinPlayerRequest = (JoinPlayerLobbyRequest) this.event;
+        assertEquals(lobbyJoinPlayerRequest.getLobby(), this.lobby);
+        assertEquals(lobbyJoinPlayerRequest.getPlayer(), this.defaultPlayer);
     }
 
     @Test
@@ -65,34 +83,35 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(RetrieveAllLobbiesRequest.class, event);
+        assertInstanceOf(RetrieveAllLobbiesRequestUser.class, event);
     }
 
     @Test
     @DisplayName("Leave lobby")
     void leaveLobby() throws InterruptedException {
-        lobbyService.leaveLobby(lobby, user);
+        lobbyService.leaveLobby(lobby, defaultPlayer);
 
         waitForLock();
 
-        assertInstanceOf(LobbyLeaveUserRequest.class, event);
+        assertInstanceOf(LeavePlayerLobbyRequest.class, event);
 
-        final LobbyLeaveUserRequest lobbyLeaveUserRequest = (LobbyLeaveUserRequest) event;
+        final LeavePlayerLobbyRequest lobbyLeaveUserRequest = (LeavePlayerLobbyRequest) event;
         assertEquals(lobbyLeaveUserRequest.getLobby(), lobby);
-        assertEquals(lobbyLeaveUserRequest.getUser(), user);
+        assertEquals(lobbyLeaveUserRequest.getPlayer(), defaultPlayer);
     }
 
     @Test
+    @DisplayName("Kick user")
     void kickUser() throws InterruptedException {
-        lobbyService.kickUser(lobby, user);
+        lobbyService.kickPlayer(lobby, defaultPlayer);
 
         waitForLock();
 
-        assertTrue(event instanceof LobbyKickUserRequest);
+        assertTrue(event instanceof KickPlayerLobbyRequest);
 
-        final LobbyKickUserRequest kickUserRequest = (LobbyKickUserRequest) event;
+        final KickPlayerLobbyRequest kickUserRequest = (KickPlayerLobbyRequest) event;
         assertEquals(kickUserRequest.getLobby(), lobby);
-        assertEquals(kickUserRequest.getUser(), user);
+        assertEquals(kickUserRequest.getPlayer(), defaultPlayer);
     }
 
     @Test
@@ -102,9 +121,9 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(LobbyUpdateStatusRequest.class, event);
+        assertInstanceOf(UpdateUserLobbyStatusRequest.class, event);
 
-        final LobbyUpdateStatusRequest lobbyUpdateStatusRequest = (LobbyUpdateStatusRequest) event;
+        final UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest = (UpdateUserLobbyStatusRequest) event;
         assertEquals(LobbyStatus.RUNNING, lobbyUpdateStatusRequest.getStatus());
     }
 
@@ -129,32 +148,37 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final CreateLobbyRequest createLobbyRequest) {
+    public void onEvent(final CreateUserLobbyRequest createLobbyRequest) {
         handleEvent(createLobbyRequest);
     }
 
     @Subscribe
-    public void onEvent(final LobbyJoinUserRequest lobbyJoinUserRequest) {
+    public void onEvent(final UserLobbyJoinUserRequest lobbyJoinUserRequest) {
         handleEvent(lobbyJoinUserRequest);
     }
 
     @Subscribe
-    public void onEvent(final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest) {
+    public void onEvent(final JoinPlayerLobbyRequest lobbyJoinPlayerRequest) {
+        handleEvent(lobbyJoinPlayerRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest) {
         handleEvent(retrieveAllLobbiesRequest);
     }
 
     @Subscribe
-    public void onEvent(final LobbyLeaveUserRequest lobbyLeaveUserRequest) {
+    public void onEvent(final LeavePlayerLobbyRequest lobbyLeaveUserRequest) {
         handleEvent(lobbyLeaveUserRequest);
     }
 
     @Subscribe
-    public void onEvent(final LobbyKickUserRequest lobbyKickUserRequest) {
-        handleEvent(lobbyKickUserRequest);
+    public void onEvent(final KickPlayerLobbyRequest lobbyKickPlayerRequest) {
+        handleEvent(lobbyKickPlayerRequest);
     }
 
     @Subscribe
-    public void onEvent(final LobbyUpdateStatusRequest lobbyUpdateStatusRequest) {
+    public void onEvent(final UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest) {
         handleEvent(lobbyUpdateStatusRequest);
     }
 

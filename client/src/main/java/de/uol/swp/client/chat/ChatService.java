@@ -3,7 +3,7 @@ package de.uol.swp.client.chat;
 import com.google.inject.Inject;
 import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
 import de.uol.swp.common.chat.request.SendChatMessageRequest;
-import de.uol.swp.common.chat.request.SendLobbyChatMessageRequest;
+import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
@@ -55,7 +55,7 @@ public class ChatService {
      * @since 2024-08-26
      */
     public void sendLobbyChatRequest(User user, String chatMessage, LocalTime timestamp, Lobby lobby) {
-        SendLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendLobbyChatMessageRequest(lobby, user, chatMessage, timestamp);
+        SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendUserLobbyChatMessageRequest(lobby, user, chatMessage, timestamp);
         eventBus.post(sendLobbyChatMessageRequest);
     }
 

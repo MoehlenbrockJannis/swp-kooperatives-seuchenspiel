@@ -73,14 +73,15 @@ public abstract class Player implements Serializable, UserContainerEntity {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof Player player) {
+        if(obj instanceof Player player && getClass() == player.getClass()) {
             return this.getName().equals(player.getName());
         }
         return false;
     }
 
+    @Override
     public int hashCode() {
-        return Objects.hash(getName());
+        return Objects.hash(getName(), getClass());
     }
 
     /**

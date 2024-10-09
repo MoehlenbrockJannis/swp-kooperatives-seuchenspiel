@@ -3,6 +3,8 @@ package de.uol.swp.common.player;
 import de.uol.swp.common.user.User;
 import lombok.*;
 
+import java.util.Objects;
+
 /**
  * The AIPlayer class represents an artificial intelligence (AI) controlled player in the game.
  * This class extends the base Player class and includes additional attributes or behaviors

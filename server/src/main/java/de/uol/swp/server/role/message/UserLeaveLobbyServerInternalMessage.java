@@ -15,7 +15,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserLeaveLobbyServerInternalMessage extends AbstractServerInternalMessage {
-
     private final Lobby lobby;
-    private final User user;
 }

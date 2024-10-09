@@ -1,7 +1,10 @@
 package de.uol.swp.common.lobby.request;
 
 import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.UserDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,14 +13,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test for the lobby leave user request
  *
- * @see LobbyLeaveUserRequest
+ * @see LeavePlayerLobbyRequest
  * @since 2023-05-14
  */
 @DisplayName("LobbyLeaveUserRequest Test")
-class LobbyLeaveUserRequestTest {
+class LobbyLeavePlayerRequestTest {
 
-    final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    final LobbyDTO lobby = new LobbyDTO("TestLobby", user, 2, 4);
+    private UserDTO user;
+    private Player player;
+    private LobbyDTO lobby;
+
+    @BeforeEach
+    void setUp() {
+        this.user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
+        this.player = new UserPlayer(this.user);
+        this.lobby = new LobbyDTO("TestLobby", this.user, 2, 4);
+    }
 
     /**
      * Test for creation of the LobbyLeaveUserRequests
@@ -30,9 +41,9 @@ class LobbyLeaveUserRequestTest {
     @Test
     @DisplayName("Create LobbyLeaveUserRequest")
     void createLobbyLeaveUserRequest() {
-        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest(lobby, user);
+        LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(lobby, player);
 
         assertEquals(lobby, request.getLobby());
-        assertEquals(user, request.getUser());
+        assertEquals(player, request.getPlayer());
     }
 }

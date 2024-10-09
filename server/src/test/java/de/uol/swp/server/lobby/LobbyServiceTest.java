@@ -4,7 +4,9 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.lobby.server_message.LobbyJoinUserServerMessage;
+import de.uol.swp.common.lobby.server_message.JoinUserLobbyServerMessage;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import de.uol.swp.server.usermanagement.UserManagement;
@@ -21,29 +23,40 @@ import static org.mockito.Mockito.*;
 @DisplayName("LobbyService Test")
 class LobbyServiceTest {
 
-    static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    static final UserDTO secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
-    static final Lobby lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
-
-    final EventBus bus = EventBus.builder()
-            .logNoSubscriberMessages(false)
-            .sendNoSubscriberEvent(false)
-            .throwSubscriberException(true)
-            .build();
-    final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
-    final AuthenticationService authService = mock(AuthenticationService.class);
-    final LobbyManagement lobbyManagement = spy(new LobbyManagement());
-    final LobbyService lobbyService = new LobbyService(lobbyManagement, authService, bus);
+    private UserDTO firstOwner;
+    private Player firstOwnerAsPlayer;
+    private UserDTO secondOwner;
+    private Player secondOwnerAsPlayer;
+    private Lobby lobby;
+    private EventBus bus;
+    private UserManagement userManagement;
+    private AuthenticationService authService;
+    private LobbyManagement lobbyManagement;
+    private LobbyService lobbyService;
 
     @BeforeEach
     void setUp() {
+        this.firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
+        this.secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
+        this.secondOwnerAsPlayer = new UserPlayer(this.secondOwner);
+        this.firstOwnerAsPlayer = new UserPlayer(this.firstOwner);
+        this.lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+        this.bus = EventBus.builder()
+                .logNoSubscriberMessages(false)
+                .sendNoSubscriberEvent(false)
+                .throwSubscriberException(true)
+                .build();
+        this.userManagement = new UserManagement(new MainMemoryBasedUserStore());
+        this.authService = mock(AuthenticationService.class);
+        this.lobbyManagement = spy(new LobbyManagement());
+        this.lobbyService = new LobbyService(lobbyManagement, authService, bus);
         lobbyManagement.getAllLobbies().forEach(lobbyManagement::dropLobby);
     }
 
     @Test
     @DisplayName("Create lobby")
     void createLobbyTest() {
-        final CreateLobbyRequest request = new CreateLobbyRequest(lobby, firstOwner);
+        final CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, firstOwner);
 
         bus.post(request);
 
@@ -54,8 +67,8 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Create second lobby with same name")
     void createSecondLobbyWithSameName() {
-        final CreateLobbyRequest request = new CreateLobbyRequest(lobby, firstOwner);
-        final CreateLobbyRequest request2 = new CreateLobbyRequest(lobby, secondOwner);
+        final CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, firstOwner);
+        final CreateUserLobbyRequest request2 = new CreateUserLobbyRequest(lobby, secondOwner);
 
         bus.post(request);
 
@@ -71,7 +84,7 @@ class LobbyServiceTest {
     void lobbyJoinUserTest() {
         lobbyManagement.createLobby(lobby);
 
-        final LobbyJoinUserRequest request = new LobbyJoinUserRequest(lobby, secondOwner);
+        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(lobby, secondOwner);
 
         bus.post(request);
 
@@ -82,12 +95,27 @@ class LobbyServiceTest {
     }
 
     @Test
+    @DisplayName("Player joins lobby")
+    void lobbyJoinPlayer() {
+        this.lobbyManagement.createLobby(this.lobby);
+
+        final JoinPlayerLobbyRequest request = new JoinPlayerLobbyRequest(this.lobby, secondOwnerAsPlayer);
+
+        bus.post(request);
+
+        lobbyManagement.getLobby(lobby).ifPresent(lobby -> {
+            assertTrue(lobby.getPlayers().contains(secondOwnerAsPlayer));
+            assertTrue(lobby.getUsers().contains(secondOwner));
+        });
+    }
+
+    @Test
     @DisplayName("User leaves lobby")
     void lobbyLeaveUserTest() {
         lobbyManagement.createLobby(lobby);
         lobbyManagement.getLobby(lobby).ifPresent(l -> l.joinUser(secondOwner));
 
-        final LobbyLeaveUserRequest request = new LobbyLeaveUserRequest(lobby, secondOwner);
+        final LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(lobby, secondOwnerAsPlayer);
 
         bus.post(request);
 
@@ -100,7 +128,7 @@ class LobbyServiceTest {
     @DisplayName("Find lobbies request")
     void onLobbyFindLobbiesRequestTest() {
         lobbyManagement.createLobby(lobby);
-        final RetrieveAllLobbiesRequest request = new RetrieveAllLobbiesRequest();
+        final RetrieveAllLobbiesRequestUser request = new RetrieveAllLobbiesRequestUser();
 
         reset(lobbyManagement);
 
@@ -113,7 +141,7 @@ class LobbyServiceTest {
     @DisplayName("Update lobby status")
     void onLobbyUpdateStatusRequestTest() {
         lobbyManagement.createLobby(lobby);
-        final LobbyUpdateStatusRequest request = new LobbyUpdateStatusRequest(lobby, LobbyStatus.RUNNING);
+        final UpdateUserLobbyStatusRequest request = new UpdateUserLobbyStatusRequest(lobby, LobbyStatus.RUNNING);
 
         bus.post(request);
 
@@ -126,7 +154,7 @@ class LobbyServiceTest {
         lobbyManagement.createLobby(lobby);
         lobbyManagement.getLobby(lobby).ifPresent(l -> l.joinUser(secondOwner));
 
-        final LobbyJoinUserRequest request = new LobbyJoinUserRequest(lobby, secondOwner);
+        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(lobby, secondOwner);
 
         bus.post(request);
 
@@ -146,7 +174,7 @@ class LobbyServiceTest {
             lobbyManagement.getLobby(lobby).get().joinUser(secondOwner);
         }
 
-        final LobbyKickUserRequest request = new LobbyKickUserRequest(lobby, secondOwner);
+        final KickPlayerLobbyRequest request = new KickPlayerLobbyRequest(lobby, secondOwnerAsPlayer);
 
         bus.post(request);
 
@@ -159,7 +187,7 @@ class LobbyServiceTest {
     @DisplayName("User joins non-existent lobby")
     void lobbyJoinUserNonExistentLobbyTest() {
         final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
-        final LobbyJoinUserRequest request = new LobbyJoinUserRequest(nonExistentLobby, secondOwner);
+        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(nonExistentLobby, secondOwner);
 
         bus.post(request);
 
@@ -173,7 +201,7 @@ class LobbyServiceTest {
         Lobby singleUserLobby = new LobbyDTO("SingleUserLobby", firstOwner, 1, 4);
         lobbyManagement.createLobby(singleUserLobby);
 
-        LobbyLeaveUserRequest request = new LobbyLeaveUserRequest(singleUserLobby, firstOwner);
+        LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(singleUserLobby, firstOwnerAsPlayer);
 
         bus.post(request);
 
@@ -186,7 +214,7 @@ class LobbyServiceTest {
     @DisplayName("User leaves non-existent lobby")
     void lobbyLeaveUserNonExistentLobbyTest() {
         final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
-        final LobbyLeaveUserRequest request = new LobbyLeaveUserRequest(nonExistentLobby, firstOwner);
+        final LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(nonExistentLobby, firstOwnerAsPlayer);
 
         bus.post(request);
 
@@ -198,7 +226,7 @@ class LobbyServiceTest {
     @DisplayName("Update status of non-existent lobby")
     void onLobbyUpdateStatusRequestNonExistentLobbyTest() {
         final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
-        final LobbyUpdateStatusRequest request = new LobbyUpdateStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
+        final UpdateUserLobbyStatusRequest request = new UpdateUserLobbyStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
 
         bus.post(request);
 
@@ -209,7 +237,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Send message to all in null lobby")
     void sendToAllInLobbyNullLobbyTest() {
-        LobbyJoinUserServerMessage message = mock(LobbyJoinUserServerMessage.class);
+        JoinUserLobbyServerMessage message = mock(JoinUserLobbyServerMessage.class);
 
         assertDoesNotThrow(() -> lobbyService.sendToAllInLobby(null, message));
 

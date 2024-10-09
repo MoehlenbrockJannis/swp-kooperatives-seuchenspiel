@@ -2,18 +2,17 @@ package de.uol.swp.client.role;
 
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.client.lobby.LobbyPresenter;
-import de.uol.swp.common.role.request.RetrieveAllAvailableRolesRequest;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
+import de.uol.swp.common.role.request.RoleAssignmentRequest;
+import de.uol.swp.common.user.User;
+import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.greenrobot.eventbus.EventBus;
-import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.request.RoleAssignmentRequest;
-import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
-import de.uol.swp.common.user.User;
 
 import static org.mockito.Mockito.*;
 
@@ -50,13 +49,6 @@ class RoleServiceTest extends EventBusBasedTest {
         RoleCard roleCard = mock(RoleCard.class);
         roleService.sendRoleAssignmentRequest(lobby, user, roleCard);
         verify(eventBusMock).post(any(RoleAssignmentRequest.class));
-    }
-
-    @DisplayName("A request for all available roles before the game starts")
-    @Test
-    void testSendRetrieveAllAvailableRolesRequest() {
-        roleService.sendRetrieveAllAvailableRolesRequest(lobby);
-        verify(eventBusMock).post(any(RetrieveAllAvailableRolesRequest.class));
     }
 
 }

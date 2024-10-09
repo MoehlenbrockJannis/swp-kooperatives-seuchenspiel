@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.request;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
+import de.uol.swp.common.player.Player;
 
 /**
  * Represents a request to kick a user from a lobby.
@@ -12,7 +12,7 @@ import de.uol.swp.common.user.User;
  *
  * @since 2024-09-23
  */
-public class LobbyKickUserRequest extends AbstractLobbyRequest{
+public class KickPlayerLobbyRequest extends AbstractPlayerLobbyRequest {
 
     /**
      * Constructs a LobbyKickUserRequest with the specified lobby and user.
@@ -20,10 +20,10 @@ public class LobbyKickUserRequest extends AbstractLobbyRequest{
      * the user will be kicked and the user to be removed.
      *
      * @param lobby The lobby from which the user will be kicked.
-     * @param user The user to be kicked from the lobby.
+     * @param player The player to be kicked from the lobby.
      * @since 2024-09-23
      */
-    public LobbyKickUserRequest(Lobby lobby, User user) {
-        super(lobby, user);
+    public KickPlayerLobbyRequest(Lobby lobby, Player player) {
+        super(lobby, player);
     }
 }
