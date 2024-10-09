@@ -100,7 +100,7 @@ public class CardService extends AbstractService {
     public void onDiscardPlayerCardRequest(DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest) {
         getGameAndPlayer(discardPlayerCardRequest,(game, player) -> {
             final PlayerCard playerCard = discardPlayerCardRequest.getCard();
-            if(!player.getHandCards().contains(playerCard)) {
+            if(!player.hasHandCard(playerCard)) {
                 return;
             }
             player.removeHandCard(playerCard);

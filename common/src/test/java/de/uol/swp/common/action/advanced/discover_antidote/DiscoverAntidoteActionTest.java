@@ -3,6 +3,7 @@ package de.uol.swp.common.action.advanced.discover_antidote;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.City;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
@@ -77,11 +78,14 @@ class DiscoverAntidoteActionTest {
 
     private void addCityCardsToList(final List<CityCard> cityCards, final int amount, final Plague plague) {
         for (int i = 0; i < amount; i++) {
+            final City city = new City("city" + i, "");
             final Field f = mock(Field.class);
             when(f.getPlague())
                     .thenReturn(plague);
             when(f.hasPlague(any()))
                     .thenAnswer(invocation -> plague.equals(invocation.getArgument(0)));
+            when(f.getCity())
+                    .thenReturn(city);
             final CityCard card = new CityCard(f);
             cityCards.add(card);
         }
