@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Response sent to the client containing the joined lobby and the joining user if the user is in the lobby already
+ * Response sent to the client containing the joined lobby and the joining user
  *
  * @see AbstractResponseMessage
  * @see de.uol.swp.common.lobby.Lobby
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @NoArgsConstructor
-public class LobbyJoinUserUserAlreadyInLobbyResponse extends AbstractResponseMessage {
+public class JoinUserLobbyResponse extends AbstractResponseMessage {
     private Lobby lobby;
     private User user;
 }

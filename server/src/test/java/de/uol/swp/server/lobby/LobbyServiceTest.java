@@ -84,7 +84,7 @@ class LobbyServiceTest {
     void lobbyJoinUserTest() {
         lobbyManagement.createLobby(lobby);
 
-        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(lobby, secondOwner);
+        final JoinUserLobbyRequest request = new JoinUserLobbyRequest(lobby, secondOwner);
 
         bus.post(request);
 
@@ -128,7 +128,7 @@ class LobbyServiceTest {
     @DisplayName("Find lobbies request")
     void onLobbyFindLobbiesRequestTest() {
         lobbyManagement.createLobby(lobby);
-        final RetrieveAllLobbiesRequestUser request = new RetrieveAllLobbiesRequestUser();
+        final RetrieveAllLobbiesRequest request = new RetrieveAllLobbiesRequest();
 
         reset(lobbyManagement);
 
@@ -141,7 +141,7 @@ class LobbyServiceTest {
     @DisplayName("Update lobby status")
     void onLobbyUpdateStatusRequestTest() {
         lobbyManagement.createLobby(lobby);
-        final UpdateUserLobbyStatusRequest request = new UpdateUserLobbyStatusRequest(lobby, LobbyStatus.RUNNING);
+        final UpdateLobbyStatusRequest request = new UpdateLobbyStatusRequest(lobby, LobbyStatus.RUNNING);
 
         bus.post(request);
 
@@ -154,7 +154,7 @@ class LobbyServiceTest {
         lobbyManagement.createLobby(lobby);
         lobbyManagement.getLobby(lobby).ifPresent(l -> l.joinUser(secondOwner));
 
-        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(lobby, secondOwner);
+        final JoinUserLobbyRequest request = new JoinUserLobbyRequest(lobby, secondOwner);
 
         bus.post(request);
 
@@ -187,7 +187,7 @@ class LobbyServiceTest {
     @DisplayName("User joins non-existent lobby")
     void lobbyJoinUserNonExistentLobbyTest() {
         final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
-        final UserLobbyJoinUserRequest request = new UserLobbyJoinUserRequest(nonExistentLobby, secondOwner);
+        final JoinUserLobbyRequest request = new JoinUserLobbyRequest(nonExistentLobby, secondOwner);
 
         bus.post(request);
 
@@ -226,7 +226,7 @@ class LobbyServiceTest {
     @DisplayName("Update status of non-existent lobby")
     void onLobbyUpdateStatusRequestNonExistentLobbyTest() {
         final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
-        final UpdateUserLobbyStatusRequest request = new UpdateUserLobbyStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
+        final UpdateLobbyStatusRequest request = new UpdateLobbyStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
 
         bus.post(request);
 

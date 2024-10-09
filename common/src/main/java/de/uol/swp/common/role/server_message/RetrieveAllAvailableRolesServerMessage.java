@@ -28,7 +28,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @NoArgsConstructor
-public class RetrieveAllAvailableRolesServerMessageUser extends AbstractUserLobbyServerMessage {
+public class RetrieveAllAvailableRolesServerMessage extends AbstractUserLobbyServerMessage {
 
     private Set<RoleCard> roleCards;
 
@@ -38,7 +38,7 @@ public class RetrieveAllAvailableRolesServerMessageUser extends AbstractUserLobb
      * @param lobby                 the lobby for which the role cards are available
      * @param availableRolesInLobby the set of role cards available in the lobby
      */
-    public RetrieveAllAvailableRolesServerMessageUser(Lobby lobby, Set<RoleCard> availableRolesInLobby) {
+    public RetrieveAllAvailableRolesServerMessage(Lobby lobby, Set<RoleCard> availableRolesInLobby) {
         setLobby(lobby);
         this.roleCards = availableRolesInLobby;
     }

@@ -18,8 +18,7 @@ import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
-import de.uol.swp.common.role.response.RoleAvailableResponse;
+import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
 import de.uol.swp.common.role.response.RoleUnavailableResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -191,19 +190,19 @@ public class SceneManager {
     }
 
     /**
-     * Handles LobbyJoinUserUserAlreadyInLobbyResponse detected on the EventBus
+     * Handles JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
      *
      * <p>
-     * If a {@link LobbyJoinUserUserAlreadyInLobbyResponse} is detected on the EventBus, this method gets called.
+     * If a {@link JoinUserUserAlreadyInLobbyLobbyResponse} is detected on the EventBus, this method gets called.
      * It calls a method to open an error screen.
      * </p>
      *
-     * @param event The LobbyJoinUserUserAlreadyInLobbyResponse detected on the EventBus
-     * @see de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse
+     * @param event The JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
+     * @see JoinUserUserAlreadyInLobbyLobbyResponse
      * @since 2024-08-29
      */
     @Subscribe
-    public void onLobbyJoinUserUserAlreadyInLobbyResponse(final LobbyJoinUserUserAlreadyInLobbyResponse event) {
+    public void onLobbyJoinUserUserAlreadyInLobbyResponse(final JoinUserUserAlreadyInLobbyLobbyResponse event) {
         showError("", "Du kannst der Lobby \""+event.getLobby().getName()+"\" nicht beitreten, da du bereits in ihr bist.");
     }
 

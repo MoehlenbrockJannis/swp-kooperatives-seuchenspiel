@@ -2,8 +2,8 @@ package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
@@ -59,11 +59,11 @@ public class LobbyService {
      *
      * @param lobby Name of the lobby the user wants to join
      * @param user User who wants to join the lobby
-     * @see UserLobbyJoinUserRequest
+     * @see JoinUserLobbyRequest
      * @since 2019-11-20
      */
     public void joinLobby(final Lobby lobby, final User user) {
-        final UserLobbyJoinUserRequest joinUserRequest = new UserLobbyJoinUserRequest(lobby, user);
+        final JoinUserLobbyRequest joinUserRequest = new JoinUserLobbyRequest(lobby, user);
         eventBus.post(joinUserRequest);
     }
 
@@ -87,11 +87,11 @@ public class LobbyService {
     /**
      * Posts a request to find all lobbies to the EventBus
      *
-     * @see RetrieveAllLobbiesRequestUser
+     * @see RetrieveAllLobbiesRequest
      * @since 2024-08-24
      */
     public void findLobbies() {
-        final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest = new RetrieveAllLobbiesRequestUser();
+        final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest = new RetrieveAllLobbiesRequest();
         eventBus.post(retrieveAllLobbiesRequest);
     }
 
@@ -132,7 +132,7 @@ public class LobbyService {
      * @since 2024-08-29
      */
     public void updateLobbyStatus(Lobby lobby, LobbyStatus lobbyStatus) {
-        final UpdateUserLobbyStatusRequest updateStatusRequest = new UpdateUserLobbyStatusRequest(lobby, lobbyStatus);
+        final UpdateLobbyStatusRequest updateStatusRequest = new UpdateLobbyStatusRequest(lobby, lobbyStatus);
         eventBus.post(updateStatusRequest);
     }
 
