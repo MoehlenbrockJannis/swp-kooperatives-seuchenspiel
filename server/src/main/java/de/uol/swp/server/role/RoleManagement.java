@@ -3,11 +3,13 @@ package de.uol.swp.server.role;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.user.User;
 import de.uol.swp.common.util.RoleColors;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,11 +43,17 @@ public class RoleManagement {
         );
     }
 
+    /**
+     * Assigns roles to players in a lobby.
+     *
+     * This method iterates through all players in the given lobby and assigns
+     * a random, available role to each player who doesn't already have a role.
+     *
+     * @param lobby The lobby whose players should be assigned roles.
+     */
     public void assignRolesToPlayers(final Lobby lobby) {
         final Set<Player> players = lobby.getPlayers();
-
         final List<RoleCard> availableRolesList = getAvailableRoles(players);
-
         for (final Player player : players) {
             if (player.getRole() == null) {
                 final RoleCard roleCard = availableRolesList.remove(0);
@@ -54,17 +62,25 @@ public class RoleManagement {
         }
     }
 
+    /**
+     * Determines the available roles for a group of players.
+     *
+     * This method first identifies all roles that are already in use,
+     * filters these out from the total set of all roles, and
+     * returns a randomly shuffled list of the remaining roles.
+     *
+     * @param players The collection of players for which to determine available roles.
+     * @return A shuffled list of RoleCard objects representing the available roles.
+     */
     public List<RoleCard> getAvailableRoles(final Collection<Player> players) {
         final List<RoleCard> usedRoles = players.stream()
                 .map(Player::getRole)
                 .toList();
-
         final Set<RoleCard> allRoles = getAllRoles();
         final List<RoleCard> availableRolesList = allRoles.stream()
                 .filter(role -> !usedRoles.contains(role))
                 .collect(Collectors.toList());
         Collections.shuffle(availableRolesList);
-
         return availableRolesList;
     }
 }

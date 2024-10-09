@@ -3,27 +3,25 @@ package de.uol.swp.client.lobby;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
-import de.uol.swp.client.game.GameService;
 import de.uol.swp.client.game.GamePresenter;
-import de.uol.swp.client.role.*;
+import de.uol.swp.client.game.GameService;
+import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.server_message.*;
-import de.uol.swp.common.player.AIPlayer;
-import de.uol.swp.common.player.Player;
-import de.uol.swp.common.lobby.server_message.JoinUserLobbyServerMessage;
-import de.uol.swp.common.lobby.server_message.LeavePlayerLobbyServerMessage;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.map.response.RetrieveOriginalGameMapTypeResponse;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.response.RetrieveAllPlaguesResponse;
+import de.uol.swp.common.player.AIPlayer;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.role.response.RetrieveAllRolesResponse;
 import de.uol.swp.common.role.response.RoleAssignmentResponse;
-import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessageUser;
+import de.uol.swp.common.role.server_message.RetrieveAllAvailableRolesServerMessage;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserContainerEntity;
 import javafx.application.Platform;
@@ -32,9 +30,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import lombok.Getter;
@@ -161,7 +156,7 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param message the message containing information about available roles.
      */
     @Subscribe
-    public void onRetrieveAllAvailableRolesServerMessage(RetrieveAllAvailableRolesServerMessageUser message) {
+    public void onRetrieveAllAvailableRolesServerMessage(RetrieveAllAvailableRolesServerMessage message) {
         Platform.runLater(() -> {
             Set<RoleCard> roles = message.getRoleCards();
             availableRoles = FXCollections.observableArrayList(roles);
@@ -387,8 +382,7 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     private void updateStartGameButton() {
-        //TODO: Chance 1 before merge to lobby.getMinPlayers()
-        startGameButton.setDisable(!lobby.getOwner().equals(loggedInUserProvider.get()) || lobby.getPlayers().size() < 2);
+        startGameButton.setDisable(!lobby.getOwner().equals(loggedInUserProvider.get()) || lobby.getPlayers().size() < lobby.getMinPlayers());
     }
 
     /**

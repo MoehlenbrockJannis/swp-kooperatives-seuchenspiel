@@ -2,8 +2,8 @@ package de.uol.swp.client.lobby;
 
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
@@ -55,9 +55,9 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(UserLobbyJoinUserRequest.class, event);
+        assertInstanceOf(JoinUserLobbyRequest.class, event);
 
-        final UserLobbyJoinUserRequest lobbyJoinUserRequest = (UserLobbyJoinUserRequest) event;
+        final JoinUserLobbyRequest lobbyJoinUserRequest = (JoinUserLobbyRequest) event;
         assertEquals(lobbyJoinUserRequest.getLobby(), lobby);
         assertEquals(lobbyJoinUserRequest.getUser(), user);
     }
@@ -83,7 +83,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(RetrieveAllLobbiesRequestUser.class, event);
+        assertInstanceOf(RetrieveAllLobbiesRequest.class, event);
     }
 
     @Test
@@ -121,9 +121,9 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertInstanceOf(UpdateUserLobbyStatusRequest.class, event);
+        assertInstanceOf(UpdateLobbyStatusRequest.class, event);
 
-        final UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest = (UpdateUserLobbyStatusRequest) event;
+        final UpdateLobbyStatusRequest lobbyUpdateStatusRequest = (UpdateLobbyStatusRequest) event;
         assertEquals(LobbyStatus.RUNNING, lobbyUpdateStatusRequest.getStatus());
     }
 
@@ -153,7 +153,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final UserLobbyJoinUserRequest lobbyJoinUserRequest) {
+    public void onEvent(final JoinUserLobbyRequest lobbyJoinUserRequest) {
         handleEvent(lobbyJoinUserRequest);
     }
 
@@ -163,7 +163,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest) {
+    public void onEvent(final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest) {
         handleEvent(retrieveAllLobbiesRequest);
     }
 
@@ -178,7 +178,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest) {
+    public void onEvent(final UpdateLobbyStatusRequest lobbyUpdateStatusRequest) {
         handleEvent(lobbyUpdateStatusRequest);
     }
 

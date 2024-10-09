@@ -8,9 +8,9 @@ import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
-import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
+import de.uol.swp.common.lobby.response.JoinUserLobbyResponse;
 import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
+import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -310,22 +310,22 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     }
 
     /**
-     * Handles LobbyJoinUserResponse detected on the EventBus
+     * Handles JoinUserLobbyResponse detected on the EventBus
      *
      * <p>
-     * If a {@link LobbyJoinUserResponse} is detected on the EventBus, this method gets
+     * If a {@link JoinUserLobbyResponse} is detected on the EventBus, this method gets
      * called. It removes the joined lobby from {@link #lobbies} and posts a {@link ShowLobbyViewEvent} to the EventBus.
      * </p>
      *
-     * @param lobbyJoinUserResponse The LobbyJoinUserResponse detected on the EventBus
-     * @see de.uol.swp.common.lobby.response.LobbyJoinUserResponse
+     * @param joinUserLobbyResponse The JoinUserLobbyResponse detected on the EventBus
+     * @see JoinUserLobbyResponse
      * @since 2024-08-29
      */
     @Subscribe
-    public void onLobbyJoinUserResponse(final LobbyJoinUserResponse lobbyJoinUserResponse) {
+    public void onLobbyJoinUserResponse(final JoinUserLobbyResponse joinUserLobbyResponse) {
         setLobbyList(lobbies);
 
-        final ShowLobbyViewEvent showLobbyViewEvent = new ShowLobbyViewEvent(lobbyJoinUserResponse.getLobby());
+        final ShowLobbyViewEvent showLobbyViewEvent = new ShowLobbyViewEvent(joinUserLobbyResponse.getLobby());
         eventBus.post(showLobbyViewEvent);
     }
 

@@ -2,9 +2,10 @@ package de.uol.swp.common.lobby;
 
 import de.uol.swp.common.SerializationTestHelper;
 import de.uol.swp.common.lobby.request.CreateUserLobbyRequest;
-import de.uol.swp.common.lobby.request.UserLobbyJoinUserRequest;
+import de.uol.swp.common.lobby.request.JoinUserLobbyRequest;
 import de.uol.swp.common.lobby.request.LeavePlayerLobbyRequest;
-import de.uol.swp.common.lobby.server_message.*;
+import de.uol.swp.common.lobby.server_message.JoinUserLobbyServerMessage;
+import de.uol.swp.common.lobby.server_message.LeavePlayerLobbyServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.UserDTO;
@@ -33,8 +34,8 @@ class LobbyMessageSerializableTest {
     void testLobbyMessagesSerializable() {
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new CreateUserLobbyRequest(lobby, defaultUser),
                 CreateUserLobbyRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new UserLobbyJoinUserRequest(lobby, defaultUser),
-                UserLobbyJoinUserRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinUserLobbyRequest(lobby, defaultUser),
+                JoinUserLobbyRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LeavePlayerLobbyRequest(lobby, defaultPlayer),
                 LeavePlayerLobbyRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new JoinUserLobbyServerMessage(lobby, defaultUser),

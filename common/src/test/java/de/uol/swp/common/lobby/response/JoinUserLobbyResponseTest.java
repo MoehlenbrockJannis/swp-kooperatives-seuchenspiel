@@ -11,26 +11,25 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("LobbyJoinUserUserAlreadyInLobbyResponse Test")
-class LobbyJoinUserUserAlreadyInLobbyResponseTest {
+@DisplayName("JoinUserLobbyResponse Test")
+class JoinUserLobbyResponseTest {
 
     private Lobby testLobby;
     private User owner;
-    private User existingUser;
+    private User joiningUser;
 
     @BeforeEach
     void setUp() {
         owner = new UserDTO("owner", "password", "owner@example.com");
-        existingUser = new UserDTO("existing", "password", "existing@example.com");
+        joiningUser = new UserDTO("joiner", "password", "joiner@example.com");
         testLobby = new LobbyDTO("TestLobby", owner, 2, 4);
         testLobby.setStatus(LobbyStatus.OPEN);
-        testLobby.joinUser(existingUser);
     }
 
     @Test
     @DisplayName("Constructor should handle null lobby and null user")
     void nullLobbyAndUserTest() {
-        LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(null, null);
+        JoinUserLobbyResponse response = new JoinUserLobbyResponse(null, null);
 
         assertNull(response.getLobby());
         assertNull(response.getUser());
@@ -39,32 +38,20 @@ class LobbyJoinUserUserAlreadyInLobbyResponseTest {
     @Test
     @DisplayName("Constructor should handle null lobby")
     void nullLobbyTest() {
-        LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(null, existingUser);
+        JoinUserLobbyResponse response = new JoinUserLobbyResponse(null, joiningUser);
 
         assertNull(response.getLobby());
         assertNotNull(response.getUser());
-        assertEquals(existingUser, response.getUser());
+        assertEquals(joiningUser, response.getUser());
     }
 
     @Test
     @DisplayName("Constructor should handle null user")
     void nullUserTest() {
-        LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(testLobby, null);
+        JoinUserLobbyResponse response = new JoinUserLobbyResponse(testLobby, null);
 
         assertNotNull(response.getLobby());
         assertNull(response.getUser());
         assertEquals(testLobby, response.getLobby());
-    }
-
-    @Test
-    @DisplayName("Response should handle user already in lobby")
-    void userAlreadyInLobbyTest() {
-        LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(testLobby, existingUser);
-
-        assertNotNull(response.getLobby());
-        assertNotNull(response.getUser());
-        assertEquals(testLobby, response.getLobby());
-        assertEquals(existingUser, response.getUser());
-        assertTrue(response.getLobby().getUsers().contains(response.getUser()));
     }
 }

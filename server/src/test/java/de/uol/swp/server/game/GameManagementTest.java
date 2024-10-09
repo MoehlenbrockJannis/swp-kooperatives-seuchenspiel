@@ -7,19 +7,25 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.role.RoleManagement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class GameManagementTest {
-    // TODO: Write Tests when configuration is included
     private GameManagement gameManagement;
+    private LobbyManagement lobbyManagement;
+    private RoleManagement roleManagement;
     private Lobby mockLobby;
     private MapType mockMapType;
     private List<Plague> mockPlagues;
@@ -30,7 +36,9 @@ class GameManagementTest {
 
     @BeforeEach
     void setUp() {
-        gameManagement = new GameManagement();
+        lobbyManagement = mock(LobbyManagement.class);
+        roleManagement = mock(RoleManagement.class);
+        gameManagement = new GameManagement(lobbyManagement, roleManagement);
         mockLobby = mock(Lobby.class);
         mockMapType = mock(MapType.class);
         mockPlagues = new ArrayList<>();

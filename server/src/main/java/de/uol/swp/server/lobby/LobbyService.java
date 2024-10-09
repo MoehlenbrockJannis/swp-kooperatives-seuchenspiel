@@ -1,28 +1,28 @@
 package de.uol.swp.server.lobby;
 
-import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.lobby.response.CreateLobbyResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserResponse;
-import de.uol.swp.common.lobby.response.LobbyJoinUserUserAlreadyInLobbyResponse;
-import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
-import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.response.CreateLobbyResponse;
+import de.uol.swp.common.lobby.response.JoinUserLobbyResponse;
+import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
+import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
 import de.uol.swp.common.lobby.server_message.*;
-import de.uol.swp.common.lobby.response.*;
 import de.uol.swp.common.message.server.ServerMessage;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
+import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
 import de.uol.swp.server.usermanagement.AuthenticationService;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -88,7 +88,7 @@ public class LobbyService extends AbstractService {
      * @since 2019-10-08
      */
     @Subscribe
-    public void onLobbyJoinUserRequest(UserLobbyJoinUserRequest lobbyJoinUserRequest) {
+    public void onLobbyJoinUserRequest(JoinUserLobbyRequest lobbyJoinUserRequest) {
         Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinUserRequest.getLobby());
 
         if (lobbyOptional.isEmpty()) {
@@ -106,7 +106,7 @@ public class LobbyService extends AbstractService {
         }
 
         if (lobby.containsUser(user)) {
-            final LobbyJoinUserUserAlreadyInLobbyResponse response = new LobbyJoinUserUserAlreadyInLobbyResponse(lobby, user);
+            final JoinUserUserAlreadyInLobbyLobbyResponse response = new JoinUserUserAlreadyInLobbyLobbyResponse(lobby, user);
             response.initWithMessage(lobbyJoinUserRequest);
             post(response);
             return;
@@ -114,7 +114,7 @@ public class LobbyService extends AbstractService {
 
         lobby.joinUser(user);
 
-        final LobbyJoinUserResponse response = new LobbyJoinUserResponse(lobby, user);
+        final JoinUserLobbyResponse response = new JoinUserLobbyResponse(lobby, user);
         response.initWithMessage(lobbyJoinUserRequest);
         post(response);
 
@@ -325,18 +325,18 @@ public class LobbyService extends AbstractService {
      * Handles LobbyFindLobbiesRequests found on the EventBus
      *
      * <p>
-     * If a {@link RetrieveAllLobbiesRequestUser} is detected on the EventBus, this method is called.
+     * If a {@link RetrieveAllLobbiesRequest} is detected on the EventBus, this method is called.
      * It creates a {@link RetrieveAllLobbiesResponse} containing all lobbies and posts it to the EventBus.
      * </p>
      *
      * @param retrieveAllLobbiesRequest The LobbyFindLobbiesRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
-     * @see RetrieveAllLobbiesRequestUser
+     * @see RetrieveAllLobbiesRequest
      * @see RetrieveAllLobbiesResponse
      * @since 2024-08-24
      */
     @Subscribe
-    public void onLobbyFindLobbiesRequest(final RetrieveAllLobbiesRequestUser retrieveAllLobbiesRequest) {
+    public void onLobbyFindLobbiesRequest(final RetrieveAllLobbiesRequest retrieveAllLobbiesRequest) {
         final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse = new RetrieveAllLobbiesResponse(lobbyManagement.getAllLobbies());
         retrieveAllLobbiesResponse.initWithMessage(retrieveAllLobbiesRequest);
         post(retrieveAllLobbiesResponse);
@@ -346,18 +346,18 @@ public class LobbyService extends AbstractService {
      * Handles LobbyUpdateStatusRequests found on the EventBus
      *
      * <p>
-     * If a {@link UpdateUserLobbyStatusRequest} is detected on the EventBus, this method is called.
+     * If a {@link UpdateLobbyStatusRequest} is detected on the EventBus, this method is called.
      * It updates the status of a lobby and sends an {@link RetrieveAllLobbiesServerMessage} to all users.
      * </p>
      *
      * @param lobbyUpdateStatusRequest The LobbyUpdateStatusRequest found on the EventBus
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.lobby.LobbyStatus
-     * @see UpdateUserLobbyStatusRequest
+     * @see UpdateLobbyStatusRequest
      * @see RetrieveAllLobbiesServerMessage
      */
     @Subscribe
-    public void onLobbyUpdateStatusRequest(UpdateUserLobbyStatusRequest lobbyUpdateStatusRequest) {
+    public void onLobbyUpdateStatusRequest(UpdateLobbyStatusRequest lobbyUpdateStatusRequest) {
         Lobby lobby = lobbyUpdateStatusRequest.getLobby();
 
         if (lobbyManagement.getLobby(lobby).isPresent()) {
