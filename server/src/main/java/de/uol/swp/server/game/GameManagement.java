@@ -10,7 +10,7 @@ import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.role.RoleManagement;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +20,13 @@ import java.util.Random;
 /**
  * Manages the game
  */
-@RequiredArgsConstructor(onConstructor = @__(@Inject))
+@Setter(onMethod = @__(@Inject))
 public class GameManagement {
-    private final LobbyManagement lobbyManagement;
-    private final RoleManagement roleManagement;
+    private LobbyManagement lobbyManagement;
+    private RoleManagement roleManagement;
 
-    private List<Game> games = new ArrayList<>();
-    private Random random = new Random();
+    private final List<Game> games = new ArrayList<>();
+    private final Random random = new Random();
 
     /**
      * Creates a game
