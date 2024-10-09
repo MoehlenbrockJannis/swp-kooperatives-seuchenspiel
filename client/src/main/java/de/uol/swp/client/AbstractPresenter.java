@@ -1,36 +1,350 @@
 package de.uol.swp.client;
 
 import com.google.inject.Inject;
+import de.uol.swp.client.di.FXMLLoaderProvider;
 import de.uol.swp.client.user.ClientUserService;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class is the base for creating a new Presenter.
  *
+ * <p>
  * This class prepares the child classes to have the UserService and EventBus set
  * in order to reduce unnecessary code repetition.
+ * </p>
  *
  * @author Marco Grawunder
  * @since 2019-08-29
  */
-
-
-public class AbstractPresenter {
-
+public abstract class AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(AbstractPresenter.class);
+    private static FXMLLoaderProvider fxmlLoaderProvider;
+
+    public static final String DEFAULT_FXML_FOLDER_PATH = "/fxml/";
+    public static final String COMPONENT_FXML_FOLDER_PATH = "component/";
+    public static final String DEFAULT_FXML_FILE_SUFFIX = ".fxml";
+
+    /**
+     * Sets the {@link #fxmlLoaderProvider}
+     *
+     * <p>
+     *     If the {@link #fxmlLoaderProvider} is null and the given {@code provider} is not null,
+     *     it sets {@link #fxmlLoaderProvider} to {@code provider}.
+     * </p>
+     *
+     * @param provider The provider to set
+     * @see FXMLLoaderProvider
+     * @see ClientApp#start(Stage)
+     * @since 2024-09-17
+     */
+    public static void setFxmlLoaderProvider(final FXMLLoaderProvider provider) {
+        if (fxmlLoaderProvider == null && provider != null) {
+            fxmlLoaderProvider = provider;
+        }
+    }
+
+    /**
+     * Loads the FXML file associated with the given {@code presenterClass} and returns the associated presenter
+     *
+     * <p>
+     *     After loading the parent element of the fxml file,
+     *     a scene is created with it using {@link #createScene(Parent)}.
+     * </p>
+     *
+     * @param presenterClass Class of the presenter to load the FXML file for
+     * @return Presenter for loaded FXML file
+     * @param <T> Type of the presenter to return
+     * @throws RuntimeException if error occurs during loading
+     * @see #createPresenter(Class)
+     * @see #getFXMLFilePath()
+     * @see #createScene(Parent)
+     * @see FXMLLoader
+     * @see Platform#runLater(Runnable)
+     * @implNote Must be called on FX application thread for {@link javafx.scene.web.WebView}
+     * @since 2024-09-17
+     */
+    public static <T extends AbstractPresenter> T loadFXMLPresenter(final Class<T> presenterClass) throws RuntimeException {
+        String filePath = "";
+        try {
+            final T createdPresenter = createPresenter(presenterClass);
+
+            final FXMLLoader fxmlLoader = fxmlLoaderProvider.get();
+
+            filePath = createdPresenter.getFXMLFilePath();
+            final URL url = createdPresenter.getClass().getResource(filePath);
+            fxmlLoader.setLocation(url);
+
+            final Parent root = fxmlLoader.load();
+            final T loadedPresenter = fxmlLoader.getController();
+            loadedPresenter.createScene(root);
+            return loadedPresenter;
+        } catch (Exception e) {
+            final String message = String.format("Failed to load FXML file \"%s\": %s", filePath, e.getMessage());
+            LOG.error(message);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    /**
+     * Returns a new instance of {@code presenterClass}
+     *
+     * <p>
+     *     The {@code presenterClass} must have a default constructor.
+     *     Otherwise, this method will throw an exception.
+     * </p>
+     *
+     * @param presenterClass Presenter class to create an instance of
+     * @return Instance of {@code presenterClass}
+     * @param <T> Type of returned presenter object
+     * @throws Exception if there is no default constructor or it is not accessible or there is some other error
+     * @see Class#getDeclaredConstructor(Class[])
+     * @see java.lang.reflect.Constructor#newInstance(Object...)
+     * @since 2024-09-17
+     */
+    private static <T extends AbstractPresenter> T createPresenter(final Class<T> presenterClass) throws Exception {
+        return presenterClass.getDeclaredConstructor().newInstance();
+    }
 
     @Inject
     protected ClientUserService userService;
-
     protected EventBus eventBus;
+    protected List<AbstractPresenter> associatedPresenters = new ArrayList<>();
+    @Getter
+    protected Scene scene;
+    protected Stage stage;
+
+    /**
+     * Returns path to associated FXML file
+     *
+     * <p>
+     *     By default, the file is assumed to be in {@value DEFAULT_FXML_FOLDER_PATH} directory and
+     *     to be called like the associated presenter replacing "Presenter" with "View" and
+     *     ending in {@value DEFAULT_FXML_FILE_SUFFIX}.
+     * </p>
+     *
+     * @return Path to associated FXML file
+     * @see #getFXMLFolderPath()
+     * @since 2024-09-17
+     */
+    public String getFXMLFilePath() {
+        return getFXMLFolderPath() + getClass().getSimpleName().replace("Presenter", "View") + DEFAULT_FXML_FILE_SUFFIX;
+    }
+
+    /**
+     * Returns the path to the folder of the associated FXML file
+     *
+     * <p>
+     *     By default, returns {@value #DEFAULT_FXML_FOLDER_PATH}
+     * </p>
+     *
+     * @return Path to the folder of the associated FXML file
+     * @since 2024-09-17
+     */
+    public String getFXMLFolderPath() {
+        return DEFAULT_FXML_FOLDER_PATH;
+    }
+
+    /**
+     * <p>
+     *     Returns the width the associated {@link #scene} is created with
+     * </p>
+     *
+     * <p>
+     *     Default is <code>-1</code>, being ignored in {@link #createScene(Parent)}.
+     * </p>
+     *
+     * @return Width of the {@link #scene} set in {@link #createScene(Parent)}
+     * @see Scene#Scene(Parent, double, double)
+     * @since 2024-09-17
+     */
+    public double getWidth() {
+        return -1;
+    }
+
+    /**
+     * <p>
+     *     Returns the height the associated {@link #scene} is created with
+     * </p>
+     *
+     * <p>
+     *     Default is <code>-1</code>, being ignored in {@link #createScene(Parent)}.
+     * </p>
+     *
+     * @return Height of the {@link #scene} set in {@link #createScene(Parent)}
+     * @see Scene#Scene(Parent, double, double)
+     * @since 2024-09-17
+     */
+    public double getHeight() {
+        return -1;
+    }
+
+    /**
+     * Creates a {@link Scene} with the given {@code root} and sets it to {@link #scene}
+     *
+     * <p>
+     *     If the return values of both {@link #getWidth()} and {@link #getHeight()} are greater than {@code 0},
+     *     they are set as width and height of the new {@link #scene}.
+     * </p>
+     *
+     * <p>
+     *     Also adds the stylesheet specified on the {@link SceneManager} to the stylesheets of the {@link #scene}.
+     * </p>
+     *
+     * @param root Root node of {@link #scene}
+     * @see #getWidth()
+     * @see #getHeight()
+     * @see Scene
+     * @see SceneManager#STYLE_SHEET
+     * @since 2024-09-17
+     */
+    protected void createScene(final Parent root) {
+        final double width = getWidth();
+        final double height = getHeight();
+        if (width > 0 && height > 0) {
+            this.scene = new Scene(root, width, height);
+        } else {
+            this.scene = new Scene(root);
+        }
+        this.scene.getStylesheets().add(SceneManager.STYLE_SHEET);
+    }
+
+    /**
+     * Opens the {@link #scene} on a new {@link Stage} (window) and sets the {@code icon} as the icon
+     *
+     * @param icon Icon of the new window
+     * @see #openInNewWindow()
+     * @see Stage
+     * @see Stage#getIcons()
+     * @since 2024-09-17
+     */
+    public void openInNewWindow(final Image icon) {
+        openInNewWindow();
+        Platform.runLater(() -> this.stage.getIcons().add(icon));
+    }
+
+    /**
+     * Opens the {@link #scene} on a new {@link Stage} (window)
+     *
+     * @see #openInNewWindow()
+     * @see Stage
+     * @since 2024-09-17
+     */
+    public void openInNewWindow() {
+        createStage();
+        Platform.runLater(() -> this.stage.show());
+    }
+
+    /**
+     * Creates a new {@link Stage} and sets it to {@link #stage}
+     * 
+     * @see Stage
+     * @see #setStage(Stage)
+     * @since 2024-09-17
+     */
+    public void createStage() {
+        Platform.runLater(() -> {
+            final Stage createdStage = new Stage();
+            setStage(createdStage);
+        });
+    }
+
+    /**
+     * Sets the {@link #stage}
+     *
+     * <p>
+     *     Calls {@link #setStage(Stage, boolean)} with {@code assignOnCloseStageEvent} as {@code true},
+     *     setting the close listener of {@link #stage} to {@link #onCloseStageEvent(WindowEvent)}.
+     * </p>
+     *
+     * @param stage Stage to set
+     * @see #setStage(Stage, boolean)
+     * @since 2024-09-26
+     */
+    public void setStage(final Stage stage) {
+        setStage(stage, true);
+    }
+
+    /**
+     * Sets the {@link #stage}
+     *
+     * <p>
+     *     Populates the {@link #stage} field and sets the {@link #scene} to it.
+     *     Also sets a listener to the stage and executes {@link #onCloseStageEvent(WindowEvent)} when closing it.
+     * </p>
+     *
+     * @param stage Stage to set
+     * @param assignOnCloseStageEvent Sets the {@link #stage} close listener to {@link #onCloseStageEvent(WindowEvent)}
+     * @see Stage#setScene(Scene)
+     * @see Stage#setOnCloseRequest(EventHandler)
+     * @see #onCloseStageEvent(WindowEvent)
+     * @since 2024-09-26
+     */
+    public void setStage(final Stage stage, final boolean assignOnCloseStageEvent) {
+        this.stage = stage;
+        Platform.runLater(() -> this.stage.setScene(this.scene));
+        if (assignOnCloseStageEvent) {
+            stage.setOnCloseRequest(this::onCloseStageEvent);
+        }
+    }
+
+    /**
+     * Executed when closing the window of {@link #stage}
+     *
+     * <p>
+     *     When closing the {@link #stage} window, this method is called.
+     *     It clears the {@link #eventBus}.
+     * </p>
+     *
+     * @param event The {@link WindowEvent} closing the {@link #stage}
+     * @see WindowEvent
+     * @see Stage#setOnCloseRequest(EventHandler)
+     * @see #stage
+     * @see #clearEventBus()
+     * @since 2024-09-17
+     */
+    protected void onCloseStageEvent(final WindowEvent event) {
+        clearEventBus();
+    }
+
+    /**
+     * Creates a {@link WindowEvent} on the {@link #stage} to close it.
+     *
+     * <p>
+     *     An event is fired instead of using {@link Stage#close()}
+     *     because the latter does not trigger the EventHandler associated with {@link Stage#setOnCloseRequest(EventHandler)}.
+     * </p>
+     *
+     * @see Stage#close()
+     * @see Stage#setOnCloseRequest(EventHandler)
+     * @see WindowEvent
+     * @since 2024-09-13
+     */
+    protected void closeStage() {
+        Platform.runLater(() -> stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST)));
+    }
 
     /**
      * Sets the field eventBus
      *
+     * <p>
      * This method sets the field eventBus to the EventBus given via parameter.
      * Afterwards it registers this class to the new EventBus.
+     * </p>
      *
      * @implNote This method does not unregister this class from any EventBus it
      *           may already be registered to.
@@ -51,15 +365,21 @@ public class AbstractPresenter {
     /**
      * Clears the field eventBus
      *
-     * This method clears the field eventBus. Before clearing it unregisters this
-     * class from EventBus previously used.
+     * <p>
+     *     This method unregisters this presenter object and all {@link #associatedPresenters} from the {@link #eventBus}.
+     *     After unregistering all presenters, it sets the {@link #eventBus} to null.
+     * </p>
      *
      * @implNote This method does not check whether the field eventBus is null.
      *           The field is cleared by setting it to null.
-     * @since 2019-08-29
+     * @see org.greenrobot.eventbus.EventBus#unregister(Object)
+     * @since 2024-09-15
      */
     public void clearEventBus(){
         this.eventBus.unregister(this);
+        for (final AbstractPresenter presenter : associatedPresenters) {
+            presenter.clearEventBus();
+        }
         this.eventBus = null;
     }
 }

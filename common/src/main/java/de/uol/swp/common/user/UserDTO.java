@@ -1,5 +1,8 @@
 package de.uol.swp.common.user;
 
+import de.uol.swp.common.user.request.RegisterUserRequest;
+import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
+
 import java.util.Objects;
 
 /**
@@ -8,8 +11,8 @@ import java.util.Objects;
  *
  * @author Marco Grawunder
  * @see de.uol.swp.common.user.User
- * @see de.uol.swp.common.user.request.RegisterUserRequest
- * @see de.uol.swp.common.user.response.AllOnlineUsersResponse
+ * @see RegisterUserRequest
+ * @see RetrieveAllOnlineUsersResponse
  * @since 2019-08-13
  */
 public class UserDTO implements User {
@@ -32,7 +35,7 @@ public class UserDTO implements User {
             this.password = password;
             this.eMail = eMail;
         }else{
-            throw new IllegalArgumentException("Username and password cannot be null");
+            throw new IllegalArgumentException("Nutzername und Passwort dürfen nicht leer sein");
         }
     }
 
@@ -98,5 +101,10 @@ public class UserDTO implements User {
     @Override
     public int hashCode() {
         return Objects.hash(username);
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }

@@ -1,14 +1,18 @@
 package de.uol.swp.server.communication;
 
 
+import de.uol.swp.common.message.request.RequestMessage;
+import de.uol.swp.common.message.response.ExceptionResponseMessage;
+import de.uol.swp.common.message.response.ResponseMessage;
+import de.uol.swp.common.message.server.ServerMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.message.*;
 import de.uol.swp.common.user.Session;
-import de.uol.swp.common.user.message.UserLoggedInMessage;
-import de.uol.swp.common.user.message.UserLoggedOutMessage;
+import de.uol.swp.common.user.server_message.LoginServerMessage;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ClientDisconnectedMessage;
@@ -71,7 +75,7 @@ public class ServerHandler implements ServerHandlerDelegate {
                 eventBus.post(msg);
             } catch (Exception e) {
                 LOG.error("ServerException {} {}", e.getClass().getName(), e.getMessage());
-                sendToClient(messageContext.get(), new ExceptionMessage(e.getMessage()));
+                sendToClient(messageContext.get(), new ExceptionResponseMessage(e.getMessage()));
             }
         }else{
             if (LOG.isErrorEnabled()) {
@@ -112,7 +116,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     public void onServerExceptionMessage(ServerExceptionMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         LOG.error(msg.getException());
-        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionMessage(msg.getException().getMessage())));
+        ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionResponseMessage(msg.getException().getMessage())));
     }
 
     // -------------------------------------------------------------------------------
@@ -160,7 +164,7 @@ public class ServerHandler implements ServerHandlerDelegate {
         if (ctx.isPresent() && session.isPresent()) {
             putSession(ctx.get(), session.get());
             sendToClient(ctx.get(), new LoginSuccessfulResponse(msg.getUser()));
-            sendMessage(new UserLoggedInMessage(msg.getUser().getUsername()));
+            sendMessage(new LoginServerMessage(msg.getUser()));
         } else {
             LOG.warn("No context for {}", msg);
         }
@@ -178,10 +182,9 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     @Subscribe
-    public void onUserLoggedOutMessage(UserLoggedOutMessage msg) {
+    public void onUserLoggedOutMessage(LogoutServerMessage msg) {
         Optional<MessageContext> ctx = getCtx(msg);
         ctx.ifPresent(this::removeSession);
-        sendMessage(msg);
     }
 
     // -------------------------------------------------------------------------------
@@ -345,7 +348,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      *
      * @param ctx The MessageContext containing the specified client
      * @param message The Message to send
-     * @see de.uol.swp.common.message.ResponseMessage
+     * @see ResponseMessage
      * @see de.uol.swp.common.message.MessageContext
      * @since 2019-11-20
      */
@@ -358,7 +361,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * Sends a ServerMessage to either a specified receiver or all connected clients
      *
      * @param msg ServerMessage to send
-     * @see de.uol.swp.common.message.ServerMessage
+     * @see ServerMessage
      * @since 2019-11-20
      */
     private void sendMessage(ServerMessage msg) {
@@ -375,7 +378,7 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @param sendTo List of MessageContexts to send the message to
      * @param msg message to send
      * @see de.uol.swp.common.message.MessageContext
-     * @see de.uol.swp.common.message.ServerMessage
+     * @see ServerMessage
      * @since 2019-11-20
      */
     private void sendToMany(List<MessageContext> sendTo, ServerMessage msg) {

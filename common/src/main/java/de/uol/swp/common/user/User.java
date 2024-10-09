@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Marco Grawunder
  * @since 2019-08-05
  */
-public interface User extends Serializable, Comparable<User> {
+public interface User extends Serializable, Comparable<User>, UserContainerEntity {
 
     /**
      * Getter for the username variable
@@ -46,4 +46,9 @@ public interface User extends Serializable, Comparable<User> {
      * @since 2019-08-05
      */
     User getWithoutPassword();
+
+    @Override
+    default boolean containsUser(final User user) {
+        return this.equals(user);
+    }
 }

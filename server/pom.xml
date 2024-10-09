@@ -12,6 +12,11 @@
     <artifactId>server</artifactId>
     <packaging>jar</packaging>
     <name>server</name>
+    <properties>
+        <image.tag.value>git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/server:${project.version}</image.tag.value>
+        <platform.value>linux/amd64</platform.value>
+    </properties>
+
 
     <dependencies>
         <dependency>
@@ -87,7 +92,65 @@
                     </execution>
                 </executions>
             </plugin>
+<!--            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    &lt;!&ndash; Remove existing image from local repo &ndash;&gt;
+                    <execution>
+                        <id>docker-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>rmi</argument>
+                                <argument>-f</argument>
+                                <argument>${image.tag.value}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>build</argument>
+                                <argument>&#45;&#45;platform</argument>
+                                <argument>${platform.value}</argument>
+                                <argument>-t</argument>
+                                <argument>${image.tag.value}</argument>
+                                <argument>.</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    &lt;!&ndash; Push the image to a docker repo. &ndash;&gt;
+                    <execution>
+                        <id>docker-push</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>docker</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>push</argument>
+                                <argument>${image.tag.value}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
         </plugins>
     </build>
-
 </project>

@@ -1,31 +1,40 @@
 package de.uol.swp.client;
 
-import com.google.inject.Provider;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.auth.LoginPresenter;
 import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.lobby.LobbyCreatePresenter;
+import de.uol.swp.client.lobby.LobbyOverviewPresenter;
+import de.uol.swp.client.lobby.LobbyPresenter;
+import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
+import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
 import de.uol.swp.client.main.MainMenuPresenter;
+import de.uol.swp.client.main.events.ShowMainMenuEvent;
 import de.uol.swp.client.register.RegistrationPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
+import de.uol.swp.common.role.response.RoleUnavailableResponse;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Class that manages which window/scene is currently shown
@@ -36,16 +45,26 @@ import java.net.URL;
 public class SceneManager {
 
     static final Logger LOG = LogManager.getLogger(SceneManager.class);
-    static final String STYLE_SHEET = "css/swp.css";
+    public static final String STYLE_SHEET = "css/swp.css";
     static final String DIALOG_STYLE_SHEET = "css/myDialog.css";
+    static final String ERROR_DIALOG_STYLE_SHEET = "css/errorDialog.css";
+    static final String ICON_IMAGE_PATH = "/images/PandemieLogo.png";
+    static final String ERROR_ICON_IMAGE_PATH = "/images/ErrorIcon.png";
+
+    public static final String GAME_INSTRUCTIONS_STYLE_SHEET = "css/gameInstructions.css";
 
     private final Stage primaryStage;
-    private Scene loginScene;
-    private String lastTitle;
-    private Scene registrationScene;
-    private Scene mainScene;
+    private final Image iconImage;
+    private final Image errorIconImage;
     private Scene lastScene = null;
     private Scene currentScene = null;
+    private String lastTitle;
+
+    private final LoginPresenter loginPresenter = AbstractPresenter.loadFXMLPresenter(LoginPresenter.class);
+    private final RegistrationPresenter registrationPresenter = AbstractPresenter.loadFXMLPresenter(RegistrationPresenter.class);
+    private final MainMenuPresenter mainMenuPresenter = AbstractPresenter.loadFXMLPresenter(MainMenuPresenter.class);
+    private final LobbyCreatePresenter lobbyCreatePresenter = AbstractPresenter.loadFXMLPresenter(LobbyCreatePresenter.class);
+    private final LobbyOverviewPresenter lobbyOverviewPresenter = AbstractPresenter.loadFXMLPresenter(LobbyOverviewPresenter.class);
 
     private final Provider<FXMLLoader> loaderProvider;
 
@@ -54,98 +73,27 @@ public class SceneManager {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
-        initViews();
+        this.iconImage = new Image(getClass().getResourceAsStream(ICON_IMAGE_PATH));
+        this.errorIconImage = new Image(getClass().getResourceAsStream(ERROR_ICON_IMAGE_PATH));
+        primaryStage.getIcons().add(iconImage);
     }
 
     /**
-     * Subroutine to initialize all views
+     * Handles ShowMainMenuEvent detected on the EventBus
      *
-     * This is a subroutine of the constructor to initialize all views
-     * @since 2019-09-03
+     * <p>
+     * If a {@link ShowMainMenuEvent} is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the main menu
+     * screen.
+     * </p>
+     *
+     * @param event The ShowMainMenuEvent detected on the EventBus
+     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
+     * @since 2024-08-24
      */
-    private void initViews() throws IOException {
-        initLoginView();
-        initMainView();
-        initRegistrationView();
-    }
-
-    /**
-     * Subroutine creating parent panes from FXML files
-     *
-     * This Method tries to create a parent pane from the FXML file specified by
-     * the URL String given to it. If the LOG-Level is set to Debug or higher loading
-     * is written to the LOG.
-     * If it fails to load the view a RuntimeException is thrown.
-     *
-     * @param fxmlFile FXML file to load the view from
-     * @return view loaded from FXML or null
-     * @since 2019-09-03
-     */
-    private Parent initPresenter(String fxmlFile) throws IOException {
-        Parent rootPane;
-        FXMLLoader loader = loaderProvider.get();
-        try {
-            URL url = getClass().getResource(fxmlFile);
-            LOG.debug("Loading {}", url);
-            loader.setLocation(url);
-            rootPane = loader.load();
-        } catch (Exception e) {
-            throw new IOException(String.format("Could not load View! %s", e.getMessage()), e);
-        }
-        return rootPane;
-    }
-
-    /**
-     * Initializes the main menu view
-     *
-     * If the mainScene is null it gets set to a new scene containing the
-     * a pane showing the main menu view as specified by the MainMenuView
-     * FXML file.
-     *
-     * @see de.uol.swp.client.main.MainMenuPresenter
-     * @since 2019-09-03
-     */
-    private void initMainView() throws IOException {
-        if (mainScene == null) {
-            Parent rootPane = initPresenter(MainMenuPresenter.FXML);
-            mainScene = new Scene(rootPane, 800, 600);
-            mainScene.getStylesheets().add(STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the login view
-     *
-     * If the loginScene is null it gets set to a new scene containing the
-     * a pane showing the login view as specified by the LoginView FXML file.
-     *
-     * @see de.uol.swp.client.auth.LoginPresenter
-     * @since 2019-09-03
-     */
-    private void initLoginView() throws IOException {
-        if (loginScene == null) {
-            Parent rootPane = initPresenter(LoginPresenter.FXML);
-            loginScene = new Scene(rootPane, 400, 200);
-            loginScene.getStylesheets().add(STYLE_SHEET);
-        }
-    }
-
-    /**
-     * Initializes the registration view
-     *
-     * If the registrationScene is null it gets set to a new scene containing the
-     * a pane showing the registration view as specified by the RegistrationView
-     * FXML file.
-     *
-     * @see de.uol.swp.client.register.RegistrationPresenter
-     * @since 2019-09-03
-     */
-    private void initRegistrationView() throws IOException {
-        if (registrationScene == null){
-            Parent rootPane = initPresenter(RegistrationPresenter.FXML);
-            registrationScene = new Scene(rootPane, 400,200);
-            registrationScene.getStylesheets().add(STYLE_SHEET);
-        }
+    @Subscribe
+    public void onShowMainMenuEvent(final ShowMainMenuEvent event){
+        showMainScreen(event.getUser());
     }
 
     /**
@@ -180,6 +128,21 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowLobbyCreateViewEvent detected on the EventBus
+     *
+     * If a ShowLobbyCreateViewEvent is detected on the EventBus, this method gets
+     * called. It calls a method to switch the current screen to the lobby create screen.
+     *
+     * @param event The ShowLobbyCreateViewEvent detected on the EventBus
+     * @see ShowLobbyCreateViewEvent
+     * @since 2024-08-28
+     */
+    @Subscribe
+    public void onShowLobbyCreateViewEvent(final ShowLobbyCreateViewEvent event) {
+        showLobbyCreateScreen();
+    }
+
+    /**
      * Handles RegistrationCanceledEvent detected on the EventBus
      *
      * If a RegistrationCanceledEvent is detected on the EventBus, this method gets
@@ -210,6 +173,55 @@ public class SceneManager {
     }
 
     /**
+     * Handles ShowLobbyOverviewViewEvent detected on the EventBus
+     *
+     * <p>
+     * If a ShowLobbyOverviewViewEvent is detected on the EventBus, this method gets called.
+     * It calls a method to switch the current screen to the lobbyOverview screen.
+     * </p>
+     *
+     * @param event The ShowLobbyOverviewViewEvent detected on the EventBus
+     * @see de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent
+     * @since 2024-08-23
+     */
+    @Subscribe
+    public void onShowLobbyOverviewEvent(final ShowLobbyOverviewViewEvent event) {
+        showLobbyOverviewScreen();
+    }
+
+    /**
+     * Handles JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link JoinUserUserAlreadyInLobbyLobbyResponse} is detected on the EventBus, this method gets called.
+     * It calls a method to open an error screen.
+     * </p>
+     *
+     * @param event The JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
+     * @see JoinUserUserAlreadyInLobbyLobbyResponse
+     * @since 2024-08-29
+     */
+    @Subscribe
+    public void onLobbyJoinUserUserAlreadyInLobbyResponse(final JoinUserUserAlreadyInLobbyLobbyResponse event) {
+        showError("", "Du kannst der Lobby \""+event.getLobby().getName()+"\" nicht beitreten, da du bereits in ihr bist.");
+    }
+
+    /**
+     * Handles ShowLobbyViewEvent detected on the EventBus
+     *
+     * If a {@link ShowLobbyViewEvent} is detected on the EventBus, this method gets
+     * called. It opens a new lobby window for the created lobby.
+     *
+     * @param event The ShowLobbyViewEvent detected on the EventBus
+     * @see ShowLobbyViewEvent
+     * @since 2024-08-28
+     */
+    @Subscribe
+    public void onShowLobbyViewEvent(final ShowLobbyViewEvent event) {
+        showLobbyScreen(event.getLobby());
+    }
+
+    /**
      * Shows an error message inside an error alert
      *
      * @param message The type of error to be shown
@@ -221,7 +233,12 @@ public class SceneManager {
             Alert a = new Alert(Alert.AlertType.ERROR, message + e);
             // based on: https://stackoverflow.com/questions/28417140/styling-default-javafx-dialogs/28421229#28421229
             DialogPane pane = a.getDialogPane();
-            pane.getStylesheets().add(DIALOG_STYLE_SHEET);
+            ImageView imageView = new ImageView(this.errorIconImage);
+            a.setGraphic(imageView);
+            if (pane.getScene().getWindow() instanceof Stage stage) {
+                stage.getIcons().add(iconImage);
+            }
+            pane.getStylesheets().add(ERROR_DIALOG_STYLE_SHEET);
             a.showAndWait();
         });
     }
@@ -233,7 +250,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showServerError(String e) {
-        showError("Server returned an error:\n" , e);
+        showError("" , e);
     }
 
     /**
@@ -243,7 +260,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showError(String e) {
-        showError("Error:\n" , e);
+        showError("" , e);
     }
 
     /**
@@ -268,24 +285,6 @@ public class SceneManager {
     }
 
     /**
-     * Shows the login error alert
-     *
-     * Opens an ErrorAlert popup saying "Error logging in to server"
-     *
-     * @since 2019-09-03
-     */
-    public void showLoginErrorScreen() {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Error logging in to server");
-            // based on: https://stackoverflow.com/questions/28417140/styling-default-javafx-dialogs/28421229#28421229
-            DialogPane pane = alert.getDialogPane();
-            pane.getStylesheets().add(DIALOG_STYLE_SHEET);
-            alert.showAndWait();
-            showLoginScreen();
-        });
-    }
-
-    /**
      * Shows the main menu
      *
      * Switches the current Scene to the mainScene and sets the title of
@@ -294,7 +293,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
-        showScene(mainScene, "Welcome " + currentUser.getUsername());
+        showScene(mainMenuPresenter.getScene(), "Welcome " + currentUser.getUsername());
     }
 
     /**
@@ -306,7 +305,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showLoginScreen() {
-        showScene(loginScene,"Login");
+        showScene(loginPresenter.getScene(),"Login");
     }
 
     /**
@@ -318,6 +317,83 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationScene,"Registration");
+        showScene(registrationPresenter.getScene(),"Registrierung");
     }
+
+    /**
+     * Shows the lobby create screen
+     *
+     * Switches the current Scene to the {@link #lobbyCreatePresenter} screen and sets the title of
+     * the window to "Lobby erstellen"
+     *
+     * @since 2024-08-28
+     */
+    public void showLobbyCreateScreen() {
+        showScene(lobbyCreatePresenter.getScene(),"Lobby erstellen");
+    }
+
+    /**
+     * Shows the lobbyOverview screen
+     *
+     * <p>
+     * Switches the current Scene to the lobbyOverviewScene and sets the title of the window
+     * </p>
+     *
+     * @since 2024-08-23
+     */
+    public void showLobbyOverviewScreen() {
+        showScene(lobbyOverviewPresenter.getScene(), "Lobby-Übersicht");
+    }
+
+    /**
+     * Shows the lobby screen associated with the given lobby
+     *
+     * <p>
+     * Opens a new window with the lobby screen associated with the given lobby.
+     * </p>
+     *
+     * @param lobby Lobby to show window for
+     * @since 2024-08-28
+     */
+    public void showLobbyScreen(final Lobby lobby) {
+        try {
+            final LobbyPresenter lobbyPresenter = AbstractPresenter.loadFXMLPresenter(LobbyPresenter.class);
+            lobbyPresenter.openInNewWindow(iconImage);
+            lobbyPresenter.initialize(lobby);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    /**
+     * Handles the event when a role is unavailable.
+     * Displays an information alert with a message indicating that the role is already taken.
+     *
+     * @param roleUnavailableMessage The message containing information about the unavailable role.
+     */
+    @Subscribe
+    public void onRoleUnavailableMessage(RoleUnavailableResponse roleUnavailableMessage) {
+        onShowRoleIsUnavailable();
+    }
+
+    /**
+     * Shows an alert indicating that the selected role is unavailable.
+     * The alert provides the user with instructions to choose a different role.
+     */
+    public void onShowRoleIsUnavailable() {
+        Platform.runLater(() -> {
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("Achtung!");
+            a.setContentText("Die Rolle ist bereits vergeben.");
+            DialogPane pane = a.getDialogPane();
+            ImageView imageView = new ImageView(this.errorIconImage);
+            a.setGraphic(imageView);
+            if (pane.getScene().getWindow() instanceof Stage stage) {
+                stage.getIcons().add(iconImage);
+            }
+            pane.getStylesheets().add(ERROR_DIALOG_STYLE_SHEET);
+            a.showAndWait();
+        });
+    }
+
 }

@@ -15,3 +15,61 @@
     -fx-font-style: italic;
     -fx-font-size: 2em;
 }
+
+.dialog-pane .button:hover, .dialog-pane .combo-box:hover {
+    -fx-font-size: 20px;
+}
+
+.dialog-pane .button:focused, .dialog-pane .combo-box:focused {
+    -fx-font-size: 20px;
+}
+
+.dialog-pane .button, .dialog-pane .text-field, .dialog-pane .combo-box {
+    -fx-font-size: 20px;
+    -fx-min-height: 36px;
+    -fx-pref-height: 36px;
+}
+
+.dialog-pane .combo-box {
+    -fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;
+    -fx-background-insets: 0 0 -1 0, 0, 1, 2;
+    -fx-background-radius: 3px, 3px, 2px, 1px;
+}
+
+.dialog-pane .combo-box:hover {
+    -fx-color: -fx-hover-base;
+}
+
+.dialog-pane .combo-box:showing {
+    -fx-color: -fx-pressed-base;
+}
+
+.dialog-pane .combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.persistent-prompt:focused {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}
+
+.persistent-prompt {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}
+
+.persistent-prompt:focused {
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.icon-button {
+    -fx-padding: 5px;
+}
+
+.icon-button .image-view {
+    -fx-fit-width: 20px;
+    -fx-fit-height: 20px;
+}
+
+.icon-button:hover .image-view {
+    -fx-fit-width: 22px;
+    -fx-fit-height: 22px;
+}
