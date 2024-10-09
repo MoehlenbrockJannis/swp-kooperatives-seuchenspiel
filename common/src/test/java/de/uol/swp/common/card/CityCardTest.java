@@ -90,8 +90,11 @@ class CityCardTest {
     @Test
     @DisplayName("Should return false if given object does not have same associated field")
     void testEquals_false() {
+        final City newCity = new City("Hamburg", "");
         final GameMap newMap = mock(GameMap.class);
         final MapSlot newMapSlot = mock(MapSlot.class);
+        when(newMapSlot.getCity())
+                .thenReturn(newCity);
         final Field newField = new Field(newMap, newMapSlot);
 
         final CityCard notEqual = new CityCard(newField);
