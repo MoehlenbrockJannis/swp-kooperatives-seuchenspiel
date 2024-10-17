@@ -8,7 +8,6 @@ import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
 import javafx.fxml.FXML;
@@ -22,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +50,8 @@ public class GameMapPresenter extends AbstractPresenter {
 
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
+
+    private final List<CityMarker> cityMarkers = new ArrayList<>();
 
     /**
      * <p>
@@ -259,20 +261,22 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds all cities of the mapType to the pane as CityMarkers
+     * Creates cityMarker for each field in the game and adds them to the pane.
      *
      * @author David Scheffler
      * @see CityMarker
      * @since 2024-09-10
      */
     private void addCityMarkers() {
-        for (MapSlot mapSlot : game.getMap().getType().getMap()) {
-            CityMarker cityMarker = new CityMarker(mapSlot);
+        for (Field field : game.getFields()) {
+            CityMarker cityMarker = new CityMarker(field);
 
             pane.getChildren().add(cityMarker);
 
-            cityMarker.layoutXProperty().bind(webView.widthProperty().multiply(mapSlot.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH));
-            cityMarker.layoutYProperty().bind(webView.heightProperty().multiply(mapSlot.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT));
+            cityMarker.layoutXProperty().bind(webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH));
+            cityMarker.layoutYProperty().bind(webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT));
+
+            cityMarkers.add(cityMarker);
         }
     }
 
