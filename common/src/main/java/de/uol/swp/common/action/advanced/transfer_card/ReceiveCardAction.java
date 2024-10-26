@@ -31,7 +31,7 @@ public class ReceiveCardAction extends ShareKnowledgeAction {
      */
     @Override
     public boolean isAvailable() {
-        return getSendCardActionOfOpponent().equals(NoLimitsSendCardAction.class) ?
+        return getSender() != null && getSendCardActionOfOpponent().equals(NoLimitsSendCardAction.class) ?
                 getSender().hasHandCards() :
                 super.isAvailable();
     }

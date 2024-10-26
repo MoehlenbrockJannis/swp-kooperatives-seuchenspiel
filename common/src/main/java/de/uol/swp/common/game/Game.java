@@ -1,7 +1,6 @@
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.card.*;
-import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.lobby.Lobby;
@@ -16,16 +15,11 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import de.uol.swp.common.marker.AntidoteMarker;
-import de.uol.swp.common.marker.InfectionMarker;
-import de.uol.swp.common.marker.OutbreakMarker;
 import de.uol.swp.common.util.Color;
-import lombok.*;
-import org.reflections.Reflections;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,6 +62,7 @@ public class Game implements Serializable {
     private int maxNumberOfPlagueCubesPerField;
     @Getter
     private int numberOfActionsPerTurn;
+    @Getter
     private int numberOfPlayerCardsToDrawPerTurn;
     @Getter
     private GameMap map;
@@ -170,6 +165,7 @@ public class Game implements Serializable {
         this.maxNumberOfPlagueCubesPerField = maxNumberOfPlagueCubesPerField;
         this.numberOfActionsPerTurn = numberOfActionsPerTurn;
         this.numberOfPlayerCardsToDrawPerTurn = numberOfPlayerCardsToDrawPerTurn;
+        this.turns = new ArrayList<>();
         this.isWon = false;
         this.isLost = false;
         this.indexOfCurrentPlayer = 0;
@@ -183,6 +179,8 @@ public class Game implements Serializable {
         this.map = new GameMap(this, type);
         createPlayerStacks();
         createInfectionStacks();
+
+        assignPlayersToStartingField();
     }
 
     @Override
@@ -201,8 +199,11 @@ public class Game implements Serializable {
      * Assigns players to their starting positions on the game map.
      * This method sets up the initial locations for all players based on game rules.
      */
-    private void assignPlayersToStartingField () {
-
+    private void assignPlayersToStartingField() {
+        final Field startingField = this.map.getStartingField();
+        for (final Player player : this.playersInTurnOrder) {
+            player.setCurrentField(startingField);
+        }
     }
 
     /**
@@ -355,17 +356,6 @@ public class Game implements Serializable {
     }
 
     /**
-     * Starts a new turn for the current player.
-     * This method handles the beginning of a new turn, returning the PlayerTurn object representing the current turn.
-     *
-     * @return the PlayerTurn object representing the current turn
-     */
-    private PlayerTurn startNewTurn () {
-        // TODO: 05.09.2024
-        return null;
-    }
-
-    /**
      * Retrieves a plague cube for the specified plague.
      * This method is used to get a cube of a specific plague color for game actions.
      *
@@ -453,9 +443,17 @@ public class Game implements Serializable {
      *
      * @return the PlayerTurn object representing the current turn
      */
-    public PlayerTurn getCurrentTurn () {
-        // TODO: 05.09.2024  
-        return null;
+    public PlayerTurn getCurrentTurn() {
+        return this.turns.get(this.turns.size() - 1);
+    }
+
+    /**
+     * Adds the given {@link PlayerTurn} to {@link #turns}.
+     *
+     * @param playerTurn The newly started {@link PlayerTurn}
+     */
+    public void addPlayerTurn(final PlayerTurn playerTurn) {
+        this.turns.add(playerTurn);
     }
 
     /**
@@ -467,5 +465,14 @@ public class Game implements Serializable {
      */
     public List<Field> getFields() {
         return map.getFields();
+    }
+
+    /**
+     * Returns the last element of {@link #playersInTurnOrder}.
+     *
+     * @return the current {@link Player}
+     */
+    public Player getCurrentPlayer() {
+        return this.playersInTurnOrder.get(this.indexOfCurrentPlayer);
     }
 }

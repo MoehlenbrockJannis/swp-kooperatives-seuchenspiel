@@ -88,6 +88,23 @@ class ReceiveCardActionTestNoLimitsTest extends ReceiveCardActionTest {
     @Override
     @DisplayName("Should return false if sender does not have transferred card on hand")
     void isAvailable_false() {
+        isAvailable_falseNoSender();
+
+        isAvailable_falseNoHandCard();
+    }
+
+    private void isAvailable_falseNoSender() {
+        setUp();
+
+        action.setTargetPlayer(null);
+
+        assertThat(action.isAvailable())
+                .isFalse();
+    }
+
+    private void isAvailable_falseNoHandCard() {
+        setUp();
+
         assertThat(action.isAvailable())
                 .isFalse();
     }
