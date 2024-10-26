@@ -1,5 +1,7 @@
 package de.uol.swp.common.util;
 
+import java.io.Serializable;
+
 /**
  * The {@code Command} interface represents an executable action or task.
  * It provides a single method to execute the command.
@@ -7,7 +9,7 @@ package de.uol.swp.common.util;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-public interface Command {
+public interface Command extends Serializable {
 
     /**
      * <p>

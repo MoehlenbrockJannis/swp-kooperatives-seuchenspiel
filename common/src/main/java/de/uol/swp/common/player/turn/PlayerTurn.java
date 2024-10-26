@@ -8,6 +8,7 @@ import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.util.Command;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Set;
  * It manages the actions the player can perform and the triggerable actions
  * (either automatic or manual) that occur during the turn.
  */
-public class PlayerTurn {
+public class PlayerTurn implements Serializable {
 
     private Game game;
     private Player player;
@@ -31,7 +32,7 @@ public class PlayerTurn {
     private int currentManualTriggerable;
     private List<ManualTriggerable> manualTriggerables;
     private List<Command> executedCommands;
-    private ActionFactory actionFactory = new ActionFactory();
+    private transient ActionFactory actionFactory = new ActionFactory();
 
     /**
      * Constructor for creating a new PlayerTurn instance.

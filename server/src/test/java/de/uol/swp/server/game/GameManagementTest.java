@@ -7,7 +7,9 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,12 +21,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class GameManagementTest {
     private GameManagement gameManagement;
     private LobbyManagement lobbyManagement;
+    private PlayerTurnManagement playerTurnManagement;
     private RoleManagement roleManagement;
     private Lobby mockLobby;
     private MapType mockMapType;
@@ -37,10 +41,12 @@ class GameManagementTest {
     @BeforeEach
     void setUp() {
         lobbyManagement = mock(LobbyManagement.class);
+        playerTurnManagement = mock(PlayerTurnManagement.class);
         roleManagement = mock(RoleManagement.class);
 
         gameManagement = new GameManagement();
         gameManagement.setLobbyManagement(lobbyManagement);
+        gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
 
         mockLobby = mock(Lobby.class);
@@ -55,13 +61,21 @@ class GameManagementTest {
     @Test
     @DisplayName("Test creating a game")
     void testCreateGame() {
+        final PlayerTurn playerTurn = mock(PlayerTurn.class);
+
         when(mockLobby.getPlayers()).thenReturn(Set.of(mockPlayer));
+        when(playerTurnManagement.createPlayerTurn(any()))
+                .thenReturn(playerTurn);
+
         Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(mockLobby);
         assertThat(game.getMap()).isNotNull();
         assertThat(game.getPlagues()).isEqualTo(mockPlagues);
         assertThat(game.getPlayersInTurnOrder()).isEqualTo(List.of(mockPlayer));
+        assertThat(game.getCurrentTurn())
+                .isEqualTo(playerTurn);
     }
 
     @Test

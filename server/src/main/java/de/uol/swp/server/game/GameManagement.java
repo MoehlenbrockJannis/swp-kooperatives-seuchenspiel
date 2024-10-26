@@ -9,6 +9,7 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.server.lobby.LobbyManagement;
+import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
 import lombok.Setter;
 
@@ -23,6 +24,7 @@ import java.util.Random;
 @Setter(onMethod = @__(@Inject))
 public class GameManagement {
     private LobbyManagement lobbyManagement;
+    private PlayerTurnManagement playerTurnManagement;
     private RoleManagement roleManagement;
 
     private final List<Game> games = new ArrayList<>();
@@ -42,6 +44,7 @@ public class GameManagement {
 
         Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
         newGame.setId(generateUniqueGameId());
+        newGame.addPlayerTurn(playerTurnManagement.createPlayerTurn(newGame));
         return newGame;
     }
 
