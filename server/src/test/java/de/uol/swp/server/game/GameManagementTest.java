@@ -4,6 +4,8 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.City;
+import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -49,8 +51,15 @@ class GameManagementTest {
         gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
 
+        final City city = new City("city", "info");
+        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
+
         mockLobby = mock(Lobby.class);
         mockMapType = mock(MapType.class);
+        when(mockMapType.getMap())
+                .thenReturn(List.of(mapSlot));
+        when(mockMapType.getStartingCity())
+                .thenReturn(city);
         mockPlagues = new ArrayList<>();
         mockGame = mock(Game.class);
         mockPlayer = mock(Player.class);
@@ -161,11 +170,10 @@ class GameManagementTest {
     @DisplayName("Test drawing an infection card from the bottom")
     void drawInfectionCard_fromTheBottom() {
         Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        Optional<Game> optionalGame = gameManagement.getGame(game);
-        optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
-        optionalGame.get().getInfectionDrawStack().push(mock(InfectionCard.class));
-        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheBottom(optionalGame.get());
+        game.getInfectionDrawStack().removeFirstCard();
+        game.getInfectionDrawStack().push(mockInfectionCard);
+        game.getInfectionDrawStack().push(mock(InfectionCard.class));
+        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheBottom(game);
 
         assertThat(infectionCard).isNotNull();
         assertThat(infectionCard).isEqualTo(mockInfectionCard);
