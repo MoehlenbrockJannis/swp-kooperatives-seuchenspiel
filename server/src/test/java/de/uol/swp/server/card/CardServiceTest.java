@@ -11,6 +11,8 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.map.City;
+import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -23,9 +25,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -36,6 +40,7 @@ class CardServiceTest extends EventBusBasedTest {
     private GameManagement gameManagement;
     private LobbyService lobbyService;
     private Game game;
+    private MapType mapType;
 
     @BeforeEach
     void setUp() {
@@ -44,9 +49,16 @@ class CardServiceTest extends EventBusBasedTest {
         EventBus eventBus = getBus();
         cardService = new CardService(eventBus, gameManagement, lobbyService);
 
+        final City city = new City("city", "info");
+        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
+
         User user = new UserDTO("Test", "Test", "Test@test.de");
         List<Plague> plagues = List.of(mock(Plague.class));
-        MapType mapType = mock(MapType.class);
+        mapType = mock(MapType.class);
+        when(mapType.getMap())
+                .thenReturn(List.of(mapSlot));
+        when(mapType.getStartingCity())
+                .thenReturn(city);
         Lobby lobby = new LobbyDTO("Test", user,2,4);
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
     }
@@ -119,7 +131,6 @@ class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Discard Player Card Request - Card Not In Hand")
     void onDiscardPlayerCardRequest_cardNotInHand() {
         List<Plague> plagues = List.of(mock(Plague.class));
-        MapType mapType = mock(MapType.class);
         List<Player> players = new ArrayList<>();
         players.add(mock(Player.class));
         Lobby lobby = mock(LobbyDTO.class);
