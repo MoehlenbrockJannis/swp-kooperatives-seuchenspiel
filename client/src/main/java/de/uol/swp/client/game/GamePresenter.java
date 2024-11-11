@@ -3,6 +3,7 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.card.CardOverviewPresenter;
+import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.card.InfectionCard;
@@ -10,13 +11,12 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
@@ -71,6 +71,20 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private GameMapPresenter gameMapController;
+
+    @FXML
+    private Button topRightChatToggleButton;
+
+    @FXML
+    private Button bottomRightChatToggleButton;
+
+    @FXML
+    private Pane chatComponent;
+
+    @FXML
+    private ChatPresenter chatComponentController;
+
+    private boolean isChatVisible = true;
 
 
     /**
@@ -132,6 +146,8 @@ public class GamePresenter extends AbstractPresenter {
         });
         gameMapController.initialize(game);
         initializeMenuItems();
+        chatComponentController.setLobby(game.getLobby());
+        initializeChat();
     }
 
     @Subscribe
@@ -188,5 +204,50 @@ public class GamePresenter extends AbstractPresenter {
             infectionCardsOverviewController.updateLabels();
         }
 
+    }
+
+    /**
+     * Initializes the chat component and its visibility state
+     */
+    private void initializeChat() {
+        if (chatComponent != null) {
+            String cssFile = "/css/GameChatStyle.css";
+            if (getClass().getResource(cssFile) != null) {
+                chatComponent.getScene().getStylesheets().add(getClass().getResource(cssFile).toExternalForm());
+
+                chatComponent.getStyleClass().add("game-chat-component");
+
+                chatComponent.lookupAll(".text-field").forEach(node -> {
+                    HBox.setHgrow(node, Priority.ALWAYS);
+                });
+            }
+
+            updateChatVisibility();
+        }
+    }
+
+    /**
+     * Toggles the chat visibility when either of the chat toggle buttons is clicked
+     */
+    @FXML
+    private void toggleChat() {
+        isChatVisible = !isChatVisible;
+        updateChatVisibility();
+    }
+
+    /**
+     * Updates the chat visibility based on the current state
+     */
+    private void updateChatVisibility() {
+        if (chatComponent != null) {
+            chatComponent.setVisible(isChatVisible);
+            chatComponent.setManaged(isChatVisible);
+
+            topRightChatToggleButton.setText(isChatVisible ? "Chat ↓" : "+");
+            bottomRightChatToggleButton.setText(isChatVisible ? "Chat" : "Chat ↑");
+
+            topRightChatToggleButton.setVisible(isChatVisible);
+            bottomRightChatToggleButton.setVisible(!isChatVisible);
+        }
     }
 }
