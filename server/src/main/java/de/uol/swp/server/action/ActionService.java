@@ -39,7 +39,6 @@ public class ActionService extends AbstractService {
      */
     @Subscribe
     public void onActionRequest(ActionRequest request) {
-
         request.getAction().execute();
 
         ActionServerMessage actionServerMessage = new ActionServerMessage(request.getGame());
