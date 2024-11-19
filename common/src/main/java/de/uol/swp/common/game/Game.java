@@ -35,6 +35,7 @@ import java.util.Map;
  * and various game markers. It provides methods to initialize the game,
  * handle turns, and determine the game's outcome.
  */
+
 public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;

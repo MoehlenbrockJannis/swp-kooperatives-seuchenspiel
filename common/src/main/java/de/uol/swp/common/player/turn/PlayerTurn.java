@@ -7,6 +7,7 @@ import de.uol.swp.common.player.Player;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.util.Command;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class PlayerTurn implements Serializable {
     private int numberOfActionsToDo;
     private int numberOfPlayerCardsToDraw;
     private boolean playedCarrier;
+    @Getter
     private List<Action> possibleActions;
     private int currentAutoTriggerable;
     private List<AutoTriggerable> autoTriggerables;
