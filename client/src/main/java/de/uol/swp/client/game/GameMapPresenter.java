@@ -73,6 +73,8 @@ public class GameMapPresenter extends AbstractPresenter {
     @FXML
     public void initialize(Game game) {
         this.game = game;
+        this.webView.setContextMenuEnabled(false);
+
         bindSizePropertyOfWorldMapWebView();
         loadSvgIntoWebView();
         addCityMarkers();
