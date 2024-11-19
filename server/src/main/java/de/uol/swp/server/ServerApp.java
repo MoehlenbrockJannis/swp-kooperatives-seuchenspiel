@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.common.Configuration;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.action.ActionService;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.chat.ChatManagement;
 import de.uol.swp.server.chat.ChatService;
@@ -97,6 +98,7 @@ class ServerApp {
 		injector.getInstance(MapTypeService.class);
 		injector.getInstance(PlagueService.class);
 		injector.getInstance(CardService.class);
+		injector.getInstance(ActionService.class);
 	}
 
 }

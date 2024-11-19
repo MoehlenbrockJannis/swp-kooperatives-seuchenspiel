@@ -71,6 +71,7 @@ public class LobbyPresenter extends AbstractPresenter {
     private ObservableList<RoleCard> availableRoles;
     @Inject
     private RoleService roleService;
+
     private RoleCard selectedRole;
     @FXML
     private ChatPresenter chatController;
