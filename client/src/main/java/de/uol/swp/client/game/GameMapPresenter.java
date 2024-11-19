@@ -100,24 +100,6 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Handles executed actions from the server, updating the game state as necessary.
-     *
-     * @param actionServerMessage the message containing the action executed by the server
-     * @author Jannis Moehlenbrock
-     */
-    @Subscribe
-    public void onActionServerMessageReceived(ActionServerMessage actionServerMessage) {
-        if (this.game.getId() == actionServerMessage.getGame().getId()) {
-            Platform.runLater(() -> {
-                this.game = actionServerMessage.getGame();
-                pane.getChildren().removeIf(PlayerMarker.class::isInstance);
-                playerMarkers.clear();
-                addAllPlayerMarkers();
-            });
-        }
-    }
-
-    /**
      * Adds all players of the game to the pane as PlayerMarkers
      *
      * @see PlayerMarker
