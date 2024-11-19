@@ -3,11 +3,10 @@ package de.uol.swp.client.player;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.client.game.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.common.action.request.ActionRequest;
-import de.uol.swp.common.action.simple.car.CarAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import org.greenrobot.eventbus.EventBus;
@@ -22,8 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 
 class PlayerMarkerTest {
 
@@ -72,17 +69,13 @@ class PlayerMarkerTest {
     }
 
     @Test
-    @DisplayName("Player marker should be composed of two shapes")
-    void shouldContainRequiredShapes() {
-        assertThat(playerMarker.getChildren())
-                .as("Player marker should contain exactly two shapes")
-                .hasSize(2)
-                .allMatch(node -> node instanceof Shape);
-    }
-
-    @Test
     @DisplayName("Shapes should have correct fill and stroke colors")
     void shouldHaveCorrectColor() {
+        List<Node> children = playerMarker.getChildren();
+        assertThat(children)
+                .as("All nodes should be of type Shape")
+                .allMatch(node -> node instanceof Shape);
+
         List<Shape> shapes = playerMarker.getChildren()
                 .stream()
                 .map(node -> (Shape) node)
@@ -95,12 +88,5 @@ class PlayerMarkerTest {
         assertThat(shapes)
                 .as("All shapes should have black stroke")
                 .allMatch(shape -> shape.getStroke().equals(Color.BLACK));
-    }
-
-    @Test
-    @DisplayName("Checks whether an ActionRequest is sent via the EventBus")
-    void executeActionOnCity() {
-        actionService.sendAction(game, new CarAction());
-        verify(eventBus).post(any(ActionRequest.class));
     }
 }

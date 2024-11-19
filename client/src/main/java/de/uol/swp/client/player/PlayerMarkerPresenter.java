@@ -6,7 +6,6 @@ import de.uol.swp.client.game.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.simple.MoveAction;
-import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.user.User;
@@ -85,34 +84,14 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
 
         for (Action action : possibleActions) {
-            if (action instanceof MoveAction || action instanceof WaiveAction) {
+            if (action instanceof MoveAction) {
                 MenuItem actionItem = new MenuItem(action.toString());
-                actionItem.setOnAction(event -> prepareAction(action));
+                actionItem.setOnAction(event -> prepareMoveAction((MoveAction) action));
                 contextMenu.getItems().add(actionItem);
             }
         }
 
         return contextMenu;
-    }
-
-    /**
-     * Prepares the selected action for execution.
-     * Highlights available fields and city markers.
-     *
-     * @param action the action to prepare
-     * @author Jannis Moehlenbrock
-     */
-    private void prepareAction(Action action) {
-        if (!isActionRelevant(action)) {
-            return;
-        }
-
-        if (!(action instanceof MoveAction)) {
-            return;
-        }
-
-        MoveAction moveAction = (MoveAction) action;
-        prepareMoveAction(moveAction);
     }
 
     /**
@@ -186,16 +165,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         }
     }
 
-    /**
-     * Checks if the action is relevant to the current game.
-     *
-     * @param action the action to check
-     * @return true if the action is relevant, false otherwise
-     * @author Jannis Moehlenbrock
-     */
-    private boolean isActionRelevant(Action action) {
-        return action.getGame().equals(game);
-    }
 
     /**
      * Creates a map of city markers keyed by the city name for quick lookup.

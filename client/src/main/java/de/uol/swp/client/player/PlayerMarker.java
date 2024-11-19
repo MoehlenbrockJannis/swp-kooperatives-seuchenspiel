@@ -17,6 +17,7 @@ import lombok.Getter;
  * @see PlayerMarkerPresenter
  * @since 2024-09-28
  */
+@Getter
 public class PlayerMarker extends Group {
 
     private static final double DEFAULT_HEAD_RADIUS = 10.0;
@@ -59,7 +60,6 @@ public class PlayerMarker extends Group {
         alignBodyToHead();
         addToGroup(body, head);
     }
-
     /**
      * Initializes the shapes of the player marker
      */
