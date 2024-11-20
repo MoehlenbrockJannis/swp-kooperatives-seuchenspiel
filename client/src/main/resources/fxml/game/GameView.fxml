@@ -89,8 +89,8 @@
               text="Anzahl Forschungslabore/Seuchenwürfel"/>
     </Pane>
 
-    <StackPane GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="4">
-        <AnchorPane>
+    <StackPane fx:id="chatStackPane" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="4">
+        <AnchorPane fx:id="chatAnchorPane">
             <fx:include source="../component/ChatComponent.fxml" fx:id="chatComponent"
                         AnchorPane.topAnchor="0.0"
                         AnchorPane.bottomAnchor="0.0"
