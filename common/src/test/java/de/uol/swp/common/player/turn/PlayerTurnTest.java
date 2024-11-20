@@ -49,6 +49,7 @@ class PlayerTurnTest {
     private PlayerTurn defaultPlayerTurn;
     private int numberOfActionsToDo;
     private int numberOfPlayerCardsToDraw;
+    private int numberOfInfectionCardsToDraw;
     private Command command;
 
     /**
@@ -79,13 +80,15 @@ class PlayerTurnTest {
         this.defaultGame = mock(Game.class);
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
+        this.numberOfInfectionCardsToDraw = 1;
 
         try (MockedConstruction<ActionFactory> mockedActionFactory = mockConstruction(ActionFactory.class)) {
             this.defaultPlayerTurn = new PlayerTurn(
                     defaultGame,
                     this.defaultPlayer,
                     this.numberOfActionsToDo,
-                    this.numberOfPlayerCardsToDraw
+                    this.numberOfPlayerCardsToDraw,
+                    this.numberOfInfectionCardsToDraw
             );
         }
 
@@ -147,7 +150,8 @@ class PlayerTurnTest {
                 defaultGame,
                 this.defaultPlayer,
                 0,
-                this.numberOfPlayerCardsToDraw
+                this.numberOfPlayerCardsToDraw,
+                this.numberOfInfectionCardsToDraw
         );
         assertThat(this.defaultPlayerTurn.hasActionsToDo()).isFalse();
     }
@@ -203,7 +207,8 @@ class PlayerTurnTest {
                 defaultGame,
                 this.defaultPlayer,
                 0,
-                this.numberOfPlayerCardsToDraw
+                this.numberOfPlayerCardsToDraw,
+                this.numberOfInfectionCardsToDraw
         );
         assertThat(this.defaultPlayerTurn.isOver()).isTrue();
     }

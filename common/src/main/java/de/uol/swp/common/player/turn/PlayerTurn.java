@@ -25,7 +25,10 @@ public class PlayerTurn implements Serializable {
     private Game game;
     private Player player;
     private int numberOfActionsToDo;
+    @Getter
     private int numberOfPlayerCardsToDraw;
+    @Getter
+    private int numberOfInfectionCardsToDraw;
     private boolean playedCarrier;
     @Getter
     private List<Action> possibleActions;
@@ -44,11 +47,12 @@ public class PlayerTurn implements Serializable {
      * @param numberOfActionsToDo the number of actions the player can perform
      * @param numberOfPlayerCardsToDraw the number of player cards to draw
      */
-    public PlayerTurn(Game game, Player player, int numberOfActionsToDo, int numberOfPlayerCardsToDraw) {
+    public PlayerTurn(Game game, Player player, int numberOfActionsToDo, int numberOfPlayerCardsToDraw, int numberOfInfectionCardsToDraw) {
         this.game = game;
         this.player = player;
         this.numberOfActionsToDo = numberOfActionsToDo;
         this.numberOfPlayerCardsToDraw = numberOfPlayerCardsToDraw;
+        this.numberOfInfectionCardsToDraw = numberOfInfectionCardsToDraw;
         this.executedCommands = new ArrayList<>();
         this.possibleActions = new ArrayList<>();
         this.autoTriggerables = new ArrayList<>();
@@ -221,15 +225,6 @@ public class PlayerTurn implements Serializable {
             reduceNumberOfActionsToDo();
         }
         createPossibleActions();
-    }
-
-    /**
-     * Draws the specified number of player cards for the player.
-     */
-    public void drawPlayerCards() {
-        for (int i = 0; i < numberOfPlayerCardsToDraw; i++) {
-            this.player.addHandCard(null);
-        }
     }
 
     /**

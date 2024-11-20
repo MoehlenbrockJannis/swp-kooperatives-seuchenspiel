@@ -30,7 +30,8 @@ public class PlayerTurnManagement {
                 game,
                 game.getCurrentPlayer(),
                 game.getNumberOfActionsPerTurn(),
-                game.getNumberOfPlayerCardsToDrawPerTurn()
+                game.getNumberOfPlayerCardsToDrawPerTurn(),
+                game.getNumberOfInfectionCardsToDrawPerTurn()
         );
     }
 }

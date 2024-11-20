@@ -1,7 +1,6 @@
 package de.uol.swp.server.game;
 
 import com.google.inject.Inject;
-import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
@@ -68,37 +67,7 @@ public class GameManagement {
 
     }
 
-    /**
-     * Discards a player card by pushing it onto the player's discard stack.
-     *
-     * @param game       The game from which the player card is to be discarded
-     * @param playerCard The player card to be discarded
-     */
-    public void discardPlayerCard(Game game, PlayerCard playerCard) {
-        game.getPlayerDiscardStack().push(playerCard);
-    }
 
-    /**
-     * Draws an infection card from the top of the infection draw stack of a game.
-     *
-     * @param game The game from which the infection card is to be drawn
-     */
-    public InfectionCard drawInfectionCardFromTheTop(Game game) {
-        return game.getInfectionDrawStack().pop();
-    }
-
-    /**
-     * Draws an infection card from the bottom of the infection draw stack of a game.
-     *
-     * @param game The game from which the infection card is to be drawn
-     */
-    public InfectionCard drawInfectionCardFromTheBottom(Game game) {
-       return game.getInfectionDrawStack().removeFirstCard();
-    }
-
-    public void discardInfectionCard(Game game, InfectionCard infectionCard) {
-        game.getInfectionDiscardStack().push(infectionCard);
-    }
 
     /**
      * Updates a game in the list of managed games.

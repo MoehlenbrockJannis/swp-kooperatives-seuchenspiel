@@ -1,6 +1,7 @@
 package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
+import de.uol.swp.server.card.CardManagement;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
@@ -22,6 +23,7 @@ public class ServerModule extends AbstractModule {
     private final UserStore store = new MainMemoryBasedUserStore();
     private final LobbyManagement lobbyManagement = new LobbyManagement();
     private final GameManagement gameManagement = new GameManagement();
+    private final CardManagement cardManagement = new CardManagement();
 
     @Override
     protected void configure() {
@@ -29,5 +31,6 @@ public class ServerModule extends AbstractModule {
         bind(EventBus.class).toInstance(bus);
         bind(LobbyManagement.class).toInstance(lobbyManagement);
         bind(GameManagement.class).toInstance(gameManagement);
+        bind(CardManagement.class).toInstance(cardManagement);
     }
 }

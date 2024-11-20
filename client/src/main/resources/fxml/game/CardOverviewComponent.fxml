@@ -6,14 +6,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="stackVBox"  xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.card.CardOverviewPresenter">
-    <HBox onMouseClicked="#drawCard" VBox.vgrow="ALWAYS" prefWidth="Infinity" alignment="CENTER">
+<VBox fx:id="stackVBox"  xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <HBox fx:id="drawStackHBox" VBox.vgrow="ALWAYS" prefWidth="Infinity" alignment="CENTER">
         <ImageView HBox.hgrow="ALWAYS">
             <Image url="@/images/question-mark-line-icon.png"/>
         </ImageView>
         <Label fx:id="drawStackNumberOfCardsLabel" HBox.hgrow="ALWAYS" text="00"/>
     </HBox>
-    <HBox onMouseClicked="#discardCard" VBox.vgrow="ALWAYS" prefWidth="-Infinity" alignment="CENTER">
+    <HBox fx:id="discardStackHBox" VBox.vgrow="ALWAYS" prefWidth="-Infinity" alignment="CENTER">
         <ImageView HBox.hgrow="ALWAYS">
             <Image url="@/images/question-mark-line-icon.png"/>
         </ImageView>

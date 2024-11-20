@@ -1,6 +1,7 @@
 package de.uol.swp.server.card;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
@@ -8,11 +9,14 @@ import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
@@ -21,6 +25,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Service class responsible for handling card-related operations on the server side.
@@ -31,8 +36,10 @@ import java.util.function.BiConsumer;
  * </p>
  *
  */
+@Singleton
 public class CardService extends AbstractService {
 
+    private final CardManagement cardManagement;
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
     /**
@@ -44,8 +51,9 @@ public class CardService extends AbstractService {
      * @since 2019-10-08
      */
     @Inject
-    public CardService(EventBus eventBus, GameManagement gameManagement, LobbyService lobbyService) {
+    public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService) {
         super(eventBus);
+        this.cardManagement = cardManagement;
         this.gameManagement = gameManagement;
         this.lobbyService = lobbyService;
     }
@@ -71,7 +79,12 @@ public class CardService extends AbstractService {
             }
 
             if (player.getHandCards().size()  >= game.getMaxHandCards()) {
-                //TODO: Send response that the player has to discard a card
+                int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards() +1 ;
+                ReleaseToDiscardPlayerCardResponse response = new ReleaseToDiscardPlayerCardResponse(game, numberOfCardsToDiscard);
+                if(drawPlayerCardRequest.getSession().isPresent()) {
+                    response.setSession(drawPlayerCardRequest.getSession().get());
+                    post(response);
+                }
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
@@ -104,7 +117,7 @@ public class CardService extends AbstractService {
                 return;
             }
             player.removeHandCard(playerCard);
-            gameManagement.discardPlayerCard(game, playerCard);
+            cardManagement.discardPlayerCard(game, playerCard);
 
             sendGameUpdateMessage(game);
         });
@@ -123,7 +136,7 @@ public class CardService extends AbstractService {
     @Subscribe
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
-            InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheTop(game);
+            InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheTop(game);
 
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
@@ -146,7 +159,7 @@ public class CardService extends AbstractService {
     public void onDiscardInfectionCardRequest(DiscardInfectionCardRequest discardInfectionCardRequest) {
         getGameAndPlayer(discardInfectionCardRequest,(game, player) -> {
             final InfectionCard infectionCard = discardInfectionCardRequest.getCard();
-            gameManagement.discardInfectionCard(game, infectionCard);
+            cardManagement.discardInfectionCard(game, infectionCard);
 
             sendGameUpdateMessage(game);
         });
@@ -167,6 +180,25 @@ public class CardService extends AbstractService {
 
         RetrieveUpdatedGameServerMessage message = new RetrieveUpdatedGameServerMessage(game);
         lobbyService.sendToAllInLobby(game.getLobby(), message);
+    }
+
+    /**
+     * Sends a response to release the card draw.
+     *
+     * <p>
+     * This method creates a response with the given game and number of cards to draw,
+     * initializes it with the provided request message, and posts the response to the event bus.
+     * </p>
+     *
+     * @param <T> the type of the response
+     * @param game the game for which the response is being sent
+     * @param session the session to which the response is being sent
+     * @param responseSupplier a supplier that provides the response instance
+     */
+    public <T extends AbstractGameResponse> void sendReleaseToDrawCardResponse(Game game, Session session, Function<Game, T> responseSupplier) {
+        T response = responseSupplier.apply(game);
+        response.setSession(session);
+        post(response);
     }
 
     /**
