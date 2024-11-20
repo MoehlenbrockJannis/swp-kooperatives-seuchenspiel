@@ -436,7 +436,7 @@ public class Game implements Serializable {
      * @return the number of infection cards to draw per turn
      */
     public int getNumberOfInfectionCardsToDrawPerTurn () {
-        return 0;
+        return this.numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
     }
 
     /**

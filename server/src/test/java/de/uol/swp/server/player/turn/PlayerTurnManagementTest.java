@@ -39,8 +39,9 @@ class PlayerTurnManagementTest {
 
         final int numberOfAction = 4;
         final int numberOfPlayerCardsToDraw = 5;
+        final int numberOfInfectionCardsToDraw = 2;
 
-        final PlayerTurn expected = new PlayerTurn(game, player, numberOfAction, numberOfPlayerCardsToDraw);
+        final PlayerTurn expected = new PlayerTurn(game, player, numberOfAction, numberOfPlayerCardsToDraw, numberOfInfectionCardsToDraw);
 
         when(game.getCurrentPlayer())
                 .thenReturn(player);
@@ -48,6 +49,8 @@ class PlayerTurnManagementTest {
                 .thenReturn(numberOfAction);
         when(game.getNumberOfPlayerCardsToDrawPerTurn())
                 .thenReturn(numberOfPlayerCardsToDraw);
+        when(game.getNumberOfInfectionCardsToDrawPerTurn())
+                .thenReturn(numberOfInfectionCardsToDraw);
 
         final PlayerTurn actual = playerTurnManagement.createPlayerTurn(game);
 

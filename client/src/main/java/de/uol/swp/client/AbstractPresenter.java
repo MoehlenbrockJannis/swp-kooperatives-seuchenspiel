@@ -79,22 +79,13 @@ public abstract class AbstractPresenter {
      * @since 2024-09-17
      */
     public static <T extends AbstractPresenter> T loadFXMLPresenter(final Class<T> presenterClass) throws RuntimeException {
-        String filePath = "";
         try {
             final T createdPresenter = createPresenter(presenterClass);
-
-            final FXMLLoader fxmlLoader = fxmlLoaderProvider.get();
-
-            filePath = createdPresenter.getFXMLFilePath();
-            final URL url = createdPresenter.getClass().getResource(filePath);
-            fxmlLoader.setLocation(url);
-
-            final Parent root = fxmlLoader.load();
-            final T loadedPresenter = fxmlLoader.getController();
-            loadedPresenter.createScene(root);
-            return loadedPresenter;
+            return initializePresenter(createdPresenter, false);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            final String message = String.format("Failed to load FXML file \"%s\": %s", filePath, e.getMessage());
+            final String message = String.format("Failed to create presenter \"%s\": %s", presenterClass.getSimpleName(), e.getMessage());
             LOG.error(message);
             throw new RuntimeException(message, e);
         }
@@ -118,6 +109,67 @@ public abstract class AbstractPresenter {
      */
     private static <T extends AbstractPresenter> T createPresenter(final Class<T> presenterClass) throws Exception {
         return presenterClass.getDeclaredConstructor().newInstance();
+    }
+
+    /**
+     * Initializes the presenter by loading the associated FXML file and setting up the scene.
+     *
+     * <p>
+     * This method creates an FXMLLoader for the given presenter, sets the controller if specified,
+     * loads the FXML file, and creates the scene for the presenter.
+     * </p>
+     *
+     * @param presenter the presenter to initialize
+     * @param setGivenPresenter if true, sets the given presenter as the controller; otherwise, uses the controller from the FXML file
+     * @param <T> the type of the presenter
+     * @return the initialized presenter
+     * @throws RuntimeException if an error occurs during loading the FXML file
+     * @see FXMLLoader
+     * @see Parent
+     * @since 2024-11-05
+     */
+    protected static <T extends AbstractPresenter> T initializePresenter(T presenter, final boolean setGivenPresenter) {
+        String filePath="";
+        try {
+            final FXMLLoader fxmlLoader = createFXMLLoaderForPresenter(presenter);
+            filePath = fxmlLoader.getLocation().getPath();
+
+            if(setGivenPresenter) {
+                fxmlLoader.setController(presenter);
+            }
+            final Parent root = fxmlLoader.load();
+
+            if(!setGivenPresenter) {
+                presenter = fxmlLoader.getController();
+            }
+            presenter.createScene(root);
+            return presenter;
+        }catch (Exception e) {
+            final String message = String.format("Failed to load FXML file \"%s\": %s", filePath, e.getMessage());
+            LOG.error(message);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    /**
+     * Creates an FXMLLoader for the given presenter.
+     *
+     * <p>
+     * This method sets the location of the FXMLLoader to the FXML file path associated with the presenter.
+     * </p>
+     *
+     * @param presenter the presenter for which to create the FXMLLoader
+     * @return the FXMLLoader for the given presenter
+     * @see FXMLLoader
+     * @see URL
+     * @since 2024-11-05
+     */
+    private static FXMLLoader createFXMLLoaderForPresenter(final AbstractPresenter presenter) {
+        String filepath = presenter.getFXMLFilePath();
+        final FXMLLoader fxmlLoader = fxmlLoaderProvider.get();
+        final URL url = presenter.getClass().getResource(filepath);
+        fxmlLoader.setLocation(url);
+        return fxmlLoader;
     }
 
     @Inject

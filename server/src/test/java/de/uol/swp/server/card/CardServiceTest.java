@@ -7,6 +7,9 @@ import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
+import de.uol.swp.common.card.response.DrawPlayerCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
@@ -16,12 +19,15 @@ import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.EventBusBasedTest;
+import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,25 +35,30 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class CardServiceTest extends EventBusBasedTest {
+public class CardServiceTest extends EventBusBasedTest {
 
     private CardService cardService;
+    private CardManagement cardManagement;
     private GameManagement gameManagement;
     private LobbyService lobbyService;
     private Game game;
     private MapType mapType;
+    private List<Object> responses;
 
     @BeforeEach
     void setUp() {
-        gameManagement = mock(GameManagement.class);
+        cardManagement = mock(CardManagement.class);
         lobbyService = mock(LobbyService.class);
+        gameManagement = mock(GameManagement.class);
+        responses = new ArrayList<>();
         EventBus eventBus = getBus();
-        cardService = new CardService(eventBus, gameManagement, lobbyService);
+        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
 
         final City city = new City("city", "info");
         final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
@@ -146,7 +157,7 @@ class CardServiceTest extends EventBusBasedTest {
 
         assertThat(player.getHandCards()).doesNotContain(playerCard);
         verify(player, never()).removeHandCard(playerCard);
-        verify(gameManagement, never()).discardPlayerCard(this.game, playerCard);
+        verify(cardManagement, never()).discardPlayerCard(this.game, playerCard);
         verify(gameManagement, never()).updateGame(this.game);
     }
 
@@ -156,12 +167,12 @@ class CardServiceTest extends EventBusBasedTest {
         InfectionCard infectionCard = mock(InfectionCard.class);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
-        when(gameManagement.drawInfectionCardFromTheTop(any(Game.class))).thenReturn(infectionCard);
+        when(cardManagement.drawInfectionCardFromTheTop(any(Game.class))).thenReturn(infectionCard);
 
         DrawInfectionCardRequest request = new DrawInfectionCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
         post(request);
 
-        verify(gameManagement, times(1)).drawInfectionCardFromTheTop(game);
+        verify(cardManagement, times(1)).drawInfectionCardFromTheTop(game);
         verify(gameManagement, times(1)).updateGame(game);
         verify(lobbyService, times(2)).sendToAllInLobby(eq(this.game.getLobby()), any());
     }
@@ -177,11 +188,105 @@ class CardServiceTest extends EventBusBasedTest {
         DiscardInfectionCardRequest request = new DiscardInfectionCardRequest(game,this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()),  infectionCard);
         post(request);
 
-        verify(gameManagement, times(1)).discardInfectionCard(game, infectionCard);
+        verify(cardManagement, times(1)).discardInfectionCard(game, infectionCard);
         verify(gameManagement, times(1)).updateGame(game);
         verify(lobbyService, times(1)).sendToAllInLobby(eq(this.game.getLobby()), any());
     }
 
+    @Test
+    @DisplayName("Player has more than max hand cards - Discard required")
+    void playerHasMoreThanMaxHandCards_discardRequired() throws InterruptedException {
+        Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
+        for(int i = 0; i < 8; i++) {
+            player.addHandCard(new AirBridgeEventCard());
+        }
+        int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards()+1;
 
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
+
+
+        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
+        request.setSession(UUIDSession.create(game.getLobby().getOwner()));
+        post(request);
+
+        waitForLock();
+
+        ReleaseToDiscardPlayerCardResponse releaseToDiscardPlayerCardResponse = responses.stream()
+                .filter(ReleaseToDiscardPlayerCardResponse.class::isInstance)
+                .map(ReleaseToDiscardPlayerCardResponse.class::cast)
+                .findFirst()
+                .orElse(null);
+
+        DrawPlayerCardResponse drawPlayerCardResponse = responses.stream()
+                .filter(DrawPlayerCardResponse.class::isInstance)
+                .map(DrawPlayerCardResponse.class::cast).findFirst()
+                .orElse(null);
+
+        assertThat(releaseToDiscardPlayerCardResponse).isNotNull();
+        assertThat(drawPlayerCardResponse).isNotNull();
+        assertThat(releaseToDiscardPlayerCardResponse.getNumberOfCardsToDiscard()).isEqualTo(numberOfCardsToDiscard);
+
+    }
+
+    @Test
+    @DisplayName("Player has more than max hand cards - Session is empty")
+    void playerHasMoreThanMaxHandCards_sessionIsEmpty() throws InterruptedException {
+        Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
+        for(int i = 0; i < 8; i++) {
+            player.addHandCard(new AirBridgeEventCard());
+        }
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
+
+
+        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
+        post(request);
+
+        waitForLock();
+
+        ReleaseToDiscardPlayerCardResponse releaseToDiscardPlayerCardResponse = responses.stream()
+                .filter(ReleaseToDiscardPlayerCardResponse.class::isInstance)
+                .map(ReleaseToDiscardPlayerCardResponse.class::cast)
+                .findFirst()
+                .orElse(null);
+
+        DrawPlayerCardResponse drawPlayerCardResponse = responses.stream()
+                .filter(DrawPlayerCardResponse.class::isInstance)
+                .map(DrawPlayerCardResponse.class::cast).findFirst()
+                .orElse(null);
+
+        assertThat(releaseToDiscardPlayerCardResponse).isNull();
+        assertThat(drawPlayerCardResponse).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Player has more than max hand cards - Successful sending of the ReleaseToDrawCardResponse")
+    void sendReleaseToDrawCardResponse() throws InterruptedException {
+        Session session = UUIDSession.create(game.getLobby().getOwner());
+        Function<Game, ReleaseToDrawPlayerCardResponse> responseSupplier = g -> new ReleaseToDrawPlayerCardResponse(g, 2);
+        cardService.sendReleaseToDrawCardResponse(game, session, responseSupplier);
+        waitForLock();
+
+        ReleaseToDrawPlayerCardResponse response = (ReleaseToDrawPlayerCardResponse) event;
+
+        assertThat(response).isNotNull();
+    }
+
+    @Subscribe
+    public void onEvent(ReleaseToDiscardPlayerCardResponse releaseToDiscardPlayerCardResponse) {
+        handleEvent(releaseToDiscardPlayerCardResponse);
+        responses.add(releaseToDiscardPlayerCardResponse);
+    }
+
+    @Subscribe
+    public void onEvent(DrawPlayerCardResponse drawPlayerCardResponse) {
+        handleEvent(drawPlayerCardResponse);
+        responses.add(drawPlayerCardResponse);
+    }
+
+    @Subscribe
+    public void onEvent(ReleaseToDrawPlayerCardResponse releaseToDrawPlayerCardResponse) {
+        handleEvent(releaseToDrawPlayerCardResponse);
+    }
 
 }

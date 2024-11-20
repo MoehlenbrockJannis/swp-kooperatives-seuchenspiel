@@ -1,13 +1,20 @@
 package de.uol.swp.server.game;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service for the game
@@ -16,6 +23,7 @@ public class GameService extends AbstractService {
 
     private final GameManagement gameManagement;
     private final AuthenticationService authenticationService;
+    private final CardService cardService;
 
     /**
      * Constructor
@@ -24,10 +32,11 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.server.di.ServerModule
      */
     @Inject
-    public GameService(EventBus eventBus, AuthenticationService authenticationService, GameManagement gameManagement) {
+    public GameService(EventBus eventBus, AuthenticationService authenticationService, GameManagement gameManagement, CardService cardService) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.authenticationService = authenticationService;
+        this.cardService = cardService;
     }
 
     /**
@@ -46,5 +55,31 @@ public class GameService extends AbstractService {
         response.initWithMessage(createGameRequest);
         response.setReceiver(authenticationService.getSessions(createGameRequest.getLobby().getUsers()));
         post(response);
+
+        //TODO: Remove this after testing
+        ScheduledExecutorService  scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.schedule(() -> {
+            if(createGameRequest.getSession().isPresent()) {
+                cardService.sendReleaseToDrawCardResponse(
+                        game,
+                        createGameRequest.getSession().get(),
+                        g -> new ReleaseToDrawPlayerCardResponse(g, g.getCurrentTurn().getNumberOfPlayerCardsToDraw())
+                );
+            } else {
+                throw new NullPointerException("Session is empty");
+            }
+        }, 2, TimeUnit.SECONDS);
+
+        scheduler.schedule(() -> {
+            if(createGameRequest.getSession().isPresent()) {
+                cardService.sendReleaseToDrawCardResponse(
+                        game,
+                        createGameRequest.getSession().get(),
+                        g -> new ReleaseToDrawInfectionCardResponse(g, g.getCurrentTurn().getNumberOfInfectionCardsToDraw())
+                );
+            } else {
+                throw new NullPointerException("Session is empty");
+            }
+        }, 3, TimeUnit.SECONDS);
     }
 }

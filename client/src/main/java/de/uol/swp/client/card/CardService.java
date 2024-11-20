@@ -62,8 +62,14 @@ public class CardService {
     }
 
     /**
-     * @param game
-     * @param player
+     * Sends a request to draw an infection card.
+     * <p>
+     * This method creates a {@link DrawInfectionCardRequest} with the specified game and player,
+     * and posts it to the {@link EventBus}.
+     * </p>
+     *
+     * @param game   The game from which to draw the infection card
+     * @param player The player who is drawing the card
      */
     public void sendDrawInfectionCardRequest(Game game, Player player) {
         DrawInfectionCardRequest drawInfectionCardRequest = new DrawInfectionCardRequest(game, player);
@@ -71,9 +77,15 @@ public class CardService {
     }
 
     /**
-     * @param game
-     * @param player
-     * @param infectionCard
+     * Sends a request to discard an infection card.
+     * <p>
+     * This method creates a {@link DiscardInfectionCardRequest} with the specified game, player, and infection card,
+     * and posts it to the {@link EventBus}.
+     * </p>
+     *
+     * @param game          The game from which to discard the infection card
+     * @param player        The player who is discarding the card
+     * @param infectionCard The infection card to be discarded
      */
     public void sendDiscardInfectionCardRequest(Game game, Player player, InfectionCard infectionCard) {
         DiscardInfectionCardRequest discardInfectionCardRequest = new DiscardInfectionCardRequest(game, player, infectionCard);

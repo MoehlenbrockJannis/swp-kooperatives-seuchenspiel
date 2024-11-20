@@ -99,6 +99,7 @@ public class GameMapPresenter extends AbstractPresenter {
         pane.getChildren().removeIf(PlayerMarker.class::isInstance);
         playerMarkers.clear();
         addAllPlayerMarkers();
+
     }
 
     /**

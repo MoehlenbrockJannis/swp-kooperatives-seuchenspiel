@@ -2,12 +2,11 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.card.CardOverviewPresenter;
+import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
+import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.common.card.InfectionCard;
-import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import javafx.fxml.FXML;
@@ -60,17 +59,16 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Pane playerCardStackPane;
 
-    @FXML
-    private CardOverviewPresenter playerCardsOverviewController;
-
-    @FXML
-    private CardOverviewPresenter infectionCardsOverviewController;
 
     @FXML
     private Pane infectionCardStackPane;
 
     @FXML
     private GameMapPresenter gameMapController;
+    @Inject
+    private PlayerCardsOverviewPresenter playerCardsOverviewPresenter;
+    @Inject
+    private InfectionCardsOverviewPresenter infectionCardsOverviewPresenter;
 
     @FXML
     private Button topRightChatToggleButton;
@@ -105,7 +103,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param stage The stage to display the game board window
      * @param game  The game to be displayed
      */
-    public void initialize(final Stage stage, final Game game) {
+    public void initialize(final Stage stage, final Game game)  {
         setStage(stage, false);
         this.game = game;
         final Supplier<Game> gameSupplier = () -> getGame();
@@ -113,28 +111,25 @@ public class GamePresenter extends AbstractPresenter {
         stage.setTitle("Game: " + game.getLobby().getName());
         stage.show();
 
-        playerCardsOverviewController.initialize(
+        this.playerCardStackPane.getChildren().add(this.playerCardsOverviewPresenter.getScene().getRoot());
+        this.playerCardsOverviewPresenter.initialize(
                 gameSupplier,
                 Game::getPlayerDrawStack,
                 Game::getPlayerDiscardStack,
-                this.playerCardStackPane,
-                (player, cardService) -> cardService.sendDrawPlayerCardRequest(this.game, player),
-                (player, cardService, playerCard) -> cardService.sendDiscardPlayerCardRequest(this.game, player, (PlayerCard) playerCard)
-        );
-        playerCardsOverviewController.setWindow(stage);
-        this.associatedPresenters.add(playerCardsOverviewController);
+                this.playerCardStackPane
+                );
+        this.playerCardsOverviewPresenter.setWindow(stage);
+        this.associatedPresenters.add(playerCardsOverviewPresenter);
 
-        infectionCardsOverviewController.initialize(
+        this.infectionCardStackPane.getChildren().add(this.infectionCardsOverviewPresenter.getScene().getRoot());
+        this.infectionCardsOverviewPresenter.initialize(
                 gameSupplier,
                 Game::getInfectionDrawStack,
                 Game::getInfectionDiscardStack,
-                this.infectionCardStackPane,
-                (player, cardService) -> cardService.sendDrawInfectionCardRequest(this.game, player),
-                (player, cardService, infectionCard) -> cardService.sendDiscardInfectionCardRequest(this.game, player, (InfectionCard) infectionCard)
-
+                this.infectionCardStackPane
         );
-        infectionCardsOverviewController.setWindow(stage);
-        this.associatedPresenters.add(infectionCardsOverviewController);
+        this.infectionCardsOverviewPresenter.setWindow(stage);
+        this.associatedPresenters.add(this.infectionCardsOverviewPresenter);
 
         settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
         settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());
@@ -200,8 +195,8 @@ public class GamePresenter extends AbstractPresenter {
     private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
         if(retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
             executable.run();
-            playerCardsOverviewController.updateLabels();
-            infectionCardsOverviewController.updateLabels();
+            playerCardsOverviewPresenter.updateLabels();
+            infectionCardsOverviewPresenter.updateLabels();
         }
 
     }
