@@ -14,9 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
@@ -80,6 +78,12 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Pane chatComponent;
+
+    @FXML
+    private StackPane chatStackPane;
+
+    @FXML
+    private AnchorPane chatAnchorPane;
 
     @FXML
     private ChatPresenter chatComponentController;
@@ -221,6 +225,10 @@ public class GamePresenter extends AbstractPresenter {
                     HBox.setHgrow(node, Priority.ALWAYS);
                 });
             }
+
+            this.chatStackPane.setPickOnBounds(false);
+            this.chatAnchorPane.setPickOnBounds(false);
+            this.chatComponent.setPickOnBounds(false);
 
             updateChatVisibility();
         }
