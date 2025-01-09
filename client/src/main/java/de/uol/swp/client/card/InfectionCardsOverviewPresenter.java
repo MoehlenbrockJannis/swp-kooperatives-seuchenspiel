@@ -67,7 +67,7 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawInfectionCardResponse(ReleaseToDrawInfectionCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.stackVBox.getChildren().get(0).setDisable(false);
+            this.drawStackHBox.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfInfectionCardsToDraw();
         }
     }

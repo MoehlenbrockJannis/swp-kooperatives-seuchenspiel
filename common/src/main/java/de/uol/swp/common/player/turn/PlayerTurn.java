@@ -8,6 +8,7 @@ import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.util.Command;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,9 +22,12 @@ import java.util.Set;
  * (either automatic or manual) that occur during the turn.
  */
 public class PlayerTurn implements Serializable {
+    private static final ActionFactory ACTION_FACTORY = new ActionFactory();
 
     private Game game;
     private Player player;
+    @Getter
+    @Setter
     private int numberOfActionsToDo;
     @Getter
     private int numberOfPlayerCardsToDraw;
@@ -37,7 +41,6 @@ public class PlayerTurn implements Serializable {
     private int currentManualTriggerable;
     private List<ManualTriggerable> manualTriggerables;
     private List<Command> executedCommands;
-    private transient ActionFactory actionFactory = new ActionFactory();
 
     /**
      * Constructor for creating a new PlayerTurn instance.
@@ -90,7 +93,7 @@ public class PlayerTurn implements Serializable {
     private List<Action> createAllActions() {
         final Set<Class<? extends RoleAction>> includeActionClasses = player.getRoleSpecificAdditionallyAvailableActionClasses();
         final Set<Class<? extends GeneralAction>> excludedActionClasses = player.getRoleSpecificUnavailableActionClasses();
-        return actionFactory.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(
+        return ACTION_FACTORY.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(
                 excludedActionClasses,
                 includeActionClasses
         );
@@ -157,6 +160,20 @@ public class PlayerTurn implements Serializable {
     }
 
     /**
+     * Reduces {@link #numberOfPlayerCardsToDraw} by {@code 1}.
+     */
+    public void reduceNumberOfPlayerCardsToDraw() {
+        this.numberOfPlayerCardsToDraw--;
+    }
+
+    /**
+     * Reduces {@link #numberOfInfectionCardsToDraw} by {@code 1}.
+     */
+    public void reduceNumberOfInfectionCardsToDraw() {
+        this.numberOfInfectionCardsToDraw--;
+    }
+
+    /**
      * Checks if there are any remaining automatic triggerable actions.
      *
      * @return true if there are more automatic triggerables, false otherwise
@@ -214,17 +231,32 @@ public class PlayerTurn implements Serializable {
      */
     public void executeCommand(Command command) {
         if (command instanceof DiscardCardsAction discardCardsAction) {
-            final List<CityCard> cards = discardCardsAction.getDiscardedCards();
-            for (final CityCard card : cards) {
-                game.getPlayerDiscardStack().add(card);
-            }
+            fulfillDiscardCardsAction(discardCardsAction);
+        } else {
+            command.execute();
         }
-        command.execute();
         this.executedCommands.add(command);
         if (command instanceof Action) {
             reduceNumberOfActionsToDo();
         }
-        createPossibleActions();
+        if (isInActionPhase()) {
+            createPossibleActions();
+        }
+    }
+
+    /**
+     * Fulfills the promise of a {@link DiscardCardsAction} by discarding the required card or cards after executing the action.
+     *
+     * @param discardCardsAction {@link DiscardCardsAction} to be executed and of which the cards are to be discarded
+     * @see DiscardCardsAction#getDiscardedCards()
+     */
+    private void fulfillDiscardCardsAction(final DiscardCardsAction discardCardsAction) {
+        final List<CityCard> cards = discardCardsAction.getDiscardedCards();
+        discardCardsAction.execute();
+        for (final CityCard card : cards) {
+            discardCardsAction.getExecutingPlayer().removeHandCard(card);
+            game.getPlayerDiscardStack().add(card);
+        }
     }
 
     /**
@@ -236,7 +268,33 @@ public class PlayerTurn implements Serializable {
         }
         // TODO: Actions müssen hier implementiert werden
         playedCarrier = true;
-        reduceNumberOfActionsToDo();
+    }
+
+    /**
+     * Returns {@code true} when {@link #numberOfActionsToDo} is greater than {@code 0}, {@code false} otherwise.
+     *
+     * @return {@code true} when {@link #numberOfActionsToDo} is greater than {@code 0}, {@code false} otherwise
+     */
+    public boolean isInActionPhase() {
+        return hasActionsToDo();
+    }
+
+    /**
+     * Returns {@code true} when {@link #isInActionPhase()} is {@code false} and {@link #numberOfPlayerCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
+     *
+     * @return {@code true} when {@link #isInActionPhase()} is {@code false} and {@link #numberOfPlayerCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
+     */
+    public boolean isInPlayerCardDrawPhase() {
+        return !isInActionPhase() && numberOfPlayerCardsToDraw > 0;
+    }
+
+    /**
+     * Returns {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
+     *
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise
+     */
+    public boolean isInInfectionCardDrawPhase() {
+        return !isInActionPhase() && !isInPlayerCardDrawPhase() && numberOfInfectionCardsToDraw > 0;
     }
 
     /**
@@ -245,7 +303,7 @@ public class PlayerTurn implements Serializable {
      * @return true if the turn is over, false otherwise
      */
     public boolean isOver() {
-        return this.numberOfActionsToDo == 0 &&
+        return !isInActionPhase() && !isInPlayerCardDrawPhase() && !isInInfectionCardDrawPhase() &&
                 !this.hasNextAutoTriggerable() && !this.hasNextManualTriggerable();
     }
 }

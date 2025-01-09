@@ -34,4 +34,18 @@ public class PlayerTurnManagement {
                 game.getNumberOfInfectionCardsToDrawPerTurn()
         );
     }
+
+    /**
+     * Creates a new {@link PlayerTurn} for given {@link Game}
+     * by first increases the index of the current {@link Player}
+     * and then creating a {@link PlayerTurn}.
+     *
+     * @param game {@link Game} to start a new {@link PlayerTurn} for
+     * @see Game#nextPlayer()
+     * @see #createPlayerTurn(Game)
+     */
+    public void startNewPlayerTurn(final Game game) {
+        game.nextPlayer();
+        game.addPlayerTurn(createPlayerTurn(game));
+    }
 }
