@@ -1,5 +1,6 @@
 package de.uol.swp.server.card;
 
+import de.uol.swp.common.action.ActionFactory;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AirBridgeEventCard;
@@ -9,6 +10,7 @@ import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
@@ -19,6 +21,7 @@ import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
@@ -26,11 +29,14 @@ import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +53,10 @@ public class CardServiceTest extends EventBusBasedTest {
     private CardManagement cardManagement;
     private GameManagement gameManagement;
     private LobbyService lobbyService;
+    private PlayerTurnManagement playerTurnManagement;
     private Game game;
     private MapType mapType;
+    private Session session;
     private List<Object> responses;
 
     @BeforeEach
@@ -56,9 +64,10 @@ public class CardServiceTest extends EventBusBasedTest {
         cardManagement = mock(CardManagement.class);
         lobbyService = mock(LobbyService.class);
         gameManagement = mock(GameManagement.class);
+        playerTurnManagement = mock(PlayerTurnManagement.class);
         responses = new ArrayList<>();
         EventBus eventBus = getBus();
-        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
+        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService, playerTurnManagement);
 
         final City city = new City("city", "info");
         final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
@@ -72,6 +81,20 @@ public class CardServiceTest extends EventBusBasedTest {
                 .thenReturn(city);
         Lobby lobby = new LobbyDTO("Test", user,2,4);
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        try (MockedConstruction<ActionFactory> mockedActionFactory = Mockito.mockConstruction(ActionFactory.class, (mock, context) -> {
+            when(mock.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(any(), any()))
+                    .thenReturn(List.of());
+        })) {
+            this.game.addPlayerTurn(new PlayerTurn(
+                    game,
+                    game.getPlayersInTurnOrder().get(0),
+                    game.getNumberOfActionsPerTurn(),
+                    game.getNumberOfPlayerCardsToDrawPerTurn(),
+                    game.getNumberOfInfectionCardsToDrawPerTurn()
+            ));
+        }
+
+        session = UUIDSession.create(game.getLobby().getOwner());
     }
 
     @Test
@@ -105,14 +128,13 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Draw Infection Card Request - Successful Draw")
     void onDrawPlayerCardRequest_successfulDraw() {
-
-
         PlayerCard playerCard = new AirBridgeEventCard();
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
         when(gameManagement.drawPlayerCard(any(Game.class))).thenReturn(playerCard);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
+        request.setSession(session);
         post(request);
 
         verify(gameManagement, times(1)).updateGame(game);
@@ -206,7 +228,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
-        request.setSession(UUIDSession.create(game.getLobby().getOwner()));
+        request.setSession(session);
         post(request);
 
         waitForLock();
@@ -256,13 +278,12 @@ public class CardServiceTest extends EventBusBasedTest {
                 .orElse(null);
 
         assertThat(releaseToDiscardPlayerCardResponse).isNull();
-        assertThat(drawPlayerCardResponse).isNotNull();
+        assertThat(drawPlayerCardResponse).isNull();
     }
 
     @Test
     @DisplayName("Player has more than max hand cards - Successful sending of the ReleaseToDrawCardResponse")
     void sendReleaseToDrawCardResponse() throws InterruptedException {
-        Session session = UUIDSession.create(game.getLobby().getOwner());
         Function<Game, ReleaseToDrawPlayerCardResponse> responseSupplier = g -> new ReleaseToDrawPlayerCardResponse(g, 2);
         cardService.sendReleaseToDrawCardResponse(game, session, responseSupplier);
         waitForLock();
@@ -270,6 +291,40 @@ public class CardServiceTest extends EventBusBasedTest {
         ReleaseToDrawPlayerCardResponse response = (ReleaseToDrawPlayerCardResponse) event;
 
         assertThat(response).isNotNull();
+    }
+
+    @Test
+    @DisplayName("")
+    void allowPlayerCardDrawing() throws InterruptedException {
+        cardService.allowPlayerCardDrawing(game, session);
+
+        waitForLock();
+
+        assertThat(event)
+                .isInstanceOf(ReleaseToDrawPlayerCardResponse.class);
+        final ReleaseToDrawPlayerCardResponse releaseToDrawPlayerCardResponse = (ReleaseToDrawPlayerCardResponse) event;
+        assertThat(releaseToDrawPlayerCardResponse.getGame())
+                .usingRecursiveComparison()
+                .isEqualTo(game);
+        assertThat(releaseToDrawPlayerCardResponse.getNumberOfPlayerCardsToDraw())
+                .isEqualTo(game.getNumberOfPlayerCardsToDrawPerTurn());
+    }
+
+    @Test
+    @DisplayName("")
+    void allowInfectionCardDrawing() throws InterruptedException {
+        cardService.allowInfectionCardDrawing(game, session);
+
+        waitForLock();
+
+        assertThat(event)
+                .isInstanceOf(ReleaseToDrawInfectionCardResponse.class);
+        final ReleaseToDrawInfectionCardResponse releaseToDrawInfectionCardResponse = (ReleaseToDrawInfectionCardResponse) event;
+        assertThat(releaseToDrawInfectionCardResponse.getGame())
+                .usingRecursiveComparison()
+                .isEqualTo(game);
+        assertThat(releaseToDrawInfectionCardResponse.getNumberOfInfectionCardsToDraw())
+                .isEqualTo(game.getNumberOfInfectionCardsToDrawPerTurn());
     }
 
     @Subscribe
@@ -289,4 +344,8 @@ public class CardServiceTest extends EventBusBasedTest {
         handleEvent(releaseToDrawPlayerCardResponse);
     }
 
+    @Subscribe
+    public void onEvent(ReleaseToDrawInfectionCardResponse releaseToDrawInfectionCardResponse) {
+        handleEvent(releaseToDrawInfectionCardResponse);
+    }
 }

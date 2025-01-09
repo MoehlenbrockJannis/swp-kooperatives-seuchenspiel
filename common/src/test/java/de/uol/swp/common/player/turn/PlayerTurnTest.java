@@ -1,7 +1,16 @@
 package de.uol.swp.common.player.turn;
 
+import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.ActionFactory;
+import de.uol.swp.common.action.DiscardCardsAction;
+import de.uol.swp.common.action.simple.WaiveAction;
+import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.map.City;
+import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.role.RoleAbility;
@@ -13,7 +22,14 @@ import de.uol.swp.common.util.Command;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedConstruction;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,11 +89,20 @@ class PlayerTurnTest {
     @BeforeEach
     public void setUp() {
         this.defaultUser = new UserDTO("Joerg", "333", "Joerg@mail.com");
+        final Lobby lobby = new LobbyDTO("lobby", defaultUser, 1, 2);
         this.roleAbility = mock(RoleAbility.class);
         this.roleCard = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
         this.defaultPlayer.setRole(roleCard);
-        this.defaultGame = mock(Game.class);
+
+        final City city = new City("city", "info");
+        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getMap())
+                .thenReturn(List.of(mapSlot));
+        when(mapType.getStartingCity())
+                .thenReturn(city);
+        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
         this.numberOfInfectionCardsToDraw = 1;
@@ -90,11 +115,35 @@ class PlayerTurnTest {
                     this.numberOfPlayerCardsToDraw,
                     this.numberOfInfectionCardsToDraw
             );
+            this.defaultGame.addPlayerTurn(defaultPlayerTurn);
         }
 
         this.command = mock(Command.class);
     }
 
+    @Test
+    @DisplayName("Should reduce the number of player cards required to draw by one")
+    void reduceNumberOfPlayerCardsToDraw() {
+        assertThat(defaultPlayerTurn.getNumberOfPlayerCardsToDraw())
+                .isEqualTo(numberOfPlayerCardsToDraw);
+
+        defaultPlayerTurn.reduceNumberOfPlayerCardsToDraw();
+
+        assertThat(defaultPlayerTurn.getNumberOfPlayerCardsToDraw())
+                .isEqualTo(numberOfPlayerCardsToDraw - 1);
+    }
+
+    @Test
+    @DisplayName("Should reduce the number of infection cards required to draw by one")
+    void reduceNumberOfInfectionCardsToDraw() {
+        assertThat(defaultPlayerTurn.getNumberOfInfectionCardsToDraw())
+                .isEqualTo(numberOfInfectionCardsToDraw);
+
+        defaultPlayerTurn.reduceNumberOfInfectionCardsToDraw();
+
+        assertThat(defaultPlayerTurn.getNumberOfInfectionCardsToDraw())
+                .isEqualTo(numberOfInfectionCardsToDraw - 1);
+    }
 
     @Test
     @DisplayName("")
@@ -156,6 +205,22 @@ class PlayerTurnTest {
         assertThat(this.defaultPlayerTurn.hasActionsToDo()).isFalse();
     }
 
+    private static Stream<Arguments> executeCommandSource() {
+        final Command command = mock(Command.class);
+        final Action action = mock(Action.class);
+        final DiscardCardsAction discardCardsAction = mock(DiscardCardsAction.class);
+
+        final CityCard cityCard = mock();
+        when(discardCardsAction.getDiscardedCards())
+                .thenReturn(List.of(cityCard));
+
+        return Stream.of(
+                Arguments.of(command, 4),
+                Arguments.of(action, 3),
+                Arguments.of(discardCardsAction, 3)
+        );
+    }
+
     /**
      * This test verifies that the executeCommand method correctly invokes
      * the execute method on the provided Command instance.
@@ -164,11 +229,28 @@ class PlayerTurnTest {
      *
      * @since 2024-09-18
      */
-    @Test
+    @ParameterizedTest
+    @MethodSource("executeCommandSource")
     @DisplayName("Should call the execute() method on the given command")
-    void testExecuteCommand() {
-        defaultPlayerTurn.executeCommand(this.command);
-        verify(command).execute();
+    void executeCommand(final Command executedCommand, final int numberOfExpectedActionsToDoAfter) {
+        if (executedCommand instanceof DiscardCardsAction discardCardsAction) {
+            discardCardsAction.getDiscardedCards().forEach(defaultPlayer::addHandCard);
+            when(discardCardsAction.getExecutingPlayer())
+                    .thenReturn(defaultPlayer);
+        }
+
+        defaultPlayerTurn.executeCommand(executedCommand);
+
+        verify(executedCommand).execute();
+        assertThat(defaultPlayerTurn.getNumberOfActionsToDo())
+                .isEqualTo(numberOfExpectedActionsToDoAfter);
+
+        if (executedCommand instanceof DiscardCardsAction) {
+            assertThat(defaultPlayer.getHandCards())
+                    .isEmpty();
+            assertThat(defaultGame.getPlayerDiscardStack())
+                    .isNotEmpty();
+        }
     }
 
     @Test
@@ -194,22 +276,112 @@ class PlayerTurnTest {
         assertEquals("Carrier action has already been played.", exception.getMessage());
     }
 
-    @Test
-    @DisplayName("Should return false if turn is not over")
-    void isNotOver() {
-        assertThat(this.defaultPlayerTurn.isOver()).isFalse();
+    private static Stream<Arguments> isInActionPhaseSource() {
+        return Stream.of(
+                Arguments.of(false, true),
+                Arguments.of(true, false)
+        );
     }
 
-    @Test
-    @DisplayName("Should return true if there are no more actions to do")
-    void isOver() {
-        this.defaultPlayerTurn = new PlayerTurn(
-                defaultGame,
-                this.defaultPlayer,
-                0,
-                this.numberOfPlayerCardsToDraw,
-                this.numberOfInfectionCardsToDraw
+    @ParameterizedTest
+    @MethodSource("isInActionPhaseSource")
+    @DisplayName("Should return true if there are actions to do")
+    void isInActionPhase(final boolean hasWaived,
+                         final boolean isInActionPhase) {
+        evaluateActionPhase(hasWaived);
+
+        assertThat(defaultPlayerTurn.isInActionPhase())
+                .isEqualTo(isInActionPhase);
+    }
+
+    private static Stream<Arguments> isInPlayerCardDrawPhaseSource() {
+        return Stream.of(
+                Arguments.of(false, 0, false),
+                Arguments.of(true, 0, true),
+                Arguments.of(true, 1, true),
+                Arguments.of(true, 2, false)
         );
-        assertThat(this.defaultPlayerTurn.isOver()).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("isInPlayerCardDrawPhaseSource")
+    @DisplayName("Should return true if all actions are done but not all required player cards are drawn")
+    void isInPlayerCardDrawPhase(final boolean hasWaived,
+                                 final int amountOfPlayerCardsDrawn,
+                                 final boolean isInPlayerCardDrawPhase) {
+        evaluateActionPhase(hasWaived);
+        evaluatePlayerCardDrawPhase(amountOfPlayerCardsDrawn);
+
+        assertThat(defaultPlayerTurn.isInPlayerCardDrawPhase())
+                .isEqualTo(isInPlayerCardDrawPhase);
+    }
+
+    private static Stream<Arguments> isInInfectionCardDrawPhaseSource() {
+        return Stream.of(
+                Arguments.of(false, 0, 0, false),
+                Arguments.of(true, 0, 0, false),
+                Arguments.of(true, 2, 0, true),
+                Arguments.of(true, 2, 1, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("isInInfectionCardDrawPhaseSource")
+    @DisplayName("Should return true if all actions are done and all player cards are drawn but not all infection cards are drawn")
+    void isInInfectionCardDrawPhase(final boolean hasWaived,
+                                    final int amountOfPlayerCardsDrawn,
+                                    final int amountOfInfectionCardsDrawn,
+                                    final boolean isInInfectionCardDrawPhase) {
+        evaluateActionPhase(hasWaived);
+        evaluatePlayerCardDrawPhase(amountOfPlayerCardsDrawn);
+        evaluateInfectionCardDrawPhase(amountOfInfectionCardsDrawn);
+
+        assertThat(defaultPlayerTurn.isInInfectionCardDrawPhase())
+                .isEqualTo(isInInfectionCardDrawPhase);
+    }
+
+    private static Stream<Arguments> isOverSource() {
+        return Stream.of(
+                Arguments.of(false, 0, 0, false),
+                Arguments.of(true, 0, 0, false),
+                Arguments.of(true, 2, 0, false),
+                Arguments.of(true, 2, 1, true)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("isOverSource")
+    @DisplayName("Should return true if there are no more actions to do and all player and infection cards are drawn")
+    void isOver(final boolean hasWaived,
+                final int amountOfPlayerCardsDrawn,
+                final int amountOfInfectionCardsDrawn,
+                final boolean isOver) {
+        evaluateActionPhase(hasWaived);
+        evaluatePlayerCardDrawPhase(amountOfPlayerCardsDrawn);
+        evaluateInfectionCardDrawPhase(amountOfInfectionCardsDrawn);
+
+        assertThat(defaultPlayerTurn.isOver())
+                .isEqualTo(isOver);
+    }
+
+    private void evaluateActionPhase(final boolean hasWaived) {
+        if (hasWaived) {
+            final Action action = new WaiveAction();
+            action.setExecutingPlayer(defaultPlayer);
+            action.setGame(defaultGame);
+            defaultPlayerTurn.executeCommand(action);
+        }
+    }
+
+    private void evaluatePlayerCardDrawPhase(final int amountOfPlayerCardsDrawn) {
+        for (int i = 0; i < amountOfPlayerCardsDrawn; i++) {
+            defaultPlayerTurn.reduceNumberOfPlayerCardsToDraw();
+        }
+    }
+
+    private void evaluateInfectionCardDrawPhase(final int amountOfInfectionCardsDrawn) {
+        for (int i = 0; i < amountOfInfectionCardsDrawn; i++) {
+            defaultPlayerTurn.reduceNumberOfInfectionCardsToDraw();
+        }
     }
 }

@@ -7,8 +7,8 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
-import de.uol.swp.common.action.server_message.ActionServerMessage;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
@@ -82,24 +82,23 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Handles executed actions from the server, updating the game state as necessary.
+     * Handles game updates from the server, updating the game state as necessary.
      *
-     * @param actionServerMessage the message containing the action executed by the server
+     * @param retrieveUpdatedGameServerMessage the message containing the updated game state from the server
      * @author Jannis Moehlenbrock
      */
     @Subscribe
-    public void onActionServerMessageReceived(ActionServerMessage actionServerMessage) {
-        if (this.game.getId() == actionServerMessage.getGame().getId()) {
-            Platform.runLater(() -> movePlayerMarker(actionServerMessage));
+    public void onRetrieveUpdatedGameServerMessage(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
+        if (this.game.getId() == retrieveUpdatedGameServerMessage.getGame().getId()) {
+            Platform.runLater(() -> movePlayerMarker(retrieveUpdatedGameServerMessage.getGame()));
         }
     }
 
-    private void movePlayerMarker(ActionServerMessage actionServerMessage) {
-        this.game = actionServerMessage.getGame();
+    private void movePlayerMarker(Game game) {
+        this.game = game;
         pane.getChildren().removeIf(PlayerMarker.class::isInstance);
         playerMarkers.clear();
         addAllPlayerMarkers();
-
     }
 
     /**

@@ -41,6 +41,16 @@ public class Game implements Serializable {
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
 
+    public static final int DEFAULT_MAX_NUMBER_OF_HAND_CARDS = 7;
+    public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES = 24;
+    public static final int DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES = 6;
+    public static final int DEFAULT_NUMBER_OF_EPIDEMIC_CARDS = 6;
+    public static final int DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 1;
+    public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
+    public static final int DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD = 3;
+    public static final int DEFAULT_NUMBER_OF_ACTIONS_PER_TURN = 4;
+    public static final int DEFAULT_NUMBER_OF_PLAYER_CARD_TO_DRAW_PER_TURN = 2;
+
     private static final Map<Integer, Integer> AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS = Map.of(
             4, 2,
             3, 3,
@@ -106,15 +116,15 @@ public class Game implements Serializable {
             type,
             players,
             plagues,
-            7,
-            24,
-            6,
-            6,
-            1,
-            3,
-            3,
-            4,
-            2
+            DEFAULT_MAX_NUMBER_OF_HAND_CARDS,
+            DEFAULT_NUMBER_OF_PLAGUE_CUBES,
+            DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES,
+            DEFAULT_NUMBER_OF_EPIDEMIC_CARDS,
+            DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
+            DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
+            DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD,
+            DEFAULT_NUMBER_OF_ACTIONS_PER_TURN,
+            DEFAULT_NUMBER_OF_PLAYER_CARD_TO_DRAW_PER_TURN
         );
     }
 
@@ -475,5 +485,13 @@ public class Game implements Serializable {
      */
     public Player getCurrentPlayer() {
         return this.playersInTurnOrder.get(this.indexOfCurrentPlayer);
+    }
+
+    /**
+     * Increases {@link #indexOfCurrentPlayer} by {@code 1} and accounts for overflow by keeping it in range:
+     * {@code 0} <= {@link #indexOfCurrentPlayer} < {@link #playersInTurnOrder}.size()
+     */
+    public void nextPlayer() {
+        this.indexOfCurrentPlayer = (this.indexOfCurrentPlayer + 1) % this.playersInTurnOrder.size();
     }
 }

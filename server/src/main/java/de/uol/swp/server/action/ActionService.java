@@ -2,11 +2,17 @@ package de.uol.swp.server.action;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.action.request.ActionRequest;
-import de.uol.swp.common.action.server_message.ActionServerMessage;
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
-import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.card.CardService;
+import de.uol.swp.server.game.GameManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.Optional;
 
 /**
  * The ActionService class handles the execution of actions requested by clients in the game.
@@ -16,19 +22,19 @@ import org.greenrobot.eventbus.Subscribe;
  */
 
 public class ActionService extends AbstractService {
-
-    private final LobbyService lobbyService;
+    private final CardService cardService;
+    private final GameManagement gameManagement;
 
     /**
      * Constructs a new ActionService with the specified EventBus and LobbyService.
      *
      * @param bus the EventBus used throughout the server
-     * @param lobbyService the LobbyService used for managing lobbies
      */
     @Inject
-    public ActionService(EventBus bus, LobbyService lobbyService) {
+    public ActionService(EventBus bus, CardService cardService, GameManagement gameManagement) {
         super(bus);
-        this.lobbyService = lobbyService;
+        this.cardService = cardService;
+        this.gameManagement = gameManagement;
     }
 
     /**
@@ -39,12 +45,19 @@ public class ActionService extends AbstractService {
      */
     @Subscribe
     public void onActionRequest(ActionRequest request) {
-        request.getAction().execute();
+        final Game game = request.getGame();
+        final PlayerTurn currentPlayerTurn = game.getCurrentTurn();
+        currentPlayerTurn.executeCommand(request.getAction());
 
-        ActionServerMessage actionServerMessage = new ActionServerMessage(request.getGame());
+        gameManagement.updateGame(game);
+
+        RetrieveUpdatedGameServerMessage actionServerMessage = new RetrieveUpdatedGameServerMessage(request.getGame());
         actionServerMessage.initWithMessage(request);
         post(actionServerMessage);
 
-        //TODO PlayerTurn auf nächsten Spieler für das Game setzen.... sobald vier Aktionen durchgeführt wurden beziehungsweise einmal eine WaiveAction verwendet wurde.
+        final Optional<Session> requestSessionOptional = request.getSession();
+        if (!currentPlayerTurn.isInActionPhase() && requestSessionOptional.isPresent()) {
+            cardService.allowPlayerCardDrawing(game, requestSessionOptional.get());
+        }
     }
 }

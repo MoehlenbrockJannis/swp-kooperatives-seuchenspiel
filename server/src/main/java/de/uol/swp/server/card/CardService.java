@@ -10,16 +10,20 @@ import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -42,6 +46,8 @@ public class CardService extends AbstractService {
     private final CardManagement cardManagement;
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
+    private final PlayerTurnManagement playerTurnManagement;
+
     /**
      * Constructor
      *
@@ -51,11 +57,12 @@ public class CardService extends AbstractService {
      * @since 2019-10-08
      */
     @Inject
-    public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService) {
+    public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService, PlayerTurnManagement playerTurnManagement) {
         super(eventBus);
         this.cardManagement = cardManagement;
         this.gameManagement = gameManagement;
         this.lobbyService = lobbyService;
+        this.playerTurnManagement = playerTurnManagement;
     }
 
     /**
@@ -78,23 +85,32 @@ public class CardService extends AbstractService {
                 return;
             }
 
+            final Optional<Session> requestSessionOptional = drawPlayerCardRequest.getSession();
+            if (requestSessionOptional.isEmpty()) {
+                return;
+            }
+            final Session requestSession = requestSessionOptional.get();
+
             if (player.getHandCards().size()  >= game.getMaxHandCards()) {
                 int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards() +1 ;
                 ReleaseToDiscardPlayerCardResponse response = new ReleaseToDiscardPlayerCardResponse(game, numberOfCardsToDiscard);
-                if(drawPlayerCardRequest.getSession().isPresent()) {
-                    response.setSession(drawPlayerCardRequest.getSession().get());
-                    post(response);
-                }
+                response.setSession(requestSession);
+                post(response);
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
             player.addHandCard(playerCard);
+            game.getCurrentTurn().reduceNumberOfPlayerCardsToDraw();
 
             DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard, game);
             response.initWithMessage(drawPlayerCardRequest);
             post(response);
 
             sendGameUpdateMessage(game);
+
+            if (game.getCurrentTurn().isInInfectionCardDrawPhase()) {
+                allowInfectionCardDrawing(game, requestSession);
+            }
         });
     }
 
@@ -137,12 +153,16 @@ public class CardService extends AbstractService {
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheTop(game);
+            game.getCurrentTurn().reduceNumberOfInfectionCardsToDraw();
 
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
 
-            sendGameUpdateMessage(game);
+            if (game.getCurrentTurn().isOver()) {
+                playerTurnManagement.startNewPlayerTurn(game);
+            }
 
+            sendGameUpdateMessage(game);
         });
     }
 
@@ -219,5 +239,35 @@ public class CardService extends AbstractService {
         final Game game = gameOptional.get();
         final Player player = game.getPlayersInTurnOrder().get(game.getIndexOfCurrentPlayer());
         callback.accept(game,player);
+    }
+
+    /**
+     * Allows the client with given {@code targetSession} to draw an amount of {@link PlayerCard}
+     * as specified by {@link PlayerTurn#getNumberOfPlayerCardsToDraw()} from the current {@link PlayerTurn} of given {@code game}.
+     *
+     * @param game {@link Game} with the current {@link PlayerTurn}
+     * @param targetSession {@link Session} to allow drawing of {@link PlayerCard}
+     */
+    public void allowPlayerCardDrawing(final Game game, final Session targetSession) {
+        sendReleaseToDrawCardResponse(
+                game,
+                targetSession,
+                g -> new ReleaseToDrawPlayerCardResponse(g, g.getCurrentTurn().getNumberOfPlayerCardsToDraw())
+        );
+    }
+
+    /**
+     * Allows the client with given {@code targetSession} to draw an amount of {@link InfectionCard}
+     * as specified by {@link PlayerTurn#getNumberOfInfectionCardsToDraw()} from the current {@link PlayerTurn} of given {@code game}.
+     *
+     * @param game {@link Game} with the current {@link PlayerTurn}
+     * @param targetSession {@link Session} to allow drawing of {@link InfectionCard}
+     */
+    public void allowInfectionCardDrawing(final Game game, final Session targetSession) {
+        sendReleaseToDrawCardResponse(
+                game,
+                targetSession,
+                g -> new ReleaseToDrawInfectionCardResponse(g, g.getCurrentTurn().getNumberOfInfectionCardsToDraw())
+        );
     }
 }

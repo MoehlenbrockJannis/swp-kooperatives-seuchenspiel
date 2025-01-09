@@ -47,7 +47,7 @@ public class WaiveAction extends SimpleAction {
     @Override
     public void execute() {
         if (isExecutable()) {
-            // Do nothing
+            getGame().getCurrentTurn().setNumberOfActionsToDo(0);
         }
     }
 }

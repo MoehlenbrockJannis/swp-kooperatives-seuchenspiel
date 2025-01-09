@@ -64,6 +64,10 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * Initializes the click event of the player marker
      */
     private void initializeClickEvent() {
+        if (!game.getCurrentTurn().isInActionPhase()) {
+            return;
+        }
+
         playerMarker.setOnMouseClicked(event -> {
             if (game.getCurrentPlayer().equals(playerMarker.getPlayer()) && isEventTriggeredByBoundPlayer()) {
                 ContextMenu contextMenu = createContextMenu();
