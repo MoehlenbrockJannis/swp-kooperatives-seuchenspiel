@@ -5,6 +5,7 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
+import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.game.Game;
@@ -13,9 +14,11 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -293,4 +296,53 @@ public class GameMapPresenter extends AbstractPresenter {
             cityMarkers.add(cityMarker);
         }
     }
+
+    /**
+     * Adds a researchLaboratoryMarker to the given field
+     *
+     * @param researchLaboratoryMarker
+     * @param field
+     */
+    public void addResearchLaboratoryMarkerToField(final ResearchLaboratoryMarker researchLaboratoryMarker, final Field field) {
+        pane.getChildren().add(researchLaboratoryMarker);
+
+        researchLaboratoryMarker.layoutXProperty().bind(
+                webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
+        );
+
+        researchLaboratoryMarker.layoutYProperty().bind(
+                webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
+                        .subtract(CityMarker.RADIUS * 1.5)
+        );
+
+        bindSizeOfResearchLaboratoryMarkerToWebViewSize(researchLaboratoryMarker);
+    }
+
+    /**
+     * Binds the size of the researchLaboratoryMarker to the size of the webView
+     *
+     * @param researchLaboratoryMarker The researchLaboratoryMarker for which the size should be bound
+     */
+    private void bindSizeOfResearchLaboratoryMarkerToWebViewSize(final ResearchLaboratoryMarker researchLaboratoryMarker) {
+        final ChangeListener<Number> sizeChangeListener = (observable, oldValue, newValue) -> {
+            final double width = researchLaboratoryMarker.getBoundsInParent().getWidth();
+
+            final double aspectRatio = newValue.doubleValue() / oldValue.doubleValue();
+
+            final double resultingWidth = width * aspectRatio;
+
+            if (resultingWidth < 25 || resultingWidth > 50) {
+                return;
+            }
+
+            final Scale scale = new Scale();
+            scale.setX(aspectRatio);
+            scale.setY(aspectRatio);
+            researchLaboratoryMarker.getTransforms().add(scale);
+        };
+
+        webView.widthProperty().addListener(sizeChangeListener);
+        webView.heightProperty().addListener(sizeChangeListener);
+    }
+
 }
