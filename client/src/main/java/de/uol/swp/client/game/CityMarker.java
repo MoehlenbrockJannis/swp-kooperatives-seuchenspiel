@@ -2,7 +2,9 @@ package de.uol.swp.client.game;
 
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.map.Field;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
@@ -16,6 +18,7 @@ import lombok.Getter;
  * @since 2024-09-10
  */
 public class CityMarker extends Circle {
+    public static final double RADIUS = 7;
 
     private FadeTransition fadeTransition;
     private ScaleTransition scaleTransition;
@@ -34,7 +37,7 @@ public class CityMarker extends Circle {
         this.field = field;
 
         this.setFill(getColor());
-        this.setRadius(7);
+        this.setRadius(RADIUS);
 
         initHighlightAnimation();
 

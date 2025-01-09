@@ -6,9 +6,12 @@ import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.map.Field;
+import de.uol.swp.common.player.Player;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -121,7 +124,7 @@ public class GamePresenter extends AbstractPresenter {
                 Game::getPlayerDrawStack,
                 Game::getPlayerDiscardStack,
                 this.playerCardStackPane
-                );
+        );
         this.playerCardsOverviewPresenter.setWindow(stage);
         this.associatedPresenters.add(playerCardsOverviewPresenter);
 
@@ -203,6 +206,18 @@ public class GamePresenter extends AbstractPresenter {
             infectionCardsOverviewPresenter.updateLabels();
         }
 
+    }
+
+    /**
+     * Adds a research laboratory to the current field.
+     */
+    @FXML
+    private void addResearchLaboratoryButtonPressed() {
+        // TODO: replace with BuildResearchLaboratoryAction
+        final ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
+        final Player currentPlayer = this.game.getLobby().getPlayerForUser(loggedInUserProvider.get());
+        final Field field = currentPlayer.getCurrentField();
+        gameMapController.addResearchLaboratoryMarkerToField(researchLaboratoryMarker, field);
     }
 
     /**
