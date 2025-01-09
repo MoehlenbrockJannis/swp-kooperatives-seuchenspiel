@@ -11,6 +11,7 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Instantiation of a map defined by {@link MapType}
@@ -57,21 +58,7 @@ public class GameMap implements Serializable {
         final List<MapSlot> mapSlots = type.getMap();
         for (final MapSlot mapSlot : mapSlots) {
             final Field field = new Field(this, mapSlot);
-            checkForStartingCityField(field);
             this.fields.add(field);
-        }
-    }
-
-    /**
-     * Checks if the given {@link Field} is the starting field of the game and adds all players to the field if it is
-     *
-     * @param field Field to check
-     */
-    private void checkForStartingCityField(Field field) {
-        if (field.getCity() == type.getStartingCity()) {
-            List<Player> playersInTurnOrder = game.getPlayersInTurnOrder();
-            List<Player> playersOnField = field.getPlayersOnField();
-            playersOnField.addAll(playersInTurnOrder);
         }
     }
 
@@ -215,5 +202,18 @@ public class GameMap implements Serializable {
 
         plague.exterminate();
         return true;
+    }
+
+    /**
+     * Returns a {@link List} of all players on given {@link Field}.
+     *
+     * @param field {@link Field} for which the players are searched
+     * @return {@link List} of all players on given {@link Field}
+     * @see Game#getPlayersInTurnOrder()
+     */
+    public List<Player> getPlayersOnField(final Field field) {
+        return this.game.getPlayersInTurnOrder().stream()
+                .filter(player -> Objects.equals(player.getCurrentField(), field))
+                .toList();
     }
 }
