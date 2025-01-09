@@ -38,8 +38,6 @@ public class Field implements Serializable {
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
     private Map<Plague, List<PlagueCube>> plagueCubes;
-    @Getter
-    private List<Player> playersOnField;
 
     /**
      * Constructor
@@ -51,7 +49,6 @@ public class Field implements Serializable {
         this.map = map;
         this.mapSlot = mapSlot;
         this.plagueCubes = new HashMap<>();
-        this.playersOnField = new ArrayList<>();
     }
 
     /**
@@ -263,5 +260,16 @@ public class Field implements Serializable {
      */
     public List<Field> getNeighborFields() {
         return map.getNeighborFields(this);
+    }
+
+    /**
+     * Returns a {@link List} of all players on this field.
+     *
+     * @return {@link List} of all players on this field
+     * @see GameMap#getPlayersOnField(Field)
+     * @see Player#getCurrentField()
+     */
+    public List<Player> getPlayersOnField() {
+        return this.map.getPlayersOnField(this);
     }
 }
