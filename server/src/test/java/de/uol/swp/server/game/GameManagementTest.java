@@ -4,8 +4,6 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -22,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,7 +32,7 @@ class GameManagementTest {
     private PlayerTurnManagement playerTurnManagement;
     private RoleManagement roleManagement;
     private Lobby mockLobby;
-    private MapType mockMapType;
+    private MapType mapType;
     private List<Plague> mockPlagues;
     private Game mockGame;
     private Player mockPlayer;
@@ -51,15 +50,8 @@ class GameManagementTest {
         gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
 
-        final City city = new City("city", "info");
-        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
-
         mockLobby = mock(Lobby.class);
-        mockMapType = mock(MapType.class);
-        when(mockMapType.getMap())
-                .thenReturn(List.of(mapSlot));
-        when(mockMapType.getStartingCity())
-                .thenReturn(city);
+        mapType = createMapType();
         mockPlagues = new ArrayList<>();
         mockGame = mock(Game.class);
         mockPlayer = mock(Player.class);
@@ -76,7 +68,7 @@ class GameManagementTest {
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues);
 
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(mockLobby);
@@ -97,7 +89,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test generating unique game ID does not collide with existing IDs")
     void generateUniqueGameId_doesNotCollideWithExistingIds() {
-        Game existingGame = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
+        Game existingGame = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(existingGame);
 
         for (int i = 0; i < 1000; i++) {
@@ -109,7 +101,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(game);
         assertThat(retrievedGame).contains(game);
@@ -118,7 +110,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
         assertThat(retrievedGame).isEmpty();
@@ -127,7 +119,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues);
         gameManagement.addGame(game);
         PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 

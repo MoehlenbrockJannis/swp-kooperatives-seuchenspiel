@@ -4,8 +4,6 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -21,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class CardManagementTest {
     private GameManagement gameManagement;
@@ -51,15 +49,8 @@ class CardManagementTest {
         gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
 
-        final City city = new City("city", "info");
-        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
-
         mockLobby = mock(Lobby.class);
-        mockMapType = mock(MapType.class);
-        when(mockMapType.getMap())
-                .thenReturn(List.of(mapSlot));
-        when(mockMapType.getStartingCity())
-                .thenReturn(city);
+        mockMapType = createMapType();
         mockPlagues = new ArrayList<>();
         mockGame = mock(Game.class);
         mockPlayerCard = mock(PlayerCard.class);
@@ -101,7 +92,7 @@ class CardManagementTest {
     @DisplayName("Test drawing an infection card from the bottom")
     void drawInfectionCard_fromTheBottom() {
         Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        game.getInfectionDrawStack().removeFirstCard();
+        game.getInfectionDrawStack().removeAllElements();
         game.getInfectionDrawStack().push(mockInfectionCard);
         game.getInfectionDrawStack().push(mock(InfectionCard.class));
         InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheBottom(game);

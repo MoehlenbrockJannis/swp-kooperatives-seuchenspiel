@@ -10,15 +10,19 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +90,16 @@ class PlayerTest {
     }
 
     private Field createField() {
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(new Plague("testPlague", new Color(1, 2, 3)));
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         final GameMap map = mock(GameMap.class);
+        when(map.getType())
+                .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
         return new Field(map, mapSlot);
     }

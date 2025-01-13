@@ -60,4 +60,21 @@ public class ColorService {
         return (int) (d * 255);
     }
 
+    /**
+     * Adjusts the brightness of the given {@link Color} by changing each rgb value by the specified percentage.
+     * A positive value will lighten the color, and a negative value will darken it.
+     *
+     * @param color The color to adjust
+     * @param percentage The percentage as decimal number to adjust the brightness by
+     * @return The adjusted color
+     */
+    public static Color adjustBrightness(Color color, double percentage) {
+        double factor = 1 + percentage;
+
+        double newRed = Math.min(Math.max(color.getRed() * factor, 0), 1);
+        double newGreen = Math.min(Math.max(color.getGreen() * factor, 0), 1);
+        double newBlue = Math.min(Math.max(color.getBlue() * factor, 0), 1);
+
+        return new Color(newRed, newGreen, newBlue, color.getOpacity());
+    }
 }

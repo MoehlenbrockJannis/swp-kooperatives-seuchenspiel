@@ -1,6 +1,7 @@
 package de.uol.swp.common.map;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.exception.FieldOfCityNotFoundException;
 import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
@@ -219,6 +220,26 @@ class GameMapTest {
         assertThat(map.getType())
                 .usingRecursiveComparison()
                 .isEqualTo(mapType);
+    }
+
+    @Test
+    @DisplayName("Should return the field of the given city")
+    void getFieldOfCity() {
+        final Field expectedField = new Field(map, mapSlot1);
+
+        assertThat(map.getFieldOfCity(city1))
+                .usingRecursiveComparison()
+                .isEqualTo(expectedField);
+    }
+
+    @Test
+    @DisplayName("Should throw an exception if no field for the given city is found")
+    void getFieldOfCity_error() {
+        final City nonExistentCity = new City("non-existent", "");
+
+        assertThatThrownBy(() -> map.getFieldOfCity(nonExistentCity))
+                .isInstanceOf(FieldOfCityNotFoundException.class)
+                .hasMessageContaining(nonExistentCity.getName());
     }
 
     @Test

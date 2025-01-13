@@ -5,6 +5,8 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.util.Color;
 import lombok.AllArgsConstructor;
 
+import java.util.Objects;
+
 @AllArgsConstructor
 public class InfectionCard extends Card{
 
@@ -19,5 +21,23 @@ public class InfectionCard extends Card{
     @Override
     public Color getColor() {
         return this.color;
+    }
+
+    public City getCity() {
+        return associatedField.getCity();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InfectionCard that = (InfectionCard) o;
+        return Objects.equals(color, that.color) &&
+                Objects.equals(associatedField, that.associatedField);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, associatedField);
     }
 }

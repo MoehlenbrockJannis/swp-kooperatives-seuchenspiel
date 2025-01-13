@@ -4,6 +4,7 @@ import de.uol.swp.common.card.*;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.City;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapType;
@@ -13,6 +14,7 @@ import de.uol.swp.common.marker.InfectionMarker;
 import de.uol.swp.common.marker.OutbreakMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.util.Color;
@@ -20,10 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -45,7 +44,7 @@ public class Game implements Serializable {
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES = 24;
     public static final int DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES = 6;
     public static final int DEFAULT_NUMBER_OF_EPIDEMIC_CARDS = 6;
-    public static final int DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 1;
+    public static final int DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD = 3;
     public static final int DEFAULT_NUMBER_OF_ACTIONS_PER_TURN = 4;
@@ -188,8 +187,14 @@ public class Game implements Serializable {
         this.outbreakMarker = new OutbreakMarker(outbreakLevels);
 
         this.map = new GameMap(this, type);
+
+        this.plagueCubes = new HashMap<>();
+
         createPlayerStacks();
         createInfectionStacks();
+
+        createPlagueCubes();
+        distributeInitialPlagueCubes();
 
         assignPlayersToStartingField();
     }
@@ -238,7 +243,15 @@ public class Game implements Serializable {
      * This method generates the cubes that represent the spread of diseases.
      */
     private void createPlagueCubes () {
+        Set<Plague> plagueSet = map.getType().getUniquePlagues();
+        for (Plague plague : plagueSet) {
+            List<PlagueCube> plagueCubeList = new ArrayList<>();
+            for (int i = 0; i < numberOfPlagueCubesPerColor; i++) {
+                plagueCubeList.add(new PlagueCube(plague));
+            }
+            plagueCubes.put(plague, plagueCubeList);
 
+        }
     }
 
     /**
@@ -346,16 +359,32 @@ public class Game implements Serializable {
      * This method sets up the initial state of the game board by placing plague cubes.
      */
     private void distributeInitialPlagueCubes () {
+        for (int i = numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution; i > 0; i--) {
+            List<InfectionCard> drawnCards = new ArrayList<>();
 
+            for (int j = 0; j < numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution; j++) {
+                InfectionCard card = infectionDrawStack.pop();
+                drawnCards.add(card);
+                infectionDiscardStack.push(card);
+            }
+            for (InfectionCard drawnCard : drawnCards) {
+                City city = drawnCard.getCity();
+                Field field = map.getFieldOfCity(city);
+                distributePlagueCubes(i, field);
+            }
+        }
     }
 
     /**
-     * Distributes a specified number of plague cubes to the game board.
+     * Distributes a specified number of plague cubes to a given field.
      *
      * @param numberOfPlagueCubes the number of plague cubes to be distributed
+     * @param field the field to distribute plague cubes to
      */
-    private void distributePlagueCubes (int numberOfPlagueCubes) {
-
+    private void distributePlagueCubes (int numberOfPlagueCubes, Field field) {
+        for (int i = 0; i < numberOfPlagueCubes; i++) {
+            field.infect();
+        }
     }
 
     /**
@@ -374,7 +403,17 @@ public class Game implements Serializable {
      * @return the PlagueCube object representing a cube of the specified plague
      */
     public PlagueCube getPlagueCubeOfPlague (Plague plague) {
-        return new PlagueCube(plague);
+        List<PlagueCube> cubes = plagueCubes.get(plague);
+
+        if (cubes == null) {
+            throw new NoPlagueCubesFoundException(plague.getName());
+        }
+
+        if (cubes.isEmpty()) {
+            isLost = true;
+        }
+
+        return cubes.remove(0);
     }
 
     /**

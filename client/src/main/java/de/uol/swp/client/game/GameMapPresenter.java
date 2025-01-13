@@ -3,6 +3,8 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.plague.PlagueCubeMarker;
+import de.uol.swp.client.plague.PlagueCubeMarkerPresenter;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
@@ -62,6 +64,7 @@ public class GameMapPresenter extends AbstractPresenter {
 
     private final List<CityMarker> cityMarkers = new ArrayList<>();
     private final Map<Player, PlayerMarker> playerMarkers = new HashMap<>();
+    private final List<PlagueCubeMarkerPresenter> plagueCubeMarkerPresenters = new ArrayList<>();
 
     @Override
     public String getFXMLFolderPath() {
@@ -141,8 +144,8 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Binds the position of the playerMarker to a field
      *
-     * @param playerMarker The playerMarker to be bound
-     * @param field The field to which the playerMarker should be bound
+     * @param playerMarker       The playerMarker to be bound
+     * @param field              The field to which the playerMarker should be bound
      * @param playerOnFieldIndex The index of the player on the field
      * @see PlayerMarker
      */
@@ -160,11 +163,11 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Binds the layout properties of the playerMarker
      *
-     * @param playerMarker The playerMarker for which the properties should be bound
-     * @param field The field to which the playerMarker should be bound
-     * @param playerMarkerWidth The width of the playerMarker
-     * @param playerMarkerHeight The height of the playerMarker
-     * @param xOffset The x offset of the playerMarker
+     * @param playerMarker        The playerMarker for which the properties should be bound
+     * @param field               The field to which the playerMarker should be bound
+     * @param playerMarkerWidth   The width of the playerMarker
+     * @param playerMarkerHeight  The height of the playerMarker
+     * @param xOffset             The x offset of the playerMarker
      * @param playerAmountOnField The amount of players on the field
      * @since 2024-10-04
      */
@@ -187,7 +190,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * Calculates the x offset of the playerMarker
      *
      * @param playerOnFieldIndex The index of the player on the field
-     * @param playerMarkerWidth The width of the playerMarker
+     * @param playerMarkerWidth  The width of the playerMarker
      * @return The x offset of the playerMarker
      * @since 2024-10-04
      */
@@ -275,10 +278,11 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Creates cityMarker for each field in the game and adds them to the pane.
+     * Creates cityMarker and plagueCubeMarker for each field in the game and adds them to the pane.
      *
      * @author David Scheffler
      * @see CityMarker
+     * @see PlagueCubeMarker
      * @since 2024-09-10
      */
     private void addCityMarkers() {
@@ -294,7 +298,32 @@ public class GameMapPresenter extends AbstractPresenter {
             );
 
             cityMarkers.add(cityMarker);
+
+            addPlagueCubeMarker(field);
         }
+    }
+
+    /**
+     * Creates plagueCubeMarker for the associated plague of a given field and adds them to the pane.
+     *
+     * @param field field to create PlagueCubeMarker for
+     * @see PlagueCubeMarker
+     * @since 2024-11-09
+     */
+    private void addPlagueCubeMarker(Field field) {
+        PlagueCubeMarker plagueCubeMarker = new PlagueCubeMarker(field);
+        PlagueCubeMarkerPresenter plagueCubeMarkerPresenter = new PlagueCubeMarkerPresenter(plagueCubeMarker, field);
+        plagueCubeMarkerPresenters.add(plagueCubeMarkerPresenter);
+        pane.getChildren().add(plagueCubeMarker);
+
+        Platform.runLater(() -> {
+            plagueCubeMarker.layoutXProperty().bind(
+                    webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
+            );
+            plagueCubeMarker.layoutYProperty().bind(
+                    webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
+            );
+        });
     }
 
     /**
@@ -312,7 +341,7 @@ public class GameMapPresenter extends AbstractPresenter {
 
         researchLaboratoryMarker.layoutYProperty().bind(
                 webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
-                        .subtract(CityMarker.RADIUS * 1.5)
+                        .subtract(CityMarker.getRADIUS() * 1.5)
         );
 
         bindSizeOfResearchLaboratoryMarkerToWebViewSize(researchLaboratoryMarker);
