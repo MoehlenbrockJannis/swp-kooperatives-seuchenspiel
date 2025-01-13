@@ -10,7 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -23,6 +26,7 @@ class FieldTest {
     private City city;
     private List<City> connectedCities;
     private Plague plague;
+    private Set<Plague> plagueSet;
     private int maxNumberOfPlagueCubes;
 
     @BeforeEach
@@ -35,11 +39,19 @@ class FieldTest {
         );
         plague = new Plague("tdd", new Color(255, 255, 255));
 
+        plagueSet = new HashSet<>();
+        plagueSet.add(plague);
+
         maxNumberOfPlagueCubes = 3;
 
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
         map = mock(GameMap.class);
         when(map.getMaxNumberOfPlagueCubesPerField())
                 .thenReturn(maxNumberOfPlagueCubes);
+        when(map.getType())
+                .thenReturn(mapType);
         mapSlot = mock(MapSlot.class);
         when(mapSlot.getCity())
                 .thenReturn(city);
@@ -243,6 +255,13 @@ class FieldTest {
     }
 
     @Test
+    @DisplayName("Should return true if given city is equal to city of the field")
+    void hasCity() {
+        assertThat(field.hasCity(city))
+                .isTrue();
+    }
+
+    @Test
     @DisplayName("Should return the same as equivalent method on associated map slot")
     void hasPlague() {
         final boolean result = true;
@@ -271,6 +290,53 @@ class FieldTest {
     }
 
     @Test
+    @DisplayName("Should return all plague cubes of the given plague")
+    void getPlagueCubesOfPlague() {
+        PlagueCube plagueCube1 = new PlagueCube(plague);
+        PlagueCube plagueCube2 = new PlagueCube(plague);
+
+        field.infect(plagueCube1);
+        field.infect(plagueCube2);
+
+        List<PlagueCube> plagueCubes = field.getPlagueCubesOfPlague(plague);
+
+        assertThat(plagueCubes)
+                .containsExactlyInAnyOrder(plagueCube1, plagueCube2);
+    }
+
+    @Test
+    @DisplayName("Should return the number of foreign plague cube types on the field")
+    void getNumberOfForeignPlagueCubeTypes() {
+        Plague foreignPlague1 = new Plague("ForeignPlague1", new Color(1, 2, 3));
+        Plague foreignPlague2 = new Plague("ForeignPlague2", new Color(10, 20, 30));
+
+        field.infect(new PlagueCube(foreignPlague1));
+        field.infect(new PlagueCube(foreignPlague2));
+        field.infect(new PlagueCube(plague));
+
+        int numberOfForeignPlagueTypes = field.getNumberOfForeignPlagueCubeTypes();
+
+        assertThat(numberOfForeignPlagueTypes)
+                .isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Should return the number of plague cubes for each plague on the field")
+    void getPlagueCubeAmounts() {
+        Plague foreignPlague = new Plague("ForeignPlague", new Color(1, 2, 3));
+
+        field.infect(new PlagueCube(plague));
+        field.infect(new PlagueCube(plague));
+        field.infect(new PlagueCube(foreignPlague));
+
+        Map<Plague, Integer> plagueCubeAmounts = field.getPlagueCubeAmounts();
+
+        assertThat(plagueCubeAmounts)
+                .containsEntry(plague, 2)
+                .containsEntry(foreignPlague, 1);
+    }
+
+    @Test
     @DisplayName("Should return true if given field has equal map and map slot")
     void testEquals_true() {
         final Field equal = new Field(map, mapSlot);
@@ -282,7 +348,12 @@ class FieldTest {
     @Test
     @DisplayName("Should return false if given field does not have equal map or map slot")
     void testEquals_falseNotEqual() {
+        final MapType newMapType = mock(MapType.class);
+        when(newMapType.getUniquePlagues())
+                .thenReturn(plagueSet);
         final GameMap newMap = mock(GameMap.class);
+        when(newMap.getType())
+                .thenReturn(newMapType);
         final MapSlot newMapSlot = mock(MapSlot.class);
         final Field notEqual = new Field(newMap, newMapSlot);
 

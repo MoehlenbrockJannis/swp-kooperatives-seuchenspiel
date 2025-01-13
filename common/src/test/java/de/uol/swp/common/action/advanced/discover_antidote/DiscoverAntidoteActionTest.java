@@ -3,10 +3,7 @@ package de.uol.swp.common.action.advanced.discover_antidote;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.Field;
-import de.uol.swp.common.map.GameMap;
-import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.*;
 import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
@@ -17,7 +14,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,7 +59,16 @@ class DiscoverAntidoteActionTest {
         cityCardsPlague3 = new ArrayList<>();
         addCityCardsToList(cityCardsPlague3, 1, plague3);
 
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(plague1);
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         final GameMap map = mock(GameMap.class);
+        when(map.getType())
+                .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
         field = new Field(map, mapSlot);
 

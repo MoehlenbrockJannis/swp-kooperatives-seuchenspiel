@@ -16,8 +16,6 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -43,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -69,16 +68,9 @@ public class CardServiceTest extends EventBusBasedTest {
         EventBus eventBus = getBus();
         cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService, playerTurnManagement);
 
-        final City city = new City("city", "info");
-        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
-
         User user = new UserDTO("Test", "Test", "Test@test.de");
         List<Plague> plagues = List.of(mock(Plague.class));
-        mapType = mock(MapType.class);
-        when(mapType.getMap())
-                .thenReturn(List.of(mapSlot));
-        when(mapType.getStartingCity())
-                .thenReturn(city);
+        mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user,2,4);
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
         try (MockedConstruction<ActionFactory> mockedActionFactory = Mockito.mockConstruction(ActionFactory.class, (mock, context) -> {

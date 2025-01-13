@@ -38,6 +38,8 @@ public class Field implements Serializable {
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
     private Map<Plague, List<PlagueCube>> plagueCubes;
+    @Getter
+    private List<Player> playersOnField;
 
     /**
      * Constructor
@@ -49,6 +51,21 @@ public class Field implements Serializable {
         this.map = map;
         this.mapSlot = mapSlot;
         this.plagueCubes = new HashMap<>();
+        this.playersOnField = new ArrayList<>();
+
+        initPlagueCubes();
+    }
+
+    /**
+     * Initializes plagueCubes Map
+     */
+    private void initPlagueCubes() {
+        for (Plague plague : map.getType().getUniquePlagues()) {
+            List<PlagueCube> plagueList = new ArrayList<>();
+            plagueCubes.put(plague, plagueList);
+        }
+
+
     }
 
     /**
@@ -253,6 +270,16 @@ public class Field implements Serializable {
     }
 
     /**
+     * Returns whether this field has represents the given {@link City} or not
+     *
+     * @param city the {@link City} to check equality with {@link City} on {@link #mapSlot} for
+     * @return {@code true} if given {@link City} is equal to {@link City} on {@link #mapSlot}, {@code false} otherwise
+     */
+    public boolean hasCity(City city) {
+        return this.getCity().equals(city);
+    }
+
+    /**
      * Returns a {@link List} of all fields neighboring this {@link Field}
      *
      * @return {@link List} of fields neighboring this {@link Field}
@@ -271,5 +298,49 @@ public class Field implements Serializable {
      */
     public List<Player> getPlayersOnField() {
         return this.map.getPlayersOnField(this);
+    }
+
+    /**
+     * Returns {@link List} of all {@link PlagueCube} of the given Plague found on the field
+     *
+     * @param plague the {@link Plague} used to return the associated {@link PlagueCube} List
+     * @return {@link List} of all {@link PlagueCube} of the given Plague
+     */
+    public List<PlagueCube> getPlagueCubesOfPlague(Plague plague){
+        return plagueCubes.get(plague);
+    }
+
+    /**
+     * Counts the amount of foreign {@link Plague} types found on the field
+     *
+     * @return number of foreign plagueCube types found on the field
+     */
+    public int getNumberOfForeignPlagueCubeTypes(){
+        int numberOfForeignPlagueTypes = 0;
+        Plague associatedPlague = this.getPlague();
+
+        for (Map.Entry<Plague, List<PlagueCube>> entry : plagueCubes.entrySet()) {
+            List<PlagueCube> plagueCubeList = entry.getValue();
+
+            if (!entry.getKey().equals(associatedPlague) && plagueCubeList != null && !plagueCubeList.isEmpty()) {
+                numberOfForeignPlagueTypes++;
+            }
+        }
+
+        return numberOfForeignPlagueTypes;
+    }
+
+    /**
+     * Returns the number of {@link PlagueCube} for each {@link Plague} found on the field
+     *
+     * @return {@link Map} of {@link Plague} and {@link Integer} for the amount of {@link PlagueCube} for each {@link Plague}
+     */
+    public Map<Plague, Integer> getPlagueCubeAmounts() {
+        Map<Plague, Integer> plagueCubeAmounts = new HashMap<>();
+
+        for (Map.Entry<Plague, List<PlagueCube>> entry : plagueCubes.entrySet()) {
+            plagueCubeAmounts.put(entry.getKey(), entry.getValue().size());
+        }
+        return plagueCubeAmounts;
     }
 }

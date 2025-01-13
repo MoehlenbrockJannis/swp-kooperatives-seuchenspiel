@@ -1,6 +1,7 @@
 package de.uol.swp.common.map;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.exception.FieldOfCityNotFoundException;
 import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
 import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
@@ -202,6 +203,22 @@ public class GameMap implements Serializable {
 
         plague.exterminate();
         return true;
+    }
+
+    /**
+     * Returns the {@link Field} of the {@link GameMap} that has the given {@link City} in its {@link MapSlot}
+     *
+     * @param city the {@link City} to get the associated {@link Field} for
+     * @return the {@link Field} associated with the given {@link City}
+     * @throws FieldOfCityNotFoundException {@link Field} for given {@link City} has not been found
+     */
+    public Field getFieldOfCity(City city){
+        for (Field field : fields) {
+            if (field.hasCity(city)) {
+                return field;
+            }
+        }
+        throw new FieldOfCityNotFoundException(city.getName());
     }
 
     /**

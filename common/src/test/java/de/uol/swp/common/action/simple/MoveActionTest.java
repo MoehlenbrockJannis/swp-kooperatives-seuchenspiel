@@ -5,18 +5,25 @@ import de.uol.swp.common.action.simple.car.CarActionForAlly;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.Color;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class MoveActionTest extends AbstractMoveActionTest {
     @Getter
@@ -28,7 +35,16 @@ class MoveActionTest extends AbstractMoveActionTest {
     void setUp() {
         player = new AIPlayer("robots in disguise");
 
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(new Plague("testPlague", new Color(1, 2, 3)));
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         final GameMap gameMap = mock(GameMap.class);
+        when(gameMap.getType())
+                .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
         field = new Field(gameMap, mapSlot);
 

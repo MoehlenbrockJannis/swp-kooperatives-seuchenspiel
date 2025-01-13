@@ -14,19 +14,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CityCardTest {
-    private CityCard card;
+class InfectionCardTest {
+    private InfectionCard card;
     private Field field;
-    private GameMap map;
-    private MapSlot mapSlot;
     private City city;
     private Plague plague;
     private Set<Plague> plagueSet;
+    private Color color;
 
     @BeforeEach
     void setUp() {
         city = new City("Bielefeld", "Existiert nicht");
         plague = new Plague("Ruhrpott", new Color(1, 2, 3));
+        color = plague.getColor();
 
         plagueSet = new HashSet<>();
         plagueSet.add(plague);
@@ -34,10 +34,11 @@ class CityCardTest {
         final MapType mapType = mock(MapType.class);
         when(mapType.getUniquePlagues())
                 .thenReturn(plagueSet);
-        map = mock(GameMap.class);
+
+        GameMap map = mock(GameMap.class);
         when(map.getType())
                 .thenReturn(mapType);
-        mapSlot = mock(MapSlot.class);
+        MapSlot mapSlot = mock(MapSlot.class);
         when(mapSlot.getCity())
                 .thenReturn(city);
         when(mapSlot.getPlague())
@@ -45,7 +46,7 @@ class CityCardTest {
 
         field = new Field(map, mapSlot);
 
-        card = new CityCard(field);
+        card = new InfectionCard(color, field);
     }
 
     @Test
@@ -54,14 +55,6 @@ class CityCardTest {
         assertThat(card.getCity())
                 .usingRecursiveComparison()
                 .isEqualTo(city);
-    }
-
-    @Test
-    @DisplayName("Should return associated plague of specified field")
-    void getPlague() {
-        assertThat(card.getPlague())
-                .usingRecursiveComparison()
-                .isEqualTo(plague);
     }
 
     @Test
@@ -80,25 +73,23 @@ class CityCardTest {
     }
 
     @Test
-    @DisplayName("Should return specified field")
-    void getAssociatedField() {
-        assertThat(card.getAssociatedField())
-                .usingRecursiveComparison()
-                .isEqualTo(field);
-    }
-
-    @Test
-    @DisplayName("Should return true if given object has same associated field")
+    @DisplayName("Should return true if given object has same associated color and field")
     void testEquals_true() {
-        final CityCard equal = new CityCard(field);
+        final InfectionCard equal = new InfectionCard(color, field);
 
         assertThat(card.equals(equal))
                 .isTrue();
     }
 
     @Test
-    @DisplayName("Should return false if given object does not have same associated field")
+    @DisplayName("Should return false if given object does not have same associated color and field")
     void testEquals_false() {
+        final Color otherColor = new Color(4, 5, 6);
+        final InfectionCard otherColorCard = new InfectionCard(otherColor, field);
+
+        assertThat(card.equals(otherColorCard))
+                .isFalse();
+
         final City newCity = new City("Hamburg", "");
         final MapType newMapType = mock(MapType.class);
         when(newMapType.getUniquePlagues())
@@ -110,10 +101,9 @@ class CityCardTest {
         when(newMapSlot.getCity())
                 .thenReturn(newCity);
         final Field newField = new Field(newMap, newMapSlot);
+        final InfectionCard otherFieldCard = new InfectionCard(color, newField);
 
-        final CityCard notEqual = new CityCard(newField);
-
-        assertThat(card.equals(notEqual))
+        assertThat(card.equals(otherFieldCard))
                 .isFalse();
     }
 
@@ -129,46 +119,9 @@ class CityCardTest {
     @Test
     @DisplayName("Should return equal hash code for equal objects")
     void testHashCode() {
-        final CityCard other = new CityCard(field);
+        final InfectionCard other = new InfectionCard(color, field);
 
         assertThat(card.hashCode())
                 .hasSameHashCodeAs(other);
-    }
-
-    @Test
-    @DisplayName("Should return true if given field is equal to associated field")
-    void hasField_true() {
-        final Field otherField = new Field(map, mapSlot);
-
-        assertThat(card.hasField(otherField))
-                .isTrue();
-    }
-
-    @Test
-    @DisplayName("Should return false if given field is not equal to associated field")
-    void hasField_false() {
-        final MapType newMapType = mock(MapType.class);
-        when(newMapType.getUniquePlagues())
-                .thenReturn(plagueSet);
-        final GameMap newMap = mock(GameMap.class);
-        when(newMap.getType())
-                .thenReturn(newMapType);
-        final MapSlot newMapSlot = mock(MapSlot.class);
-        final Field otherField = new Field(newMap, newMapSlot);
-
-        assertThat(card.hasField(otherField))
-                .isFalse();
-    }
-
-    @Test
-    @DisplayName("Should return the same as equivalent method on map slot of associated field")
-    void hasPlague() {
-        final boolean result = true;
-
-        when(mapSlot.hasPlague(plague))
-                .thenReturn(result);
-
-        assertThat(card.hasPlague(plague))
-                .isEqualTo(result);
     }
 }

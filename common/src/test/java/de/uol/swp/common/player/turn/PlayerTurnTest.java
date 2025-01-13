@@ -8,8 +8,6 @@ import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
@@ -31,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static de.uol.swp.common.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -95,13 +94,8 @@ class PlayerTurnTest {
         this.defaultPlayer = new UserPlayer(this.defaultUser);
         this.defaultPlayer.setRole(roleCard);
 
-        final City city = new City("city", "info");
-        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
-        final MapType mapType = mock(MapType.class);
-        when(mapType.getMap())
-                .thenReturn(List.of(mapSlot));
-        when(mapType.getStartingCity())
-                .thenReturn(city);
+        final MapType mapType = createMapType();
+
         this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;

@@ -4,9 +4,14 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.util.Color;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,7 +27,16 @@ public abstract class AbstractMoveActionTest {
         allFields = new ArrayList<>();
         neighboringFields = new ArrayList<>();
 
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(new Plague("testPlague", new Color(1, 2, 3)));
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         final GameMap gameMap = mock(GameMap.class);
+        when(gameMap.getType())
+                .thenReturn(mapType);
 
         for (int i = 0; i < 10; i++) {
             final Field field = new Field(gameMap, mock(MapSlot.class));

@@ -5,8 +5,11 @@ import de.uol.swp.common.map.Field;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.*;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
 import lombok.Getter;
 
@@ -17,14 +20,16 @@ import lombok.Getter;
  * @author David Scheffler
  * @since 2024-09-10
  */
-public class CityMarker extends Circle {
-    public static final double RADIUS = 7;
+public class CityMarker extends Group {
 
     private FadeTransition fadeTransition;
     private ScaleTransition scaleTransition;
 
     @Getter
     private final Field field;
+
+    @Getter
+    private static final int RADIUS = 10;
 
     /**
      * Constructor
@@ -36,13 +41,25 @@ public class CityMarker extends Circle {
     public CityMarker(Field field) {
         this.field = field;
 
-        this.setFill(getColor());
-        this.setRadius(RADIUS);
+        Circle circle = new Circle();
+        circle.setFill(getColor());
+        circle.setRadius(RADIUS);
+        circle.setStroke(Color.BLACK);
+        circle.setStrokeType(StrokeType.INSIDE);
+
+        Circle circleBorder = new Circle();
+        circleBorder.setFill(Color.TRANSPARENT);
+        circleBorder.setRadius(RADIUS);
+        circleBorder.setStroke(Color.WHITE);
+        circleBorder.setStrokeType(StrokeType.OUTSIDE);
+        circleBorder.setMouseTransparent(true);
 
         initHighlightAnimation();
 
-        this.setOnMouseEntered(event -> this.highlight());
-        this.setOnMouseExited(event -> this.unhighlight());
+        circle.setOnMouseEntered(event -> this.highlight());
+        circle.setOnMouseExited(event -> this.unhighlight());
+
+        this.getChildren().addAll(circle, circleBorder);
     }
 
     /**

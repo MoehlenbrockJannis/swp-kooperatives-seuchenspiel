@@ -5,8 +5,6 @@ import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.user.User;
@@ -22,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -45,13 +44,7 @@ public class GameServiceTest extends EventBusBasedTest {
         final User user = new UserDTO("user", "pass", "");
         final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
 
-        final City city = new City("city", "info");
-        final MapSlot mapSlot = new MapSlot(city, List.of(), null, 0, 0);
-        final MapType mapType = mock(MapType.class);
-        when(mapType.getMap())
-                .thenReturn(List.of(mapSlot));
-        when(mapType.getStartingCity())
-                .thenReturn(city);
+        final MapType mapType = createMapType();
         final List<Plague> plagues = List.of();
 
         final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
