@@ -56,6 +56,11 @@ public class Field implements Serializable {
         initPlagueCubes();
     }
 
+    @Override
+    public String toString() {
+        return mapSlot.toString();
+    }
+
     /**
      * Initializes plagueCubes Map
      */

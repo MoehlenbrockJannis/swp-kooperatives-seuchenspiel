@@ -1,6 +1,8 @@
 package de.uol.swp.common.player.turn;
 
 import de.uol.swp.common.action.*;
+import de.uol.swp.common.action.simple.MoveAllyAction;
+import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
@@ -11,10 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The PlayerTurn class represents a player's turn in a game.
@@ -109,8 +108,84 @@ public class PlayerTurn implements Serializable {
      */
     private void determineAvailabilityOfActions(final List<Action> actions) {
         for (final Action action : actions) {
-            determineAvailabilityOfAction(action);
+            if (action instanceof MoveAllyAction moveAllyAction) {
+                determineAvailabilityOfMoveAllyAction(moveAllyAction);
+            } else {
+                determineAvailabilityOfAction(action);
+            }
         }
+    }
+
+    /**
+     * <p>
+     *     Determines for a given {@link MoveAllyAction} if it is currently available to potentially be executed by {@link #player}.
+     *     After duplicating the given {@link MoveAllyAction} for every {@link Player} in {@link #game} except {@link #player},
+     *     its availability is determined by {@link #determineAvailabilityOfAction(Action)}
+     * </p>
+     *
+     * @param action {@link MoveAllyAction} to check availability for
+     * @see #duplicateMoveAllyActionForEveryPlayer(MoveAllyAction, List)
+     * @see #getPlayersWithoutCurrentPlayer()
+     * @see #determineAvailabilityOfAction(Action)
+     */
+    private void determineAvailabilityOfMoveAllyAction(final MoveAllyAction action) {
+        final List<Player> movablePlayers = action instanceof MoveAllyToAllyAction ?
+                game.getPlayersInTurnOrder() :
+                getPlayersWithoutCurrentPlayer();
+        final List<MoveAllyAction> moveAllyActions = duplicateMoveAllyActionForEveryPlayer(action, movablePlayers);
+        for (final MoveAllyAction moveAllyAction : moveAllyActions) {
+            determineAvailabilityOfAction(moveAllyAction);
+        }
+    }
+
+    /**
+     * <p>
+     *     Returns a {@link List} of players from the {@link #game} without {@link #player}.
+     * </p>
+     *
+     * @return a {@link List} of players from {@link #game} without {@link #player}
+     * @see Game#getPlayersInTurnOrder()
+     */
+    private List<Player> getPlayersWithoutCurrentPlayer() {
+        return this.game.getPlayersInTurnOrder().stream()
+                .filter(playerFromGame -> !playerFromGame.equals(this.player))
+                .toList();
+    }
+
+    /**
+     * <p>
+     *     Creates one copy of the given {@link MoveAllyAction} for every {@link Player} in {@code players} and calls {@link MoveAllyAction#setMovedAlly(Player)} with it.
+     * </p>
+     *
+     * @param moveAllyAction {@link MoveAllyAction} to copy
+     * @param players {@link List} of players to copy {@code moveAllyAction} for
+     * @return {@link List} of copies of {@code moveAllyAction}
+     * @implNote uses {@link LinkedList} as {@link List}
+     */
+    private List<MoveAllyAction> duplicateMoveAllyActionForEveryPlayer(final MoveAllyAction moveAllyAction, final List<Player> players) {
+        final List<MoveAllyAction> moveAllyActions = new LinkedList<>();
+        for (final Player p : players) {
+            moveAllyActions.add(duplicateMoveAllyActionForPlayer(moveAllyAction, p));
+        }
+        return moveAllyActions;
+    }
+
+    /**
+     * <p>
+     *     Creates a copy of the given {@link MoveAllyAction} and calls {@link MoveAllyAction#setMovedAlly(Player)} with {@code player}.
+     * </p>
+     *
+     * @param moveAllyAction the {@link MoveAllyAction} to copy
+     * @param player {@link Player} to set as moved ally
+     * @return a copy of the given {@link MoveAllyAction} with {@code player} as moved ally
+     */
+    private MoveAllyAction duplicateMoveAllyActionForPlayer(final MoveAllyAction moveAllyAction, final Player player) {
+        final MoveAllyAction copy = ACTION_FACTORY.copyAction(moveAllyAction);
+        copy.setMovedAlly(player);
+        if (player.equals(this.player)) {
+            copy.approve();
+        }
+        return copy;
     }
 
     /**

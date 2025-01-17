@@ -2,10 +2,7 @@ package de.uol.swp.common.action.advanced.transfer_card;
 
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.map.Field;
-import de.uol.swp.common.map.GameMap;
-import de.uol.swp.common.map.MapSlot;
-import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.map.*;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
@@ -36,13 +33,20 @@ abstract class ShareKnowledgeActionTest {
     protected Field transferredCardField;
     protected List<Player> allPlayers;
 
+    protected String player1Name;
+    protected String player2Name;
+    protected String fieldName;
+
     protected abstract ShareKnowledgeAction getAction();
 
     @BeforeEach
     void setUp() {
-        executingPlayer = new UserPlayer(new UserDTO("test", "", ""));
+        player1Name = "test";
+        player2Name = "target locked";
 
-        targetPlayer = new AIPlayer("target locked");
+        executingPlayer = new UserPlayer(new UserDTO(player1Name, "", ""));
+
+        targetPlayer = new AIPlayer(player2Name);
 
         allPlayers = new ArrayList<>(List.of(
                 executingPlayer,
@@ -64,6 +68,8 @@ abstract class ShareKnowledgeActionTest {
         when(map.getType())
                 .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
+        when(mapSlot.getCity())
+                .thenReturn(new City(fieldName, ""));
         transferredCardField = new Field(map, mapSlot);
         transferredCard = new CityCard(transferredCardField);
 
@@ -217,6 +223,12 @@ abstract class ShareKnowledgeActionTest {
         assertThat(action.isApproved())
                 .isTrue();
     }
+
+    protected abstract void getApprovalRequestMessage();
+
+    protected abstract void getApprovedMessage();
+
+    protected abstract void getRejectedMessage();
 
     @Test
     @DisplayName("Should remove the card from the sender's hand and add it to the receiver's if executable")

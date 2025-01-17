@@ -1,12 +1,12 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
 import de.uol.swp.common.action.advanced.AdvancedAction;
+import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.util.Approvable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,6 +88,21 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
     @Override
     public void approve() {
         this.isApproved = true;
+    }
+
+    @Override
+    public String getApprovalRequestMessage() {
+        return getSender() + " möchte " + getReceiver() + " die Karte " + getTransferredCard() + " vermachen.";
+    }
+
+    @Override
+    public String getApprovedMessage() {
+        return getApprovingPlayer() + " hat angenommen. " +  getSender() + " hat " + getReceiver() + " die Karte " + getTransferredCard() + " vermacht.";
+    }
+
+    @Override
+    public String getRejectedMessage() {
+        return getApprovingPlayer() + " hat abgelehnt. " +  getSender() + " hat " + getReceiver() + " die Karte " + getTransferredCard() + " nicht vermacht.";
     }
 
     /**

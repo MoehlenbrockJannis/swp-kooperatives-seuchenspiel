@@ -2,12 +2,15 @@ package de.uol.swp.client.player;
 
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.game.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.simple.MoveAction;
+import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.User;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -31,6 +34,7 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private final PlayerMarker playerMarker;
     private final LoggedInUserProvider loggedInUserProvider;
     private final ActionService actionService;
+    private final ApprovableService approvableService;
     private final Game game;
     private final List<CityMarker> cityMarkers;
 
@@ -48,13 +52,13 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      */
     private void initializeHoverEvents() {
         playerMarker.setOnMouseEntered(event -> {
-            if (isEventTriggeredByBoundPlayer()) {
+            if (isAssociatedPlayerMovableByLoggedInUser()) {
                 playerMarker.setOpacity(0.5);
             }
         });
 
         playerMarker.setOnMouseExited(event -> {
-            if (isEventTriggeredByBoundPlayer()) {
+            if (isAssociatedPlayerMovableByLoggedInUser()) {
                 playerMarker.setOpacity(1.0);
             }
         });
@@ -64,16 +68,79 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * Initializes the click event of the player marker
      */
     private void initializeClickEvent() {
-        if (!game.getCurrentTurn().isInActionPhase()) {
-            return;
-        }
-
         playerMarker.setOnMouseClicked(event -> {
-            if (game.getCurrentPlayer().equals(playerMarker.getPlayer()) && isEventTriggeredByBoundPlayer()) {
-                ContextMenu contextMenu = createContextMenu();
-                contextMenu.show(playerMarker, event.getScreenX(), event.getScreenY());
+            if (!isAssociatedPlayerMovableByLoggedInUser()) {
+                return;
             }
+
+            final ContextMenu contextMenu = createContextMenu();
+            contextMenu.show(playerMarker, event.getScreenX(), event.getScreenY());
         });
+    }
+
+    /**
+     * Returns whether the {@link Player} stored on the {@link #playerMarker} is movable by the {@link Player} of the logged-in user.
+     *
+     * @return {@code true} if the {@link Player} of the logged-in user can move the {@link Player} of {@link #playerMarker}, {@code false} otherwise
+     */
+    private boolean isAssociatedPlayerMovableByLoggedInUser() {
+        final User loggedInUser = loggedInUserProvider.get();
+        final Optional<Player> playerOfLoggedInUserOptional = findPlayerForUserInGame(loggedInUser, game);
+        return playerOfLoggedInUserOptional.filter(this::isAssociatedPlayerMovableByPlayer).isPresent();
+    }
+
+    /**
+     * Returns an {@link Optional} that may contain the {@link Player} associated with the given {@code user} on the given {@code game}.
+     *
+     * @param user {@link User} to find the {@link Player} on {@code game} for
+     * @param game {@link Game} on which to search the {@link Player} of {@code user}
+     * @return an {@link Optional} containing the associated {@link Player} of {@code user} on {@code game} or an empty {@link Optional} if there is no such {@link Player}
+     */
+    private Optional<Player> findPlayerForUserInGame(final User user, final Game game) {
+        return game.getPlayersInTurnOrder().stream()
+                .filter(player -> player.containsUser(user))
+                .findFirst();
+    }
+
+    /**
+     * <p>
+     *     Determines whether the given {@code player} can move the {@link Player} stored on {@link #playerMarker}.
+     *     For that to be {@code true},
+     *      the {@link #game}'s current {@link PlayerTurn} needs to be in its action phase,
+     *      its current {@link Player} needs to be the given {@code player} and
+     *      there needs to be at least one {@link MoveAction} targeting the {@link Player} of {@link #playerMarker}.
+     * </p>
+     *
+     * @param player the {@link Player} to check active moving status for
+     * @return {@code true} if the given {@code player} can move the associated {@link Player}, {@code false} otherwise
+     */
+    private boolean isAssociatedPlayerMovableByPlayer(final Player player) {
+        return game.getCurrentTurn().isInActionPhase() && game.getCurrentPlayer().equals(player) &&
+                doesMoveActionWithAssociatedPlayerAsMovedPlayerExistOnCurrentTurn();
+    }
+
+    /**
+     * Determines whether a {@link MoveAction} exists on the {@link #game}'s current {@link PlayerTurn}
+     * that targets the {@link Player} of {@link #playerMarker}.
+     *
+     * @return {@code true} if there is at least one available {@link MoveAction} for the associated {@link Player}, {@code false} otherwise
+     */
+    private boolean doesMoveActionWithAssociatedPlayerAsMovedPlayerExistOnCurrentTurn() {
+        return !getAvailableMoveActions().isEmpty();
+    }
+
+    /**
+     * Returns a {@link List} of available {@link MoveAction} from the {@link #game}'s current {@link PlayerTurn}
+     * that targets the {@link Player} of {@link #playerMarker}.
+     *
+     * @return {@link List} of {@link MoveAction} with {@link PlayerMarker#getPlayer()} as moved {@link Player}
+     */
+    private List<MoveAction> getAvailableMoveActions() {
+        return game.getCurrentTurn().getPossibleActions().stream()
+                .filter(MoveAction.class::isInstance)
+                .map(MoveAction.class::cast)
+                .filter(action -> action.getMovedPlayer().equals(playerMarker.getPlayer()))
+                .toList();
     }
 
     /**
@@ -85,14 +152,12 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      */
     private ContextMenu createContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
-        List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
+        final List<MoveAction> possibleActions = getAvailableMoveActions();
 
-        for (Action action : possibleActions) {
-            if (action instanceof MoveAction) {
-                MenuItem actionItem = new MenuItem(action.toString());
-                actionItem.setOnAction(event -> prepareMoveAction((MoveAction) action));
-                contextMenu.getItems().add(actionItem);
-            }
+        for (final MoveAction possibleAction : possibleActions) {
+            MenuItem actionItem = new MenuItem(possibleAction.toString());
+            actionItem.setOnAction(event -> prepareMoveAction(possibleAction));
+            contextMenu.getItems().add(actionItem);
         }
 
         return contextMenu;
@@ -157,7 +222,12 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      */
     private void executeMoveActionOnCity(MoveAction moveAction, Field targetField) {
         moveAction.setTargetField(targetField);
-        actionService.sendAction(game, moveAction);
+
+        if (moveAction instanceof Approvable approvable && !approvable.isApproved()) {
+            approvableService.sendApprovable(approvable);
+        } else {
+            actionService.sendAction(game, moveAction);
+        }
 
         unhighlightAllCityMarkers();
     }
@@ -193,10 +263,5 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         for (CityMarker cityMarker : cityMarkers) {
             cityMarker.highlight();
         }
-    }
-
-    private boolean isEventTriggeredByBoundPlayer() {
-        User user = loggedInUserProvider.get();
-        return Objects.equals(user.getUsername(), playerMarker.getPlayer().getName());
     }
 }

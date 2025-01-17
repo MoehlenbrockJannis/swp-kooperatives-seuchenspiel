@@ -3,6 +3,7 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.plague.PlagueCubeMarker;
 import de.uol.swp.client.plague.PlagueCubeMarkerPresenter;
 import de.uol.swp.client.player.PlayerMarker;
@@ -61,6 +62,8 @@ public class GameMapPresenter extends AbstractPresenter {
     private LoggedInUserProvider loggedInUserProvider;
     @Inject
     private ActionService actionService;
+    @Inject
+    private ApprovableService approvableService;
 
     private final List<CityMarker> cityMarkers = new ArrayList<>();
     private final Map<Player, PlayerMarker> playerMarkers = new HashMap<>();
@@ -129,7 +132,7 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addPlayerMarker(Player player) {
         PlayerMarker newPlayerMarker = createNewPlayerMarker(player);
-        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(newPlayerMarker, loggedInUserProvider, actionService, game, cityMarkers);
+        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(newPlayerMarker, loggedInUserProvider, actionService, approvableService, game, cityMarkers);
         playerMarkerPresenter.initializeMouseEvents();
 
         pane.getChildren().add(newPlayerMarker);

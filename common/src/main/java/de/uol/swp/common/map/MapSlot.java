@@ -30,6 +30,11 @@ public class MapSlot implements Serializable {
     private int xCoordinate;
     private int yCoordinate;
 
+    @Override
+    public String toString() {
+        return city.getName();
+    }
+
     /**
      * <p>
      *     Returns {@code true} if given {@link Plague} is equal to {@link #plague}, {@code false} otherwise.
