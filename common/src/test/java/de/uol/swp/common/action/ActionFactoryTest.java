@@ -20,6 +20,9 @@ import de.uol.swp.common.action.simple.direct_flight.DirectFlightAction;
 import de.uol.swp.common.action.simple.direct_flight.DirectFlightActionForAlly;
 import de.uol.swp.common.action.simple.shuttle_flight.ShuttleFlightAction;
 import de.uol.swp.common.action.simple.shuttle_flight.ShuttleFlightActionForAlly;
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.player.AIPlayer;
+import de.uol.swp.common.player.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 /**
  * The following fields need to be updated accordingly when new action classes are added:
@@ -226,5 +230,22 @@ class ActionFactoryTest {
 
         assertThatThrownBy(() -> factory.createAction(actionClass))
                 .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @DisplayName("Should copy an action with its field values")
+    void copyAction() {
+        final Player player = new AIPlayer("ai");
+        final Game game = mock();
+
+        final Action action = new WaiveAction();
+        action.setExecutingPlayer(player);
+        action.setGame(game);
+
+        final Action copy = factory.copyAction(action);
+
+        assertThat(copy)
+                .usingRecursiveComparison()
+                .isEqualTo(action);
     }
 }

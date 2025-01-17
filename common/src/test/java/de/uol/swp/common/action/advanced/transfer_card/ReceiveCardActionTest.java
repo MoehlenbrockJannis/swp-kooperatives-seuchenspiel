@@ -28,6 +28,36 @@ abstract class ReceiveCardActionTest extends ShareKnowledgeActionTest {
     }
 
     @Test
+    @DisplayName("Should return a valid approval request message")
+    @Override
+    protected void getApprovalRequestMessage() {
+        action.getSender().setRole(null);
+
+        assertThat(action.getApprovalRequestMessage())
+                .isEqualTo(player2Name + " möchte " + player1Name + " die Karte " + fieldName + " vermachen.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid approved message")
+    @Override
+    protected void getApprovedMessage() {
+        action.getSender().setRole(null);
+
+        assertThat(action.getApprovedMessage())
+                .isEqualTo(player2Name + " hat angenommen. " + player2Name + " hat " + player1Name + " die Karte " + fieldName + " vermacht.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid rejected message")
+    @Override
+    protected void getRejectedMessage() {
+        action.getSender().setRole(null);
+
+        assertThat(action.getRejectedMessage())
+                .isEqualTo(player2Name + " hat abgelehnt. " + player2Name + " hat " + player1Name + " die Karte " + fieldName + " nicht vermacht.");
+    }
+
+    @Test
     @DisplayName("Should return the target player")
     void getSender() {
         assertThat(action.getSender())

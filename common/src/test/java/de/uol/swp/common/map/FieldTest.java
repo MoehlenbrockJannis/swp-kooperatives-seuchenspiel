@@ -24,6 +24,7 @@ class FieldTest {
     private GameMap map;
     private MapSlot mapSlot;
     private City city;
+    private String cityName;
     private List<City> connectedCities;
     private Plague plague;
     private Set<Plague> plagueSet;
@@ -31,7 +32,8 @@ class FieldTest {
 
     @BeforeEach
     void setUp() {
-        city = new City("city", "");
+        cityName = "city";
+        city = new City(cityName, "");
         connectedCities = List.of(
                 new City("a", ""),
                 new City("b", ""),
@@ -52,15 +54,15 @@ class FieldTest {
                 .thenReturn(maxNumberOfPlagueCubes);
         when(map.getType())
                 .thenReturn(mapType);
-        mapSlot = mock(MapSlot.class);
-        when(mapSlot.getCity())
-                .thenReturn(city);
-        when(mapSlot.getConnectedCities())
-                .thenReturn(connectedCities);
-        when(mapSlot.getPlague())
-                .thenReturn(plague);
+        mapSlot = new MapSlot(city, connectedCities, plague, 0, 0);
 
         field = new Field(map, mapSlot);
+    }
+
+    @Test
+    void testToString() {
+        assertThat(field)
+                .hasToString(cityName);
     }
 
     @Test
@@ -265,9 +267,6 @@ class FieldTest {
     @DisplayName("Should return the same as equivalent method on associated map slot")
     void hasPlague() {
         final boolean result = true;
-
-        when(mapSlot.hasPlague(plague))
-                .thenReturn(result);
 
         assertThat(field.hasPlague(plague))
                 .isEqualTo(result);

@@ -33,6 +33,30 @@ class SendCardActionTest extends ShareKnowledgeActionTest {
     }
 
     @Test
+    @DisplayName("Should return a valid approval request message")
+    @Override
+    protected void getApprovalRequestMessage() {
+        assertThat(action.getApprovalRequestMessage())
+                .isEqualTo(player1Name + " möchte " + player2Name + " die Karte " + fieldName + " vermachen.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid approved message")
+    @Override
+    protected void getApprovedMessage() {
+        assertThat(action.getApprovedMessage())
+                .isEqualTo(player2Name + " hat angenommen. " + player1Name + " hat " + player2Name + " die Karte " + fieldName + " vermacht.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid rejected message")
+    @Override
+    protected void getRejectedMessage() {
+        assertThat(action.getRejectedMessage())
+                .isEqualTo(player2Name + " hat abgelehnt. " + player1Name + " hat " + player2Name + " die Karte " + fieldName + " nicht vermacht.");
+    }
+
+    @Test
     @DisplayName("Should return the executing player")
     void getSender() {
         assertThat(action.getSender())

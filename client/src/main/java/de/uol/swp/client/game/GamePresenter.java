@@ -2,16 +2,22 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.common.action.Action;
+import de.uol.swp.common.approvable.Approvable;
+import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -53,6 +59,10 @@ public class GamePresenter extends AbstractPresenter {
 
     @Inject
     private LobbyService lobbyService;
+    @Inject
+    private ApprovableService approvableService;
+    @Inject
+    private ActionService actionService;
 
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
@@ -158,6 +168,53 @@ public class GamePresenter extends AbstractPresenter {
         executeIfTheUpdatedGameMessageRetrieves(message, executable);
     }
 
+    @Subscribe
+    public void onApprovableServerMessage(final ApprovableServerMessage approvableServerMessage) {
+        final Approvable approvable = approvableServerMessage.getApprovable();
+
+        if (approvable.getGame().getId() != this.game.getId()) {
+            return;
+        }
+
+        switch (approvableServerMessage.getStatus()) {
+            case APPROVED:
+                createApprovableInfoAlert("Aktion angenommen", approvable, approvable.getApprovedMessage());
+                if (approvable instanceof Action action && action.getExecutingPlayer().containsUser(loggedInUserProvider.get())) {
+                    actionService.sendAction(action.getGame(), action);
+                }
+                break;
+            case REJECTED:
+                createApprovableInfoAlert("Aktion abgelehnt", approvable, approvable.getRejectedMessage());
+                break;
+            case OUTBOUND:
+                createApprovableAlertIfLoggedInUserControlsApprovingPlayer(approvable);
+                break;
+        }
+    }
+
+    private void createApprovableInfoAlert(final String title, final Approvable approvable, final String contentText) {
+        Platform.runLater(() -> {
+            final Alert alert = createAlert(Alert.AlertType.INFORMATION, title, approvable.toString(), contentText);
+            alert.showAndWait();
+        });
+    }
+
+    private void createApprovableAlertIfLoggedInUserControlsApprovingPlayer(final Approvable approvable) {
+        if (approvable.getApprovingPlayer().containsUser(loggedInUserProvider.get())) {
+            createApprovableAlert(approvable);
+        }
+    }
+
+    private void createApprovableAlert(final Approvable approvable) {
+        showConfirmationAlert(
+                "Aktion annehmen?",
+                approvable.toString(),
+                approvable.getApprovalRequestMessage(),
+                () -> approvableService.approveApprovable(approvable),
+                () -> approvableService.rejectApprovable(approvable)
+        );
+    }
+
     /**
      * Initializes the menu items with their respective actions
      */
@@ -188,15 +245,38 @@ public class GamePresenter extends AbstractPresenter {
      * If confirmed, calls the leaveGame method.
      */
     private void confirmAndLeaveGame() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Spiel verlassen");
-        alert.setHeaderText("Möchten Sie das Spiel wirklich verlassen?");
-        alert.setContentText("Wenn Sie das Spiel verlassen, wird das Spiel-Fenster geschlossen.");
+        showConfirmationAlert(
+                "Spiel verlassen",
+                "Möchten Sie das Spiel wirklich verlassen?",
+                "Wenn Sie das Spiel verlassen, wird das Spiel-Fenster geschlossen.",
+                this::closeStage,
+                () -> {}
+        );
+    }
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            closeStage();
-        }
+    private void showConfirmationAlert(final String title, final String headerText, final String contentText, final Runnable acceptFunction, final Runnable rejectFunction) {
+        Platform.runLater(() -> {
+            final Alert alert = createAlert(Alert.AlertType.CONFIRMATION, title, headerText, contentText);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isEmpty()) {
+                throw new IllegalStateException();
+            }
+
+            if (result.get() == ButtonType.OK) {
+                acceptFunction.run();
+            } else if (result.get() == ButtonType.CANCEL || result.get() == ButtonType.CLOSE) {
+                rejectFunction.run();
+            }
+        });
+    }
+
+    private Alert createAlert(final Alert.AlertType alertType, final String title, final String headerText, final String contentText) {
+        final Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        return alert;
     }
 
     private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
