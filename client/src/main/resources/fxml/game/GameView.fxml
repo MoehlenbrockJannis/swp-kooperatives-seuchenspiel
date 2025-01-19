@@ -63,10 +63,8 @@
     </Pane>
 
     <!-- Column 1 -->
-    <Pane style="-fx-background-color: blue; -fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7"
-          GridPane.rowSpan="2">
-        <Text layoutX="127.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eigener Spieler"/>
-    </Pane>
+    <GridPane fx:id="ownPlayerContainer" style="-fx-background-color: blue; -fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2"/>
+
 
     <!-- Column 2 -->
 
@@ -127,19 +125,16 @@
     <!-- Column 9 -->
 
     <!-- Column 10 -->
-    <Pane style="-fx-background-color: yellowgreen; -fx-border-color: whitesmoke; -fx-border-width: 10 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
-          GridPane.rowIndex="0" GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 2"/>
-    </Pane>
-    <Pane style="-fx-background-color: lime; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2" GridPane.rowIndex="3"
-          GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 3"/>
-    </Pane>
-    <Pane style="-fx-background-color: springgreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
-          GridPane.rowIndex="6" GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 4"/>
-    </Pane>
-
+    <GridPane fx:id="playerContainer" style="-fx-border-color: whitesmoke; -fx-border-width: 10 10 10 0;" vgap="10" GridPane.columnIndex="10" GridPane.columnSpan="2" GridPane.rowIndex="0" GridPane.rowSpan="9">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="100" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="100" />
+            <RowConstraints percentHeight="100" />
+            <RowConstraints percentHeight="100" />
+        </rowConstraints>
+    </GridPane>
     <!-- Column 11 -->
 
 </GridPane>

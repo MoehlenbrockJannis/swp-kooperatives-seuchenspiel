@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<GridPane fx:id="playerPane" xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="de.uol.swp.client.game.PlayerPanePresenter">
+    <children>
+        <VBox fx:id="playerInfoBox" style="-fx-background-color: gray; -fx-padding: 5;" spacing="5" GridPane.columnIndex="0">
+            <Pane fx:id="symbolPane"
+                  style="-fx-background-color: transparent; -fx-shape: null;"/>
+            <Text fx:id="playerNameText" text="Spieler"
+                  style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+            <Label fx:id="playerRoleLabel" text="Rolle" style="-fx-font-size: 10px;"/>
+        </VBox>
+
+        <VBox style="-fx-background-color: gray; -fx-padding: 5;" spacing="5" GridPane.columnIndex="1" >
+            <ListView fx:id="handCardsList" style="-fx-font-size: 10px;"/>
+        </VBox>
+    </children>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="50"/>
+    </columnConstraints>
+</GridPane>

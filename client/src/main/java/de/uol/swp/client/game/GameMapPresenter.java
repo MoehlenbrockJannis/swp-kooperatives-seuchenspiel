@@ -218,7 +218,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @return The new PlayerMarker
      * @see PlayerMarker
      */
-    private PlayerMarker createNewPlayerMarker(Player player) {
+    public PlayerMarker createNewPlayerMarker(Player player) {
         RoleCard playerRole = player.getRole();
         Color playerColor = ColorService.convertColorToJavaFXColor(playerRole.getColor());
         double playerSize = 0.75;
