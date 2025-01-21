@@ -81,11 +81,9 @@ public class PlayerMarker extends Group {
      * Aligns the body to the head
      */
     private void alignBodyToHead() {
-        this.head.setLayoutX(headRadius);
-        this.head.setLayoutY(headRadius);
+        this.head.setLayoutY(-headRadius);
 
-        this.body.setLayoutX(0);
-        this.body.setLayoutY(2 * headRadius);
+        this.body.setLayoutX(-getWidth() / 2);
     }
 
     /**

@@ -36,7 +36,7 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private final ActionService actionService;
     private final ApprovableService approvableService;
     private final Game game;
-    private final List<CityMarker> cityMarkers;
+    private final Map<Field, CityMarker> cityMarkers;
 
     /**
      * Initializes the mouse events of the player marker
@@ -233,9 +233,9 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     }
 
     private void unhighlightAllCityMarkers() {
-        for (CityMarker cityMarker : cityMarkers) {
-            cityMarker.unhighlight();
-            cityMarker.setOnMouseClicked(null);
+        for (Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            entry.getValue().unhighlight();
+            entry.getValue().setOnMouseClicked(null);
         }
     }
 
@@ -248,8 +248,8 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      */
     private Map<String, CityMarker> createCityMarkerMap() {
         Map<String, CityMarker> cityMarkerMap = new HashMap<>();
-        for (CityMarker cityMarker : cityMarkers) {
-            cityMarkerMap.put(cityMarker.getField().getCity().getName(), cityMarker);
+        for (Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            cityMarkerMap.put(entry.getValue().getField().getCity().getName(), entry.getValue());
         }
         return cityMarkerMap;
     }

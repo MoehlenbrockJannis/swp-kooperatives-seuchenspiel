@@ -4,12 +4,12 @@ import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.map.Field;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
-import javafx.animation.ScaleTransition;
 import javafx.animation.*;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 import lombok.Getter;
 
@@ -23,13 +23,15 @@ import lombok.Getter;
 public class CityMarker extends Group {
 
     private FadeTransition fadeTransition;
-    private ScaleTransition scaleTransition;
+    private Timeline scaleTimeline;
 
     @Getter
     private final Field field;
 
     @Getter
     private static final int RADIUS = 10;
+
+    private final Scale animationScale = new Scale(1.0, 1.0);
 
     /**
      * Constructor
@@ -54,10 +56,9 @@ public class CityMarker extends Group {
         circleBorder.setStrokeType(StrokeType.OUTSIDE);
         circleBorder.setMouseTransparent(true);
 
-        initHighlightAnimation();
+        this.getTransforms().add(animationScale);
 
-        circle.setOnMouseEntered(event -> this.highlight());
-        circle.setOnMouseExited(event -> this.unhighlight());
+        initHighlightAnimation();
 
         this.getChildren().addAll(circle, circleBorder);
     }
@@ -68,19 +69,26 @@ public class CityMarker extends Group {
      * @since 2024-10-13
      */
     private void initHighlightAnimation() {
-        fadeTransition = new FadeTransition(Duration.millis(800), this);
+        int duration = 800;
+
+        fadeTransition = new FadeTransition(Duration.millis(duration), this);
         fadeTransition.setFromValue(1.0);
         fadeTransition.setToValue(0.3);
         fadeTransition.setCycleCount(Animation.INDEFINITE);
         fadeTransition.setAutoReverse(true);
 
-        scaleTransition = new ScaleTransition(Duration.millis(800), this);
-        scaleTransition.setFromX(1.0);
-        scaleTransition.setToX(1.2);
-        scaleTransition.setFromY(1.0);
-        scaleTransition.setToY(1.2);
-        scaleTransition.setCycleCount(Animation.INDEFINITE);
-        scaleTransition.setAutoReverse(true);
+        scaleTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(animationScale.xProperty(), 1.0),
+                        new KeyValue(animationScale.yProperty(), 1.0)
+                ),
+                new KeyFrame(Duration.millis(duration),
+                        new KeyValue(animationScale.xProperty(), 1.2),
+                        new KeyValue(animationScale.yProperty(), 1.2)
+                )
+        );
+        scaleTimeline.setCycleCount(Animation.INDEFINITE);
+        scaleTimeline.setAutoReverse(true);
     }
 
     /**
@@ -90,7 +98,7 @@ public class CityMarker extends Group {
      */
     public void highlight() {
         fadeTransition.play();
-        scaleTransition.play();
+        scaleTimeline.play();
     }
 
     /**
@@ -99,16 +107,12 @@ public class CityMarker extends Group {
      * @since 2024-10-12
      */
     public void unhighlight() {
-        if (fadeTransition != null) {
-            fadeTransition.stop();
-        }
-        if (scaleTransition != null) {
-            scaleTransition.stop();
-        }
+        fadeTransition.stop();
+        scaleTimeline.stop();
 
         this.setOpacity(1.0);
-        this.setScaleX(1.0);
-        this.setScaleY(1.0);
+        animationScale.setX(1.0);
+        animationScale.setY(1.0);
     }
 
     /**
