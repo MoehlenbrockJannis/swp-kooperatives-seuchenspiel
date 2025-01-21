@@ -10,7 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import lombok.Setter;
 
 import java.util.List;
 
@@ -71,7 +70,19 @@ public class PlayerPanePresenter extends AbstractPresenter {
      */
     public void setPlayerMarker(PlayerMarker playerMarker) {
         symbolPane.getChildren().clear();
+        symbolPane.minWidthProperty().bind(symbolPane.heightProperty());
+        symbolPane.prefWidthProperty().bind(symbolPane.heightProperty());
+        symbolPane.maxWidthProperty().bind(symbolPane.heightProperty());
         symbolPane.getChildren().add(playerMarker);
+        bindPlayerMarkerToSymbolPane(playerMarker);
+    }
+
+    private void bindPlayerMarkerToSymbolPane(PlayerMarker playerMarker){
+        double scaleFactor = 0.027;
+        playerMarker.layoutXProperty().bind(symbolPane.widthProperty().divide(2));
+        playerMarker.layoutYProperty().bind(symbolPane.heightProperty().divide(2));
+        playerMarker.scaleXProperty().bind(symbolPane.widthProperty().multiply(scaleFactor));
+        playerMarker.scaleYProperty().bind(symbolPane.heightProperty().multiply(scaleFactor));
     }
 
     @Override

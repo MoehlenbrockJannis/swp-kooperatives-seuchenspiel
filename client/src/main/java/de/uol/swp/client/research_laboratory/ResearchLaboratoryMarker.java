@@ -1,6 +1,7 @@
 package de.uol.swp.client.research_laboratory;
 
 import de.uol.swp.client.game.GameMapPresenter;
+import de.uol.swp.client.util.ColorService;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -15,29 +16,29 @@ import javafx.scene.shape.Shape;
  */
 public class ResearchLaboratoryMarker extends Group {
 
-    private static final double DEFAULT_FRONT_BOTTOM_LEFT_X = 0.0;
-    private static final double DEFAULT_FRONT_BOTTOM_LEFT_Y = 40.0;
+    private static final double DEFAULT_FRONT_BOTTOM_LEFT_X = -20.0;
+    private static final double DEFAULT_FRONT_BOTTOM_LEFT_Y = 20.0;
 
-    private static final double DEFAULT_FRONT_TOP_LEFT_X = 0.0;
-    private static final double DEFAULT_FRONT_TOP_LEFT_Y = 20.0;
+    private static final double DEFAULT_FRONT_TOP_LEFT_X = -20.0;
+    private static final double DEFAULT_FRONT_TOP_LEFT_Y = 0.0;
 
-    private static final double DEFAULT_FRONT_BOTTOM_RIGHT_X = 20.0;
-    private static final double DEFAULT_FRONT_BOTTOM_RIGHT_Y = 40.0;
+    private static final double DEFAULT_FRONT_BOTTOM_RIGHT_X = 0.0;
+    private static final double DEFAULT_FRONT_BOTTOM_RIGHT_Y = 20.0;
 
-    private static final double DEFAULT_FRONT_TOP_RIGHT_X = 20.0;
-    private static final double DEFAULT_FRONT_TOP_RIGHT_Y = 20.0;
+    private static final double DEFAULT_FRONT_TOP_RIGHT_X = 0.0;
+    private static final double DEFAULT_FRONT_TOP_RIGHT_Y = 0.0;
 
-    private static final double DEFAULT_FRONT_TOP_CENTER_X = 10.0;
-    private static final double DEFAULT_FRONT_TOP_CENTER_Y = 10.0;
+    private static final double DEFAULT_FRONT_TOP_CENTER_X = -10.0;
+    private static final double DEFAULT_FRONT_TOP_CENTER_Y = -10.0;
 
-    private static final double DEFAULT_BACK_TOP_CENTER_X = 30.0;
-    private static final double DEFAULT_BACK_TOP_CENTER_Y = 0.0;
+    private static final double DEFAULT_BACK_TOP_CENTER_X = 10.0;
+    private static final double DEFAULT_BACK_TOP_CENTER_Y = -20.0;
 
-    private static final double DEFAULT_BACK_TOP_RIGHT_X = 40.0;
-    private static final double DEFAULT_BACK_TOP_RIGHT_Y = 10.0;
+    private static final double DEFAULT_BACK_TOP_RIGHT_X = 20.0;
+    private static final double DEFAULT_BACK_TOP_RIGHT_Y = -10.0;
 
-    private static final double DEFAULT_BACK_BOTTOM_RIGHT_X = 40.0;
-    private static final double DEFAULT_BACK_BOTTOM_RIGHT_Y = 30.0;
+    private static final double DEFAULT_BACK_BOTTOM_RIGHT_X = 20.0;
+    private static final double DEFAULT_BACK_BOTTOM_RIGHT_Y = 10.0;
 
     private double frontBottomLeftX;
     private double frontBottomLeftY;
@@ -63,14 +64,12 @@ public class ResearchLaboratoryMarker extends Group {
     private double backBottomRightX;
     private double backBottomRightY;
 
-    private final Polygon frontSquareBase = new Polygon();
-    private final Polygon frontTriangleRoof = new Polygon();
-    private final Polygon sideSquareBase = new Polygon();
-    private final Polygon sideSquareRoof = new Polygon();
+    private final Polygon frontBase = new Polygon();
+    private final Polygon sideBase = new Polygon();
+    private final Polygon roof = new Polygon();
 
-    private final Color frontColor = Color.rgb(125, 125, 125);
-    private final Color sideSquareBaseColor = Color.rgb(62, 62, 62);
-    private final Color sideSquareRoofColor = Color.rgb(200, 200, 200);
+    private static final Color COLOR = Color.rgb(192, 192, 192);
+    private static final double COLOR_ADJUSTMENT_FACTOR = 0.3;
 
     /**
      * Constructor for the ResearchLaboratoryMarker
@@ -80,7 +79,8 @@ public class ResearchLaboratoryMarker extends Group {
     public ResearchLaboratoryMarker(double laboratorySize) {
         initializeSizes(laboratorySize);
         initializeShapes();
-        addToGroup(frontSquareBase, frontTriangleRoof, sideSquareBase, sideSquareRoof);
+        addToGroup(frontBase, sideBase, roof);
+        this.setMouseTransparent(true);
     }
 
     /**
@@ -118,61 +118,52 @@ public class ResearchLaboratoryMarker extends Group {
      * Initializes the shapes of the laboratory
      */
     private void initializeShapes() {
-        createFrontSquareBase();
-        createFrontTriangleRoof();
-        createSideSquareBase();
-        createSideSquareRoof();
+        createFrontBase();
+        createSideBase();
+        createRoof();
     }
 
     /**
-     * Creates the front square base of the laboratory
+     * Creates the front base of the laboratory
      */
-    private void createFrontSquareBase() {
-        frontSquareBase.getPoints().addAll(
+    private void createFrontBase() {
+        frontBase.getPoints().addAll(
                 frontBottomLeftX, frontBottomLeftY,
                 frontBottomRightX, frontBottomRightY,
                 frontTopRightX, frontTopRightY,
+                frontTopCenterX, frontTopCenterY,
                 frontTopLeftX, frontTopLeftY
         );
-        frontSquareBase.setFill(frontColor);
+        frontBase.setFill(COLOR);
+        frontBase.setStroke(Color.BLACK);
     }
 
     /**
-     * Creates the front triangle roof of the laboratory
+     * Creates the side base of the laboratory
      */
-    private void createFrontTriangleRoof() {
-        frontTriangleRoof.getPoints().addAll(
-                frontTopLeftX, frontTopLeftY,
-                frontTopCenterX, frontTopCenterY,
-                frontTopRightX, frontTopRightY
-        );
-        frontTriangleRoof.setFill(frontColor);
-    }
-
-    /**
-     * Creates the side square base of the laboratory
-     */
-    private void createSideSquareBase() {
-        sideSquareBase.getPoints().addAll(
+    private void createSideBase() {
+        sideBase.getPoints().addAll(
                 frontBottomRightX, frontBottomRightY,
                 backBottomRightX, backBottomRightY,
                 backTopRightX, backTopRightY,
                 frontTopRightX, frontTopRightY
         );
-        sideSquareBase.setFill(sideSquareBaseColor);
+        sideBase.setFill(ColorService.adjustBrightness(COLOR, -COLOR_ADJUSTMENT_FACTOR));
+        sideBase.setStroke(Color.BLACK);
     }
 
     /**
-     * Creates the side square roof of the laboratory
+     * Creates the roof of the laboratory
      */
-    private void createSideSquareRoof() {
-        sideSquareRoof.getPoints().addAll(
+    private void createRoof() {
+        roof.getPoints().addAll(
                 frontTopRightX, frontTopRightY,
                 backTopRightX, backTopRightY,
                 backTopCenterX, backTopCenterY,
                 frontTopCenterX, frontTopCenterY
         );
-        sideSquareRoof.setFill(sideSquareRoofColor);
+        roof.setFill(ColorService.adjustBrightness(COLOR, COLOR_ADJUSTMENT_FACTOR));
+        roof.setStroke(Color.BLACK);
     }
 
     /**
