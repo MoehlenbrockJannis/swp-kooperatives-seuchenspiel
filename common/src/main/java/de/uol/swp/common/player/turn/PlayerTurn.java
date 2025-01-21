@@ -310,15 +310,17 @@ public class PlayerTurn implements Serializable {
         } else {
             command.execute();
         }
+
         this.executedCommands.add(command);
+
         if (command instanceof Action) {
             reduceNumberOfActionsToDo();
         }
+
         if (isInActionPhase()) {
             createPossibleActions();
         }
     }
-
     /**
      * Fulfills the promise of a {@link DiscardCardsAction} by discarding the required card or cards after executing the action.
      *

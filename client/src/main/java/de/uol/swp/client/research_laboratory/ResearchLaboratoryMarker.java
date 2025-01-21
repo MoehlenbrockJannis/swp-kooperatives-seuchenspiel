@@ -80,7 +80,6 @@ public class ResearchLaboratoryMarker extends Group {
         initializeSizes(laboratorySize);
         initializeShapes();
         addToGroup(frontBase, sideBase, roof);
-        this.setMouseTransparent(true);
     }
 
     /**

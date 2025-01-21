@@ -67,8 +67,6 @@ public class GameManagement {
 
     }
 
-
-
     /**
      * Updates a game in the list of managed games.
      *

@@ -83,6 +83,7 @@ public class Game implements Serializable {
     @Getter
     private List<Plague> plagues;
     private Map<Plague, List<PlagueCube>> plagueCubes;
+    @Getter
     private List<ResearchLaboratory> researchLaboratories;
     private List<AntidoteMarker> antidoteMarkers;
     private OutbreakMarker outbreakMarker;
@@ -189,6 +190,8 @@ public class Game implements Serializable {
         this.map = new GameMap(this, type);
 
         this.plagueCubes = new HashMap<>();
+        this.researchLaboratories = new ArrayList<>();
+        this.antidoteMarkers = new ArrayList<>();
 
         createPlayerStacks();
         createInfectionStacks();
@@ -220,22 +223,6 @@ public class Game implements Serializable {
         for (final Player player : this.playersInTurnOrder) {
             player.setCurrentField(startingField);
         }
-    }
-
-    /**
-     * Initializes research laboratories on the game map.
-     * This method creates the research laboratories that players can use during the game.
-     */
-    private void createResearchLaboratories () {
-
-    }
-
-    /**
-     * Adds a research laboratory to the starting field.
-     * This method places a research laboratory on the initial field where players begin.
-     */
-    private void addResearchLaboratoryToStartingField () {
-
     }
 
     /**
