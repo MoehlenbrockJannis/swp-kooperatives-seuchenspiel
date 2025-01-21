@@ -6,8 +6,8 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
-import de.uol.swp.common.player.Player;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
@@ -32,8 +32,6 @@ class CardManagementTest {
     private Lobby mockLobby;
     private MapType mockMapType;
     private List<Plague> mockPlagues;
-    private Game mockGame;
-    private Player mockPlayer;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
 
@@ -44,7 +42,7 @@ class CardManagementTest {
         roleManagement = mock(RoleManagement.class);
         cardManagement = new CardManagement();
 
-        gameManagement = new GameManagement();
+        gameManagement = new GameManagement(new MainMemoryBasedGameStore());
         gameManagement.setLobbyManagement(lobbyManagement);
         gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
@@ -52,7 +50,6 @@ class CardManagementTest {
         mockLobby = mock(Lobby.class);
         mockMapType = createMapType();
         mockPlagues = new ArrayList<>();
-        mockGame = mock(Game.class);
         mockPlayerCard = mock(PlayerCard.class);
         mockInfectionCard = mock(InfectionCard.class);
     }
@@ -97,8 +94,7 @@ class CardManagementTest {
         game.getInfectionDrawStack().push(mock(InfectionCard.class));
         InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheBottom(game);
 
-        assertThat(infectionCard).isNotNull();
-        assertThat(infectionCard).isEqualTo(mockInfectionCard);
+        assertThat(infectionCard).isNotNull().isEqualTo(mockInfectionCard);
     }
 
     @Test

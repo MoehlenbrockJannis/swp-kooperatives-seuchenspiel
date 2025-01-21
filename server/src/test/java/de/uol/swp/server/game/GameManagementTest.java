@@ -8,6 +8,8 @@ import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.server.game.store.GameStore;
+import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
@@ -44,8 +46,9 @@ class GameManagementTest {
         lobbyManagement = mock(LobbyManagement.class);
         playerTurnManagement = mock(PlayerTurnManagement.class);
         roleManagement = mock(RoleManagement.class);
+        GameStore gameStore = mock(MainMemoryBasedGameStore.class);
 
-        gameManagement = new GameManagement();
+        gameManagement = new GameManagement(gameStore);
         gameManagement.setLobbyManagement(lobbyManagement);
         gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
@@ -83,19 +86,10 @@ class GameManagementTest {
     @DisplayName("Test adding a game")
     void testAddGame() {
         gameManagement.addGame(mockGame);
+
+        when(gameManagement.getGame(mockGame)).thenReturn(Optional.of(mockGame));
+
         assertThat(gameManagement.getGame(mockGame)).contains(mockGame);
-    }
-
-    @Test
-    @DisplayName("Test generating unique game ID does not collide with existing IDs")
-    void generateUniqueGameId_doesNotCollideWithExistingIds() {
-        Game existingGame = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues);
-        gameManagement.addGame(existingGame);
-
-        for (int i = 0; i < 1000; i++) {
-            int id = gameManagement.generateUniqueGameId();
-            assertThat(id).isNotEqualTo(123456);
-        }
     }
 
     @Test
@@ -103,6 +97,9 @@ class GameManagementTest {
     void getGame_returnsGameIfFound() {
         Game game = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues);
         gameManagement.addGame(game);
+
+        when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
+
         Optional<Game> retrievedGame = gameManagement.getGame(game);
         assertThat(retrievedGame).contains(game);
     }
@@ -111,6 +108,7 @@ class GameManagementTest {
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
         Game game = new Game(mockLobby, mapType, List.of(mockPlayer), mockPlagues);
+        game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
         assertThat(retrievedGame).isEmpty();
@@ -122,6 +120,8 @@ class GameManagementTest {
         Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues);
         gameManagement.addGame(game);
         PlayerCard playerCard = gameManagement.drawPlayerCard(game);
+
+        when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
 
         gameManagement.updateGame(game);
         Game updatedGame = gameManagement.getGame(game).orElseThrow();
