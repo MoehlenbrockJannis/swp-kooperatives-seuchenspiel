@@ -1,6 +1,7 @@
 package de.uol.swp.server.game;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
@@ -12,6 +13,7 @@ import org.greenrobot.eventbus.Subscribe;
 /**
  * Service for the game
  */
+@Singleton
 public class GameService extends AbstractService {
 
     private final GameManagement gameManagement;
