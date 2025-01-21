@@ -2,14 +2,13 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.lobby.LobbyService;
-import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
-import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
+import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.approvable.Approvable;
@@ -17,16 +16,13 @@ import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.map.Field;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
@@ -116,9 +112,9 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * <p>
-     * Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
+     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
      * </p>
-     * <p>
+     *
      * {@inheritDoc}
      */
     @Override
@@ -293,8 +289,8 @@ public class GamePresenter extends AbstractPresenter {
         return alert;
     }
 
-    private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage, final Runnable executable) {
-        if (retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
+    private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
+        if(retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
             executable.run();
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
@@ -421,11 +417,9 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     private void addResearchLaboratoryButtonPressed() {
-        // TODO: replace with BuildResearchLaboratoryAction
-        final ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
-        final Player currentPlayer = this.game.getLobby().getPlayerForUser(loggedInUserProvider.get());
-        final Field field = currentPlayer.getCurrentField();
-        gameMapController.addResearchLaboratoryMarkerToField(researchLaboratoryMarker, field);
+        if(game.getCurrentPlayer() == this.game.getLobby().getPlayerForUser(loggedInUserProvider.get())) {
+            gameMapController.addResearchLaboratoryMarkerToField();
+        }
     }
 
     /**
