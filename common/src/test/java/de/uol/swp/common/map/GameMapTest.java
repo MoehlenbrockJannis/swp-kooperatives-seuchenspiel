@@ -30,6 +30,7 @@ class GameMapTest {
     private City city3;
     private Plague plague;
     private int numberOfPlagueCubes;
+    private List<Field> infectedFields;
 
     @BeforeEach
     void setUp() {
@@ -62,6 +63,8 @@ class GameMapTest {
                 .thenReturn(mapSlots);
 
         map = new GameMap(game, mapType);
+
+        infectedFields = new ArrayList<>();
     }
 
     @Test
@@ -141,7 +144,7 @@ class GameMapTest {
         final Field field3 = fields.get(2);
 
         for (int i = 0; i < game.getMaxNumberOfPlagueCubesPerField(); i++) {
-            field2.infect(new PlagueCube(plague));
+            field2.infectField(new PlagueCube(plague));
         }
 
         assertThat(field3.isCurable(plague))
@@ -153,6 +156,36 @@ class GameMapTest {
                 .startOutbreak();
         assertThat(field3.isCurable(plague))
                 .isTrue();
+    }
+
+    @Test
+    @DisplayName("Should start two outbreaks on game and place plague cubes on neighboring fields as well as add infected fields to list")
+    void start_two_outbreaks_with_infectedFields_list() {
+        final List<Field> fields = map.getFields();
+        final Field field1 = fields.get(0);
+        final Field field2 = fields.get(1);
+        final Field field3 = fields.get(2);
+
+        for (int i = 0; i < game.getMaxNumberOfPlagueCubesPerField(); i++) {
+            field2.infectField(new PlagueCube(plague), infectedFields);
+        }
+
+        assertThat(field3.isCurable(plague))
+                .isFalse();
+
+        assertThat(infectedFields.contains(field2))
+                .isTrue();
+
+        map.startOutbreak(field1, plague, infectedFields);
+
+        verify(game, times(2))
+                .startOutbreak();
+        assertThat(field3.isCurable(plague))
+                .isTrue();
+
+        assertThat(infectedFields.contains(field1))
+                .isTrue();
+
     }
 
     @Test
@@ -208,7 +241,7 @@ class GameMapTest {
         when(game.hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
 
-        map.getFields().get(0).infect(new PlagueCube(plague));
+        map.getFields().get(0).infectField(new PlagueCube(plague));
 
         assertThat(map.isPlagueExterminated(plague))
                 .isFalse();

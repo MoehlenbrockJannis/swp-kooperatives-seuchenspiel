@@ -370,7 +370,7 @@ public class Game implements Serializable {
      */
     private void distributePlagueCubes (int numberOfPlagueCubes, Field field) {
         for (int i = 0; i < numberOfPlagueCubes; i++) {
-            field.infect();
+            field.infectField();
         }
     }
 

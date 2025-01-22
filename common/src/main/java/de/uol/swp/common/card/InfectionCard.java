@@ -4,6 +4,7 @@ import de.uol.swp.common.map.City;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.util.Color;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Objects;
 
@@ -11,6 +12,8 @@ import java.util.Objects;
 public class InfectionCard extends Card{
 
     private final Color color;
+
+    @Getter
     private final Field associatedField;
 
     @Override
