@@ -86,12 +86,17 @@ public class LobbyPresenter extends AbstractPresenter {
     private int botCounter = 0;
     private List<String> botNames = new ArrayList<>();
 
+    @FXML
+    private ComboBox difficultyComboBox;
+    private int numberOfEpidemicCards = 4;
+
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
 
         updateStartGameButton();
         setTitle(lobby.getName());
         initializeComboBox();
+        initializeDifficultyComboBox();
 
         chatController.setLobby(lobby);
 
@@ -394,7 +399,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
         if (selectedMapType != null && plagueList != null) {
-            gameService.createGame(lobby, selectedMapType, plagueList);
+            gameService.createGame(lobby, selectedMapType, plagueList, numberOfEpidemicCards);
         }
     }
 
@@ -656,6 +661,22 @@ public class LobbyPresenter extends AbstractPresenter {
         alert.setHeaderText("Hinweis");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void initializeDifficultyComboBox () {
+        Map<String, Integer> difficultyMap = new LinkedHashMap<>();
+        difficultyMap.put("Leicht", 4);
+        difficultyMap.put("Mittel", 5);
+        difficultyMap.put("Schwer", 6);
+
+        difficultyComboBox.setItems(FXCollections.observableArrayList(difficultyMap.keySet()));
+        difficultyComboBox.setValue("Leicht");
+
+        difficultyComboBox.setOnAction(event -> {
+            String selected = (String) difficultyComboBox.getValue();
+            numberOfEpidemicCards = difficultyMap.get(selected);
+        });
     }
 
 }

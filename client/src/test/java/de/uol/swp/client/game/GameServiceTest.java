@@ -29,6 +29,8 @@ public class GameServiceTest extends EventBusBasedTest {
 
     private List<Plague> plagueList;
 
+    private int numberOfEpidemicCards = 4;
+
     @BeforeEach
     void setUp() {
         final String lobbyName = "test";
@@ -46,7 +48,7 @@ public class GameServiceTest extends EventBusBasedTest {
 
     @Test
     void createGame() throws InterruptedException {
-        gameService.createGame(lobby, mapType, plagueList);
+        gameService.createGame(lobby, mapType, plagueList, numberOfEpidemicCards);
 
         waitForLock();
 

@@ -1,16 +1,16 @@
 package de.uol.swp.common.card.stack;
 
 import de.uol.swp.common.card.Card;
+import lombok.Getter;
 
-import java.util.Collections;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * A stack of cards that extends the functionality of the standard {@link Stack} class.
  *
  * @param <C> the type of card that this stack will hold, which must extend the {@link Card} class
  */
+@Getter
 public class CardStack<C extends Card> extends Stack<C> {
 
     /**
@@ -28,5 +28,4 @@ public class CardStack<C extends Card> extends Stack<C> {
     public C removeFirstCard() {
        return this.remove(0);
     }
-
 }

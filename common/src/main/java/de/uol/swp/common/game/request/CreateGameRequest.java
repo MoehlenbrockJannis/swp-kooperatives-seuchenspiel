@@ -35,10 +35,11 @@ public class CreateGameRequest extends AbstractRequestMessage {
      * @param mapType The mapType of the game
      * @param plagues The plagues of the game
      */
-    public CreateGameRequest(Lobby lobby, MapType mapType, List<Plague> plagues) {
+    public CreateGameRequest(Lobby lobby, MapType mapType, List<Plague> plagues, int numberOfEpidemicCards) {
         this.lobby = lobby;
         this.mapType = mapType;
         this.plagues = plagues;
+        this.numberOfEpidemicCards = numberOfEpidemicCards;
     }
 
 }

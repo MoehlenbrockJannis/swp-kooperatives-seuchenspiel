@@ -46,13 +46,14 @@ public class GameServiceTest extends EventBusBasedTest {
 
         final MapType mapType = createMapType();
         final List<Plague> plagues = List.of();
+        final int numberOfEpidemicCards = 4;
 
-        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, numberOfEpidemicCards);
 
-        when(gameManagement.createGame(lobby, mapType, plagues))
+        when(gameManagement.createGame(lobby, mapType, plagues, numberOfEpidemicCards))
                 .thenReturn(game);
 
-        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues);
+        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, numberOfEpidemicCards);
         post(createGameRequest);
 
         waitForLock();

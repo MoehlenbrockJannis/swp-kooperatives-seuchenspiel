@@ -37,11 +37,11 @@ public class GameManagement {
      * @param plagues  The plagues of the game
      * @return The created game
      */
-    public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues) {
+    public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues, int numberOfEpidemicCards) {
         lobbyManagement.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
         roleManagement.assignRolesToPlayers(lobby);
 
-        Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, numberOfEpidemicCards);
         newGame.setId(generateUniqueGameId());
         newGame.addPlayerTurn(playerTurnManagement.createPlayerTurn(newGame));
         return newGame;

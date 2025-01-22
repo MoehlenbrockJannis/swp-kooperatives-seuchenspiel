@@ -2,6 +2,7 @@ package de.uol.swp.server.card;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uol.swp.common.card.EpidemicCard;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
@@ -13,10 +14,13 @@ import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
+import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.response.AbstractGameResponse;
+import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
@@ -27,6 +31,9 @@ import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -99,7 +106,13 @@ public class CardService extends AbstractService {
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
-            player.addHandCard(playerCard);
+
+            if(playerCard instanceof EpidemicCard) {
+                triggerEpidemic(game);
+            } else {
+                player.addHandCard(playerCard);
+            }
+
             game.getCurrentTurn().reduceNumberOfPlayerCardsToDraw();
 
             DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard, game);
@@ -153,6 +166,7 @@ public class CardService extends AbstractService {
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheTop(game);
+            cardManagement.discardInfectionCard(game, infectionCard);
             game.getCurrentTurn().reduceNumberOfInfectionCardsToDraw();
 
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
@@ -269,5 +283,47 @@ public class CardService extends AbstractService {
                 targetSession,
                 g -> new ReleaseToDrawInfectionCardResponse(g, g.getCurrentTurn().getNumberOfInfectionCardsToDraw())
         );
+    }
+
+    /**
+     * Handles an epidemic when an epidemic card is drawn.
+     * 1. Increases infection rate
+     * 2. Infects bottom card city with 3 cubes
+     * 3. Shuffles discard pile onto draw pile
+     *
+     * @param game The current game state
+     */
+    private void triggerEpidemic(Game game) {
+        game.getInfectionMarker().increaseLevel();
+
+        InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
+        Field field = game.getMap().getFieldOfCity(bottomCard.getCity());
+
+        if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
+            for (int i = 0; i < 3; i++) {
+                if (field.getPlagueCubesOfPlague(field.getPlague()).size() >= game.getMaxNumberOfPlagueCubesPerField()) {
+                    game.startOutbreak();
+                    break;
+                }
+                try {
+                    field.infect();
+                } catch (NoPlagueCubesFoundException e) {
+                    game.setLost(true);
+                    return;
+                }
+            }
+        }
+
+        cardManagement.discardInfectionCard(game, bottomCard);
+
+        CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
+        List<InfectionCard> cardsToShuffle  = new ArrayList<>(discardStack);
+        discardStack.clear();
+        Collections.shuffle(cardsToShuffle);
+
+        for (InfectionCard card : cardsToShuffle) {
+            game.getInfectionDrawStack().push(card);
+        }
+
     }
 }

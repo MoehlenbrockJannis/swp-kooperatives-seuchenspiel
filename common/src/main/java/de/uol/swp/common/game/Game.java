@@ -43,7 +43,6 @@ public class Game implements Serializable {
     public static final int DEFAULT_MAX_NUMBER_OF_HAND_CARDS = 7;
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES = 24;
     public static final int DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES = 6;
-    public static final int DEFAULT_NUMBER_OF_EPIDEMIC_CARDS = 6;
     public static final int DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD = 3;
@@ -86,6 +85,7 @@ public class Game implements Serializable {
     private List<ResearchLaboratory> researchLaboratories;
     private List<AntidoteMarker> antidoteMarkers;
     private OutbreakMarker outbreakMarker;
+    @Getter
     private InfectionMarker infectionMarker;
     @Getter
     private CardStack<PlayerCard> playerDrawStack;
@@ -99,6 +99,7 @@ public class Game implements Serializable {
     @Getter
     private boolean isWon;
     @Getter
+    @Setter
     private boolean isLost;
 
     /**
@@ -109,7 +110,7 @@ public class Game implements Serializable {
      * @param players the list of players participating in the game
      * @param plagues the list of plagues that will be present in the game
      */
-    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues) {
+    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues, int numberOfEpidemicCards) {
         this(
             lobby,
             type,
@@ -118,7 +119,7 @@ public class Game implements Serializable {
             DEFAULT_MAX_NUMBER_OF_HAND_CARDS,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES,
             DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES,
-            DEFAULT_NUMBER_OF_EPIDEMIC_CARDS,
+            numberOfEpidemicCards,
             DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD,
@@ -185,6 +186,11 @@ public class Game implements Serializable {
 
         List<Integer> outbreakLevels = Arrays.asList(0, 1, 2, 3, 4, 5, 8);
         this.outbreakMarker = new OutbreakMarker(outbreakLevels);
+
+        this.antidoteMarkers = new ArrayList<>();
+        for (Plague plague : plagues) {
+            this.antidoteMarkers.add(new AntidoteMarker(plague));
+        }
 
         this.map = new GameMap(this, type);
 
@@ -267,12 +273,36 @@ public class Game implements Serializable {
      * Creates the draw stack for player cards.
      * This method initializes and shuffles the player card stack.
      */
-    private void createPlayerDrawStack () {
+    private void createPlayerDrawStack() {
         this.playerDrawStack = new CardStack<>();
         this.playerDrawStack.addAll(createCityCards());
         EventCardFactory eventCardFactory = new EventCardFactory();
         this.playerDrawStack.addAll(eventCardFactory.createEventCards());
-        this.playerDrawStack.shuffle();
+
+
+        List<CardStack<Card>> subStacks = new ArrayList<>();
+        List<Card> allCards = new ArrayList<>(this.playerDrawStack);
+        int cardsPerStack = allCards.size() / this.numberOfEpidemicCards;
+
+        for (int i = 0; i < this.numberOfEpidemicCards; i++) {
+            CardStack<Card> subStack = new CardStack<>();
+            int substackStartIndex  = i * cardsPerStack;
+            int substackEndIndex = (i == this.numberOfEpidemicCards - 1) ? allCards.size() : (i + 1) * cardsPerStack;
+            subStack.addAll(allCards.subList(substackStartIndex , substackEndIndex));
+            subStacks.add(subStack);
+        }
+
+        List<EpidemicCard> epidemicCards = createEpidemicCards();
+        shuffleEpidemicCardsIntoPlayerSubStacks(epidemicCards, subStacks);
+
+        this.playerDrawStack.clear();
+        for (CardStack<Card> subStack : subStacks) {
+            List<PlayerCard> playerCards = subStack.stream()
+                    .filter(card -> card instanceof PlayerCard)
+                    .map(card -> (PlayerCard) card)
+                    .toList();
+            this.playerDrawStack.addAll(playerCards);
+        }
     }
 
     /**
@@ -280,8 +310,12 @@ public class Game implements Serializable {
      *
      * @return a list of EpidemicCard objects
      */
-    private List<EpidemicCard> createEpidemicCards () {
-        return new ArrayList<EpidemicCard>();
+    private List<EpidemicCard> createEpidemicCards() {
+        List<EpidemicCard> epidemicCards = new ArrayList<>();
+        for (int i = 0; i < this.numberOfEpidemicCards; i++) {
+            epidemicCards.add(new EpidemicCard());
+        }
+        return epidemicCards;
     }
 
     /**
@@ -314,11 +348,12 @@ public class Game implements Serializable {
      * @param epidemicCards the list of epidemic cards to be shuffled into the stacks
      * @param playerCardSubStacks the list of player card substack
      */
-    private void shuffleEpidemicCardsIntoPlayerSubStacks (
-            List<EpidemicCard> epidemicCards,
-            List<CardStack<Card>> playerCardSubStacks
-            ) {
-
+    private void shuffleEpidemicCardsIntoPlayerSubStacks(List<EpidemicCard> epidemicCards, List<CardStack<Card>> playerCardSubStacks) {
+        for (int i = 0; i < epidemicCards.size(); i++) {
+            CardStack<Card> subStack = playerCardSubStacks.get(i);
+            subStack.push(epidemicCards.get(i));
+            subStack.shuffle();
+        }
     }
 
     /**
