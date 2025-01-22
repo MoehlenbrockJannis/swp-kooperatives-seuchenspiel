@@ -286,44 +286,105 @@ public class CardService extends AbstractService {
     }
 
     /**
-     * Handles an epidemic when an epidemic card is drawn.
-     * 1. Increases infection rate
-     * 2. Infects bottom card city with 3 cubes
-     * 3. Shuffles discard pile onto draw pile
+     * Handles the epidemic event in the game by performing three steps:
+     * 1. Increases the infection rate
+     * 2. Infects the city from the bottom card with three plague cubes
+     * 3. Reshuffles the infection discard pile and places it on top of the draw pile
      *
-     * @param game The current game state
+     * @param game the current game state
      */
     private void triggerEpidemic(Game game) {
         game.getInfectionMarker().increaseLevel();
+        infectBottomCard(game);
+        reshuffleDiscardPileToDrawPile(game);
+    }
 
+    /**
+     * Draws and processes the bottom card from the infection deck.
+     * The corresponding city is infected with plague cubes unless it has an antidote.
+     * After processing, the card is moved to the discard pile.
+     *
+     * @param game the current game state
+     */
+    private void infectBottomCard(Game game) {
         InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
-        Field field = game.getMap().getFieldOfCity(bottomCard.getCity());
+        Field targetField = game.getMap().getFieldOfCity(bottomCard.getCity());
 
-        if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            for (int i = 0; i < 3; i++) {
-                if (field.getPlagueCubesOfPlague(field.getPlague()).size() >= game.getMaxNumberOfPlagueCubesPerField()) {
-                    game.startOutbreak();
-                    break;
-                }
-                try {
-                    field.infect();
-                } catch (NoPlagueCubesFoundException e) {
-                    game.setLost(true);
-                    return;
-                }
+        tryInfectField(game, targetField);
+        cardManagement.discardInfectionCard(game, bottomCard);
+    }
+
+    /**
+     * Attempts to infect a field with three plague cubes.
+     * If the field has an antidote marker, no infection occurs.
+     * The process stops if either an outbreak occurs or if no plague cubes are available.
+     *
+     * @param game the current game state
+     * @param field the field to be infected
+     */
+    private void tryInfectField(Game game, Field field) {
+        if (game.hasAntidoteMarkerForPlague(field.getPlague())) {
+            return;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (shouldTriggerOutbreak(field, game)) {
+                game.startOutbreak();
+                break;
+            }
+            if (!tryInfectField(field, game)) {
+                return;
             }
         }
+    }
 
-        cardManagement.discardInfectionCard(game, bottomCard);
+    /**
+     * Checks if the number of plague cubes on a field exceeds the maximum allowed amount,
+     * which would trigger an outbreak.
+     *
+     * @param field the field to check
+     * @param game the current game state
+     * @return true if an outbreak should be triggered, false otherwise
+     */
+    private boolean shouldTriggerOutbreak(Field field, Game game) {
+        return field.getPlagueCubesOfPlague(field.getPlague()).size() >=
+                game.getMaxNumberOfPlagueCubesPerField();
+    }
 
+    /**
+     * Attempts to infect a field once with a plague cube.
+     * If no plague cubes are available, the game is lost.
+     *
+     * @param field the field to infect
+     * @param game the current game state
+     * @return true if infection was successful, false if the game is lost due to no available plague cubes
+     */
+    private boolean tryInfectField(Field field, Game game) {
+        try {
+            field.infect();
+            return true;
+        } catch (NoPlagueCubesFoundException e) {
+            game.setLost(true);
+            return false;
+        }
+    }
+
+    /**
+     * Takes all cards from the infection discard pile, shuffles them,
+     * and places them on top of the infection draw pile.
+     * This is the final step of handling an epidemic.
+     *
+     * @param game the current game state
+     */
+    private void reshuffleDiscardPileToDrawPile(Game game) {
         CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
-        List<InfectionCard> cardsToShuffle  = new ArrayList<>(discardStack);
-        discardStack.clear();
-        Collections.shuffle(cardsToShuffle);
+        List<InfectionCard> shuffledCards = new ArrayList<>(discardStack);
 
-        for (InfectionCard card : cardsToShuffle) {
+        discardStack.clear();
+        Collections.shuffle(shuffledCards);
+
+        for (InfectionCard card : shuffledCards) {
             game.getInfectionDrawStack().push(card);
         }
-
     }
 }

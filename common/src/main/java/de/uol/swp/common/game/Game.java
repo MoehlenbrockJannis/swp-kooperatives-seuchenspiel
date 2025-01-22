@@ -257,39 +257,117 @@ public class Game implements Serializable {
     }
 
     /**
-     * Creates the draw stack for player cards.
-     * This method initializes and shuffles the player card stack.
+     * Creates and initializes the player draw stack by combining city cards, event cards,
+     * and epidemic cards in a specific manner to ensure balanced game difficulty.
+     * The process involves:
+     * 1. Creating the initial stack with city and event cards
+     * 2. Dividing the stack into equal substacks
+     * 3. Adding one epidemic card to each substack
+     * 4. Shuffling each substack individually
+     * 5. Combining all substacks back together
      */
     private void createPlayerDrawStack() {
+        initializeBasePlayerStack();
+        List<CardStack<Card>> subStacks = divideIntoSubStacks();
+        addEpidemicCardsToSubStacks(subStacks);
+        combineSubStacksIntoDrawStack(subStacks);
+    }
+
+    /**
+     * Initializes the player draw stack with city and event cards.
+     * This creates the base deck before epidemic cards are added.
+     */
+    private void initializeBasePlayerStack() {
         this.playerDrawStack = new CardStack<>();
         this.playerDrawStack.addAll(createCityCards());
-        EventCardFactory eventCardFactory = new EventCardFactory();
-        this.playerDrawStack.addAll(eventCardFactory.createEventCards());
+        this.playerDrawStack.addAll(new EventCardFactory().createEventCards());
+    }
 
-
+    /**
+     * Divides the current player draw stack into equal-sized substacks.
+     * The last substack may contain more cards if the division is not even.
+     *
+     * @return List of card substacks
+     */
+    private List<CardStack<Card>> divideIntoSubStacks() {
         List<CardStack<Card>> subStacks = new ArrayList<>();
         List<Card> allCards = new ArrayList<>(this.playerDrawStack);
         int cardsPerStack = allCards.size() / this.numberOfEpidemicCards;
 
         for (int i = 0; i < this.numberOfEpidemicCards; i++) {
-            CardStack<Card> subStack = new CardStack<>();
-            int substackStartIndex  = i * cardsPerStack;
-            int substackEndIndex = (i == this.numberOfEpidemicCards - 1) ? allCards.size() : (i + 1) * cardsPerStack;
-            subStack.addAll(allCards.subList(substackStartIndex , substackEndIndex));
+            CardStack<Card> subStack = createSubStack(allCards, i, cardsPerStack);
             subStacks.add(subStack);
         }
 
+        return subStacks;
+    }
+
+    /**
+     * Creates a single substack from the list of all cards.
+     *
+     * @param allCards List of all cards to divide
+     * @param stackIndex Index of the current substack
+     * @param cardsPerStack Number of cards per substack
+     * @return A new CardStack containing the appropriate subset of cards
+     */
+    private CardStack<Card> createSubStack(List<Card> allCards, int stackIndex, int cardsPerStack) {
+        CardStack<Card> subStack = new CardStack<>();
+        int startIndex = stackIndex * cardsPerStack;
+        int endIndex = calculateSubStackEndIndex(stackIndex, cardsPerStack, allCards.size());
+        subStack.addAll(allCards.subList(startIndex, endIndex));
+        return subStack;
+    }
+
+    /**
+     * Calculates the end index for a substack, handling the case where the last
+     * substack might need to include remaining cards.
+     *
+     * @param stackIndex Index of the current substack
+     * @param cardsPerStack Number of cards per substack
+     * @param totalCards Total number of cards
+     * @return The end index for the current substack
+     */
+    private int calculateSubStackEndIndex(int stackIndex, int cardsPerStack, int totalCards) {
+        boolean isLastStack = stackIndex == this.numberOfEpidemicCards - 1;
+        return isLastStack ? totalCards : (stackIndex + 1) * cardsPerStack;
+    }
+
+    /**
+     * Adds epidemic cards to the substacks and shuffles each substack.
+     *
+     * @param subStacks List of card substacks to modify
+     */
+    private void addEpidemicCardsToSubStacks(List<CardStack<Card>> subStacks) {
         List<EpidemicCard> epidemicCards = createEpidemicCards();
         shuffleEpidemicCardsIntoPlayerSubStacks(epidemicCards, subStacks);
+    }
 
+    /**
+     * Combines all substacks back into the main player draw stack.
+     * Only player cards are included in the final stack.
+     *
+     * @param subStacks List of card substacks to combine
+     */
+    private void combineSubStacksIntoDrawStack(List<CardStack<Card>> subStacks) {
         this.playerDrawStack.clear();
         for (CardStack<Card> subStack : subStacks) {
-            List<PlayerCard> playerCards = subStack.stream()
-                    .filter(card -> card instanceof PlayerCard)
-                    .map(card -> (PlayerCard) card)
-                    .toList();
+            List<PlayerCard> playerCards = extractPlayerCards(subStack);
             this.playerDrawStack.addAll(playerCards);
         }
+    }
+
+    /**
+     * Extracts player cards from a stack of cards.
+     * This method filters out non-player cards and converts the remaining cards to PlayerCard type.
+     *
+     * @param cardStack Stack of cards to filter
+     * @return List of PlayerCard objects
+     */
+    private List<PlayerCard> extractPlayerCards(CardStack<Card> cardStack) {
+        return cardStack.stream()
+                .filter(card -> card instanceof PlayerCard)
+                .map(card -> (PlayerCard) card)
+                .toList();
     }
 
     /**

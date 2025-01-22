@@ -66,6 +66,7 @@ class PlayerTurnTest {
     private int numberOfPlayerCardsToDraw;
     private int numberOfInfectionCardsToDraw;
     private Command command;
+    private int numberOfEpidemicCards;
 
     /**
      * This method is executed before each test case.
@@ -93,10 +94,11 @@ class PlayerTurnTest {
         this.roleCard = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
         this.defaultPlayer.setRole(roleCard);
+        this.numberOfEpidemicCards = 4;
 
         final MapType mapType = createMapType();
 
-        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), numberOfEpidemicCards);
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
         this.numberOfInfectionCardsToDraw = 1;

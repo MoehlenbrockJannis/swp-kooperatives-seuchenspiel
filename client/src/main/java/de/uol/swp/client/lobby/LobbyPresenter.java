@@ -104,6 +104,7 @@ public class LobbyPresenter extends AbstractPresenter {
         userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
         disableAddAIButtonForNonOwners();
+        disableDifficultyMenuForNonOwners();
         lobbyService.getOriginalGameMapType();
         lobbyService.getPlagues();
     }
@@ -677,6 +678,26 @@ public class LobbyPresenter extends AbstractPresenter {
             String selected = (String) difficultyComboBox.getValue();
             numberOfEpidemicCards = difficultyMap.get(selected);
         });
+    }
+
+    /**
+     * Disables the difficulty selection menu for users who are not the lobby owner.
+     *
+     * This method compares the currently logged-in user with the lobby owner and
+     * disables the difficulty combo box if the current user is not the owner of
+     * the lobby. This ensures that only the lobby owner can modify the game's
+     * difficulty settings.
+     *
+     * @since 2025-01-22
+     * @see #difficultyComboBox
+     */
+    private void disableDifficultyMenuForNonOwners() {
+        User currentUser = loggedInUserProvider.get();
+        User lobbyOwner = this.lobby.getOwner();
+
+        if(!currentUser.equals(lobbyOwner)) {
+            difficultyComboBox.setDisable(true);
+        }
     }
 
 }
