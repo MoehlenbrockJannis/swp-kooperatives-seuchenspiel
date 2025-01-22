@@ -9,9 +9,13 @@ import de.uol.swp.client.plague.PlagueCubeMarkerPresenter;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
+import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarkerPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.util.NodeBindingUtils;
+import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
@@ -116,8 +120,37 @@ public class GameMapPresenter extends AbstractPresenter {
     @Subscribe
     public void onRetrieveUpdatedGameServerMessage(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         if (this.game.getId() == retrieveUpdatedGameServerMessage.getGame().getId()) {
-            Platform.runLater(() -> movePlayerMarker(retrieveUpdatedGameServerMessage.getGame()));
+            Platform.runLater(() -> {
+                removeResearchLaboratoryMarkers();
+
+                movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
+
+                for (Field field : retrieveUpdatedGameServerMessage.getGame().getFields()) {
+                    if (field.hasResearchLaboratory()) {
+                        ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
+                        ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
+                        researchLaboratoryMarkerPresenter.initializeMouseEvents();
+                        updateNewResearchLaboratoryMarkers(researchLaboratoryMarker, field);
+                    }
+                }
+            });
         }
+    }
+
+    private void removeResearchLaboratoryMarkers() {
+        researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
+    }
+
+    public void updateNewResearchLaboratoryMarkers(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
+        researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
+
+        double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
+        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH + xOffset;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT + yOffset;
+        double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
+        double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
+        NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 
     private void movePlayerMarker(Game game) {
@@ -330,20 +363,20 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds a given researchLaboratoryMarker to the given field
-     *
-     * @param researchLaboratoryMarker The researchLaboratoryMarker that is added to the given field
-     * @param field The field for which the given researchLaboratoryMarker is added to
+     * Places a research laboratory marker on the current player's field and sends the corresponding action to the backend.
+     * <p>
+     * This method iterates through the list of possible actions for the current turn and checks if the action
+     * is related to building a research laboratory. If such an action is found, it is sent to the backend
+     * using the ActionService.
+     * </p>
      */
-    public void addResearchLaboratoryMarkerToField(final ResearchLaboratoryMarker researchLaboratoryMarker, final Field field) {
-        researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
-
-        double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
-        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
-        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH + xOffset;
-        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT + yOffset;
-        double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
-        double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
-        NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+    public void addResearchLaboratoryMarkerToField() {
+        List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
+        for (Action action : possibleActions) {
+            if (action instanceof BuildResearchLaboratoryAction || action instanceof ReducedCostBuildResearchLaboratoryAction) {
+                actionService.sendAction(game, action);
+            }
+        }
     }
+
 }

@@ -3,25 +3,27 @@ package de.uol.swp.server.usermanagement.store;
 import com.google.common.base.Strings;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.store.AbstractStore;
+import de.uol.swp.server.store.MainMemoryBasedStore;
 
 import java.util.*;
 
 /**
  * This is a user store.
- *
+ * <p>
  * This is the user store that is used for the start of the software project. The
  * user accounts in this user store only reside within the RAM of your computer
  * and only for as long as the server is running. Therefore the users have to be
  * added every time the server is started.
  *
  * @implNote This store will never return the password of a user!
- * @see de.uol.swp.server.usermanagement.store.AbstractUserStore
+ * @see de.uol.swp.server.store.AbstractStore
  * @see de.uol.swp.server.usermanagement.store.UserStore
  * @author Marco Grawunder
  * @since 2019-08-05
  */
 
-public class MainMemoryBasedUserStore extends AbstractUserStore implements UserStore {
+public class MainMemoryBasedUserStore extends AbstractStore implements UserStore, MainMemoryBasedStore {
 
     private final Map<String, User> users = new HashMap<>();
 

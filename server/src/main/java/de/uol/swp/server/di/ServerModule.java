@@ -2,11 +2,10 @@ package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
 import de.uol.swp.server.card.CardManagement;
-import de.uol.swp.server.game.GameManagement;
-import de.uol.swp.server.lobby.LobbyManagement;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
-import de.uol.swp.server.usermanagement.store.UserStore;
+import de.uol.swp.server.store.AbstractStore;
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.Map;
 
 /**
  * Module that provides classes needed by the Server.
@@ -20,17 +19,21 @@ import org.greenrobot.eventbus.EventBus;
 public class ServerModule extends AbstractModule {
 
     private final EventBus bus = EventBus.getDefault();
-    private final UserStore store = new MainMemoryBasedUserStore();
-    private final LobbyManagement lobbyManagement = new LobbyManagement();
-    private final GameManagement gameManagement = new GameManagement();
     private final CardManagement cardManagement = new CardManagement();
+    @SuppressWarnings("rawtypes")
+    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(false);
 
     @Override
     protected void configure() {
-        bind(UserStore.class).toInstance(store);
         bind(EventBus.class).toInstance(bus);
-        bind(LobbyManagement.class).toInstance(lobbyManagement);
-        bind(GameManagement.class).toInstance(gameManagement);
         bind(CardManagement.class).toInstance(cardManagement);
+        bindStores();
+    }
+
+    /**
+     * Binds all stores to the corresponding classes.
+     */
+    private void bindStores() {
+        stores.forEach((key, value) -> bind(key).toInstance(value));
     }
 }
