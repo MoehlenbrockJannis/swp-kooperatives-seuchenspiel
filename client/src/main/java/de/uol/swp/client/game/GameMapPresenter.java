@@ -21,12 +21,18 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.Subscribe;
@@ -123,6 +129,8 @@ public class GameMapPresenter extends AbstractPresenter {
             Platform.runLater(() -> {
                 removeResearchLaboratoryMarkers();
 
+                addNewPlagueCubeMarker(retrieveUpdatedGameServerMessage.getGame());
+
                 movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
 
                 for (Field field : retrieveUpdatedGameServerMessage.getGame().getFields()) {
@@ -151,6 +159,21 @@ public class GameMapPresenter extends AbstractPresenter {
         double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
         double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
         NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+    }
+
+    /**
+     * Adds the new plague cube markers on the game map.
+     *
+     * @param game the game to update the plague cube markers for
+     */
+    private void addNewPlagueCubeMarker(Game game) {
+        List<List<Field>> infectedFieldsInTurn = game.getCurrentTurn().getInfectedFieldsInTurn();
+        if (!infectedFieldsInTurn.isEmpty()) {
+            List<Field> lastInfectedFields = infectedFieldsInTurn.get(infectedFieldsInTurn.size() - 1);
+            for (int i = 0; i < lastInfectedFields.size(); i++) {
+                addAnimatedPlagueCubeMarker(lastInfectedFields.get(i), i);
+            }
+        }
     }
 
     private void movePlayerMarker(Game game) {
@@ -333,11 +356,7 @@ public class GameMapPresenter extends AbstractPresenter {
             cityMarkerPane.getChildren().add(cityMarker);
             cityMarkers.put(field, cityMarker);
 
-            double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH;
-            double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT;
-            double xScaleFactor = CITY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
-            double yxScaleFactor = CITY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
-            NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, cityMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+            handleWebViewSizeAndPosition(webView, cityMarker, field, CITY_MARKER_SCALE_FACTOR);
         }
     }
 
@@ -349,17 +368,92 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addAllPlagueCubeMarkers() {
         for (Field field : game.getFields()) {
-            PlagueCubeMarker plagueCubeMarker = new PlagueCubeMarker(field);
-            PlagueCubeMarkerPresenter plagueCubeMarkerPresenter = new PlagueCubeMarkerPresenter(plagueCubeMarker, field);
-            plagueCubeMarkerPresenters.add(plagueCubeMarkerPresenter);
-            plagueCubeMarkerPane.getChildren().add(plagueCubeMarker);
-
-            double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH;
-            double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT;
-            double xScaleFactor = PLAGUE_CUBE_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
-            double yxScaleFactor = PLAGUE_CUBE_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
-            NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, plagueCubeMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+            PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
         }
+    }
+
+    /**
+     * Creates animated plagueCubeMarker for the associated plague of a given field and adds them to the pane with delay.
+     *
+     * @param field field to create PlagueCubeMarker for
+     * @param delay the delay of the animation
+     * @see PlagueCubeMarker
+     * @since 2024-11-09
+     */
+    private void addAnimatedPlagueCubeMarker(Field field, int delay) {
+        PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
+
+        animatePlagueCubeMarker(plagueCubeMarker, delay);
+    }
+
+    /**
+     * Animates the PlagueCubeMarker
+     *
+     * @param plagueCubeMarker The PlagueCubeMarker to be animated
+     * @param delay            The delay of the animation
+     * @since 2025-01-21
+     */
+    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker, int delay) {
+        int animationDuration = 1000;
+        int cycleCount = 2;
+        long fromScaling = 1;
+        long toScaling = 2;
+
+        Timeline scaleTimeline;
+
+        Scale animationScale = new Scale(1.0, 1.0);
+
+        plagueCubeMarker.getTransforms().add(animationScale);
+
+        scaleTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(animationScale.xProperty(), fromScaling),
+                        new KeyValue(animationScale.yProperty(), fromScaling)
+                ),
+                new KeyFrame(Duration.millis(animationDuration),
+                        new KeyValue(animationScale.xProperty(), toScaling),
+                        new KeyValue(animationScale.yProperty(), toScaling)
+                )
+        );
+
+        scaleTimeline.setCycleCount(cycleCount);
+        scaleTimeline.setDelay(Duration.seconds(delay));
+
+        scaleTimeline.setAutoReverse(true);
+        scaleTimeline.play();
+    }
+
+    /**
+     * Creates a PlagueCubeMarker for the given field
+     *
+     * @param field The field for which a PlagueCubeMarker should be created
+     * @return The created PlagueCubeMarker
+     * @see PlagueCubeMarker
+     */
+    private PlagueCubeMarker createPlagueCubeMarker(Field field) {
+        PlagueCubeMarker plagueCubeMarker = new PlagueCubeMarker(field);
+        PlagueCubeMarkerPresenter plagueCubeMarkerPresenter = new PlagueCubeMarkerPresenter(plagueCubeMarker, field);
+        plagueCubeMarkerPresenters.add(plagueCubeMarkerPresenter);
+        plagueCubeMarkerPane.getChildren().add(plagueCubeMarker);
+
+        handleWebViewSizeAndPosition(webView, plagueCubeMarker, field, PLAGUE_CUBE_MARKER_SCALE_FACTOR);
+
+        return plagueCubeMarker;
+    }
+
+    /**
+     * Handles the size and position of the WebView
+     *
+     * @param sourceWebView The WebView whose size and position will be bound to the targetNode
+     * @param targetNode The node whose size and position will be adjusted based on the sourceWebView
+     * @param field The field to which the targetNode should be bound
+     */
+    private void handleWebViewSizeAndPosition(WebView sourceWebView, Node targetNode, Field field, double scaleFactor) {
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT;
+        double xScaleFactor = scaleFactor / SVG_VIEW_BOX_WIDTH;
+        double yxScaleFactor = scaleFactor / SVG_VIEW_BOX_HEIGHT;
+        NodeBindingUtils.bindWebViewSizeAndPositionToNode(sourceWebView, targetNode, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 
     /**

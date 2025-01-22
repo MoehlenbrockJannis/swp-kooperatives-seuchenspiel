@@ -16,6 +16,7 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
@@ -179,9 +180,11 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Test: Draw Infection Card Request - Successful Draw")
     void onDrawInfectionCardRequest_successfulDraw() {
         InfectionCard infectionCard = mock(InfectionCard.class);
+        Field associatedField = mock(Field.class);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
         when(cardManagement.drawInfectionCardFromTheTop(any(Game.class))).thenReturn(infectionCard);
+        when(infectionCard.getAssociatedField()).thenReturn(associatedField);
 
         DrawInfectionCardRequest request = new DrawInfectionCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
         post(request);
