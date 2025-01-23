@@ -15,7 +15,11 @@ import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
+import de.uol.swp.common.user.User;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -172,10 +176,37 @@ public class GamePresenter extends AbstractPresenter {
         initializeChat();
     }
 
+    /**
+     * Handles the reception of an updated game message from the server.
+     * Updates the current game state and checks if the current player's turn is over.
+     * If the turn is over, sends a request to end the player's turn.
+     *
+     * @param message the message containing the updated game state
+     */
     @Subscribe
     public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameServerMessage message) {
         Runnable executable = () -> this.game = message.getGame();
         executeIfTheUpdatedGameMessageRetrieves(message, executable);
+
+        Lobby currentLobby = this.game.getLobby();
+        User currentLoggedInUser = loggedInUserProvider.get();
+        Player currentPlayerForUser = currentLobby.getPlayerForUser(currentLoggedInUser);
+
+        Player currentPlayer = this.game.getCurrentPlayer();
+
+        if (currentPlayer.equals(currentPlayerForUser) && isTurnOver(this.game)) {
+            EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
+            eventBus.post(endTurnMessage);
+        }
+    }
+
+    /**
+     * Checks if the current turn is over
+     * @param game The game to check
+     * @return True if the turn is over, false otherwise
+     */
+    private boolean isTurnOver(Game game) {
+       return this.game.getCurrentTurn().isOver();
     }
 
     @Subscribe
