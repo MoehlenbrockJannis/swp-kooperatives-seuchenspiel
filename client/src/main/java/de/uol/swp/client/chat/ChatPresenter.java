@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -50,6 +51,7 @@ public class ChatPresenter extends AbstractPresenter {
                 onSendChatRequest();
             }
         });
+        configureChatViewTextWrapping();
     }
 
     private LocalTime getCurrentTimeStamp() {
@@ -90,7 +92,7 @@ public class ChatPresenter extends AbstractPresenter {
 
     /**
      * Handles successful login
-     *
+     * <p>
      * If a LoginSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received and the full
      * list of users currently logged in is requested.
@@ -107,7 +109,7 @@ public class ChatPresenter extends AbstractPresenter {
 
     /**
      * Handles chat responses
-     *
+     * <p>
      * If a RetrieveAllChatMessagesServerMessage object is posted to the EventBus the chat view is updated
      * according to the chat messages in the message received.
      *
@@ -124,7 +126,7 @@ public class ChatPresenter extends AbstractPresenter {
 
     /**
      * Handles lobby chat messages.
-     *
+     * <p>
      * If a RetrieveAllLobbyChatMessagesServerMessage object is posted to the EventBus, this method updates the chat view
      * according to the chat messages in the received message.
      *
@@ -142,7 +144,7 @@ public class ChatPresenter extends AbstractPresenter {
 
     /**
      * Updates the chat view according to the list given
-     *
+     * <p>
      * This method clears the entire chat view and then adds the message of each chat
      * message in the list given to the chat view. If there is no chat view
      * this it creates one.
@@ -163,6 +165,33 @@ public class ChatPresenter extends AbstractPresenter {
             this.chatMessages.addAll(chatMessages);
             int lastIndex = this.chatMessages.size() - 1;
             chatView.scrollTo(lastIndex);
+        });
+    }
+
+    /**
+     *
+     */
+    private void configureChatViewTextWrapping(){
+        chatView.setCellFactory(param -> new ListCell<>(){
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item==null) {
+                    setGraphic(null);
+                    setText(null);
+
+                }else{
+                    
+                    prefWidthProperty().bind(param.widthProperty().subtract(20)); // 20px für Paddings/Scrollbars
+                    setMaxWidth(Double.MAX_VALUE);
+                    
+                    setWrapText(true);
+
+                    setText(item);
+
+
+                }
+            }
         });
     }
 }
