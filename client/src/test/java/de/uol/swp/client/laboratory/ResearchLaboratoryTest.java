@@ -79,7 +79,7 @@ class ResearchLaboratoryTest {
         ObservableList<Node> children = FXCollections.observableArrayList();
         when(researchLaboratoryPane.getChildren()).thenReturn(children);
 
-        gameMapPresenter.updateNewResearchLaboratoryMarkers(researchLaboratoryMarker, field);
+        gameMapPresenter.buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
 
         assertThat(children).contains(researchLaboratoryMarker);
         assertThat(researchLaboratoryMarker.layoutXProperty().isBound()).isTrue();

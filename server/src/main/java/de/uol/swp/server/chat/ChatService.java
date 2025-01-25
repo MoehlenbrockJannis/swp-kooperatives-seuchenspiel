@@ -6,6 +6,7 @@ import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
 import de.uol.swp.common.chat.server_message.RetrieveAllUserLobbyChatMessagesServerMessage;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -101,4 +102,31 @@ public class ChatService extends AbstractService {
             post(response);
         }
     }
+
+    /**
+     * Handles SystemLobbyMessageServerInternalMessages found on the EventBus
+     *
+     * If a SystemLobbyMessageServerInternalMessage is detected on the EventBus, this method is called.
+     * It prints the chat message to the console.
+     *
+     * @param msg The SystemLobbyMessageServerInternalMessage found on the EventBus
+     */
+    @Subscribe
+    public void onRetrieveSystemLobbyMessageServerInternalMessage(SystemLobbyMessageServerInternalMessage msg) {
+        chatManagement.addLobbyChatMessage(
+                msg.getLobby(),
+                getChatMessage(LocalTime.now(), "System", msg.getMessage())
+        );
+
+        RetrieveAllUserLobbyChatMessagesServerMessage response =
+                new RetrieveAllUserLobbyChatMessagesServerMessage(
+                        chatManagement.getLobbyChatMessages(msg.getLobby())
+                );
+
+        response.setLobby(msg.getLobby());
+        response.initWithMessage(msg);
+
+        post(response);
+    }
+
 }
