@@ -11,12 +11,13 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.user.User;
@@ -114,6 +115,9 @@ public class GamePresenter extends AbstractPresenter {
 
     private List<PlayerPanePresenter> playerPanePresenterList;
 
+    @FXML
+    private Button researchLaboratoryButton;
+
     /**
      * <p>
      *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
@@ -174,6 +178,8 @@ public class GamePresenter extends AbstractPresenter {
         initializeMenuItems();
         chatComponentController.setLobby(game.getLobby());
         initializeChat();
+        updateResearchLaboratoryButtonState();
+        initializeResearchLaboratoryButton();
     }
 
     /**
@@ -197,7 +203,10 @@ public class GamePresenter extends AbstractPresenter {
         if (currentPlayer.equals(currentPlayerForUser) && isTurnOver(this.game)) {
             EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
             eventBus.post(endTurnMessage);
+            updateResearchLaboratoryButtonState();
         }
+
+        initializeResearchLaboratoryButton();
     }
 
     /**
@@ -444,13 +453,88 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds a research laboratory to the current field.
+     * Handles the action of adding a research laboratory when the corresponding button is pressed.
+     * Checks if the current player can perform the action and updates the UI accordingly.
      */
     @FXML
     private void addResearchLaboratoryButtonPressed() {
-        if(game.getCurrentPlayer() == this.game.getLobby().getPlayerForUser(loggedInUserProvider.get())) {
-            gameMapController.addResearchLaboratoryMarkerToField();
+        game.setResearchLaboratoryButtonClicked(true);
+        if (isCurrentPlayerInGame()) {
+            if(requireMoveResearchLaboratory()) {
+                gameMapController.requireMoveResearchLaboratory();
+            }
+            handleResearchLaboratoryAddition();
         }
+    }
+
+    /**
+     * @return true if the laboratory should be moved
+     * and false if the laboratory not should be moved
+     */
+    public boolean requireMoveResearchLaboratory() {
+        return game.getResearchLaboratories().size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES;
+    }
+
+    /**
+     * Initializes the research laboratory button's state based on available actions.
+     */
+    private void initializeResearchLaboratoryButton() {
+        if (isCurrentPlayerInGame()) {
+            updateResearchLaboratoryButtonState();
+        }
+    }
+
+    /**
+     * Determines if the research laboratory can be added
+     */
+    private void handleResearchLaboratoryAddition() {
+        if (isResearchLaboratoryActionAvailable()) {
+            gameMapController.addResearchLaboratoryMarkerToField();
+            updateResearchLaboratoryButtonState();
+        }
+    }
+
+    /**
+     * Checks if a research laboratory action is currently possible.
+     *
+     * @return true if a research laboratory can be built, false otherwise
+     */
+    private boolean isResearchLaboratoryActionAvailable() {
+        return game.getCurrentTurn().getPossibleActions().stream()
+                .anyMatch(this::isResearchLaboratoryBuildAction);
+    }
+
+    /**
+     * Updates the research laboratory button's disabled state based on available actions.
+     */
+    public void updateResearchLaboratoryButtonState() {
+        if(game.getCurrentTurn().hasActionsToDo()) {
+            boolean isActionAvailable = game.getCurrentTurn().getPossibleActions().stream()
+                    .anyMatch(this::isResearchLaboratoryBuildAction);
+            researchLaboratoryButton.setDisable(!isActionAvailable);
+        } else {
+            researchLaboratoryButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Checks if the current player is in the game.
+     *
+     * @return true if the current player contains the logged-in user, false otherwise
+     */
+    private boolean isCurrentPlayerInGame() {
+        return game.getCurrentPlayer().containsUser(loggedInUserProvider.get());
+    }
+
+    /**
+     * Checks if the given action is a research laboratory build action.
+     *
+     * @param action the action to check
+     * @return true if the action is a research laboratory build action, false otherwise
+     */
+    private boolean isResearchLaboratoryBuildAction(Action action) {
+        return action instanceof BuildResearchLaboratoryAction
+                || action instanceof ReducedCostBuildResearchLaboratoryAction;
     }
 
     /**

@@ -133,23 +133,42 @@ public class GameMapPresenter extends AbstractPresenter {
 
                 movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
 
-                for (Field field : retrieveUpdatedGameServerMessage.getGame().getFields()) {
-                    if (field.hasResearchLaboratory()) {
-                        ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
-                        ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
-                        researchLaboratoryMarkerPresenter.initializeMouseEvents();
-                        updateNewResearchLaboratoryMarkers(researchLaboratoryMarker, field);
-                    }
-                }
+                addResearchLaboratoryMarkers(retrieveUpdatedGameServerMessage.getGame());
             });
         }
     }
 
-    private void removeResearchLaboratoryMarkers() {
-        researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
+    /**
+     * Adds research laboratory markers for fields with research laboratories.
+     *
+     * @param game The current game state
+     */
+    private void addResearchLaboratoryMarkers(Game game) {
+        for (Field field : game.getFields()) {
+            if (field.hasResearchLaboratory()) {
+                createResearchLaboratoryMarker(field);
+            }
+        }
     }
 
-    public void updateNewResearchLaboratoryMarkers(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
+    /**
+     * Creates and initializes a research laboratory marker for a specific field.
+     *
+     * @param field The field containing the research laboratory
+     */
+    private void createResearchLaboratoryMarker(Field field) {
+        ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
+        buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
+        ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
+        researchLaboratoryMarkerPresenter.initializeMouseEvents();
+    }
+
+    /**
+     * Scales and adds the research laboratory marker to the pane
+     * @param researchLaboratoryMarker
+     * @param field
+     */
+    public void buildResearchLaboratoryMarker(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
         researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
 
         double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
@@ -159,6 +178,62 @@ public class GameMapPresenter extends AbstractPresenter {
         double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
         double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
         NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+        game.setResearchLaboratoryButtonClicked(false);
+    }
+
+    /**
+     * Removes all existing labs from the pane.
+     */
+    private void removeResearchLaboratoryMarkers() {
+        researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
+    }
+
+    /**
+     * Starts pulse animations for all research lab markers and adds click interactions.
+     *
+     */
+    public void requireMoveResearchLaboratory() {
+        for (Node node : researchLaboratoryPane.getChildren()) {
+            if (node instanceof ResearchLaboratoryMarker researchLaboratoryMarker) {
+                Timeline pulseTimeline = createPulseAnimation(researchLaboratoryMarker);
+                pulseTimeline.stop();
+                pulseTimeline.play();
+
+                game.setResearchLaboratoryButtonClicked(true);
+            }
+        }
+    }
+
+    /**
+     * Creates a pulsating animation for a ResearchLaboratoryMarker
+     *
+     * @param marker The marker to animate
+     * @return Timeline for the pulsation animation
+     */
+    private Timeline createPulseAnimation(ResearchLaboratoryMarker marker) {
+        Scale animationScale = new Scale(1.0, 1.0);
+        marker.getTransforms().removeIf(transform -> transform instanceof Scale);
+        marker.getTransforms().add(animationScale);
+
+        Timeline pulseTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(animationScale.xProperty(), 1.0),
+                        new KeyValue(animationScale.yProperty(), 1.0)
+                ),
+                new KeyFrame(Duration.seconds(0.5),
+                        new KeyValue(animationScale.xProperty(), 1.2),
+                        new KeyValue(animationScale.yProperty(), 1.2)
+                ),
+                new KeyFrame(Duration.seconds(1),
+                        new KeyValue(animationScale.xProperty(), 1.0),
+                        new KeyValue(animationScale.yProperty(), 1.0)
+                )
+        );
+
+        pulseTimeline.setCycleCount(2);
+        pulseTimeline.setAutoReverse(true);
+
+        return pulseTimeline;
     }
 
     /**
@@ -176,6 +251,10 @@ public class GameMapPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Removes all existing player markers and create alle existing player markers after that
+     * @param game
+     */
     private void movePlayerMarker(Game game) {
         this.game = game;
         playerMarkerPane.getChildren().removeIf(PlayerMarker.class::isInstance);
@@ -225,7 +304,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param playerOnFieldIndex The index of the player on the field
      * @see PlayerMarker
      */
-
     private void bindPlayerMarkerToField(PlayerMarker playerMarker, Field field, int playerOnFieldIndex) {
         double xOffset = calculatePlayerXOffset(playerOnFieldIndex, getPlayerAmountOnField(field), playerMarker.getWidth());
         double yOffset = playerMarker.getHeight() / 2 * PLAYER_MARKER_SCALE_FACTOR;
@@ -368,7 +446,7 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addAllPlagueCubeMarkers() {
         for (Field field : game.getFields()) {
-            PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
+            createPlagueCubeMarker(field);
         }
     }
 

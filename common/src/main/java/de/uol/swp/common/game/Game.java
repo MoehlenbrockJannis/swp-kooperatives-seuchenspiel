@@ -101,6 +101,12 @@ public class Game implements Serializable {
     private boolean isWon;
     @Getter
     private boolean isLost;
+    @Getter
+    @Setter
+    private boolean requiresTextMessageMovingResearchLaboratory;
+    @Getter
+    @Setter
+    private boolean researchLaboratoryButtonClicked = false;
 
     /**
      * Constructs a Game instance with a basic configuration.
@@ -191,6 +197,8 @@ public class Game implements Serializable {
 
         this.plagueCubes = new HashMap<>();
         this.researchLaboratories = new ArrayList<>();
+        this.requiresTextMessageMovingResearchLaboratory = true;
+        this.researchLaboratoryButtonClicked = false;
         this.antidoteMarkers = new ArrayList<>();
 
         createPlayerStacks();
