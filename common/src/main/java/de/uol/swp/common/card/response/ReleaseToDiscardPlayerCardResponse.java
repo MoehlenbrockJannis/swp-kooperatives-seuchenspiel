@@ -8,8 +8,8 @@ import lombok.Getter;
 public class ReleaseToDiscardPlayerCardResponse extends AbstractGameResponse {
 
     private int numberOfCardsToDiscard;
-    public ReleaseToDiscardPlayerCardResponse(Game game, int numberOfCardsToDiscard) {
+    public ReleaseToDiscardPlayerCardResponse(Game game) {
         super(game);
-        this.numberOfCardsToDiscard = numberOfCardsToDiscard;
+        this.numberOfCardsToDiscard = game.getCurrentTurn().getNumberOfPlayerCardsToDiscard();
     }
 }

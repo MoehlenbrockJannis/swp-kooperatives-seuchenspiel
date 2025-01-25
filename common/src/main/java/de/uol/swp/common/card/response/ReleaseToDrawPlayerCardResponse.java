@@ -17,10 +17,9 @@ public class ReleaseToDrawPlayerCardResponse extends AbstractGameResponse {
     /**
      * Constructor of the ReleaseToDrawPlayerCard
      * @param game the actual game
-     * @param numberOfPlayerCardsToDraw the number of player cards to draw
      */
-    public ReleaseToDrawPlayerCardResponse(final Game game, final int numberOfPlayerCardsToDraw) {
+    public ReleaseToDrawPlayerCardResponse(final Game game) {
         super(game);
-        this.numberOfPlayerCardsToDraw = numberOfPlayerCardsToDraw;
+        this.numberOfPlayerCardsToDraw = game.getCurrentTurn().getNumberOfPlayerCardsToDraw();
     }
 }

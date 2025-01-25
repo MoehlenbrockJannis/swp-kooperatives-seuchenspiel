@@ -11,8 +11,8 @@ public class ReleaseToDrawInfectionCardResponse extends AbstractGameResponse {
 
     private final int numberOfInfectionCardsToDraw;
 
-    public ReleaseToDrawInfectionCardResponse(final Game game, final int numberOfInfectionCardsToDraw) {
+    public ReleaseToDrawInfectionCardResponse(final Game game) {
         super(game);
-        this.numberOfInfectionCardsToDraw = numberOfInfectionCardsToDraw;
+        this.numberOfInfectionCardsToDraw = game.getCurrentTurn().getNumberOfInfectionCardsToDraw();
     }
 }
