@@ -11,6 +11,7 @@ import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
@@ -24,9 +25,9 @@ import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
-import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +59,7 @@ public class CardService extends AbstractService {
      * @since 2019-10-08
      */
     @Inject
-    public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService, PlayerTurnManagement playerTurnManagement) {
+    public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService) {
         super(eventBus);
         this.cardManagement = cardManagement;
         this.gameManagement = gameManagement;
@@ -87,11 +88,7 @@ public class CardService extends AbstractService {
 
             final Session requestSession = getSessionFromRequest(drawPlayerCardRequest);
 
-            if (player.getHandCards().size()  >= game.getMaxHandCards()) {
-                int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards() + 1 ;
-                game.getCurrentTurn().setNumberOfPlayerCardsToDiscard(numberOfCardsToDiscard);
-                allowDrawingOrDiscarding(game, requestSession, ReleaseToDiscardPlayerCardResponse.class);
-            }
+
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
             player.addHandCard(playerCard);
@@ -101,9 +98,16 @@ public class CardService extends AbstractService {
             response.initWithMessage(drawPlayerCardRequest);
             post(response);
 
+
+
             sendGameUpdateMessage(game);
 
-            if (game.getCurrentTurn().isInInfectionCardDrawPhase()) {
+            if (player.getHandCards().size()  > game.getMaxHandCards()) {
+                game.getCurrentTurn().setAreInteractionsBlocked(true);
+                allowDrawingOrDiscarding(game, requestSession, ReleaseToDiscardPlayerCardResponse.class);
+            }
+
+            if (game.getCurrentTurn().isInfectionCardDrawExecutable()) {
                 allowDrawingOrDiscarding(game, requestSession, ReleaseToDrawInfectionCardResponse.class);
             }
         });
@@ -130,19 +134,24 @@ public class CardService extends AbstractService {
             player.removeHandCard(playerCard);
             cardManagement.discardPlayerCard(game, playerCard);
 
-
+            game.getCurrentTurn().setAreInteractionsBlocked(false);
 
             sendGameUpdateMessage(game);
 
-            game.getCurrentTurn().reduceNumberOfPlayerCardsToDiscard();
+
 
             String message = player.getName() + " hat die " + playerCard.getClass().getSimpleName() + " " + playerCard.getTitle() + " abgeworfen.";
             SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
             post(systemLobbyMessageServerInternalMessage);
 
-            if (game.getCurrentTurn().isInInfectionCardDrawPhase()) {
+            if (game.getCurrentTurn().isInfectionCardDrawExecutable()) {
                 final Session requestSession = getSessionFromRequest(discardPlayerCardRequest);
                 allowDrawingOrDiscarding(game, requestSession, ReleaseToDrawInfectionCardResponse.class);
+            }
+
+            if(game.getCurrentTurn().isPlayerCardDrawExecutable()) {
+                final Session requestSession = getSessionFromRequest(discardPlayerCardRequest);
+                allowDrawingOrDiscarding(game, requestSession, ReleaseToDrawPlayerCardResponse.class);
             }
         });
     }
@@ -162,6 +171,7 @@ public class CardService extends AbstractService {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheTop(game);
             game.getCurrentTurn().reduceNumberOfInfectionCardsToDraw();
+            cardManagement.discardInfectionCard(game, infectionCard);
 
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
@@ -175,7 +185,7 @@ public class CardService extends AbstractService {
     /**
      * Handles the infection process.
      * <p>
-     * This method infects the field associated with the infection card and discards the infection card afterwards.
+     * This method infects the field associated with the infection card and discards the infection card afterward.
      * </p>
      *
      * @param game the game in which the infection process is taking place
