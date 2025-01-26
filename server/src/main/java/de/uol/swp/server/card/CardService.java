@@ -11,7 +11,6 @@ import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.card.response.DrawPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
-import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
@@ -21,6 +20,7 @@ import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
@@ -85,17 +85,12 @@ public class CardService extends AbstractService {
                 return;
             }
 
-            final Optional<Session> requestSessionOptional = drawPlayerCardRequest.getSession();
-            if (requestSessionOptional.isEmpty()) {
-                return;
-            }
-            final Session requestSession = requestSessionOptional.get();
+            final Session requestSession = getSessionFromRequest(drawPlayerCardRequest);
 
             if (player.getHandCards().size()  >= game.getMaxHandCards()) {
-                int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards() +1 ;
-                ReleaseToDiscardPlayerCardResponse response = new ReleaseToDiscardPlayerCardResponse(game, numberOfCardsToDiscard);
-                response.setSession(requestSession);
-                post(response);
+                int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards() + 1 ;
+                game.getCurrentTurn().setNumberOfPlayerCardsToDiscard(numberOfCardsToDiscard);
+                allowDrawingOrDiscarding(game, requestSession, ReleaseToDiscardPlayerCardResponse.class);
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
@@ -109,7 +104,7 @@ public class CardService extends AbstractService {
             sendGameUpdateMessage(game);
 
             if (game.getCurrentTurn().isInInfectionCardDrawPhase()) {
-                allowInfectionCardDrawing(game, requestSession);
+                allowDrawingOrDiscarding(game, requestSession, ReleaseToDrawInfectionCardResponse.class);
             }
         });
     }
@@ -135,7 +130,20 @@ public class CardService extends AbstractService {
             player.removeHandCard(playerCard);
             cardManagement.discardPlayerCard(game, playerCard);
 
+
+
             sendGameUpdateMessage(game);
+
+            game.getCurrentTurn().reduceNumberOfPlayerCardsToDiscard();
+
+            String message = player.getName() + " hat die " + playerCard.getClass().getSimpleName() + " " + playerCard.getTitle() + " abgeworfen.";
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
+            post(systemLobbyMessageServerInternalMessage);
+
+            if (game.getCurrentTurn().isInInfectionCardDrawPhase()) {
+                final Session requestSession = getSessionFromRequest(discardPlayerCardRequest);
+                allowDrawingOrDiscarding(game, requestSession, ReleaseToDrawInfectionCardResponse.class);
+            }
         });
     }
 
@@ -182,6 +190,7 @@ public class CardService extends AbstractService {
             cardManagement.discardInfectionCard(game, infectionCard);
 
             sendGameUpdateMessage(game);
+
         });
     }
 
@@ -242,32 +251,33 @@ public class CardService extends AbstractService {
     }
 
     /**
-     * Allows the client with given {@code targetSession} to draw an amount of {@link PlayerCard}
-     * as specified by {@link PlayerTurn#getNumberOfPlayerCardsToDraw()} from the current {@link PlayerTurn} of given {@code game}.
+     * Allows the client with given {@code targetSession} to draw or discard a card.
      *
      * @param game {@link Game} with the current {@link PlayerTurn}
-     * @param targetSession {@link Session} to allow drawing of {@link PlayerCard}
+     * @param targetSession {@link Session} to allow drawing or discarding of a card
+     * @param responseMessage the response message to send
      */
-    public void allowPlayerCardDrawing(final Game game, final Session targetSession) {
+    public void allowDrawingOrDiscarding(final Game game, final Session targetSession, Class<? extends AbstractGameResponse> responseMessage) {
         sendReleaseToDrawCardResponse(
                 game,
                 targetSession,
-                g -> new ReleaseToDrawPlayerCardResponse(g, g.getCurrentTurn().getNumberOfPlayerCardsToDraw())
+                g -> {
+                    try {
+                        return responseMessage.getConstructor(Game.class).newInstance(g);
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                }
         );
     }
 
     /**
-     * Allows the client with given {@code targetSession} to draw an amount of {@link InfectionCard}
-     * as specified by {@link PlayerTurn#getNumberOfInfectionCardsToDraw()} from the current {@link PlayerTurn} of given {@code game}.
+     * Retrieves the session from the provided request. If the session is not present, an NoSuchElementException is thrown.
      *
-     * @param game {@link Game} with the current {@link PlayerTurn}
-     * @param targetSession {@link Session} to allow drawing of {@link InfectionCard}
+     * @param request the request from which to retrieve the session
+     * @return the session from the request
      */
-    public void allowInfectionCardDrawing(final Game game, final Session targetSession) {
-        sendReleaseToDrawCardResponse(
-                game,
-                targetSession,
-                g -> new ReleaseToDrawInfectionCardResponse(g, g.getCurrentTurn().getNumberOfInfectionCardsToDraw())
-        );
+    private Session getSessionFromRequest(AbstractGameRequest request) {
+        return request.getSession().orElseThrow();
     }
 }

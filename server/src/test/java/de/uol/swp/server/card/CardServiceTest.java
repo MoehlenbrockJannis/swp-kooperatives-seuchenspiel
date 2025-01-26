@@ -17,6 +17,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -29,6 +30,7 @@ import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusException;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,11 +40,13 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -144,6 +148,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
 
         DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(game, player, playerCard);
+        request.setSession(session);
         post(request);
 
 
@@ -246,37 +251,24 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Player has more than max hand cards - Session is empty")
     void playerHasMoreThanMaxHandCards_sessionIsEmpty() throws InterruptedException {
         Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
-        for(int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             player.addHandCard(new AirBridgeEventCard());
         }
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
 
-
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
-        post(request);
+        assertThatThrownBy(() -> post(request))
+                .isInstanceOf(EventBusException.class)
+                        .hasCauseInstanceOf(NoSuchElementException.class);
 
         waitForLock();
-
-        ReleaseToDiscardPlayerCardResponse releaseToDiscardPlayerCardResponse = responses.stream()
-                .filter(ReleaseToDiscardPlayerCardResponse.class::isInstance)
-                .map(ReleaseToDiscardPlayerCardResponse.class::cast)
-                .findFirst()
-                .orElse(null);
-
-        DrawPlayerCardResponse drawPlayerCardResponse = responses.stream()
-                .filter(DrawPlayerCardResponse.class::isInstance)
-                .map(DrawPlayerCardResponse.class::cast).findFirst()
-                .orElse(null);
-
-        assertThat(releaseToDiscardPlayerCardResponse).isNull();
-        assertThat(drawPlayerCardResponse).isNull();
     }
 
     @Test
     @DisplayName("Player has more than max hand cards - Successful sending of the ReleaseToDrawCardResponse")
     void sendReleaseToDrawCardResponse() throws InterruptedException {
-        Function<Game, ReleaseToDrawPlayerCardResponse> responseSupplier = g -> new ReleaseToDrawPlayerCardResponse(g, 2);
+        Function<Game, ReleaseToDrawPlayerCardResponse> responseSupplier = ReleaseToDrawPlayerCardResponse::new;
         cardService.sendReleaseToDrawCardResponse(game, session, responseSupplier);
         waitForLock();
 
@@ -288,7 +280,7 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("")
     void allowPlayerCardDrawing() throws InterruptedException {
-        cardService.allowPlayerCardDrawing(game, session);
+        cardService.allowDrawingOrDiscarding(game, session, ReleaseToDrawPlayerCardResponse.class);
 
         waitForLock();
 
@@ -305,7 +297,7 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("")
     void allowInfectionCardDrawing() throws InterruptedException {
-        cardService.allowInfectionCardDrawing(game, session);
+        cardService.allowDrawingOrDiscarding(game, session, ReleaseToDrawInfectionCardResponse.class);
 
         waitForLock();
 
@@ -317,6 +309,17 @@ public class CardServiceTest extends EventBusBasedTest {
                 .isEqualTo(game);
         assertThat(releaseToDrawInfectionCardResponse.getNumberOfInfectionCardsToDraw())
                 .isEqualTo(game.getNumberOfInfectionCardsToDrawPerTurn());
+    }
+
+    @Test
+    @DisplayName("Allow Drawing Or Discarding - Handle exception")
+    void allowDrawingOrDiscarding_handleException() {
+        Game game = mock(Game.class);
+        Session session = mock(Session.class);
+        Class<? extends AbstractGameResponse> responseMessage = AbstractGameResponse.class;
+
+        assertThatThrownBy(() -> cardService.allowDrawingOrDiscarding(game, session, responseMessage))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Subscribe
