@@ -9,21 +9,30 @@ import de.uol.swp.client.plague.PlagueCubeMarkerPresenter;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
+import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarkerPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
+import de.uol.swp.client.util.NodeBindingUtils;
+import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.Subscribe;
@@ -54,9 +63,17 @@ public class GameMapPresenter extends AbstractPresenter {
     private Game game;
 
     @FXML
-    private Pane pane;
+    private Pane webViewPane;
     @FXML
     private WebView webView;
+    @FXML
+    private Pane cityMarkerPane;
+    @FXML
+    private Pane playerMarkerPane;
+    @FXML
+    private Pane plagueCubeMarkerPane;
+    @FXML
+    private Pane researchLaboratoryPane;
 
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
@@ -65,9 +82,14 @@ public class GameMapPresenter extends AbstractPresenter {
     @Inject
     private ApprovableService approvableService;
 
-    private final List<CityMarker> cityMarkers = new ArrayList<>();
+    private final Map<Field, CityMarker> cityMarkers = new HashMap<>();
     private final Map<Player, PlayerMarker> playerMarkers = new HashMap<>();
     private final List<PlagueCubeMarkerPresenter> plagueCubeMarkerPresenters = new ArrayList<>();
+
+    private static final double PLAYER_MARKER_SCALE_FACTOR = 1.75;
+    private static final double CITY_MARKER_SCALE_FACTOR = 2.25;
+    private static final double PLAGUE_CUBE_MARKER_SCALE_FACTOR = 1.75;
+    private static final double RESEARCH_LABORATORY_MARKER_SCALE_FACTOR = 1.75;
 
     @Override
     public String getFXMLFolderPath() {
@@ -83,10 +105,15 @@ public class GameMapPresenter extends AbstractPresenter {
     public void initialize(Game game) {
         this.game = game;
         this.webView.setContextMenuEnabled(false);
+        this.cityMarkerPane.setPickOnBounds(false);
+        this.playerMarkerPane.setPickOnBounds(false);
+        this.plagueCubeMarkerPane.setPickOnBounds(false);
+        this.researchLaboratoryPane.setPickOnBounds(false);
 
-        bindSizePropertyOfWorldMapWebView();
+        bindSizePropertyOfWebView();
         loadSvgIntoWebView();
-        addCityMarkers();
+        addAllCityMarkers();
+        addAllPlagueCubeMarkers();
         addAllPlayerMarkers();
     }
 
@@ -99,13 +126,138 @@ public class GameMapPresenter extends AbstractPresenter {
     @Subscribe
     public void onRetrieveUpdatedGameServerMessage(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         if (this.game.getId() == retrieveUpdatedGameServerMessage.getGame().getId()) {
-            Platform.runLater(() -> movePlayerMarker(retrieveUpdatedGameServerMessage.getGame()));
+            Platform.runLater(() -> {
+                removeResearchLaboratoryMarkers();
+
+                addNewPlagueCubeMarker(retrieveUpdatedGameServerMessage.getGame());
+
+                movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
+
+                addResearchLaboratoryMarkers(retrieveUpdatedGameServerMessage.getGame());
+            });
         }
     }
 
+    /**
+     * Adds research laboratory markers for fields with research laboratories.
+     *
+     * @param game The current game state
+     */
+    private void addResearchLaboratoryMarkers(Game game) {
+        for (Field field : game.getFields()) {
+            if (field.hasResearchLaboratory()) {
+                createResearchLaboratoryMarker(field);
+            }
+        }
+    }
+
+    /**
+     * Creates and initializes a research laboratory marker for a specific field.
+     *
+     * @param field The field containing the research laboratory
+     */
+    private void createResearchLaboratoryMarker(Field field) {
+        ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
+        buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
+        ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
+        researchLaboratoryMarkerPresenter.initializeMouseEvents();
+    }
+
+    /**
+     * Scales and adds the research laboratory marker to the pane
+     * @param researchLaboratoryMarker
+     * @param field
+     */
+    public void buildResearchLaboratoryMarker(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
+        researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
+
+        double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
+        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH + xOffset;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT + yOffset;
+        double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
+        double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
+        NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
+        game.setResearchLaboratoryButtonClicked(false);
+    }
+
+    /**
+     * Removes all existing labs from the pane.
+     */
+    private void removeResearchLaboratoryMarkers() {
+        researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
+    }
+
+    /**
+     * Starts pulse animations for all research lab markers and adds click interactions.
+     *
+     */
+    public void requireMoveResearchLaboratory() {
+        for (Node node : researchLaboratoryPane.getChildren()) {
+            if (node instanceof ResearchLaboratoryMarker researchLaboratoryMarker) {
+                Timeline pulseTimeline = createPulseAnimation(researchLaboratoryMarker);
+                pulseTimeline.stop();
+                pulseTimeline.play();
+
+                game.setResearchLaboratoryButtonClicked(true);
+            }
+        }
+    }
+
+    /**
+     * Creates a pulsating animation for a ResearchLaboratoryMarker
+     *
+     * @param marker The marker to animate
+     * @return Timeline for the pulsation animation
+     */
+    private Timeline createPulseAnimation(ResearchLaboratoryMarker marker) {
+        Scale animationScale = new Scale(1.0, 1.0);
+        marker.getTransforms().removeIf(transform -> transform instanceof Scale);
+        marker.getTransforms().add(animationScale);
+
+        Timeline pulseTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(animationScale.xProperty(), 1.0),
+                        new KeyValue(animationScale.yProperty(), 1.0)
+                ),
+                new KeyFrame(Duration.seconds(0.5),
+                        new KeyValue(animationScale.xProperty(), 1.2),
+                        new KeyValue(animationScale.yProperty(), 1.2)
+                ),
+                new KeyFrame(Duration.seconds(1),
+                        new KeyValue(animationScale.xProperty(), 1.0),
+                        new KeyValue(animationScale.yProperty(), 1.0)
+                )
+        );
+
+        pulseTimeline.setCycleCount(2);
+        pulseTimeline.setAutoReverse(true);
+
+        return pulseTimeline;
+    }
+
+    /**
+     * Adds the new plague cube markers on the game map.
+     *
+     * @param game the game to update the plague cube markers for
+     */
+    private void addNewPlagueCubeMarker(Game game) {
+        List<List<Field>> infectedFieldsInTurn = game.getCurrentTurn().getInfectedFieldsInTurn();
+        if (!infectedFieldsInTurn.isEmpty()) {
+            List<Field> lastInfectedFields = infectedFieldsInTurn.get(infectedFieldsInTurn.size() - 1);
+            for (int i = 0; i < lastInfectedFields.size(); i++) {
+                addAnimatedPlagueCubeMarker(lastInfectedFields.get(i), i);
+            }
+        }
+    }
+
+    /**
+     * Removes all existing player markers and create alle existing player markers after that
+     * @param game
+     */
     private void movePlayerMarker(Game game) {
         this.game = game;
-        pane.getChildren().removeIf(PlayerMarker.class::isInstance);
+        playerMarkerPane.getChildren().removeIf(PlayerMarker.class::isInstance);
         playerMarkers.clear();
         addAllPlayerMarkers();
     }
@@ -135,7 +287,7 @@ public class GameMapPresenter extends AbstractPresenter {
         PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(newPlayerMarker, loggedInUserProvider, actionService, approvableService, game, cityMarkers);
         playerMarkerPresenter.initializeMouseEvents();
 
-        pane.getChildren().add(newPlayerMarker);
+        playerMarkerPane.getChildren().add(newPlayerMarker);
 
         Field currentField = player.getCurrentField();
         int playerOnFieldIndex = currentField.getPlayersOnField().indexOf(player);
@@ -152,40 +304,29 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param playerOnFieldIndex The index of the player on the field
      * @see PlayerMarker
      */
-
     private void bindPlayerMarkerToField(PlayerMarker playerMarker, Field field, int playerOnFieldIndex) {
-        double playerMarkerHeight = playerMarker.getHeight();
-        double playerMarkerWidth = playerMarker.getWidth();
-        double xOffset = calculatePlayerXOffset(playerOnFieldIndex, playerMarkerWidth);
-        int playerAmountOnField = getPlayerAmountOnField(field);
+        double xOffset = calculatePlayerXOffset(playerOnFieldIndex, getPlayerAmountOnField(field), playerMarker.getWidth());
+        double yOffset = playerMarker.getHeight() / 2 * PLAYER_MARKER_SCALE_FACTOR;
 
-        bindLayoutProperties(playerMarker, field, playerMarkerWidth, playerMarkerHeight, xOffset, playerAmountOnField);
+        bindLayoutProperties(playerMarker, field, xOffset, yOffset);
     }
 
 
     /**
      * Binds the layout properties of the playerMarker
      *
-     * @param playerMarker        The playerMarker for which the properties should be bound
-     * @param field               The field to which the playerMarker should be bound
-     * @param playerMarkerWidth   The width of the playerMarker
-     * @param playerMarkerHeight  The height of the playerMarker
-     * @param xOffset             The x offset of the playerMarker
-     * @param playerAmountOnField The amount of players on the field
+     * @param playerMarker The playerMarker for which the properties should be bound
+     * @param field The field to which the playerMarker should be bound
+     * @param xOffset The x offset of the playerMarker
+     * @param yOffset The y offset of the playerMarker
      * @since 2024-10-04
      */
-    private void bindLayoutProperties(PlayerMarker playerMarker, Field field, double playerMarkerWidth,
-                                      double playerMarkerHeight, double xOffset, int playerAmountOnField) {
-        playerMarker.layoutXProperty().bind(
-                webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
-                        .subtract((playerMarkerWidth * playerAmountOnField) / 2)
-                        .add(xOffset)
-        );
-
-        playerMarker.layoutYProperty().bind(
-                webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
-                        .subtract(playerMarkerHeight)
-        );
+    private void bindLayoutProperties(PlayerMarker playerMarker, Field field, double xOffset, double yOffset) {
+        double xCoordinate = (field.getXCoordinate() + xOffset) / SVG_VIEW_BOX_WIDTH;
+        double yCoordinate = (field.getYCoordinate() - yOffset) / SVG_VIEW_BOX_HEIGHT;
+        double xScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
+        double yxScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
+        NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, playerMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 
 
@@ -197,8 +338,8 @@ public class GameMapPresenter extends AbstractPresenter {
      * @return The x offset of the playerMarker
      * @since 2024-10-04
      */
-    private double calculatePlayerXOffset(int playerOnFieldIndex, double playerMarkerWidth) {
-        return playerOnFieldIndex * playerMarkerWidth;
+    private double calculatePlayerXOffset(int playerOnFieldIndex, int playerAmountOnField,  double playerMarkerWidth) {
+        return (playerOnFieldIndex - (playerAmountOnField - 1) / 2.0) * playerMarkerWidth * PLAYER_MARKER_SCALE_FACTOR;
     }
 
     /**
@@ -231,25 +372,25 @@ public class GameMapPresenter extends AbstractPresenter {
      * @author David Scheffler
      * @since 2024-09-09
      */
-    private void bindSizePropertyOfWorldMapWebView() {
-        pane.widthProperty().addListener((obs, oldVal, newVal) -> {
+    private void bindSizePropertyOfWebView() {
+        webViewPane.widthProperty().addListener((obs, oldVal, newVal) -> {
             double newWidth = newVal.doubleValue();
             double newHeight = newWidth / ASPECT_RATIO;
 
-            if (newHeight > pane.getHeight()) {
-                newHeight = pane.getHeight();
+            if (newHeight > webViewPane.getHeight()) {
+                newHeight = webViewPane.getHeight();
                 newWidth = newHeight * ASPECT_RATIO;
             }
 
             webView.setPrefSize(newWidth, newHeight);
         });
 
-        pane.heightProperty().addListener((obs, oldVal, newVal) -> {
+        webViewPane.heightProperty().addListener((obs, oldVal, newVal) -> {
             double newHeight = newVal.doubleValue();
             double newWidth = newHeight * ASPECT_RATIO;
 
-            if (newWidth > pane.getWidth()) {
-                newWidth = pane.getWidth();
+            if (newWidth > webViewPane.getWidth()) {
+                newWidth = webViewPane.getWidth();
                 newHeight = newWidth / ASPECT_RATIO;
             }
 
@@ -281,100 +422,133 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
-     * Creates cityMarker and plagueCubeMarker for each field in the game and adds them to the pane.
+     * Creates {@link CityMarker} for each field in the game and adds them to the {@link #cityMarkerPane}.
      *
      * @author David Scheffler
      * @see CityMarker
-     * @see PlagueCubeMarker
      * @since 2024-09-10
      */
-    private void addCityMarkers() {
+    private void addAllCityMarkers() {
         for (Field field : game.getFields()) {
             CityMarker cityMarker = new CityMarker(field);
+            cityMarkerPane.getChildren().add(cityMarker);
+            cityMarkers.put(field, cityMarker);
 
-            pane.getChildren().add(cityMarker);
-            cityMarker.layoutXProperty().bind(
-                    webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
-            );
-            cityMarker.layoutYProperty().bind(
-                    webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
-            );
-
-            cityMarkers.add(cityMarker);
-
-            addPlagueCubeMarker(field);
+            handleWebViewSizeAndPosition(webView, cityMarker, field, CITY_MARKER_SCALE_FACTOR);
         }
     }
 
     /**
-     * Creates plagueCubeMarker for the associated plague of a given field and adds them to the pane.
+     * Creates {@link PlagueCubeMarker} for each field in the game and adds them to the {@link #plagueCubeMarkerPane}.
      *
-     * @param field field to create PlagueCubeMarker for
      * @see PlagueCubeMarker
      * @since 2024-11-09
      */
-    private void addPlagueCubeMarker(Field field) {
+    private void addAllPlagueCubeMarkers() {
+        for (Field field : game.getFields()) {
+            createPlagueCubeMarker(field);
+        }
+    }
+
+    /**
+     * Creates animated plagueCubeMarker for the associated plague of a given field and adds them to the pane with delay.
+     *
+     * @param field field to create PlagueCubeMarker for
+     * @param delay the delay of the animation
+     * @see PlagueCubeMarker
+     * @since 2024-11-09
+     */
+    private void addAnimatedPlagueCubeMarker(Field field, int delay) {
+        PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
+
+        animatePlagueCubeMarker(plagueCubeMarker, delay);
+    }
+
+    /**
+     * Animates the PlagueCubeMarker
+     *
+     * @param plagueCubeMarker The PlagueCubeMarker to be animated
+     * @param delay            The delay of the animation
+     * @since 2025-01-21
+     */
+    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker, int delay) {
+        int animationDuration = 1000;
+        int cycleCount = 2;
+        long fromScaling = 1;
+        long toScaling = 2;
+
+        Timeline scaleTimeline;
+
+        Scale animationScale = new Scale(1.0, 1.0);
+
+        plagueCubeMarker.getTransforms().add(animationScale);
+
+        scaleTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(animationScale.xProperty(), fromScaling),
+                        new KeyValue(animationScale.yProperty(), fromScaling)
+                ),
+                new KeyFrame(Duration.millis(animationDuration),
+                        new KeyValue(animationScale.xProperty(), toScaling),
+                        new KeyValue(animationScale.yProperty(), toScaling)
+                )
+        );
+
+        scaleTimeline.setCycleCount(cycleCount);
+        scaleTimeline.setDelay(Duration.seconds(delay));
+
+        scaleTimeline.setAutoReverse(true);
+        scaleTimeline.play();
+    }
+
+    /**
+     * Creates a PlagueCubeMarker for the given field
+     *
+     * @param field The field for which a PlagueCubeMarker should be created
+     * @return The created PlagueCubeMarker
+     * @see PlagueCubeMarker
+     */
+    private PlagueCubeMarker createPlagueCubeMarker(Field field) {
         PlagueCubeMarker plagueCubeMarker = new PlagueCubeMarker(field);
         PlagueCubeMarkerPresenter plagueCubeMarkerPresenter = new PlagueCubeMarkerPresenter(plagueCubeMarker, field);
         plagueCubeMarkerPresenters.add(plagueCubeMarkerPresenter);
-        pane.getChildren().add(plagueCubeMarker);
+        plagueCubeMarkerPane.getChildren().add(plagueCubeMarker);
 
-        Platform.runLater(() -> {
-            plagueCubeMarker.layoutXProperty().bind(
-                    webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
-            );
-            plagueCubeMarker.layoutYProperty().bind(
-                    webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
-            );
-        });
+        handleWebViewSizeAndPosition(webView, plagueCubeMarker, field, PLAGUE_CUBE_MARKER_SCALE_FACTOR);
+
+        return plagueCubeMarker;
     }
 
     /**
-     * Adds a researchLaboratoryMarker to the given field
+     * Handles the size and position of the WebView
      *
-     * @param researchLaboratoryMarker
-     * @param field
+     * @param sourceWebView The WebView whose size and position will be bound to the targetNode
+     * @param targetNode The node whose size and position will be adjusted based on the sourceWebView
+     * @param field The field to which the targetNode should be bound
      */
-    public void addResearchLaboratoryMarkerToField(final ResearchLaboratoryMarker researchLaboratoryMarker, final Field field) {
-        pane.getChildren().add(researchLaboratoryMarker);
-
-        researchLaboratoryMarker.layoutXProperty().bind(
-                webView.widthProperty().multiply(field.getXCoordinate() / (double) SVG_VIEW_BOX_WIDTH)
-        );
-
-        researchLaboratoryMarker.layoutYProperty().bind(
-                webView.heightProperty().multiply(field.getYCoordinate() / (double) SVG_VIEW_BOX_HEIGHT)
-                        .subtract(CityMarker.getRADIUS() * 1.5)
-        );
-
-        bindSizeOfResearchLaboratoryMarkerToWebViewSize(researchLaboratoryMarker);
+    private void handleWebViewSizeAndPosition(WebView sourceWebView, Node targetNode, Field field, double scaleFactor) {
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT;
+        double xScaleFactor = scaleFactor / SVG_VIEW_BOX_WIDTH;
+        double yxScaleFactor = scaleFactor / SVG_VIEW_BOX_HEIGHT;
+        NodeBindingUtils.bindWebViewSizeAndPositionToNode(sourceWebView, targetNode, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 
     /**
-     * Binds the size of the researchLaboratoryMarker to the size of the webView
-     *
-     * @param researchLaboratoryMarker The researchLaboratoryMarker for which the size should be bound
+     * Places a research laboratory marker on the current player's field and sends the corresponding action to the backend.
+     * <p>
+     * This method iterates through the list of possible actions for the current turn and checks if the action
+     * is related to building a research laboratory. If such an action is found, it is sent to the backend
+     * using the ActionService.
+     * </p>
      */
-    private void bindSizeOfResearchLaboratoryMarkerToWebViewSize(final ResearchLaboratoryMarker researchLaboratoryMarker) {
-        final ChangeListener<Number> sizeChangeListener = (observable, oldValue, newValue) -> {
-            final double width = researchLaboratoryMarker.getBoundsInParent().getWidth();
-
-            final double aspectRatio = newValue.doubleValue() / oldValue.doubleValue();
-
-            final double resultingWidth = width * aspectRatio;
-
-            if (resultingWidth < 25 || resultingWidth > 50) {
-                return;
+    public void addResearchLaboratoryMarkerToField() {
+        List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
+        for (Action action : possibleActions) {
+            if (action instanceof BuildResearchLaboratoryAction || action instanceof ReducedCostBuildResearchLaboratoryAction) {
+                actionService.sendAction(game, action);
             }
-
-            final Scale scale = new Scale();
-            scale.setX(aspectRatio);
-            scale.setY(aspectRatio);
-            researchLaboratoryMarker.getTransforms().add(scale);
-        };
-
-        webView.widthProperty().addListener(sizeChangeListener);
-        webView.heightProperty().addListener(sizeChangeListener);
+        }
     }
 
 }

@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
 import java.time.LocalTime;
 
 @Singleton

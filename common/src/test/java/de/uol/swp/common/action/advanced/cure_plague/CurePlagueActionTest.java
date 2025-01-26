@@ -73,8 +73,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove one plague cube from current field")
     void removeOnePlagueCube() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         action.removeOnePlagueCube();
 
@@ -87,8 +87,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove all plague cubes from current field")
     void removeAllPlagueCubes() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         action.removeAllPlagueCubes();
 
@@ -122,7 +122,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         assertThat(action.isAvailable())
                 .isTrue();
@@ -155,7 +155,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         assertThat(action.isExecutable())
                 .isTrue();
@@ -178,8 +178,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove one plague cube from current field if action is executable and the option to remove all plague cubes is unavailable")
     void execute_oneCube() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         action.execute();
 
@@ -195,8 +195,8 @@ class CurePlagueActionTest {
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
 
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         action.execute();
 

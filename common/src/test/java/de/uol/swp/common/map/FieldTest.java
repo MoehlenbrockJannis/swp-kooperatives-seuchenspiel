@@ -10,10 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,6 +26,7 @@ class FieldTest {
     private Plague plague;
     private Set<Plague> plagueSet;
     private int maxNumberOfPlagueCubes;
+    private List<Field> infectedFields;
 
     @BeforeEach
     void setUp() {
@@ -57,6 +55,8 @@ class FieldTest {
         mapSlot = new MapSlot(city, connectedCities, plague, 0, 0);
 
         field = new Field(map, mapSlot);
+
+        infectedFields = new ArrayList<>();
     }
 
     @Test
@@ -90,43 +90,80 @@ class FieldTest {
     }
 
     @Test
-    @DisplayName("Should infect field with a plague cube of associated plague from map")
-    void infect() {
+    @DisplayName("Should infectField field with a plague cube of associated plague from map")
+    void infectField() {
         assertThat(field.isCurable(plague))
                 .isFalse();
 
         when(map.getPlagueCubeOfPlague(plague))
                 .thenReturn(new PlagueCube(plague));
 
-        field.infect();
+        field.infectField();
+
+        assertThat(field.isCurable(plague))
+                .isTrue();
+    }
+
+
+    @Test
+    @DisplayName("Should infectField field with a plague cube of associated plague from map and add infected field to list")
+    void infect_Field_and_add_to_list() {
+        assertThat(infectedFields.isEmpty())
+                .isTrue();
+
+        when(map.getPlagueCubeOfPlague(plague))
+                .thenReturn(new PlagueCube(plague));
+
+        field.infectField(infectedFields);
+
+        assertThat(field.isCurable(plague))
+                .isTrue();
+
+        assertThat(infectedFields)
+                .contains(field);
+    }
+
+    @Test
+    @DisplayName("Should infectField field with given plague cube")
+    void infect_Field_PlagueCube_infectable() {
+        assertThat(field.isCurable(plague))
+                .isFalse();
+
+        field.infectField(new PlagueCube(plague));
 
         assertThat(field.isCurable(plague))
                 .isTrue();
     }
 
     @Test
-    @DisplayName("Should infect field with given plague cube")
-    void infect_PlagueCube_infectable() {
+    @DisplayName("Should infectField field with given plague cube and add infected field to list")
+    void infect_Field_PlagueCube_infectable_and_add_to_list() {
         assertThat(field.isCurable(plague))
                 .isFalse();
 
-        field.infect(new PlagueCube(plague));
+        assertThat(infectedFields.isEmpty()).
+                isTrue();
+
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         assertThat(field.isCurable(plague))
                 .isTrue();
+
+        assertThat(infectedFields)
+                .contains(field);
     }
 
     @Test
     @DisplayName("Should start an outbreak if field is not infectable with plague of given plague cube")
-    void infect_PlagueCube_outbreak() {
+    void infect_Field_PlagueCube_outbreak() {
         for (int i = 0; i < maxNumberOfPlagueCubes; i++) {
-            field.infect(new PlagueCube(plague));
+            field.infectField(new PlagueCube(plague));
         }
 
         assertThat(field.isInfectable(plague))
                 .isFalse();
 
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         verify(map, times(1))
                 .startOutbreak(field, plague);
@@ -143,7 +180,7 @@ class FieldTest {
     @DisplayName("Should be infectable if there are less than the maximum amount of plague cubes of given plague stored on field")
     void isInfectable_truePlagueUnderLimit() {
         for (int i = 0; i < maxNumberOfPlagueCubes - 1; i++) {
-            field.infect(new PlagueCube(plague));
+            field.infectField(new PlagueCube(plague));
         }
 
         assertThat(field.isInfectable(plague))
@@ -154,7 +191,7 @@ class FieldTest {
     @DisplayName("Should not be infectable if there are the maximum amount of plague cubes of given plague stored on field")
     void isInfectable_false() {
         for (int i = 0; i < maxNumberOfPlagueCubes; i++) {
-            field.infect(new PlagueCube(plague));
+            field.infectField(new PlagueCube(plague));
         }
 
         assertThat(field.isInfectable(plague))
@@ -164,7 +201,7 @@ class FieldTest {
     @Test
     @DisplayName("Should reduce the number of plague cubes of given plague by one")
     void cure() {
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         assertThat(field.isCurable(plague))
                 .isTrue();
@@ -185,7 +222,7 @@ class FieldTest {
     @Test
     @DisplayName("Should return true if there is at least one plague cube of given plague on field")
     void isCurable_true() {
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
 
         assertThat(field.isCurable(plague))
                 .isTrue();
@@ -294,8 +331,8 @@ class FieldTest {
         PlagueCube plagueCube1 = new PlagueCube(plague);
         PlagueCube plagueCube2 = new PlagueCube(plague);
 
-        field.infect(plagueCube1);
-        field.infect(plagueCube2);
+        field.infectField(plagueCube1);
+        field.infectField(plagueCube2);
 
         List<PlagueCube> plagueCubes = field.getPlagueCubesOfPlague(plague);
 
@@ -309,9 +346,9 @@ class FieldTest {
         Plague foreignPlague1 = new Plague("ForeignPlague1", new Color(1, 2, 3));
         Plague foreignPlague2 = new Plague("ForeignPlague2", new Color(10, 20, 30));
 
-        field.infect(new PlagueCube(foreignPlague1));
-        field.infect(new PlagueCube(foreignPlague2));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(foreignPlague1));
+        field.infectField(new PlagueCube(foreignPlague2));
+        field.infectField(new PlagueCube(plague));
 
         int numberOfForeignPlagueTypes = field.getNumberOfForeignPlagueCubeTypes();
 
@@ -324,9 +361,9 @@ class FieldTest {
     void getPlagueCubeAmounts() {
         Plague foreignPlague = new Plague("ForeignPlague", new Color(1, 2, 3));
 
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(foreignPlague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(foreignPlague));
 
         Map<Plague, Integer> plagueCubeAmounts = field.getPlagueCubeAmounts();
 

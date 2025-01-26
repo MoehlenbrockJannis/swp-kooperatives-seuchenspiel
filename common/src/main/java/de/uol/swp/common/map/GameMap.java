@@ -103,13 +103,25 @@ public class GameMap implements Serializable {
     }
 
     /**
-     * Starts an outbreak on the given {@link Field}
+     * Starts an outbreak on the given {@link Field} with the given {@link Plague} by calling the
+     * startOutbreak method with an empty list of infected fields.
+     *
+     * @param field Field of the outbreak
+     * @param plague Outbreaking plague
+     */
+    public void startOutbreak(final Field field, final Plague plague) {
+        startOutbreak(field, plague, new ArrayList<>());
+    }
+
+    /**
+     * Starts an outbreak on the given {@link Field} with the given {@link Plague}
      *
      * <p>
      *     Calls the {@link Game} method to start an outbreak.
      *     Infects all neighboring fields with a {@link PlagueCube} of the associated {@link Plague}.
      *     Handles outbreaks on neighboring fields.
      *     Prevents the same field from breaking out more than once.
+     *     Adds all fields that broke out to the infectedFields list.
      * </p>
      *
      * @param field Field of the outbreak
@@ -119,7 +131,7 @@ public class GameMap implements Serializable {
      * @see Plague
      * @see PlagueCube
      */
-    public void startOutbreak(final Field field, final Plague plague) {
+    public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
         final List<Field> outbreakingFields = new ArrayList<>();
         outbreakingFields.add(field);
 
@@ -134,10 +146,11 @@ public class GameMap implements Serializable {
                     outbreakingFields.add(neighborField);
                 } else {
                     final PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
-                    neighborField.infect(plagueCube);
+                    neighborField.infectField(plagueCube);
                 }
             }
         }
+        infectedFields.addAll(outbreakingFields);
     }
 
     /**

@@ -5,6 +5,7 @@ import de.uol.swp.common.action.simple.MoveAllyAction;
 import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
@@ -24,6 +25,7 @@ public class PlayerTurn implements Serializable {
     private static final ActionFactory ACTION_FACTORY = new ActionFactory();
 
     private Game game;
+    @Getter
     private Player player;
     @Getter
     @Setter
@@ -43,6 +45,8 @@ public class PlayerTurn implements Serializable {
     private int currentManualTriggerable;
     private List<ManualTriggerable> manualTriggerables;
     private List<Command> executedCommands;
+    @Getter
+    private List<List<Field>> infectedFieldsInTurn = new ArrayList<>();
 
     /**
      * Constructor for creating a new PlayerTurn instance.
@@ -320,15 +324,17 @@ public class PlayerTurn implements Serializable {
         } else {
             command.execute();
         }
+
         this.executedCommands.add(command);
+
         if (command instanceof Action) {
             reduceNumberOfActionsToDo();
         }
+
         if (isInActionPhase()) {
             createPossibleActions();
         }
     }
-
     /**
      * Fulfills the promise of a {@link DiscardCardsAction} by discarding the required card or cards after executing the action.
      *

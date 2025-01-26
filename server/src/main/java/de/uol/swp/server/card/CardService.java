@@ -15,6 +15,7 @@ import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -26,7 +27,8 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -46,7 +48,6 @@ public class CardService extends AbstractService {
     private final CardManagement cardManagement;
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
-    private final PlayerTurnManagement playerTurnManagement;
 
     /**
      * Constructor
@@ -62,7 +63,6 @@ public class CardService extends AbstractService {
         this.cardManagement = cardManagement;
         this.gameManagement = gameManagement;
         this.lobbyService = lobbyService;
-        this.playerTurnManagement = playerTurnManagement;
     }
 
     /**
@@ -166,12 +166,30 @@ public class CardService extends AbstractService {
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
 
-            if (game.getCurrentTurn().isOver()) {
-                playerTurnManagement.startNewPlayerTurn(game);
-            }
+            handleInfectionProcess(game, infectionCard);
 
             sendGameUpdateMessage(game);
         });
+    }
+
+    /**
+     * Handles the infection process.
+     * <p>
+     * This method infects the field associated with the infection card and discards the infection card afterwards.
+     * </p>
+     *
+     * @param game the game in which the infection process is taking place
+     * @param infectionCard the infection card to be processed
+     */
+    private void handleInfectionProcess(Game game, InfectionCard infectionCard) {
+        List<Field> infectedFields = new ArrayList<>();
+
+        Field associatedField = infectionCard.getAssociatedField();
+        associatedField.infectField(infectedFields);
+
+        PlayerTurn currentTurn = game.getCurrentTurn();
+        List<List<Field>> infectedFieldsInTurn = currentTurn.getInfectedFieldsInTurn();
+        infectedFieldsInTurn.add(infectedFields);
     }
 
     /**

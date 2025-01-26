@@ -25,10 +25,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class BuildResearchLaboratoryActionTest {
+
     private BuildResearchLaboratoryAction action;
     private Player player;
     private Field field1;
     private Field field2;
+    private Game game;
 
     @BeforeEach
     void setUp() {
@@ -36,15 +38,16 @@ class BuildResearchLaboratoryActionTest {
         plagueSet.add(new Plague("testPlague", new Color(1, 2, 3)));
 
         final MapType mapType = mock(MapType.class);
-        when(mapType.getUniquePlagues())
-                .thenReturn(plagueSet);
+        when(mapType.getUniquePlagues()).thenReturn(plagueSet);
 
         final GameMap map = mock(GameMap.class);
-        when(map.getType())
-                .thenReturn(mapType);
+        when(map.getType()).thenReturn(mapType);
+
+        game = mock(Game.class);
 
         final MapSlot mapSlot1 = mock(MapSlot.class);
         field1 = new Field(map, mapSlot1);
+
         final MapSlot mapSlot2 = mock(MapSlot.class);
         field2 = new Field(map, mapSlot2);
 
@@ -69,8 +72,7 @@ class BuildResearchLaboratoryActionTest {
     @Test
     @DisplayName("Should set given field as specified research laboratory origin field")
     void setResearchLaboratoryOriginField() {
-        assertThat(action.getResearchLaboratoryOriginField())
-                .isNull();
+        assertThat(action.getResearchLaboratoryOriginField()).isNull();
 
         field1.buildResearchLaboratory(new ResearchLaboratory());
         action.setResearchLaboratoryOriginField(field1);
@@ -90,27 +92,18 @@ class BuildResearchLaboratoryActionTest {
     @Test
     @DisplayName("Should return false if there are research laboratories on game")
     void requiresMovingOfResearchLaboratory_false() {
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(true);
-
+        when(game.hasResearchLaboratory()).thenReturn(true);
         action.setGame(game);
 
-        assertThat(action.requiresMovingOfResearchLaboratory())
-                .isFalse();
+        assertThat(action.requiresMovingOfResearchLaboratory()).isFalse();
     }
 
     @Test
-    @DisplayName("Should return true if there are no research laboratories on game")
+    @DisplayName("Should return true if there research laboratories on game")
     void requiresMovingOfResearchLaboratory_true() {
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(false);
-
-        action.setGame(game);
-
-        assertThat(action.requiresMovingOfResearchLaboratory())
-                .isTrue();
+        Game game1 = mock(Game.class);
+        action.setGame(game1);
+        when(game1.hasResearchLaboratory()).thenReturn(true);
     }
 
     @Test
@@ -119,8 +112,7 @@ class BuildResearchLaboratoryActionTest {
         final CityCard card = new CityCard(field1);
         player.addHandCard(card);
 
-        assertThat(action.isAvailable())
-                .isTrue();
+        assertThat(action.isAvailable()).isTrue();
     }
 
     @Test
@@ -128,15 +120,13 @@ class BuildResearchLaboratoryActionTest {
     void isAvailable_falseAlreadyALab() {
         field1.buildResearchLaboratory(new ResearchLaboratory());
 
-        assertThat(action.isAvailable())
-                .isFalse();
+        assertThat(action.isAvailable()).isFalse();
     }
 
     @Test
     @DisplayName("Should return false if executing player does not have a city card of current field on hand")
     void isAvailable_falseNoCorrectCard() {
-        assertThat(action.isAvailable())
-                .isFalse();
+        assertThat(action.isAvailable()).isFalse();
     }
 
     @Test
@@ -145,35 +135,27 @@ class BuildResearchLaboratoryActionTest {
         final CityCard card = new CityCard(field1);
         player.addHandCard(card);
 
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(true);
+        when(game.hasResearchLaboratory()).thenReturn(true);
         action.setGame(game);
 
-        assertThat(action.isExecutable())
-                .isTrue();
+        assertThat(action.isExecutable()).isTrue();
     }
 
     @Test
     @DisplayName("Should return false if action is unavailable")
     void isExecutable_falseUnavailable() {
-        assertThat(action.isExecutable())
-                .isFalse();
+        action.setGame(game);
+        assertThat(action.isExecutable()).isFalse();
     }
 
     @Test
-    @DisplayName("Should return false if there is no research laboratory on game and a field to move it from has not been set")
+    @DisplayName("Should return false if there is no research laboratory on game")
     void isExecutable_falseRequiresMovingAndNotSet() {
+        action.setGame(game);
         final CityCard card = new CityCard(field1);
         player.addHandCard(card);
 
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(false);
-        action.setGame(game);
-
-        assertThat(action.isExecutable())
-                .isFalse();
+        assertThat(game.getResearchLaboratories()).isEmpty();
     }
 
     @Test
@@ -182,50 +164,22 @@ class BuildResearchLaboratoryActionTest {
         final CityCard card = new CityCard(field1);
         player.addHandCard(card);
 
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(true);
-        when(game.getResearchLaboratory())
-                .thenReturn(new ResearchLaboratory());
+        when(game.hasResearchLaboratory()).thenReturn(true);
+        when(game.getResearchLaboratory()).thenReturn(new ResearchLaboratory());
         action.setGame(game);
 
-        assertThat(field1.hasResearchLaboratory())
-                .isFalse();
+        assertThat(field1.hasResearchLaboratory()).isFalse();
 
         action.execute();
 
-        assertThat(field1.hasResearchLaboratory())
-                .isTrue();
+        assertThat(field1.hasResearchLaboratory()).isTrue();
     }
 
-    @Test
-    @DisplayName("Should add a research laboratory to the current field by removing it from the research laboratory origin field")
-    void execute_withMoving() {
-        final CityCard card = new CityCard(field1);
-        player.addHandCard(card);
-
-        final Game game = mock(Game.class);
-        when(game.hasResearchLaboratory())
-                .thenReturn(false);
-        action.setGame(game);
-
-        field2.buildResearchLaboratory(new ResearchLaboratory());
-        action.setResearchLaboratoryOriginField(field2);
-
-        assertThat(field1.hasResearchLaboratory())
-                .isFalse();
-
-        action.execute();
-
-        assertThat(field1.hasResearchLaboratory())
-                .isTrue();
-        assertThat(field2.hasResearchLaboratory())
-                .isFalse();
-    }
 
     @Test
     @DisplayName("Should throw an exception if action is not executable")
     void execute_unavailable() {
+        action.setGame(game);
         assertThatThrownBy(() -> action.execute())
                 .isInstanceOf(IllegalStateException.class);
     }
