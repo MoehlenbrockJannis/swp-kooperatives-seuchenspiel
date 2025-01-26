@@ -135,6 +135,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
             this.discardStackHBox.setDisable(false);
+            this.drawStackHBox.setDisable(true);
             this.numberOfCardsToDiscard = response.getNumberOfCardsToDiscard();
         }
     }
