@@ -58,7 +58,7 @@ public class ActionService extends AbstractService {
         post(actionServerMessage);
 
         final Optional<Session> requestSessionOptional = request.getSession();
-        if (!currentPlayerTurn.isInActionPhase() && requestSessionOptional.isPresent()) {
+        if (!currentPlayerTurn.areActionExecutable() && requestSessionOptional.isPresent()) {
             cardService.allowDrawingOrDiscarding(game, requestSessionOptional.get(), ReleaseToDrawPlayerCardResponse.class);
         }
 
