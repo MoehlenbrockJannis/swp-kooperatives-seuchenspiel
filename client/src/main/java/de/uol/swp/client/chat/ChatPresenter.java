@@ -182,7 +182,7 @@ public class ChatPresenter extends AbstractPresenter {
 
                 }else{
                     
-                    prefWidthProperty().bind(param.widthProperty().subtract(20)); // 20px für Paddings/Scrollbars
+                    prefWidthProperty().bind(param.widthProperty().subtract(20));
                     setMaxWidth(Double.MAX_VALUE);
                     
                     setWrapText(true);
