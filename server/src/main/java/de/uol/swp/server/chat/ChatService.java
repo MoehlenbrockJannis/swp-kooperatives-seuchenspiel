@@ -33,7 +33,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles ChatRequests found on the EventBus
-     *
+     * <p>
      * If a SendChatMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
@@ -49,7 +49,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles LobbyChatRequests found on the EventBus
-     *
+     * <p>
      * If a SendLobbyChatMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
@@ -82,7 +82,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles RetrieveChatRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllChatMessagesRequest is detected on the EventBus, this method is called.
      * It sends a RetrieveAllChatMessagesServerMessage or a LobbyChatRetrieveAllMessagesMassage with all chat messages to the EventBus.
      *
@@ -105,7 +105,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles SystemLobbyMessageServerInternalMessages found on the EventBus
-     *
+     * <p>
      * If a SystemLobbyMessageServerInternalMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
