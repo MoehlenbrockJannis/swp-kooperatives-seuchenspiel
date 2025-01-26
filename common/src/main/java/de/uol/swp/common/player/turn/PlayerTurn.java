@@ -31,6 +31,9 @@ public class PlayerTurn implements Serializable {
     @Getter
     private int numberOfPlayerCardsToDraw;
     @Getter
+    @Setter
+    private int numberOfPlayerCardsToDiscard;
+    @Getter
     private int numberOfInfectionCardsToDraw;
     private boolean playedCarrier;
     @Getter
@@ -249,6 +252,13 @@ public class PlayerTurn implements Serializable {
     }
 
     /**
+     * Reduces {@link #numberOfPlayerCardsToDiscard} by {@code 1}.
+     */
+    public void reduceNumberOfPlayerCardsToDiscard() {
+        this.numberOfPlayerCardsToDiscard--;
+    }
+
+    /**
      * Checks if there are any remaining automatic triggerable actions.
      *
      * @return true if there are more automatic triggerables, false otherwise
@@ -364,12 +374,21 @@ public class PlayerTurn implements Serializable {
     }
 
     /**
-     * Returns {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
+     * Returns {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfPlayerCardsToDiscard} is greater than {@code 0}, {@code false} otherwise.
      *
-     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfPlayerCardsToDiscard} is greater than {@code 0}, {@code false} otherwise
+     */
+    public boolean isInPlayerCardDiscardPhase() {
+        return !isInPlayerCardDrawPhase() && numberOfPlayerCardsToDiscard > 0;
+    }
+
+    /**
+     * Returns {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #isInPlayerCardDiscardPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
+     *
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #isInPlayerCardDiscardPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise
      */
     public boolean isInInfectionCardDrawPhase() {
-        return !isInActionPhase() && !isInPlayerCardDrawPhase() && numberOfInfectionCardsToDraw > 0;
+        return !isInActionPhase() && !isInPlayerCardDrawPhase() && !isInPlayerCardDiscardPhase() && numberOfInfectionCardsToDraw > 0;
     }
 
     /**
