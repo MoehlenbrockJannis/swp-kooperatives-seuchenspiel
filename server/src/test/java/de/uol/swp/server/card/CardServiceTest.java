@@ -71,7 +71,7 @@ public class CardServiceTest extends EventBusBasedTest {
         playerTurnManagement = mock(PlayerTurnManagement.class);
         responses = new ArrayList<>();
         EventBus eventBus = getBus();
-        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService, playerTurnManagement);
+        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
 
         User user = new UserDTO("Test", "Test", "Test@test.de");
         List<Plague> plagues = List.of(mock(Plague.class));
