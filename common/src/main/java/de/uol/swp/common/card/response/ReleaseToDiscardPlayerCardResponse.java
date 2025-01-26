@@ -10,6 +10,6 @@ public class ReleaseToDiscardPlayerCardResponse extends AbstractGameResponse {
     private int numberOfCardsToDiscard;
     public ReleaseToDiscardPlayerCardResponse(Game game) {
         super(game);
-        this.numberOfCardsToDiscard = game.getCurrentTurn().getNumberOfPlayerCardsToDiscard();
+        this.numberOfCardsToDiscard = 1;
     }
 }
