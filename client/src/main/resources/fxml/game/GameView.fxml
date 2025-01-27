@@ -2,8 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
@@ -72,13 +71,33 @@
     <!-- Column 5 -->
     <Pane style="-fx-background-color: slateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
           GridPane.rowIndex="7">
-        <Button fx:id="researchLaboratoryButton" onAction="#addResearchLaboratoryButtonPressed">
-            <graphic>
-                <ImageView>
-                    <Image url="@/images/action/BuildResearchLaboratoryAction.png"/>
-                </ImageView>
-            </graphic>
-        </Button>
+
+        <GridPane hgap="20">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="100" />
+                <ColumnConstraints percentWidth="100" />
+                <ColumnConstraints percentWidth="100" />
+                <ColumnConstraints percentWidth="100" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints percentHeight="100" />
+            </rowConstraints>
+            <Button fx:id="researchLaboratoryButton" onAction="#addResearchLaboratoryButtonPressed" GridPane.columnIndex="0">
+                <graphic>
+                    <ImageView>
+                        <Image url="@/images/action/BuildResearchLaboratoryAction.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <Button fx:id="waiveActionButton" onAction="#addWaiveButtonPressed" GridPane.columnIndex="1">
+                <graphic>
+                    <ImageView>
+                        <Image url="@/images/action/WaiveAction.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </GridPane>
     </Pane>
     <Pane style="-fx-background-color: darkslateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
           GridPane.rowIndex="8">

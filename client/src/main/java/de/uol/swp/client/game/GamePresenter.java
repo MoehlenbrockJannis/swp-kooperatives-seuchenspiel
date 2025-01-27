@@ -13,6 +13,7 @@ import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
@@ -117,6 +118,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private Button researchLaboratoryButton;
+    @FXML
+    private Button waiveActionButton;
 
     /**
      * <p>
@@ -180,6 +183,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeChat();
         updateResearchLaboratoryButtonState();
         initializeResearchLaboratoryButton();
+        updateWaiveButtonPressed();
     }
 
     /**
@@ -207,6 +211,7 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         initializeResearchLaboratoryButton();
+        updateWaiveButtonPressed();
     }
 
     /**
@@ -450,6 +455,56 @@ public class GamePresenter extends AbstractPresenter {
         playerPanePresenter.setPlayerMarker(playerMarker);
 
         return playerPanePresenter;
+    }
+
+    /**
+     * Handles the event when the waive button is pressed.
+     * This method checks if the current player is in the game and if they have actions to perform.
+     * If both conditions are met, it sends a waive action and updates the state of the waive button.
+     */
+    @FXML
+    private void addWaiveButtonPressed() {
+        if (isCurrentPlayerInGame()) {
+            if (game.getCurrentTurn().hasActionsToDo()) {
+                gameMapController.sendWaiveAction();
+                updateWaiveButtonPressed();
+            }
+        }
+    }
+
+    /**
+     * Updates the state of the waive button based on the current game state.
+     * The button is enabled if the current player is in the game and has actions to perform.
+     * Otherwise, the button is disabled.
+     */
+    private void updateWaiveButtonPressed() {
+        if (isCurrentPlayerInGame() && isWaiveActionAvailable() && game.getCurrentTurn().hasActionsToDo()) {
+            waiveActionButton.setDisable(false);
+        } else {
+            waiveActionButton.setDisable(true);
+        }
+    }
+
+
+    /**
+     * Checks if a waive action is available in the list of possible actions for the current turn.
+     *
+     * @return true if a waive action is available, false otherwise
+     */
+    private boolean isWaiveActionAvailable() {
+        List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
+        return possibleActions.stream()
+                .anyMatch(this::isResearchWaiveAction);
+    }
+
+    /**
+     * Checks if the given action is an instance of WaiveAction.
+     *
+     * @param action the action to check
+     * @return true if the action is an instance of WaiveAction, false otherwise
+     */
+    private boolean isResearchWaiveAction(Action action) {
+        return action instanceof WaiveAction;
     }
 
     /**

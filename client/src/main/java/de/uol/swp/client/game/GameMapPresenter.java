@@ -16,6 +16,7 @@ import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
@@ -549,6 +550,26 @@ public class GameMapPresenter extends AbstractPresenter {
                 actionService.sendAction(game, action);
             }
         }
+    }
+
+    /**
+     * Sends a waive action for the current turn.
+     * This method iterates through the list of possible actions for the current turn,
+     * and if an action is an instance of WaiveAction, it sends that action using the action service.
+     */
+    public void sendWaiveAction() {
+        for(Action action : getPossibleTurnActions()) {
+            if(action instanceof WaiveAction) {
+                actionService.sendAction(game, action);
+            }
+        }
+    }
+
+    /**
+     * @return the possible turn actions
+     */
+    public List<Action> getPossibleTurnActions() {
+        return game.getCurrentTurn().getPossibleActions();
     }
 
 }
