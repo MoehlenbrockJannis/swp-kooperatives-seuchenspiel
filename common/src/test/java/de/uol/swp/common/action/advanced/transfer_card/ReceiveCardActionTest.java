@@ -1,6 +1,5 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
-import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.util.Color;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 abstract class ReceiveCardActionTest extends ShareKnowledgeActionTest {
     @Getter
     protected ReceiveCardAction action;
-    protected Class<? extends SendCardAction> sendCardActionClass;
 
     @BeforeEach
     @Override
@@ -73,14 +72,7 @@ abstract class ReceiveCardActionTest extends ShareKnowledgeActionTest {
                 .isEqualTo(executingPlayer);
     }
 
-    @Test
-    @DisplayName("Should return the replaced SendCardAction class object if the sender has a custom action")
-    void getSendCardActionOfOpponent() {
-        if (sendCardActionClass != null) {
-            assertThat(action.getSendCardActionOfOpponent())
-                    .isEqualTo(sendCardActionClass);
-        }
-    }
+    protected abstract void getSendableCardsOfPlayer();
 }
 
 class ReceiveCardActionTestNoLimitsTest extends ReceiveCardActionTest {
@@ -89,13 +81,10 @@ class ReceiveCardActionTestNoLimitsTest extends ReceiveCardActionTest {
     void setUp() {
         super.setUp();
 
-        sendCardActionClass = NoLimitsSendCardAction.class;
-        final Class<SendCardAction> sendCardAction = SendCardAction.class;
-
         @SuppressWarnings("unchecked")
         final RoleAbility ability = new RoleAbility(
                 Map.of(
-                        sendCardAction, (Class<? extends RoleAction>) sendCardActionClass
+                        SendCardAction.class, NoLimitsSendCardAction.class
                 ),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -177,6 +166,26 @@ class ReceiveCardActionTestNoLimitsTest extends ReceiveCardActionTest {
         assertThat(action.isExecutable())
                 .isFalse();
     }
+
+    @Test
+    @DisplayName("Should return a map of players with the cards they can send")
+    @Override
+    protected void getTargetPlayersWithAvailableCardsAssociation() {
+        targetPlayer.addHandCard(transferredCard);
+
+        assertThat(action.getTargetPlayersWithAvailableCardsAssociation())
+                .isEqualTo(Map.of(targetPlayer, List.of(transferredCard)));
+    }
+
+    @Test
+    @DisplayName("Should return a list containing all city cards on hand of target player")
+    @Override
+    protected void getSendableCardsOfPlayer() {
+        targetPlayer.addHandCard(transferredCard);
+
+        assertThat(action.getSendableCardsOfPlayer(targetPlayer))
+                .containsExactly(transferredCard);
+    }
 }
 
 class ReceiveCardActionTestWithLimitsTest extends ReceiveCardActionTest {
@@ -184,15 +193,62 @@ class ReceiveCardActionTestWithLimitsTest extends ReceiveCardActionTest {
     @Override
     void setUp() {
         super.setUp();
+    }
 
-        sendCardActionClass = SendCardAction.class;
+    @Test
+    @DisplayName("Should return a map of players with the cards they can send")
+    @Override
+    protected void getTargetPlayersWithAvailableCardsAssociation() {
+        getTargetPlayersWithAvailableCardsAssociation_empty();
 
-        final RoleAbility ability = new RoleAbility(
-                Map.of(),
-                new ArrayList<>(),
-                new ArrayList<>()
-        );
-        final RoleCard role = new RoleCard("", new Color(), ability);
-        targetPlayer.setRole(role);
+        getTargetPlayersWithAvailableCardsAssociation_notEmpty();
+    }
+
+    private void getTargetPlayersWithAvailableCardsAssociation_empty() {
+        setUp();
+
+        targetPlayer.addHandCard(transferredCard);
+
+        assertThat(action.getTargetPlayersWithAvailableCardsAssociation())
+                .isEqualTo(Map.of());
+    }
+
+    private void getTargetPlayersWithAvailableCardsAssociation_notEmpty() {
+        setUp();
+
+        targetPlayer.addHandCard(transferredCard);
+        targetPlayer.setCurrentField(transferredCardField);
+        executingPlayer.setCurrentField(transferredCardField);
+
+        assertThat(action.getTargetPlayersWithAvailableCardsAssociation())
+                .isEqualTo(Map.of(targetPlayer, List.of(transferredCard)));
+    }
+
+    @Test
+    @DisplayName("Should return a list containing all city cards on hand of target player with his current field associated to it")
+    @Override
+    protected void getSendableCardsOfPlayer() {
+        getSendableCardsOfPlayer_empty();
+
+        getSendableCardsOfPlayer_notEmpty();
+    }
+
+    private void getSendableCardsOfPlayer_empty() {
+        setUp();
+
+        targetPlayer.addHandCard(transferredCard);
+
+        assertThat(action.getSendableCardsOfPlayer(targetPlayer))
+                .isEmpty();
+    }
+
+    private void getSendableCardsOfPlayer_notEmpty() {
+        setUp();
+
+        targetPlayer.addHandCard(transferredCard);
+        targetPlayer.setCurrentField(transferredCardField);
+
+        assertThat(action.getSendableCardsOfPlayer(targetPlayer))
+                .containsExactly(transferredCard);
     }
 }

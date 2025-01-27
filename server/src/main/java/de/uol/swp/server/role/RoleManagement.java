@@ -2,6 +2,8 @@ package de.uol.swp.server.role;
 
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.transfer_card.NoLimitsSendCardAction;
+import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
 import de.uol.swp.common.action.simple.car.CarActionForAlly;
 import de.uol.swp.common.action.simple.charter_flight.CharterFlightActionForAlly;
@@ -27,11 +29,57 @@ import java.util.stream.Collectors;
  */
 @Getter
 public class RoleManagement {
-    private final RoleCard logistiker = new RoleCard("Logistiker", RoleColors.LOGISTIKER_COLOR_PURPLE, new RoleAbility(Map.of(), List.of(CarActionForAlly.class, CharterFlightActionForAlly.class, DirectFlightActionForAlly.class, ShuttleFlightActionForAlly.class, MoveAllyToAllyAction.class), List.of()));
-    private final RoleCard arzt = new RoleCard("Arzt", RoleColors.ARZT_COLOR_ORANGE, new RoleAbility(Map.of(), List.of(), List.of()));
-    private final RoleCard betriebsexperte = new RoleCard("Betriebsexperte", RoleColors.BETRIEBSEXPERTE_COLOR_GREEN, new RoleAbility(Map.of(BuildResearchLaboratoryAction.class, ReducedCostBuildResearchLaboratoryAction.class), List.of(), List.of()));
-    private final RoleCard wissenschaftler = new RoleCard("Wissenschaftler", RoleColors.WISSENSCHAFTLER_COLOR_GRAY, new RoleAbility(Map.of(), List.of(), List.of()));
-    private final RoleCard forscherin = new RoleCard("Forscherin", RoleColors.FORSCHERIN_COLOR_BROWN, new RoleAbility(Map.of(), List.of(), List.of()));
+    private final RoleCard logistiker = new RoleCard(
+            "Logistiker",
+            RoleColors.LOGISTIKER_COLOR_PURPLE,
+            new RoleAbility(
+                    Map.of(),
+                    List.of(
+                            CarActionForAlly.class,
+                            CharterFlightActionForAlly.class,
+                            DirectFlightActionForAlly.class,
+                            ShuttleFlightActionForAlly.class,
+                            MoveAllyToAllyAction.class
+                    ),
+                    List.of()
+            )
+    );
+    private final RoleCard arzt = new RoleCard(
+            "Arzt",
+            RoleColors.ARZT_COLOR_ORANGE,
+            new RoleAbility(
+                    Map.of(),
+                    List.of(),
+                    List.of()
+            )
+    );
+    private final RoleCard betriebsexperte = new RoleCard(
+            "Betriebsexperte",
+            RoleColors.BETRIEBSEXPERTE_COLOR_GREEN,
+            new RoleAbility(
+                    Map.of(BuildResearchLaboratoryAction.class, ReducedCostBuildResearchLaboratoryAction.class),
+                    List.of(),
+                    List.of()
+            )
+    );
+    private final RoleCard wissenschaftler = new RoleCard(
+            "Wissenschaftler",
+            RoleColors.WISSENSCHAFTLER_COLOR_GRAY,
+            new RoleAbility(
+                    Map.of(),
+                    List.of(),
+                    List.of()
+            )
+    );
+    private final RoleCard forscherin = new RoleCard(
+            "Forscherin",
+            RoleColors.FORSCHERIN_COLOR_BROWN,
+            new RoleAbility(
+                    Map.of(SendCardAction.class, NoLimitsSendCardAction.class),
+                    List.of(),
+                    List.of()
+            )
+    );
 
     /**
      * Returns a set of all available roles that can be assigned to users.

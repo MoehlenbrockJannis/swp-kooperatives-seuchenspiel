@@ -75,4 +75,14 @@ class NoLimitsSendCardActionTest extends SendCardActionTest {
         assertThat(action.isExecutable())
                 .isFalse();
     }
+
+    @Test
+    @DisplayName("Should return a list of sendable cards")
+    @Override
+    protected void getSendableCards() {
+        action.getSender().addHandCard(transferredCard);
+
+        assertThat(action.getSendableCards())
+                .contains(transferredCard);
+    }
 }
