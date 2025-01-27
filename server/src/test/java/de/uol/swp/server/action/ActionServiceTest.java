@@ -63,7 +63,7 @@ public class ActionServiceTest extends EventBusBasedTest {
 
         final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
         final PlayerTurn playerTurn = mock();
-        when(playerTurn.isInActionPhase())
+        when(playerTurn.isActionExecutable())
                 .thenReturn(isInActionPhaseAfterActionExecution);
         game.addPlayerTurn(playerTurn);
 
