@@ -169,7 +169,9 @@ public class ChatPresenter extends AbstractPresenter {
     }
 
     /**
-     *
+     * Configures the chat view to wrap text
+     * <p>
+     * Quelle: https://stackoverflow.com/questions/53493111/javafx-wrapping-text-in-listview
      */
     private void configureChatViewTextWrapping(){
         chatView.setCellFactory(param -> new ListCell<>(){
