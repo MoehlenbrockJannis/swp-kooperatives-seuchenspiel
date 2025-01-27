@@ -5,6 +5,9 @@ import de.uol.swp.common.message.response.AbstractGameResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * Response to release the infection cards to draw
+ */
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class ReleaseToDrawInfectionCardResponse extends AbstractGameResponse {
