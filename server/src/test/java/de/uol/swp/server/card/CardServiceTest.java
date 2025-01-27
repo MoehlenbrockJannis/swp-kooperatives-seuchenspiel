@@ -222,7 +222,7 @@ public class CardServiceTest extends EventBusBasedTest {
         for(int i = 0; i < 8; i++) {
             player.addHandCard(new AirBridgeEventCard());
         }
-        int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards()+1;
+        int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards();
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
 
