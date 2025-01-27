@@ -358,6 +358,83 @@ class PlayerTurnTest {
                 .isEqualTo(isOver);
     }
 
+    private static Stream<Arguments> isActionExecutableSource() {
+        return Stream.of(
+                Arguments.of(true,false, false),
+                Arguments.of(false,true,false),
+                Arguments.of(true,true,false),
+                Arguments.of(false,false,true)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("isActionExecutableSource")
+    @DisplayName("Should return true if the action is executable")
+    void evaluateActionExecutable(final boolean hasWaived,
+            final boolean areInteractionsBlocked,
+            final boolean areActionsExecutable
+    ) {
+        evaluateActionPhase(hasWaived);
+        defaultPlayerTurn.setAreInteractionsBlocked(areInteractionsBlocked);
+
+        assertThat(defaultPlayerTurn.isActionExecutable())
+                .isEqualTo(areActionsExecutable);
+    }
+
+    private static Stream<Arguments> isPlayerCardDrawExecutableSource() {
+        return Stream.of(
+                Arguments.of(true, 0, false, true),
+                Arguments.of(true, 0, true, false),
+                Arguments.of(true, 1, false, true),
+                Arguments.of(true, 1, true, false),
+                Arguments.of(true, 2, false, false),
+                Arguments.of(true, 2, true, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("isPlayerCardDrawExecutableSource")
+    @DisplayName("Should return true if the player card draw is executable")
+    void evaluatePlayerCardDrawExecutable(final boolean hasWaived,
+                                          final int amountOfPlayerCardsDrawn,
+                                          final boolean areInteractionsBlocked,
+                                          final boolean isPlayerCardDrawExecutable) {
+        evaluateActionPhase(hasWaived);
+        evaluatePlayerCardDrawPhase(amountOfPlayerCardsDrawn);
+        defaultPlayerTurn.setAreInteractionsBlocked(areInteractionsBlocked);
+
+        assertThat(defaultPlayerTurn.isPlayerCardDrawExecutable())
+                .isEqualTo(isPlayerCardDrawExecutable);
+    }
+
+    private static Stream<Arguments> isInfectionCardDrawExecutableSource() {
+        return Stream.of(
+                Arguments.of(true, 0, 0, false, false),
+                Arguments.of(true, 0, 0, true, false),
+                Arguments.of(true, 2, 0, false, true),
+                Arguments.of(true, 2, 0, true, false),
+                Arguments.of(true, 2, 1, false, false),
+                Arguments.of(true, 2, 1, true, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("isInfectionCardDrawExecutableSource")
+    @DisplayName("Should return true if the infection card draw is executable")
+    void evaluateInfectionCardDrawExecutable(final boolean hasWaived,
+                                             final int amountOfPlayerCardsDrawn,
+                                             final int amountOfInfectionCardsDrawn,
+                                             final boolean areInteractionsBlocked,
+                                             final boolean isInfectionCardDrawExecutable) {
+        evaluateActionPhase(hasWaived);
+        evaluatePlayerCardDrawPhase(amountOfPlayerCardsDrawn);
+        evaluateInfectionCardDrawPhase(amountOfInfectionCardsDrawn);
+        defaultPlayerTurn.setAreInteractionsBlocked(areInteractionsBlocked);
+
+        assertThat(defaultPlayerTurn.isInfectionCardDrawExecutable())
+                .isEqualTo(isInfectionCardDrawExecutable);
+    }
+
     private void evaluateActionPhase(final boolean hasWaived) {
         if (hasWaived) {
             final Action action = new WaiveAction();

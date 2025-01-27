@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
 import java.time.LocalTime;
 
 @Singleton
@@ -105,7 +104,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles SystemLobbyMessageServerInternalMessages found on the EventBus
-     *
+     * <p>
      * If a SystemLobbyMessageServerInternalMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
@@ -113,20 +112,11 @@ public class ChatService extends AbstractService {
      */
     @Subscribe
     public void onRetrieveSystemLobbyMessageServerInternalMessage(SystemLobbyMessageServerInternalMessage msg) {
-        chatManagement.addLobbyChatMessage(
-                msg.getLobby(),
-                getChatMessage(LocalTime.now(), "System", msg.getMessage())
-        );
+        chatManagement.addLobbyChatMessage(msg.getLobby(), getChatMessage(LocalTime.now().withNano(0), "System", msg.getMessage()));
 
-        RetrieveAllUserLobbyChatMessagesServerMessage response =
-                new RetrieveAllUserLobbyChatMessagesServerMessage(
-                        chatManagement.getLobbyChatMessages(msg.getLobby())
-                );
-
+        RetrieveAllUserLobbyChatMessagesServerMessage response = new RetrieveAllUserLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(msg.getLobby()));
         response.setLobby(msg.getLobby());
         response.initWithMessage(msg);
-
         post(response);
     }
-
 }

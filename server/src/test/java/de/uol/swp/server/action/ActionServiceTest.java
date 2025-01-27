@@ -3,6 +3,7 @@ package de.uol.swp.server.action;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.action.simple.WaiveAction;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
@@ -62,7 +63,7 @@ public class ActionServiceTest extends EventBusBasedTest {
 
         final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
         final PlayerTurn playerTurn = mock();
-        when(playerTurn.isInActionPhase())
+        when(playerTurn.isActionExecutable())
                 .thenReturn(isInActionPhaseAfterActionExecution);
         game.addPlayerTurn(playerTurn);
 
@@ -82,7 +83,7 @@ public class ActionServiceTest extends EventBusBasedTest {
         verify(gameManagement, times(1))
                 .updateGame(game);
         verify(cardService, times(timesCardServiceCalled))
-                .allowPlayerCardDrawing(game, session);
+                .allowDrawingOrDiscarding(game, session, ReleaseToDrawPlayerCardResponse.class);
         assertThat(this.event)
                 .isInstanceOf(RetrieveUpdatedGameServerMessage.class);
     }

@@ -44,6 +44,8 @@ public class PlayerTurn implements Serializable {
     private List<Command> executedCommands;
     @Getter
     private List<List<Field>> infectedFieldsInTurn = new ArrayList<>();
+    @Setter
+    private boolean areInteractionsBlocked;
 
     /**
      * Constructor for creating a new PlayerTurn instance.
@@ -369,13 +371,42 @@ public class PlayerTurn implements Serializable {
         return !isInActionPhase() && numberOfPlayerCardsToDraw > 0;
     }
 
+
+
     /**
      * Returns {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise.
      *
-     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false} and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code false}  and {@link #numberOfInfectionCardsToDraw} is greater than {@code 0}, {@code false} otherwise
      */
     public boolean isInInfectionCardDrawPhase() {
         return !isInActionPhase() && !isInPlayerCardDrawPhase() && numberOfInfectionCardsToDraw > 0;
+    }
+
+    /**
+     * Checks if the player can execute actions.
+     *
+     * @return {@code true} when {@link #isInActionPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     */
+    public boolean isActionExecutable() {
+        return isInActionPhase() && !areInteractionsBlocked;
+    }
+
+    /**
+     * Checks if the player can draw player cards.
+     *
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     */
+    public boolean isPlayerCardDrawExecutable() {
+        return isInPlayerCardDrawPhase() && !areInteractionsBlocked;
+    }
+
+    /**
+     * Checks if the player can draw infection cards.
+     *
+     * @return {@code true} when {@link #isInInfectionCardDrawPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     */
+    public boolean isInfectionCardDrawExecutable() {
+        return isInInfectionCardDrawPhase() && !areInteractionsBlocked;
     }
 
     /**

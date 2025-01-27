@@ -2,6 +2,7 @@ package de.uol.swp.server.action;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.action.request.ActionRequest;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -57,8 +58,8 @@ public class ActionService extends AbstractService {
         post(actionServerMessage);
 
         final Optional<Session> requestSessionOptional = request.getSession();
-        if (!currentPlayerTurn.isInActionPhase() && requestSessionOptional.isPresent()) {
-            cardService.allowPlayerCardDrawing(game, requestSessionOptional.get());
+        if (!currentPlayerTurn.isActionExecutable() && requestSessionOptional.isPresent()) {
+            cardService.allowDrawingOrDiscarding(game, requestSessionOptional.get(), ReleaseToDrawPlayerCardResponse.class);
         }
 
         checkMoveResearchLaboratory(request);
