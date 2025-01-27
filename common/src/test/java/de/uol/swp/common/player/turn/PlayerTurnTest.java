@@ -377,7 +377,7 @@ class PlayerTurnTest {
         evaluateActionPhase(hasWaived);
         defaultPlayerTurn.setAreInteractionsBlocked(areInteractionsBlocked);
 
-        assertThat(defaultPlayerTurn.areActionExecutable())
+        assertThat(defaultPlayerTurn.isActionExecutable())
                 .isEqualTo(areActionsExecutable);
     }
 

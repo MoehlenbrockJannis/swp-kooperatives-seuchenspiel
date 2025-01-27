@@ -387,7 +387,7 @@ public class PlayerTurn implements Serializable {
      *
      * @return {@code true} when {@link #isInActionPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
      */
-    public boolean areActionExecutable() {
+    public boolean isActionExecutable() {
         return isInActionPhase() && !areInteractionsBlocked;
     }
 

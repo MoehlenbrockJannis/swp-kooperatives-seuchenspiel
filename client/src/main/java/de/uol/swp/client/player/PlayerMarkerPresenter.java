@@ -115,7 +115,7 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * @return {@code true} if the given {@code player} can move the associated {@link Player}, {@code false} otherwise
      */
     private boolean isAssociatedPlayerMovableByPlayer(final Player player) {
-        return game.getCurrentTurn().areActionExecutable() && game.getCurrentPlayer().equals(player) &&
+        return game.getCurrentTurn().isActionExecutable() && game.getCurrentPlayer().equals(player) &&
                 doesMoveActionWithAssociatedPlayerAsMovedPlayerExistOnCurrentTurn();
     }
 
