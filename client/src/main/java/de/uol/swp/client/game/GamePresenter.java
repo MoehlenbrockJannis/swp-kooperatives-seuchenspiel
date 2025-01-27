@@ -3,6 +3,7 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.action.ShareKnowledgeActionPresenter;
 import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
@@ -13,6 +14,8 @@ import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
+import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
@@ -20,6 +23,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -30,6 +34,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -112,6 +117,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private ChatPresenter chatComponentController;
 
+    @FXML
+    private Button shareKnowledgeActionButton;
+
     private boolean isChatVisible = true;
 
     private List<PlayerPanePresenter> playerPanePresenterList;
@@ -181,6 +189,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeMenuItems();
         chatComponentController.setLobby(game.getLobby());
         initializeChat();
+        updateShareKnowledgeActionButton();
         updateResearchLaboratoryButtonState();
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
@@ -340,6 +349,7 @@ public class GamePresenter extends AbstractPresenter {
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
             updatePlayerInfo();
+            updateShareKnowledgeActionButton();
         }
     }
 
@@ -590,6 +600,60 @@ public class GamePresenter extends AbstractPresenter {
     private boolean isResearchLaboratoryBuildAction(Action action) {
         return action instanceof BuildResearchLaboratoryAction
                 || action instanceof ReducedCostBuildResearchLaboratoryAction;
+    }
+
+    /**
+     * Returns {@code true} if the current {@link Player} of {@link #game} contains the user specified by {@link #loggedInUserProvider}.
+     *
+     * @return {@code true} if the current {@link Player} of {@link #game} contains the user specified by {@link #loggedInUserProvider}, {@code false} otherwise
+     */
+    private boolean isAssociatedPlayerCurrentPlayerInGame() {
+        return this.game.getCurrentPlayer().containsUser(loggedInUserProvider.get());
+    }
+
+    private void updateShareKnowledgeActionButton() {
+        Platform.runLater(() -> shareKnowledgeActionButton.setDisable(true));
+
+        if (!isAssociatedPlayerCurrentPlayerInGame() || !game.getCurrentTurn().isInActionPhase()) {
+            return;
+        }
+
+        final Pair<SendCardAction, ReceiveCardAction> shareKnowledgeActions = getShareKnowledgeActionsFromGame();
+
+        if (shareKnowledgeActions.getKey() != null || shareKnowledgeActions.getValue() != null) {
+            Platform.runLater(() -> {
+                bindShareKnowledgeActionButtonClickEvent(shareKnowledgeActions);
+
+                shareKnowledgeActionButton.setDisable(false);
+            });
+        }
+    }
+
+    private Pair<SendCardAction, ReceiveCardAction> getShareKnowledgeActionsFromGame() {
+        final PlayerTurn playerTurn = game.getCurrentTurn();
+
+        SendCardAction sendCardAction = null;
+        ReceiveCardAction receiveCardAction = null;
+
+        for (final Action action : playerTurn.getPossibleActions()) {
+            if (action instanceof SendCardAction sca) {
+                sendCardAction = sca;
+            } else if (action instanceof ReceiveCardAction rca) {
+                receiveCardAction = rca;
+            }
+        }
+
+        return new Pair<>(sendCardAction, receiveCardAction);
+    }
+
+    private void bindShareKnowledgeActionButtonClickEvent(final Pair<SendCardAction, ReceiveCardAction> shareKnowledgeActions) {
+        shareKnowledgeActionButton.setOnMouseClicked(event -> {
+            final ShareKnowledgeActionPresenter shareKnowledgeActionPresenter =
+                    AbstractPresenter.loadFXMLPresenter(ShareKnowledgeActionPresenter.class);
+            this.associatedPresenters.add(shareKnowledgeActionPresenter);
+            shareKnowledgeActionPresenter.initialize(shareKnowledgeActions.getKey(), shareKnowledgeActions.getValue());
+            shareKnowledgeActionPresenter.openInNewWindow();
+        });
     }
 
     /**
