@@ -88,7 +88,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private ComboBox difficultyComboBox;
-    private int numberOfEpidemicCards = 4;
+    private int numberOfEpidemicCards;
 
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
@@ -665,19 +665,34 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     @FXML
-    private void initializeDifficultyComboBox () {
-        Map<String, Integer> difficultyMap = new LinkedHashMap<>();
-        difficultyMap.put("Leicht", 4);
-        difficultyMap.put("Mittel", 5);
-        difficultyMap.put("Schwer", 6);
-
+    private void initializeDifficultyComboBox() {
+        Map<String, Integer> difficultyMap = createDifficultyMap();
         difficultyComboBox.setItems(FXCollections.observableArrayList(difficultyMap.keySet()));
         difficultyComboBox.setValue("Leicht");
 
         difficultyComboBox.setOnAction(event -> {
-            String selected = (String) difficultyComboBox.getValue();
-            numberOfEpidemicCards = difficultyMap.get(selected);
+            if (difficultyComboBox.getValue() != null) {
+                String selected = (String) difficultyComboBox.getValue();
+                int newNumberOfEpidemicCards = difficultyMap.get(selected);
+                if (newNumberOfEpidemicCards != numberOfEpidemicCards) {
+                    lobbyService.updateDifficulty(lobby, newNumberOfEpidemicCards);
+                }
+            }
         });
+    }
+
+    /**
+     * Creates a map of difficulty levels to their corresponding number of epidemic cards
+     *
+     * @return A LinkedHashMap containing the difficulty levels and their values
+     * @since 2025-01-28
+     */
+    private Map<String, Integer> createDifficultyMap() {
+        Map<String, Integer> difficultyMap = new LinkedHashMap<>();
+        difficultyMap.put("Leicht", 4);
+        difficultyMap.put("Mittel", 5);
+        difficultyMap.put("Schwer", 6);
+        return difficultyMap;
     }
 
     /**
@@ -699,5 +714,35 @@ public class LobbyPresenter extends AbstractPresenter {
             difficultyComboBox.setDisable(true);
         }
     }
+
+    /**
+     * Handles the server message when difficulty is updated in the lobby.
+     * Updates the UI to reflect the new difficulty setting for all clients.
+     *
+     * @param message the message containing the updated difficulty information
+     * @since 2025-01-28
+     */
+    @Subscribe
+    public void onDifficultyUpdateServerMessage(DifficultyUpdateServerMessage message) {
+        Platform.runLater(() -> {
+            if (lobby.equals(message.getLobby())) {
+                this.numberOfEpidemicCards = message.getNumberOfEpidemicCards();
+                Map<String, Integer> difficultyMap = createDifficultyMap();
+
+                String newDifficulty = difficultyMap.entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue() == numberOfEpidemicCards)
+                        .map(Map.Entry::getKey)
+                        .findFirst()
+                        .orElse("Leicht");
+
+                if (!newDifficulty.equals(difficultyComboBox.getValue())) {
+                    difficultyComboBox.setValue(newDifficulty);
+                }
+            }
+        });
+    }
+
+
 
 }

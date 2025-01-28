@@ -5,6 +5,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
+import de.uol.swp.common.lobby.server_message.DifficultyUpdateServerMessage;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
 import de.uol.swp.common.player.Player;
@@ -157,6 +158,18 @@ public class LobbyService {
      */
     public void getPlagues(){
         RetrieveAllPlaguesRequest request = new RetrieveAllPlaguesRequest();
+        eventBus.post(request);
+    }
+
+    /**
+     * Posts a request to update the difficulty level of a lobby
+     *
+     * @param lobby The lobby to update the difficulty for
+     * @param numberOfEpidemicCards The new number of epidemic cards
+     * @since 2025-01-28
+     */
+    public void updateDifficulty(Lobby lobby, int numberOfEpidemicCards) {
+        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, numberOfEpidemicCards);
         eventBus.post(request);
     }
 }

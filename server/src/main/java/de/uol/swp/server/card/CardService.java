@@ -106,7 +106,7 @@ public class CardService extends AbstractService {
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 
             if(playerCard instanceof EpidemicCard) {
-                triggerEpidemic(game);
+                triggerEpidemic(game, (EpidemicCard) playerCard);
             } else {
                 player.addHandCard(playerCard);
             }
@@ -309,49 +309,35 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    private void triggerEpidemic(Game game) {
+    private void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
         game.getInfectionMarker().increaseLevel();
-        infectBottomCard(game);
+        processBottomCard(game);
         reshuffleDiscardPileToDrawPile(game);
+        cardManagement.discardPlayerCard(game, epidemicCard);
     }
 
     /**
-     * Draws and processes the bottom card from the infection deck.
-     * The corresponding city is infected with plague cubes unless it has an antidote.
-     * After processing, the card is moved to the discard pile.
+     * Draws the bottom card from the infection deck and triggers its processing
+     * through the standard infection card drawing mechanism.
      *
      * @param game the current game state
      */
-    private void infectBottomCard(Game game) {
+    private void processBottomCard(Game game) {
         InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
-        Field targetField = game.getMap().getFieldOfCity(bottomCard.getCity());
+        Field field = bottomCard.getAssociatedField();
 
-        tryInfectField(game, targetField);
+        if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
+            for (int i = 0; i < 3; i++) {
+                if (shouldTriggerOutbreak(field, game)) {
+                    game.startOutbreak();
+                    break;
+                }
+                handleInfectionProcess(game, bottomCard);
+            }
+        }
+        DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(bottomCard, game);
+        lobbyService.sendToAllInLobby(game.getLobby(), message);
         cardManagement.discardInfectionCard(game, bottomCard);
-    }
-
-    /**
-     * Attempts to infect a field with three plague cubes.
-     * If the field has an antidote marker, no infection occurs.
-     * The process stops if either an outbreak occurs or if no plague cubes are available.
-     *
-     * @param game the current game state
-     * @param field the field to be infected
-     */
-    private void tryInfectField(Game game, Field field) {
-        if (game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            return;
-        }
-
-        for (int i = 0; i < 3; i++) {
-            if (shouldTriggerOutbreak(field, game)) {
-                game.startOutbreak();
-                break;
-            }
-            if (!tryInfectField(field, game)) {
-                return;
-            }
-        }
     }
 
     /**
@@ -367,23 +353,6 @@ public class CardService extends AbstractService {
                 game.getMaxNumberOfPlagueCubesPerField();
     }
 
-    /**
-     * Attempts to infect a field once with a plague cube.
-     * If no plague cubes are available, the game is lost.
-     *
-     * @param field the field to infect
-     * @param game the current game state
-     * @return true if infection was successful, false if the game is lost due to no available plague cubes
-     */
-    private boolean tryInfectField(Field field, Game game) {
-        try {
-            field.infect();
-            return true;
-        } catch (NoPlagueCubesFoundException e) {
-            game.setLost(true);
-            return false;
-        }
-    }
 
     /**
      * Takes all cards from the infection discard pile, shuffles them,
