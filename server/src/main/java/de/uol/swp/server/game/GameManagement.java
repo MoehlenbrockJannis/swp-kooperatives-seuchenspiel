@@ -3,6 +3,7 @@ package de.uol.swp.server.game;
 import com.google.inject.Inject;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.map.MapType;
@@ -36,13 +37,15 @@ public class GameManagement {
      * @param lobby    The lobby from which the game is to be created
      * @param mapType  The mapType of the game
      * @param plagues  The plagues of the game
+     * @param difficulty The difficulty level of the game, determines the number of epidemic cards
      * @return The created game
      */
-    public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues, int numberOfEpidemicCards) {
+    public Game createGame(Lobby lobby, MapType mapType, List<Plague> plagues, GameDifficulty difficulty) {
         lobbyManagement.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
         roleManagement.assignRolesToPlayers(lobby);
 
-        Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, numberOfEpidemicCards);
+        Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()),
+                plagues, difficulty.getNumberOfEpidemicCards());
         newGame.addPlayerTurn(playerTurnManagement.createPlayerTurn(newGame));
         return newGame;
     }

@@ -9,6 +9,7 @@ import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.server_message.*;
@@ -85,13 +86,14 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private int botCounter = 0;
     private List<String> botNames = new ArrayList<>();
+    private GameDifficulty selectedDifficulty;
 
     @FXML
-    private ComboBox difficultyComboBox;
-    private int numberOfEpidemicCards;
+    private ComboBox<GameDifficulty> difficultyComboBox;
 
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
+        this.selectedDifficulty = GameDifficulty.getDefault();
 
         updateStartGameButton();
         setTitle(lobby.getName());
@@ -400,7 +402,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
         if (selectedMapType != null && plagueList != null) {
-            gameService.createGame(lobby, selectedMapType, plagueList, numberOfEpidemicCards);
+            gameService.createGame(lobby, selectedMapType, plagueList, selectedDifficulty);
         }
     }
 
@@ -666,33 +668,21 @@ public class LobbyPresenter extends AbstractPresenter {
 
     @FXML
     private void initializeDifficultyComboBox() {
-        Map<String, Integer> difficultyMap = createDifficultyMap();
-        difficultyComboBox.setItems(FXCollections.observableArrayList(difficultyMap.keySet()));
-        difficultyComboBox.setValue("Leicht");
-
-        difficultyComboBox.setOnAction(event -> {
-            if (difficultyComboBox.getValue() != null) {
-                String selected = (String) difficultyComboBox.getValue();
-                int newNumberOfEpidemicCards = difficultyMap.get(selected);
-                if (newNumberOfEpidemicCards != numberOfEpidemicCards) {
-                    lobbyService.updateDifficulty(lobby, newNumberOfEpidemicCards);
-                }
-            }
-        });
+        difficultyComboBox.setItems(FXCollections.observableArrayList(GameDifficulty.values()));
+        difficultyComboBox.setValue(GameDifficulty.getDefault());
+        difficultyComboBox.setOnAction(event -> handleDifficultyChange());
     }
 
-    /**
-     * Creates a map of difficulty levels to their corresponding number of epidemic cards
-     *
-     * @return A LinkedHashMap containing the difficulty levels and their values
-     * @since 2025-01-28
-     */
-    private Map<String, Integer> createDifficultyMap() {
-        Map<String, Integer> difficultyMap = new LinkedHashMap<>();
-        difficultyMap.put("Leicht", 4);
-        difficultyMap.put("Mittel", 5);
-        difficultyMap.put("Schwer", 6);
-        return difficultyMap;
+    private void handleDifficultyChange() {
+        GameDifficulty newDifficulty = difficultyComboBox.getValue();
+        if (shouldUpdateDifficulty(newDifficulty)) {
+            selectedDifficulty = newDifficulty;
+            lobbyService.updateDifficulty(lobby, newDifficulty);
+        }
+    }
+
+    private boolean shouldUpdateDifficulty(GameDifficulty newDifficulty) {
+        return newDifficulty != null && !newDifficulty.equals(selectedDifficulty);
     }
 
     /**
@@ -726,23 +716,16 @@ public class LobbyPresenter extends AbstractPresenter {
     public void onDifficultyUpdateServerMessage(DifficultyUpdateServerMessage message) {
         Platform.runLater(() -> {
             if (lobby.equals(message.getLobby())) {
-                this.numberOfEpidemicCards = message.getNumberOfEpidemicCards();
-                Map<String, Integer> difficultyMap = createDifficultyMap();
-
-                String newDifficulty = difficultyMap.entrySet()
-                        .stream()
-                        .filter(entry -> entry.getValue() == numberOfEpidemicCards)
-                        .map(Map.Entry::getKey)
-                        .findFirst()
-                        .orElse("Leicht");
-
-                if (!newDifficulty.equals(difficultyComboBox.getValue())) {
-                    difficultyComboBox.setValue(newDifficulty);
-                }
+                GameDifficulty newDifficulty = message.getDifficulty();
+                updateDifficultyComboBox(newDifficulty);
             }
         });
     }
 
-
-
+    private void updateDifficultyComboBox(GameDifficulty newDifficulty) {
+        if (!newDifficulty.equals(difficultyComboBox.getValue())) {
+            difficultyComboBox.setValue(newDifficulty);
+            selectedDifficulty = newDifficulty;
+        }
+    }
 }

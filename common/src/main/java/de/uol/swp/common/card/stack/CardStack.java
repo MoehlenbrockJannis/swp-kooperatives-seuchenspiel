@@ -1,7 +1,6 @@
 package de.uol.swp.common.card.stack;
 
 import de.uol.swp.common.card.Card;
-import lombok.Getter;
 
 import java.util.*;
 
@@ -10,7 +9,6 @@ import java.util.*;
  *
  * @param <C> the type of card that this stack will hold, which must extend the {@link Card} class
  */
-@Getter
 public class CardStack<C extends Card> extends Stack<C> {
 
     /**

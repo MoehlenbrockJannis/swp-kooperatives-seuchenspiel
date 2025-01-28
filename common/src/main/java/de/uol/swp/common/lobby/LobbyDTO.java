@@ -37,8 +37,6 @@ public class LobbyDTO implements Lobby {
     private int minPlayers;
     @Getter
     private int maxPlayers;
-    @Getter
-    private int numberOfEpidemicCards = 4;
 
     /**
      * Constructor
@@ -66,7 +64,6 @@ public class LobbyDTO implements Lobby {
         this.minPlayers = lobby.getMinPlayers();
         this.maxPlayers = lobby.getMaxPlayers();
         this.players = lobby.getPlayers();
-        this.numberOfEpidemicCards = lobby.getNumberOfEpidemicCards();
     }
 
     @Override
@@ -165,16 +162,6 @@ public class LobbyDTO implements Lobby {
         determineLobbyStatus();
         return status;
     }
-
-    @Override
-    public void setNumberOfEpidemicCards(int numberOfEpidemicCards) {
-        if (numberOfEpidemicCards >= 4 && numberOfEpidemicCards <= 6) {
-            this.numberOfEpidemicCards = numberOfEpidemicCards;
-        } else {
-            throw new IllegalArgumentException("Number of epidemic cards must be between 4 and 6");
-        }
-    }
-
     private void determineLobbyStatus() {
         final Set<Player> players = getPlayers();
         if (players.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {

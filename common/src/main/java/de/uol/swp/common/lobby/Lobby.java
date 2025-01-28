@@ -135,20 +135,4 @@ public interface Lobby extends Serializable {
      * @return The maximum number of players
      */
     int getMaxPlayers();
-
-    /**
-     * Gets the number of epidemic cards for this lobby
-     *
-     * @return the current number of epidemic cards
-     * @since 2025-01-28
-     */
-    int getNumberOfEpidemicCards();
-
-    /**
-     * Sets the number of epidemic cards for this lobby
-     *
-     * @param numberOfEpidemicCards the new number of epidemic cards (must be between 4 and 6)
-     * @since 2025-01-28
-     */
-    void setNumberOfEpidemicCards(int numberOfEpidemicCards);
 }

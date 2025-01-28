@@ -14,13 +14,13 @@ import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
+import de.uol.swp.common.card.server_message.EpidemicCardDrawnServerMessage;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.response.AbstractGameResponse;
-import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
@@ -32,7 +32,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -96,8 +95,8 @@ public class CardService extends AbstractService {
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 
-            if(playerCard instanceof EpidemicCard) {
-                triggerEpidemic(game, (EpidemicCard) playerCard);
+            if(playerCard instanceof EpidemicCard epidemicCard) {
+                triggerEpidemic(game, epidemicCard);
             } else {
                 player.addHandCard(playerCard);
             }
@@ -180,7 +179,6 @@ public class CardService extends AbstractService {
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             InfectionCard infectionCard = cardManagement.drawInfectionCardFromTheTop(game);
-            cardManagement.discardInfectionCard(game, infectionCard);
             game.getCurrentTurn().reduceNumberOfInfectionCardsToDraw();
             cardManagement.discardInfectionCard(game, infectionCard);
 
@@ -329,10 +327,10 @@ public class CardService extends AbstractService {
      * @param game the current game state
      */
     private void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
-        game.getInfectionMarker().increaseLevel();
+        game.increaseInfectionLevel();
         processBottomCard(game);
-        reshuffleDiscardPileToDrawPile(game);
-        cardManagement.discardPlayerCard(game, epidemicCard);
+        reshuffleInfectionDiscardPileOntoDrawPile(game);
+        post(new EpidemicCardDrawnServerMessage(game, epidemicCard));
     }
 
     /**
@@ -346,49 +344,33 @@ public class CardService extends AbstractService {
         Field field = bottomCard.getAssociatedField();
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            for (int i = 0; i < 3; i++) {
-                if (shouldTriggerOutbreak(field, game)) {
+            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
+                if (field.isInfectable(field.getPlague())) {
+                    handleInfectionProcess(game, bottomCard);
+                } else {
                     game.startOutbreak();
                     break;
                 }
-                handleInfectionProcess(game, bottomCard);
             }
         }
-        DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(bottomCard, game);
-        lobbyService.sendToAllInLobby(game.getLobby(), message);
-        cardManagement.discardInfectionCard(game, bottomCard);
-    }
 
-    /**
-     * Checks if the number of plague cubes on a field exceeds the maximum allowed amount,
-     * which would trigger an outbreak.
-     *
-     * @param field the field to check
-     * @param game the current game state
-     * @return true if an outbreak should be triggered, false otherwise
-     */
-    private boolean shouldTriggerOutbreak(Field field, Game game) {
-        return field.getPlagueCubesOfPlague(field.getPlague()).size() >=
-                game.getMaxNumberOfPlagueCubesPerField();
+        cardManagement.discardInfectionCard(game, bottomCard);
     }
 
 
     /**
      * Takes all cards from the infection discard pile, shuffles them,
-     * and places them on top of the infection draw pile.
-     * This is the final step of handling an epidemic.
+     * and places them on top of the infection draw pile during an epidemic.
      *
      * @param game the current game state
      */
-    private void reshuffleDiscardPileToDrawPile(Game game) {
+    private void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
         CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
-        List<InfectionCard> shuffledCards = new ArrayList<>(discardStack);
+        discardStack.shuffle();
 
-        discardStack.clear();
-        Collections.shuffle(shuffledCards);
-
-        for (InfectionCard card : shuffledCards) {
+        for (InfectionCard card : discardStack) {
             game.getInfectionDrawStack().push(card);
         }
+        discardStack.clear();
     }
 }

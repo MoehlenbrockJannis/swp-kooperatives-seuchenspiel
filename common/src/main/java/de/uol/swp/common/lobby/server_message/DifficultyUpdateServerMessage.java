@@ -1,5 +1,6 @@
 package de.uol.swp.common.lobby.server_message;
 
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import lombok.Getter;
 
@@ -14,16 +15,10 @@ import lombok.Getter;
  */
 @Getter
 public class DifficultyUpdateServerMessage extends AbstractLobbyServerMessage {
-    private final int numberOfEpidemicCards;
+    private final GameDifficulty difficulty;
 
-    /**
-     * Constructor
-     *
-     * @param lobby The lobby in which the difficulty was updated
-     * @param numberOfEpidemicCards The new number of epidemic cards
-     */
-    public DifficultyUpdateServerMessage(Lobby lobby, int numberOfEpidemicCards) {
+    public DifficultyUpdateServerMessage(Lobby lobby, GameDifficulty difficulty) {
         super(lobby);
-        this.numberOfEpidemicCards = numberOfEpidemicCards;
+        this.difficulty = difficulty;
     }
 }

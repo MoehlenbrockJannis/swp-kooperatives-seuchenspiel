@@ -1,11 +1,11 @@
 package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.lobby.server_message.DifficultyUpdateServerMessage;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
 import de.uol.swp.common.player.Player;
@@ -165,11 +165,11 @@ public class LobbyService {
      * Posts a request to update the difficulty level of a lobby
      *
      * @param lobby The lobby to update the difficulty for
-     * @param numberOfEpidemicCards The new number of epidemic cards
+     * @param difficulty The new difficulty selected
      * @since 2025-01-28
      */
-    public void updateDifficulty(Lobby lobby, int numberOfEpidemicCards) {
-        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, numberOfEpidemicCards);
+    public void updateDifficulty(Lobby lobby, GameDifficulty difficulty) {
+        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, difficulty);
         eventBus.post(request);
     }
 }

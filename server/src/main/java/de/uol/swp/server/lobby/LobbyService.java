@@ -385,12 +385,9 @@ public class LobbyService extends AbstractService {
 
         if (lobbyOptional.isPresent()) {
             final Lobby lobby = lobbyOptional.get();
-            lobby.setNumberOfEpidemicCards(request.getNumberOfEpidemicCards());
-            lobbyManagement.updateLobby(lobby);
-
             DifficultyUpdateServerMessage message = new DifficultyUpdateServerMessage(
                     lobby,
-                    request.getNumberOfEpidemicCards()
+                    request.getDifficulty()
             );
             sendToAllInLobby(lobby, message);
         }

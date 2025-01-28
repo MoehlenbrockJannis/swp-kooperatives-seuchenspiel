@@ -1,5 +1,6 @@
 package de.uol.swp.common.lobby.request;
 
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.request.AbstractRequestMessage;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,5 @@ import lombok.Getter;
 @Getter
 public class DifficultyUpdateRequest extends AbstractRequestMessage {
     private final Lobby lobby;
-    private final int numberOfEpidemicCards;
+    private final GameDifficulty difficulty;
 }
