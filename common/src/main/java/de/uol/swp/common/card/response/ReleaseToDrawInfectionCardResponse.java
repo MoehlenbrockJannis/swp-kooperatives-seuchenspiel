@@ -5,14 +5,17 @@ import de.uol.swp.common.message.response.AbstractGameResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * Response to release the infection cards to draw
+ */
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class ReleaseToDrawInfectionCardResponse extends AbstractGameResponse {
 
     private final int numberOfInfectionCardsToDraw;
 
-    public ReleaseToDrawInfectionCardResponse(final Game game, final int numberOfInfectionCardsToDraw) {
+    public ReleaseToDrawInfectionCardResponse(final Game game) {
         super(game);
-        this.numberOfInfectionCardsToDraw = numberOfInfectionCardsToDraw;
+        this.numberOfInfectionCardsToDraw = game.getCurrentTurn().getNumberOfInfectionCardsToDraw();
     }
 }

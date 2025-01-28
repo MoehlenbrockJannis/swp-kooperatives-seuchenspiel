@@ -76,9 +76,10 @@ public class ResearchLaboratoryMarkerPresenter extends AbstractPresenter {
     }
 
     private void processBuildResearchLaboratoryAction(BuildResearchLaboratoryAction action) {
-        if (action.requiresMovingOfResearchLaboratory()) {
+        if (action.requiresMovingOfResearchLaboratory() && game.isResearchLaboratoryButtonClicked()) {
             action.setResearchLaboratoryOriginField(this.getField());
             actionService.sendAction(game, action);
+            game.setResearchLaboratoryButtonClicked(false);
         }
     }
 }

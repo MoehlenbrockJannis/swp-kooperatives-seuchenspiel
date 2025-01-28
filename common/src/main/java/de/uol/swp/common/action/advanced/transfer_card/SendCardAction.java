@@ -1,7 +1,12 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
 import de.uol.swp.common.card.CityCard;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The {@code SendCardAction} class represents an action where a player sends a card to another player.
@@ -24,14 +29,44 @@ public class SendCardAction extends ShareKnowledgeAction {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * <p>
-     *     Returns the {@link Class} object of the class that the receiving {@link Player} would use to receive a {@link CityCard}.
+     *     All sendable cards can be sent to any {@link Player} that a transfer is possible with.
      * </p>
      *
-     * @return the {@link ReceiveCardAction} class for the receiving opponent
+     * @see #getSendableCards()
+     * @see #getPlayersWithPossibilityOfTransfer()
      */
-    @SuppressWarnings("unchecked")
-    public Class<? extends ReceiveCardAction> getReceiveCardActionOfOpponent() {
-        return (Class<? extends ReceiveCardAction>) getReceiver().getRoleSpecificActionClassOrDefault(ReceiveCardAction.class);
+    @Override
+    public Map<Player, List<CityCard>> getTargetPlayersWithAvailableCardsAssociation() {
+        final List<CityCard> sendableCards = getSendableCards();
+        if (sendableCards.isEmpty()) {
+            return Map.of();
+        }
+
+        final List<Player> possibleTargets = getPlayersWithPossibilityOfTransfer();
+        return possibleTargets.stream()
+                .collect(Collectors.toMap(player -> player, player -> sendableCards));
+    }
+
+    /**
+     * <p>
+     *     Returns a {@link List} of cards the {@link #getSender()} can send.
+     *     The requirement to determine whether a hand card can be sent is that it has to be a {@link CityCard}
+     *     with the same field the {@link #getExecutingPlayer()} is standing on.
+     * </p>
+     *
+     * @return a {@link List} of cards the {@link #getSender()} can send
+     * @see Player#getHandCards()
+     * @see CityCard
+     * @see CityCard#hasField(Field)
+     * @see Player#getCurrentField()
+     */
+    protected List<CityCard> getSendableCards() {
+        return getExecutingPlayer().getHandCards().stream()
+                .filter(card -> card instanceof CityCard cityCard && cityCard.hasField(getExecutingPlayer().getCurrentField()))
+                .map(CityCard.class::cast)
+                .toList();
     }
 }

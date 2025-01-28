@@ -3,6 +3,7 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.action.ShareKnowledgeActionPresenter;
 import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
@@ -11,13 +12,18 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
+import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
+import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.user.User;
 import javafx.application.Platform;
@@ -28,6 +34,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -110,9 +117,17 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private ChatPresenter chatComponentController;
 
+    @FXML
+    private Button shareKnowledgeActionButton;
+
     private boolean isChatVisible = true;
 
     private List<PlayerPanePresenter> playerPanePresenterList;
+
+    @FXML
+    private Button researchLaboratoryButton;
+    @FXML
+    private Button waiveActionButton;
 
     /**
      * <p>
@@ -174,6 +189,10 @@ public class GamePresenter extends AbstractPresenter {
         initializeMenuItems();
         chatComponentController.setLobby(game.getLobby());
         initializeChat();
+        updateShareKnowledgeActionButton();
+        updateResearchLaboratoryButtonState();
+        initializeResearchLaboratoryButton();
+        updateWaiveButtonPressed();
     }
 
     /**
@@ -197,7 +216,11 @@ public class GamePresenter extends AbstractPresenter {
         if (currentPlayer.equals(currentPlayerForUser) && isTurnOver(this.game)) {
             EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
             eventBus.post(endTurnMessage);
+            updateResearchLaboratoryButtonState();
         }
+
+        initializeResearchLaboratoryButton();
+        updateWaiveButtonPressed();
     }
 
     /**
@@ -326,6 +349,7 @@ public class GamePresenter extends AbstractPresenter {
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
             updatePlayerInfo();
+            updateShareKnowledgeActionButton();
         }
     }
 
@@ -444,13 +468,192 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Adds a research laboratory to the current field.
+     * Handles the event when the waive button is pressed.
+     * This method checks if the current player is in the game and if they have actions to perform.
+     * If both conditions are met, it sends a waive action and updates the state of the waive button.
+     */
+    @FXML
+    private void addWaiveButtonPressed() {
+        if (isCurrentPlayerInGame()) {
+            if (game.getCurrentTurn().hasActionsToDo()) {
+                gameMapController.sendWaiveAction();
+                updateWaiveButtonPressed();
+            }
+        }
+    }
+
+    /**
+     * Updates the state of the waive button based on the current game state.
+     * The button is enabled if the current player is in the game and has actions to perform.
+     * Otherwise, the button is disabled.
+     */
+    private void updateWaiveButtonPressed() {
+        if (isCurrentPlayerInGame() && isWaiveActionAvailable() && game.getCurrentTurn().hasActionsToDo()) {
+            waiveActionButton.setDisable(false);
+        } else {
+            waiveActionButton.setDisable(true);
+        }
+    }
+
+
+    /**
+     * Checks if a waive action is available in the list of possible actions for the current turn.
+     *
+     * @return true if a waive action is available, false otherwise
+     */
+    private boolean isWaiveActionAvailable() {
+        List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
+        return possibleActions.stream()
+                .anyMatch(this::isResearchWaiveAction);
+    }
+
+    /**
+     * Checks if the given action is an instance of WaiveAction.
+     *
+     * @param action the action to check
+     * @return true if the action is an instance of WaiveAction, false otherwise
+     */
+    private boolean isResearchWaiveAction(Action action) {
+        return action instanceof WaiveAction;
+    }
+
+    /**
+     * Handles the action of adding a research laboratory when the corresponding button is pressed.
+     * Checks if the current player can perform the action and updates the UI accordingly.
      */
     @FXML
     private void addResearchLaboratoryButtonPressed() {
-        if(game.getCurrentPlayer() == this.game.getLobby().getPlayerForUser(loggedInUserProvider.get())) {
-            gameMapController.addResearchLaboratoryMarkerToField();
+        game.setResearchLaboratoryButtonClicked(true);
+        if (isCurrentPlayerInGame()) {
+            if(requireMoveResearchLaboratory()) {
+                gameMapController.requireMoveResearchLaboratory();
+            }
+            handleResearchLaboratoryAddition();
         }
+    }
+
+    /**
+     * @return true if the laboratory should be moved
+     * and false if the laboratory not should be moved
+     */
+    public boolean requireMoveResearchLaboratory() {
+        return game.getResearchLaboratories().size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES;
+    }
+
+    /**
+     * Initializes the research laboratory button's state based on available actions.
+     */
+    private void initializeResearchLaboratoryButton() {
+        if (isCurrentPlayerInGame()) {
+            updateResearchLaboratoryButtonState();
+        }
+    }
+
+    /**
+     * Determines if the research laboratory can be added
+     */
+    private void handleResearchLaboratoryAddition() {
+        if (isResearchLaboratoryActionAvailable()) {
+            gameMapController.addResearchLaboratoryMarkerToField();
+            updateResearchLaboratoryButtonState();
+        }
+    }
+
+    /**
+     * Checks if a research laboratory action is currently possible.
+     *
+     * @return true if a research laboratory can be built, false otherwise
+     */
+    private boolean isResearchLaboratoryActionAvailable() {
+        return game.getCurrentTurn().getPossibleActions().stream()
+                .anyMatch(this::isResearchLaboratoryBuildAction);
+    }
+
+    /**
+     * Updates the research laboratory button's disabled state based on available actions.
+     */
+    public void updateResearchLaboratoryButtonState() {
+        if(game.getCurrentTurn().hasActionsToDo()) {
+            boolean isActionAvailable = game.getCurrentTurn().getPossibleActions().stream()
+                    .anyMatch(this::isResearchLaboratoryBuildAction);
+            researchLaboratoryButton.setDisable(!isActionAvailable);
+        } else {
+            researchLaboratoryButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Checks if the current player is in the game.
+     *
+     * @return true if the current player contains the logged-in user, false otherwise
+     */
+    private boolean isCurrentPlayerInGame() {
+        return game.getCurrentPlayer().containsUser(loggedInUserProvider.get());
+    }
+
+    /**
+     * Checks if the given action is a research laboratory build action.
+     *
+     * @param action the action to check
+     * @return true if the action is a research laboratory build action, false otherwise
+     */
+    private boolean isResearchLaboratoryBuildAction(Action action) {
+        return action instanceof BuildResearchLaboratoryAction
+                || action instanceof ReducedCostBuildResearchLaboratoryAction;
+    }
+
+    /**
+     * Returns {@code true} if the current {@link Player} of {@link #game} contains the user specified by {@link #loggedInUserProvider}.
+     *
+     * @return {@code true} if the current {@link Player} of {@link #game} contains the user specified by {@link #loggedInUserProvider}, {@code false} otherwise
+     */
+    private boolean isAssociatedPlayerCurrentPlayerInGame() {
+        return this.game.getCurrentPlayer().containsUser(loggedInUserProvider.get());
+    }
+
+    private void updateShareKnowledgeActionButton() {
+        Platform.runLater(() -> shareKnowledgeActionButton.setDisable(true));
+
+        if (!isAssociatedPlayerCurrentPlayerInGame() || !game.getCurrentTurn().isInActionPhase()) {
+            return;
+        }
+
+        final Pair<SendCardAction, ReceiveCardAction> shareKnowledgeActions = getShareKnowledgeActionsFromGame();
+
+        if (shareKnowledgeActions.getKey() != null || shareKnowledgeActions.getValue() != null) {
+            Platform.runLater(() -> {
+                bindShareKnowledgeActionButtonClickEvent(shareKnowledgeActions);
+
+                shareKnowledgeActionButton.setDisable(false);
+            });
+        }
+    }
+
+    private Pair<SendCardAction, ReceiveCardAction> getShareKnowledgeActionsFromGame() {
+        final PlayerTurn playerTurn = game.getCurrentTurn();
+
+        SendCardAction sendCardAction = null;
+        ReceiveCardAction receiveCardAction = null;
+
+        for (final Action action : playerTurn.getPossibleActions()) {
+            if (action instanceof SendCardAction sca) {
+                sendCardAction = sca;
+            } else if (action instanceof ReceiveCardAction rca) {
+                receiveCardAction = rca;
+            }
+        }
+
+        return new Pair<>(sendCardAction, receiveCardAction);
+    }
+
+    private void bindShareKnowledgeActionButtonClickEvent(final Pair<SendCardAction, ReceiveCardAction> shareKnowledgeActions) {
+        shareKnowledgeActionButton.setOnMouseClicked(event -> {
+            final ShareKnowledgeActionPresenter shareKnowledgeActionPresenter =
+                    AbstractPresenter.loadFXMLPresenter(ShareKnowledgeActionPresenter.class);
+            this.associatedPresenters.add(shareKnowledgeActionPresenter);
+            shareKnowledgeActionPresenter.initialize(shareKnowledgeActions.getKey(), shareKnowledgeActions.getValue());
+            shareKnowledgeActionPresenter.openInNewWindow();
+        });
     }
 
     /**

@@ -2,12 +2,14 @@ package de.uol.swp.server.action;
 
 import com.google.inject.Inject;
 import de.uol.swp.common.action.request.ActionRequest;
+import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.card.CardService;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -56,8 +58,27 @@ public class ActionService extends AbstractService {
         post(actionServerMessage);
 
         final Optional<Session> requestSessionOptional = request.getSession();
-        if (!currentPlayerTurn.isInActionPhase() && requestSessionOptional.isPresent()) {
-            cardService.allowPlayerCardDrawing(game, requestSessionOptional.get());
+        if (!currentPlayerTurn.isActionExecutable() && requestSessionOptional.isPresent()) {
+            cardService.allowDrawingOrDiscarding(game, requestSessionOptional.get(), ReleaseToDrawPlayerCardResponse.class);
+        }
+
+        checkMoveResearchLaboratory(request);
+    }
+
+    /**
+     * Checks if the move of a research laboratory can proceed. If the maximum number of research laboratories
+     * has been reached and a text message is required, it sends a system message indicating this status to the lobby.
+     *
+     * @param request the {@link ActionRequest} object containing the details of the requested action
+     */
+    private void checkMoveResearchLaboratory(ActionRequest request) {
+        if(request.getAction().getGame().getResearchLaboratories().size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES &&
+                request.getGame().isRequiresTextMessageMovingResearchLaboratory()) {
+            String text = "Die maximale Anzahl an Forschungslaboren wurde erreicht!";
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, request.getGame().getLobby());
+            post(systemLobbyMessageServerInternalMessage);
+
+            request.getGame().setRequiresTextMessageMovingResearchLaboratory(false);
         }
     }
 }
