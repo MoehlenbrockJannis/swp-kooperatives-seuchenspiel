@@ -667,9 +667,7 @@ public class GamePresenter extends AbstractPresenter {
 
                 chatComponent.getStyleClass().add("game-chat-component");
 
-                chatComponent.lookupAll(".text-field").forEach(node -> {
-                    HBox.setHgrow(node, Priority.ALWAYS);
-                });
+                chatComponent.lookupAll(".text-field").forEach(node -> HBox.setHgrow(node, Priority.ALWAYS));
             }
 
             this.chatStackPane.setPickOnBounds(false);
