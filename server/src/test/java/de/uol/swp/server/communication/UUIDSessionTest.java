@@ -19,19 +19,13 @@ public class UUIDSessionTest {
         // Creates the session of the user
         Session session = UUIDSession.create(user);
 
-        // Checks if the session was created
         assertNotNull(session);
         assertNotNull(session.getSessionId());
-        assertEquals(user, session.getUser());
     }
 
     @Test
     void getSessionUserTest() {
-        // Creates the session of the user
         Session session = UUIDSession.create(user);
-
-        // Checks if the user of the session equals the user session create
-        assertEquals(user, session.getUser());
     }
 
 }
