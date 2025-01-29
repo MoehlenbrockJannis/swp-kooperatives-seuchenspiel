@@ -326,7 +326,7 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    private void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
+    void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
         game.increaseInfectionLevel();
         processBottomCard(game);
         reshuffleInfectionDiscardPileOntoDrawPile(game);
@@ -339,7 +339,7 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    private void processBottomCard(Game game) {
+    void processBottomCard(Game game) {
         InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
         Field field = bottomCard.getAssociatedField();
 
@@ -364,7 +364,7 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    private void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
+    void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
         CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
         discardStack.shuffle();
 

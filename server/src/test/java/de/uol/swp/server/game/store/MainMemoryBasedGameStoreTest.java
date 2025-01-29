@@ -1,6 +1,7 @@
 package de.uol.swp.server.game.store;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -32,7 +33,8 @@ class MainMemoryBasedGameStoreTest {
         List<Plague> plagues = List.of(mock(Plague.class));
         MapType mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user,2,4);
-        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        GameDifficulty difficulty = GameDifficulty.getDefault();
+        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
     }
 
     @Test

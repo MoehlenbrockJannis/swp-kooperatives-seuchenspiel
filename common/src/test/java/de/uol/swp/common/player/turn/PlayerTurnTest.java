@@ -6,6 +6,7 @@ import de.uol.swp.common.action.DiscardCardsAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -66,7 +67,7 @@ class PlayerTurnTest {
     private int numberOfPlayerCardsToDraw;
     private int numberOfInfectionCardsToDraw;
     private Command command;
-    private int numberOfEpidemicCards;
+    private GameDifficulty difficulty;
 
     /**
      * This method is executed before each test case.
@@ -94,11 +95,11 @@ class PlayerTurnTest {
         this.roleCard = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
         this.defaultPlayer.setRole(roleCard);
-        this.numberOfEpidemicCards = 4;
+        this.difficulty = GameDifficulty.getDefault();
 
         final MapType mapType = createMapType();
 
-        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), numberOfEpidemicCards);
+        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
         this.numberOfInfectionCardsToDraw = 1;

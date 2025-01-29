@@ -3,6 +3,7 @@ package de.uol.swp.server.game;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
@@ -40,6 +41,7 @@ class GameManagementTest {
     private Player mockPlayer;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
+    private GameDifficulty mockDifficulty;
 
     @BeforeEach
     void setUp() {
@@ -60,6 +62,8 @@ class GameManagementTest {
         mockPlayer = mock(Player.class);
         mockPlayerCard = mock(PlayerCard.class);
         mockInfectionCard = mock(InfectionCard.class);
+        mockDifficulty = mock(GameDifficulty.class);
+        when(mockDifficulty.getNumberOfEpidemicCards()).thenReturn(4);
     }
 
     @Test
@@ -71,7 +75,7 @@ class GameManagementTest {
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
-        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
 
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(mockLobby);
@@ -95,7 +99,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
@@ -107,7 +111,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer), mockPlagues, mockDifficulty);
         game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
@@ -117,7 +121,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
-        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
         PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 

@@ -1,6 +1,7 @@
 package de.uol.swp.server.card;
 
 import de.uol.swp.common.action.ActionFactory;
+import de.uol.swp.common.card.EpidemicCard;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AirBridgeEventCard;
@@ -14,6 +15,8 @@ import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
@@ -36,6 +39,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
@@ -62,6 +66,7 @@ public class CardServiceTest extends EventBusBasedTest {
     private MapType mapType;
     private Session session;
     private List<Object> responses;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
@@ -72,12 +77,14 @@ public class CardServiceTest extends EventBusBasedTest {
         responses = new ArrayList<>();
         EventBus eventBus = getBus();
         cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
+        difficulty = mock(GameDifficulty.class);
+        when(difficulty.getNumberOfEpidemicCards()).thenReturn(4);
 
         User user = new UserDTO("Test", "Test", "Test@test.de");
         List<Plague> plagues = List.of(mock(Plague.class));
         mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user,2,4);
-        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
         try (MockedConstruction<ActionFactory> mockedActionFactory = Mockito.mockConstruction(ActionFactory.class, (mock, context) -> {
             when(mock.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(any(), any()))
                     .thenReturn(List.of());
@@ -165,7 +172,7 @@ public class CardServiceTest extends EventBusBasedTest {
         List<Player> players = new ArrayList<>();
         players.add(mock(Player.class));
         Lobby lobby = mock(LobbyDTO.class);
-        Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues);
+        Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues, difficulty);
         PlayerCard playerCard = new AirBridgeEventCard();
         Player player = players.get(0);
 
@@ -323,6 +330,150 @@ public class CardServiceTest extends EventBusBasedTest {
 
         assertThatThrownBy(() -> cardService.allowDrawingOrDiscarding(game, session, responseMessage))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Draw Player Card Request - Draw Epidemic Card")
+    void onDrawPlayerCardRequest_drawEpidemicCard() {
+        Game mockGame = mock(Game.class);
+        setupEpidemicGame(mockGame);
+
+        DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mock(Player.class));
+        request.setSession(session);
+        post(request);
+
+        verify(mockGame).increaseInfectionLevel();
+        verify(cardManagement).drawInfectionCardFromTheBottom(mockGame);
+        verify(lobbyService).sendToAllInLobby(eq(mockGame.getLobby()), any(RetrieveUpdatedGameServerMessage.class));
+    }
+
+    private void setupEpidemicGame(Game game) {
+        EpidemicCard epidemicCard = mock(EpidemicCard.class);
+        CardStack<PlayerCard> playerDrawStack = new CardStack<>();
+        playerDrawStack.push(epidemicCard);
+
+        InfectionCard infectionCard = mock(InfectionCard.class);
+        Field field = mock(Field.class);
+        when(infectionCard.getAssociatedField()).thenReturn(field);
+
+        when(game.getPlayerDrawStack()).thenReturn(playerDrawStack);
+        when(game.getInfectionDiscardStack()).thenReturn(new CardStack<>());
+        when(game.getInfectionDrawStack()).thenReturn(new CardStack<>());
+        when(game.getPlayersInTurnOrder()).thenReturn(List.of(mock(Player.class)));
+        when(game.getIndexOfCurrentPlayer()).thenReturn(0);
+        when(game.getCurrentTurn()).thenReturn(mock(PlayerTurn.class));
+        when(game.getLobby()).thenReturn(mock(Lobby.class));
+        when(gameManagement.getGame(any())).thenReturn(Optional.of(game));
+        when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
+        when(cardManagement.drawInfectionCardFromTheBottom(game)).thenReturn(infectionCard);
+    }
+
+    @Test
+    @DisplayName("Process Bottom Card - With Antidote Marker")
+    void processBottomCard_withAntidoteMarker() {
+        Game mockGame = mock(Game.class);
+        InfectionCard mockBottomCard = mock(InfectionCard.class);
+        Field mockField = mock(Field.class);
+        Plague mockPlague = mock(Plague.class);
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+        when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(true);
+
+        cardService.processBottomCard(mockGame);
+
+        verify(mockField, never()).isInfectable(mockPlague);
+        verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
+    }
+
+    @Test
+    @DisplayName("Process Bottom Card - Causes Outbreak")
+    void processBottomCard_causesOutbreak() {
+        Game mockGame = mock(Game.class);
+        InfectionCard mockedBottomCard = mock(InfectionCard.class);
+        Field mockField = mock(Field.class);
+        Plague mockPlague = mock(Plague.class);
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockedBottomCard);
+        when(mockedBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+        when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
+        when(mockField.isInfectable(mockPlague)).thenReturn(false);
+
+        cardService.processBottomCard(mockGame);
+
+        verify(mockGame).startOutbreak();
+        verify(cardManagement).discardInfectionCard(mockGame, mockedBottomCard);
+    }
+
+    @Test
+    @DisplayName("Process Bottom Card - Multiple Infections")
+    void processBottomCard_multipleInfections() {
+        Game mockGame = mock(Game.class);
+        InfectionCard mockBottomCard = mock(InfectionCard.class);
+        Field mockField = mock(Field.class);
+        Plague mockPlague = mock(Plague.class);
+        PlayerTurn mockPlayerTurn = mock(PlayerTurn.class);
+        List<List<Field>> infectedFieldsList = new ArrayList<>();
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+        when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
+        when(mockField.isInfectable(mockPlague)).thenReturn(true);
+        when(mockGame.getCurrentTurn()).thenReturn(mockPlayerTurn);
+        when(mockPlayerTurn.getInfectedFieldsInTurn()).thenReturn(infectedFieldsList);
+
+        cardService.processBottomCard(mockGame);
+
+        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
+        verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
+    }
+
+    @Test
+    @DisplayName("Reshuffle Infection Discard Pile")
+    void reshuffleInfectionDiscardPileOntoDrawPile_success() {
+        Game mockGame = mock(Game.class);
+        CardStack<InfectionCard> discardStack = spy(new CardStack<>());
+        CardStack<InfectionCard> drawStack = spy(new CardStack<>());
+        InfectionCard card1 = mock(InfectionCard.class);
+        InfectionCard card2 = mock(InfectionCard.class);
+        discardStack.push(card1);
+        discardStack.push(card2);
+
+        when(mockGame.getInfectionDiscardStack()).thenReturn(discardStack);
+        when(mockGame.getInfectionDrawStack()).thenReturn(drawStack);
+
+        cardService.reshuffleInfectionDiscardPileOntoDrawPile(mockGame);
+
+        verify(discardStack).shuffle();
+        verify(discardStack).clear();
+        assertThat(drawStack).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("Trigger Epidemic - Complete Process")
+    void triggerEpidemic_completeProcess() {
+        Game mockGame = mock(Game.class);
+        EpidemicCard mockEpidemicCard = mock(EpidemicCard.class);
+        InfectionCard mockBottomCard = mock(InfectionCard.class);
+        Field mockField = mock(Field.class);
+        CardStack<InfectionCard> discardStack = spy(new CardStack<>());
+        CardStack<InfectionCard> drawStack = spy(new CardStack<>());
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockGame.getInfectionDiscardStack()).thenReturn(discardStack);
+        when(mockGame.getInfectionDrawStack()).thenReturn(drawStack);
+
+        cardService.triggerEpidemic(mockGame, mockEpidemicCard);
+
+        verify(mockGame).increaseInfectionLevel();
+        verify(cardManagement).drawInfectionCardFromTheBottom(mockGame);
+        InOrder inOrder = Mockito.inOrder(mockGame, cardManagement);
+        inOrder.verify(mockGame).increaseInfectionLevel();
+        inOrder.verify(cardManagement).drawInfectionCardFromTheBottom(mockGame);
     }
 
     @Subscribe

@@ -5,6 +5,7 @@ import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
@@ -58,10 +59,11 @@ public class ActionServiceTest extends EventBusBasedTest {
     void onActionRequest(final boolean isInActionPhaseAfterActionExecution, final int timesCardServiceCalled) throws InterruptedException {
         final User user = new UserDTO("user", "pass", "");
         final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
 
         final MapType mapType = createMapType();
 
-        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
         final PlayerTurn playerTurn = mock();
         when(playerTurn.isActionExecutable())
                 .thenReturn(isInActionPhaseAfterActionExecution);

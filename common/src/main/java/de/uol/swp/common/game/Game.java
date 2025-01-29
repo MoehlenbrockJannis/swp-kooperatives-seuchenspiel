@@ -64,7 +64,7 @@ public class Game implements Serializable {
     private int maxHandCards;
     private int numberOfPlagueCubesPerColor;
     private int numberOfResearchLaboratories;
-    private int numberOfEpidemicCards;
+    private GameDifficulty difficulty;
     private int numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
     private int numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution;
     @Getter
@@ -115,8 +115,9 @@ public class Game implements Serializable {
      * @param type the type of game map to be used
      * @param players the list of players participating in the game
      * @param plagues the list of plagues that will be present in the game
+     * @param difficulty the number of epidemic cards in the player deck
      */
-    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues, int numberOfEpidemicCards) {
+    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues, GameDifficulty difficulty) {
         this(
             lobby,
             type,
@@ -125,7 +126,7 @@ public class Game implements Serializable {
             DEFAULT_MAX_NUMBER_OF_HAND_CARDS,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES,
             DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES,
-            numberOfEpidemicCards,
+            difficulty,
             DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD,
@@ -144,7 +145,7 @@ public class Game implements Serializable {
      * @param maxHandCards the maximum number of cards a player can hold
      * @param numberOfPlagueCubesPerColor the number of plague cubes per color
      * @param numberOfResearchLaboratories the number of research laboratories in the game
-     * @param numberOfEpidemicCards the number of epidemic cards in the player deck
+     * @param difficulty the number of epidemic cards in the player deck
      * @param numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution
      *        the number of infection cards drawn during initial setup
      * @param numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution
@@ -161,7 +162,7 @@ public class Game implements Serializable {
             int maxHandCards,
             int numberOfPlagueCubesPerColor,
             int numberOfResearchLaboratories,
-            int numberOfEpidemicCards,
+            GameDifficulty difficulty,
             int numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution,
             int numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution,
             int maxNumberOfPlagueCubesPerField,
@@ -174,7 +175,7 @@ public class Game implements Serializable {
         this.maxHandCards = maxHandCards;
         this.numberOfPlagueCubesPerColor = numberOfPlagueCubesPerColor;
         this.numberOfResearchLaboratories = numberOfResearchLaboratories;
-        this.numberOfEpidemicCards = numberOfEpidemicCards;
+        this.difficulty = difficulty;
         this.numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution =
             numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
         this.numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution =
@@ -267,7 +268,7 @@ public class Game implements Serializable {
     private void createPlayerDrawStack() {
         this.playerDrawStack = new CardStack<>();
         List<PlayerCard> baseStack = initializeBasePlayerStack();
-        List<CardStack<PlayerCard>> subStacks = dividePlayerStackIntoEpidemicStacks(baseStack, this.numberOfEpidemicCards);
+        List<CardStack<PlayerCard>> subStacks = dividePlayerStackIntoEpidemicStacks(baseStack, difficulty.getNumberOfEpidemicCards());
         addEpidemicCardsToSubStacks(subStacks);
         combineSubStacksIntoDrawStack(subStacks);
     }
@@ -348,7 +349,7 @@ public class Game implements Serializable {
      */
     private List<EpidemicCard> createEpidemicCards() {
         List<EpidemicCard> epidemicCards = new ArrayList<>();
-        for (int i = 0; i < this.numberOfEpidemicCards; i++) {
+        for (int i = 0; i < difficulty.getNumberOfEpidemicCards(); i++) {
             epidemicCards.add(new EpidemicCard());
         }
         return epidemicCards;
@@ -589,10 +590,6 @@ public class Game implements Serializable {
      */
     public void nextPlayer() {
         this.indexOfCurrentPlayer = (this.indexOfCurrentPlayer + 1) % this.playersInTurnOrder.size();
-    }
-
-    public void addAntidoteMarker(Plague plague) {
-        this.antidoteMarkers.add(new AntidoteMarker(plague));
     }
 
     /**

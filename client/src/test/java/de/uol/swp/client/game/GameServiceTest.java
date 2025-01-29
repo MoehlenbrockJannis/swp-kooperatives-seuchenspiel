@@ -1,6 +1,7 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.EventBusBasedTest;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
@@ -29,7 +30,7 @@ public class GameServiceTest extends EventBusBasedTest {
 
     private List<Plague> plagueList;
 
-    private int numberOfEpidemicCards = 4;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
@@ -44,11 +45,12 @@ public class GameServiceTest extends EventBusBasedTest {
         List<MapSlot> mapSlotList = new ArrayList<>(List.of(new MapSlot(city1, new ArrayList<>(List.of(city2)), plague, 0, 0)));
         this.mapType = new MapType(mapSlotList, city1);
         this.plagueList = new ArrayList<>(List.of(plague));
+        this.difficulty = GameDifficulty.getDefault();
     }
 
     @Test
     void createGame() throws InterruptedException {
-        gameService.createGame(lobby, mapType, plagueList, numberOfEpidemicCards);
+        gameService.createGame(lobby, mapType, plagueList, difficulty);
 
         waitForLock();
 

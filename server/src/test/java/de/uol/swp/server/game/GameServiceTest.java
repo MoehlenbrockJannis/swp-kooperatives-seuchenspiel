@@ -1,6 +1,7 @@
 package de.uol.swp.server.game;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
@@ -46,14 +47,14 @@ public class GameServiceTest extends EventBusBasedTest {
 
         final MapType mapType = createMapType();
         final List<Plague> plagues = List.of();
-        final int numberOfEpidemicCards = 4;
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
 
-        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, numberOfEpidemicCards);
+        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
 
-        when(gameManagement.createGame(lobby, mapType, plagues, numberOfEpidemicCards))
+        when(gameManagement.createGame(lobby, mapType, plagues, difficulty))
                 .thenReturn(game);
 
-        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, numberOfEpidemicCards);
+        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, difficulty);
         post(createGameRequest);
 
         waitForLock();

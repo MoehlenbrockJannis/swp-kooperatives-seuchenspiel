@@ -3,6 +3,7 @@ package de.uol.swp.server.card;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CardManagementTest {
     private GameManagement gameManagement;
@@ -34,6 +36,7 @@ class CardManagementTest {
     private List<Plague> mockPlagues;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
+    private GameDifficulty mockDifficulty;
 
     @BeforeEach
     void setUp() {
@@ -52,13 +55,15 @@ class CardManagementTest {
         mockPlagues = new ArrayList<>();
         mockPlayerCard = mock(PlayerCard.class);
         mockInfectionCard = mock(InfectionCard.class);
+        mockDifficulty = mock(GameDifficulty.class);
+        when(mockDifficulty.getNumberOfEpidemicCards()).thenReturn(4);
     }
 
 
     @Test
     @DisplayName("Test drawing a player card")
     void drawPlayerCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
         PlayerCard playerCard = gameManagement.drawPlayerCard(game);
         assertThat(playerCard).isNotNull();
@@ -67,7 +72,7 @@ class CardManagementTest {
     @Test
     @DisplayName("Test discarding a player card")
     void discardPlayerCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
         cardManagement.discardPlayerCard(game, mockPlayerCard);
         assertThat(game.getPlayerDiscardStack()).contains(mockPlayerCard);
@@ -76,7 +81,7 @@ class CardManagementTest {
     @Test
     @DisplayName("Test drawing an infection card from the top")
     void drawInfectionCard_fromTheTop() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
         Optional<Game> optionalGame = gameManagement.getGame(game);
         optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
@@ -88,7 +93,7 @@ class CardManagementTest {
     @Test
     @DisplayName("Test drawing an infection card from the bottom")
     void drawInfectionCard_fromTheBottom() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues, mockDifficulty);
         game.getInfectionDrawStack().removeAllElements();
         game.getInfectionDrawStack().push(mockInfectionCard);
         game.getInfectionDrawStack().push(mock(InfectionCard.class));
@@ -100,7 +105,7 @@ class CardManagementTest {
     @Test
     @DisplayName("Test discarding an infection card")
     void discardInfectionCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
         cardManagement.discardInfectionCard(game, mockInfectionCard);
         assertThat(game.getInfectionDiscardStack()).contains(mockInfectionCard);

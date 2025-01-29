@@ -45,7 +45,7 @@ public class GameManagement {
         roleManagement.assignRolesToPlayers(lobby);
 
         Game newGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()),
-                plagues, difficulty.getNumberOfEpidemicCards());
+                plagues, difficulty);
         newGame.addPlayerTurn(playerTurnManagement.createPlayerTurn(newGame));
         return newGame;
     }
