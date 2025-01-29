@@ -202,12 +202,15 @@ public class Game implements Serializable {
         this.antidoteMarkers = new ArrayList<>();
 
         createPlayerStacks();
+        assignPlayerCardsToPlayers(playerDrawStack);
+
         createInfectionStacks();
 
         createPlagueCubes();
         distributeInitialPlagueCubes();
 
         assignPlayersToStartingField();
+        initializeStartResearchLaboratory();
     }
 
     @Override
@@ -247,6 +250,16 @@ public class Game implements Serializable {
             plagueCubes.put(plague, plagueCubeList);
 
         }
+    }
+
+    /**
+     * Adds a research lab to the start of the game in Atlanta
+     */
+    public void initializeStartResearchLaboratory() {
+        ResearchLaboratory startResearchLaboratory = new ResearchLaboratory();
+        Field field = this.getCurrentPlayer().getCurrentField();
+        researchLaboratories.add(startResearchLaboratory);
+        field.buildResearchLaboratory(startResearchLaboratory);
     }
 
     /**
@@ -298,8 +311,18 @@ public class Game implements Serializable {
      *
      * @param cards the stack of player cards to be distributed among players
      */
-    private void assignPlayerCardsToPlayers (CardStack<PlayerCard> cards) {
+    private void assignPlayerCardsToPlayers(CardStack<PlayerCard> cards) {
+        int numberOfPlayers = playersInTurnOrder.size();
+        int cardsPerPlayer = AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS.get(numberOfPlayers);
 
+        for (Player player : playersInTurnOrder) {
+            for (int i = 0; i < cardsPerPlayer; i++) {
+                if (!cards.isEmpty()) {
+                    PlayerCard card = cards.pop();
+                    player.addHandCard(card);
+                }
+            }
+        }
     }
 
     /**
