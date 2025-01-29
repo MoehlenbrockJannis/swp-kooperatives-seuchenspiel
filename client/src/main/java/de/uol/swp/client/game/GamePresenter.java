@@ -573,7 +573,7 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the research laboratory button's disabled state based on available actions.
      */
     public void updateResearchLaboratoryButtonState() {
-        if(game.getCurrentTurn().hasActionsToDo()) {
+        if(game.getCurrentTurn().hasActionsToDo() && isCurrentPlayerInGame()) {
             boolean isActionAvailable = game.getCurrentTurn().getPossibleActions().stream()
                     .anyMatch(this::isResearchLaboratoryBuildAction);
             researchLaboratoryButton.setDisable(!isActionAvailable);

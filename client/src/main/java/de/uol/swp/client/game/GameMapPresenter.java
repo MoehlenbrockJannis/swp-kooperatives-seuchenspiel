@@ -116,6 +116,8 @@ public class GameMapPresenter extends AbstractPresenter {
         addAllCityMarkers();
         addAllPlagueCubeMarkers();
         addAllPlayerMarkers();
+
+        addResearchLaboratoryMarkers(this.game);
     }
 
     /**
