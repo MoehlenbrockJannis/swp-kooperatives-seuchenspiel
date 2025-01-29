@@ -213,7 +213,7 @@ public class GamePresenter extends AbstractPresenter {
 
         Player currentPlayer = this.game.getCurrentPlayer();
 
-        if (currentPlayer.equals(currentPlayerForUser) && isTurnOver(this.game)) {
+        if (isTurnOver(this.game)) {
             EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
             eventBus.post(endTurnMessage);
             updateResearchLaboratoryButtonState();
