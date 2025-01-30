@@ -3,7 +3,6 @@ package de.uol.swp.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.common.Configuration;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.action.ActionService;
 import de.uol.swp.server.approvable.ApprovableService;
 import de.uol.swp.server.card.CardService;
@@ -83,9 +82,9 @@ class ServerApp {
 		UserManagement userManagement = injector.getInstance(UserManagement.class);
 
 		// TODO: Remove after registration is implemented
-		for (int i = 0; i < 5; i++) {
+/*		for (int i = 0; i < 5; i++) {
 			userManagement.createUser(new UserDTO("test" + i, "test" + i, "test" + i + "@test.de"));
-		}
+		}*/
 
 		// Remark: As these services are not referenced by any other class
 		// we will need to create instances here (and inject dependencies)

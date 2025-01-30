@@ -2,6 +2,7 @@ package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
 import de.uol.swp.server.card.CardManagement;
+import de.uol.swp.server.database.DataSource;
 import de.uol.swp.server.store.AbstractStore;
 import org.greenrobot.eventbus.EventBus;
 
@@ -21,7 +22,7 @@ public class ServerModule extends AbstractModule {
     private final EventBus bus = EventBus.getDefault();
     private final CardManagement cardManagement = new CardManagement();
     @SuppressWarnings("rawtypes")
-    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(false);
+    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(DataSource.isDatabaseAvailable());
 
     @Override
     protected void configure() {

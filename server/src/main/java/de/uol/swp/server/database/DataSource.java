@@ -5,7 +5,10 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * This class is responsible for the connection to the database.
@@ -31,4 +34,33 @@ public class DataSource {
     public static Connection getConnection() throws SQLException {
         return ds.getConnection();
     }
+
+    public static boolean isDatabaseAvailable() {
+        try (Connection connection = getConnection()) {
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+
+
+            public static Optional<ResultSet> getResultSet(final String query) {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            return Optional.of(statement.executeQuery());
+        } catch (SQLException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static void executeQuery(String query) throws SQLException {
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.executeUpdate();
+        }
+    }
+
+
+
 }

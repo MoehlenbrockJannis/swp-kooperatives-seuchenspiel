@@ -2,6 +2,7 @@ package de.uol.swp.server.store;
 
 
 import com.google.common.hash.Hashing;
+import de.uol.swp.server.usermanagement.store.UserStore;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
@@ -26,6 +27,8 @@ public abstract class AbstractStore {
         Set<Class<? extends AbstractStore>> subTypes = getSubStores(databaseIsAvailable);
 
         subTypes.forEach(subType -> storeMap.put(getStoreInterface(subType), createStoreInstance(subType)));
+
+        subTypes.forEach(subType -> System.out.println("Created store: " + subType.getName()));
 
         return storeMap;
     }
@@ -64,10 +67,13 @@ public abstract class AbstractStore {
         if (Modifier.isAbstract(subType.getModifiers())) {
             return false;
         }
+        if (MainMemoryBasedStore.class.isAssignableFrom(subType)) {
+            return true;
+        }
         if (databaseIsAvailable) {
-            return DatabaseStore.class.isAssignableFrom(subType);
+            return DatabaseStore.class.isAssignableFrom(subType) && UserStore.class.isAssignableFrom(subType);
         } else {
-            return MainMemoryBasedStore.class.isAssignableFrom(subType);
+            return MainMemoryBasedStore.class.isAssignableFrom(subType) && UserStore.class.isAssignableFrom(subType);
         }
     }
 
