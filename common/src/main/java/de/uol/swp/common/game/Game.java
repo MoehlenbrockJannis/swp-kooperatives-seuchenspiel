@@ -494,7 +494,11 @@ public class Game implements Serializable {
      * This method handles the logic for when a disease spreads beyond control.
      */
     public void startOutbreak () {
+        this.outbreakMarker.increaseLevel();
 
+        if (this.outbreakMarker.isAtMaximumLevel()) {
+            this.isLost = true;
+        }
     }
 
     /**

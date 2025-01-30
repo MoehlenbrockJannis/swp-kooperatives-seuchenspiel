@@ -56,4 +56,13 @@ public abstract class LevelableMarker extends Marker{
     public int getLevelValue() {
         return this.levelValues.get(this.level);
     }
+
+    /**
+     * Checks if the marker has reached its maximum level.
+     *
+     * @return true if the current level is at the last position in levelValues, false otherwise
+     */
+    public boolean isAtMaximumLevel() {
+        return this.level >= this.levelValues.size() - 1;
+    }
 }
