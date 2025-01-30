@@ -260,7 +260,7 @@ public class Game implements Serializable {
      */
     public void initializeStartResearchLaboratory() {
         ResearchLaboratory startResearchLaboratory = new ResearchLaboratory();
-        Field field = this.getCurrentPlayer().getCurrentField();
+        Field field = this.map.getStartingField();
         researchLaboratories.add(startResearchLaboratory);
         field.buildResearchLaboratory(startResearchLaboratory);
     }

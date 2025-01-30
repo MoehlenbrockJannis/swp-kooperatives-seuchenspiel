@@ -5,10 +5,14 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.game.store.GameStore;
 import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
 import de.uol.swp.server.lobby.LobbyManagement;
@@ -21,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class GameManagementTest {
+public class GameManagementTest {
     private GameManagement gameManagement;
     private LobbyManagement lobbyManagement;
     private PlayerTurnManagement playerTurnManagement;
@@ -39,6 +42,7 @@ class GameManagementTest {
     private List<Plague> mockPlagues;
     private Game mockGame;
     private Player mockPlayer;
+    private Player mockPlayer2;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
     private GameDifficulty mockDifficulty;
@@ -60,8 +64,11 @@ class GameManagementTest {
         mockPlagues = new ArrayList<>();
         mockGame = mock(Game.class);
         mockPlayer = mock(Player.class);
+        mockPlayer2 = mock(Player.class);
         mockPlayerCard = mock(PlayerCard.class);
         mockInfectionCard = mock(InfectionCard.class);
+        mockLobby.addPlayer(mockPlayer);
+        mockLobby.addPlayer(mockPlayer2);
         mockDifficulty = mock(GameDifficulty.class);
         when(mockDifficulty.getNumberOfEpidemicCards()).thenReturn(4);
     }
@@ -70,18 +77,26 @@ class GameManagementTest {
     @DisplayName("Test creating a game")
     void testCreateGame() {
         final PlayerTurn playerTurn = mock(PlayerTurn.class);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
 
-        when(mockLobby.getPlayers()).thenReturn(Set.of(mockPlayer));
+        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues);
         Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
 
         assertThat(game).isNotNull();
-        assertThat(game.getLobby()).isEqualTo(mockLobby);
+        assertThat(game.getLobby()).isEqualTo(lobby);
         assertThat(game.getMap()).isNotNull();
         assertThat(game.getPlagues()).isEqualTo(mockPlagues);
-        assertThat(game.getPlayersInTurnOrder()).isEqualTo(List.of(mockPlayer));
+        assertThat(game.getPlayersInTurnOrder()).contains(player1, player2);
         assertThat(game.getCurrentTurn())
                 .isEqualTo(playerTurn);
     }
@@ -99,7 +114,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mapType, List.of(mockPlayer), mockPlagues, mockDifficulty);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
@@ -111,7 +126,7 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mapType, List.of(mockPlayer), mockPlagues, mockDifficulty);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, mockDifficulty);
         game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
@@ -121,9 +136,17 @@ class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
+
+        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
         Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
-        PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
 

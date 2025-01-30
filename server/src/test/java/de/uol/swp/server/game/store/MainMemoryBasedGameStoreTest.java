@@ -6,6 +6,8 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +32,17 @@ class MainMemoryBasedGameStoreTest {
 
         this.gameStore = new MainMemoryBasedGameStore();
         User user = new UserDTO("Test", "Test", "Test@test.de");
+        User user2 = new UserDTO("Test2", "Test", "Test@test.de");
+
+        Player player = new UserPlayer(user);
+        Player player2 = new UserPlayer(user2);
+
         List<Plague> plagues = List.of(mock(Plague.class));
         MapType mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user,2,4);
+
+        lobby.addPlayer(player);
+        lobby.addPlayer(player2);
         GameDifficulty difficulty = GameDifficulty.getDefault();
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
     }
