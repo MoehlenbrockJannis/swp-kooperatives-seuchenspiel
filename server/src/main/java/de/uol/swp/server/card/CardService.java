@@ -348,7 +348,7 @@ public class CardService extends AbstractService {
                 if (field.isInfectable(field.getPlague())) {
                     handleInfectionProcess(game, bottomCard);
                 } else {
-                    game.startOutbreak();
+                    game.getMap().startOutbreak(field, field.getPlague());
                     break;
                 }
             }
