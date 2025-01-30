@@ -20,6 +20,7 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
+import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.Plague;
@@ -363,6 +364,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
         InfectionCard infectionCard = mock(InfectionCard.class);
         Field field = mock(Field.class);
+        GameMap mockMap = mock(GameMap.class);
         when(infectionCard.getAssociatedField()).thenReturn(field);
 
         when(game.getPlayerDrawStack()).thenReturn(playerDrawStack);
@@ -372,6 +374,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(game.getIndexOfCurrentPlayer()).thenReturn(0);
         when(game.getCurrentTurn()).thenReturn(mock(PlayerTurn.class));
         when(game.getLobby()).thenReturn(mock(Lobby.class));
+        when(game.getMap()).thenReturn(mockMap);
         when(gameManagement.getGame(any())).thenReturn(Optional.of(game));
         when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
         when(cardManagement.drawInfectionCardFromTheBottom(game)).thenReturn(infectionCard);
@@ -403,16 +406,18 @@ public class CardServiceTest extends EventBusBasedTest {
         InfectionCard mockedBottomCard = mock(InfectionCard.class);
         Field mockField = mock(Field.class);
         Plague mockPlague = mock(Plague.class);
+        GameMap mockMap = mock(GameMap.class);
 
         when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockedBottomCard);
         when(mockedBottomCard.getAssociatedField()).thenReturn(mockField);
         when(mockField.getPlague()).thenReturn(mockPlague);
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
         when(mockField.isInfectable(mockPlague)).thenReturn(false);
+        when(mockGame.getMap()).thenReturn(mockMap);
 
         cardService.processBottomCard(mockGame);
 
-        verify(mockGame).startOutbreak();
+        verify(mockMap).startOutbreak(mockField, mockPlague);
         verify(cardManagement).discardInfectionCard(mockGame, mockedBottomCard);
     }
 
@@ -470,11 +475,13 @@ public class CardServiceTest extends EventBusBasedTest {
         Field mockField = mock(Field.class);
         CardStack<InfectionCard> discardStack = spy(new CardStack<>());
         CardStack<InfectionCard> drawStack = spy(new CardStack<>());
+        GameMap mockMap = mock(GameMap.class);
 
         when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
         when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
         when(mockGame.getInfectionDiscardStack()).thenReturn(discardStack);
         when(mockGame.getInfectionDrawStack()).thenReturn(drawStack);
+        when(mockGame.getMap()).thenReturn(mockMap);
 
         cardService.triggerEpidemic(mockGame, mockEpidemicCard);
 

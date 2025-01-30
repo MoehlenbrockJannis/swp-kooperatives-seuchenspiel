@@ -22,9 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,8 +87,7 @@ public class GameManagementTest {
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
-        Game game = gameManagement.createGame(lobby, mapType, mockPlagues);
-        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, mockDifficulty);
 
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(lobby);
@@ -136,14 +133,10 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
-        User user1 = new UserDTO("user", "pass", "");
-        User user2 = new UserDTO("user2", "pass2", "user2");
-        Player player1 = new UserPlayer(user1);
-        Player player2 = new UserPlayer(user2);
-
-        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
-        lobby.addPlayer(player1);
-        lobby.addPlayer(player2);
+        Set<Player> players = new HashSet<>();
+        players.add(mockPlayer);
+        players.add(mockPlayer2);
+        when(mockLobby.getPlayers()).thenReturn(players);
 
         Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
         gameManagement.addGame(game);
