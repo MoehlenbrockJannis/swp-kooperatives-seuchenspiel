@@ -57,8 +57,11 @@ import static org.mockito.Mockito.*;
 class PlayerTurnTest {
 
     private User defaultUser;
+    private User defaultUser2;
     private Player defaultPlayer;
-    private RoleCard roleCard;
+    private Player defaultPlayer2;
+    private RoleCard roleCard1;
+    private RoleCard roleCard2;
     private RoleAbility roleAbility;
     private Game defaultGame;
     private PlayerTurn defaultPlayerTurn;
@@ -88,11 +91,20 @@ class PlayerTurnTest {
     @BeforeEach
     public void setUp() {
         this.defaultUser = new UserDTO("Joerg", "333", "Joerg@mail.com");
+        this.defaultUser2 = new UserDTO("Juergen", "333", "Juergen@mail.com");
         final Lobby lobby = new LobbyDTO("lobby", defaultUser, 1, 2);
+
         this.roleAbility = mock(RoleAbility.class);
-        this.roleCard = new RoleCard("", new Color(), roleAbility);
+        this.roleCard1 = new RoleCard("", new Color(), roleAbility);
+        this.roleCard2 = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
-        this.defaultPlayer.setRole(roleCard);
+        this.defaultPlayer.setRole(roleCard1);
+
+        this.defaultPlayer2 = new UserPlayer(this.defaultUser2);
+        this.defaultPlayer2.setRole(roleCard2);
+
+        lobby.addPlayer(this.defaultPlayer);
+        lobby.addPlayer(this.defaultPlayer2);
 
         final MapType mapType = createMapType();
 

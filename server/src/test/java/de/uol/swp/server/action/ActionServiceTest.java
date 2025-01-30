@@ -9,6 +9,8 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
@@ -57,7 +59,14 @@ public class ActionServiceTest extends EventBusBasedTest {
     @MethodSource("onActionRequestSource")
     void onActionRequest(final boolean isInActionPhaseAfterActionExecution, final int timesCardServiceCalled) throws InterruptedException {
         final User user = new UserDTO("user", "pass", "");
+        final User user2 = new UserDTO("user1", "pass", "");
+        Player player = new UserPlayer(user);
+        Player player2 = new UserPlayer(user2);
+
         final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+
+        lobby.addPlayer(player);
+        lobby.addPlayer(player2);
 
         final MapType mapType = createMapType();
 

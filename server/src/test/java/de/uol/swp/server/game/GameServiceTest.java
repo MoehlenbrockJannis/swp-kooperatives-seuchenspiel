@@ -7,6 +7,8 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.EventBusBasedTest;
@@ -42,7 +44,14 @@ public class GameServiceTest extends EventBusBasedTest {
     @DisplayName("Should create a game from the CreateGameRequest and return the game with a CreateGameServerMessage")
     void onCreateGameRequest() throws InterruptedException {
         final User user = new UserDTO("user", "pass", "");
+        final User user2 = new UserDTO("user2", "pass2", "user2");
         final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+
+        Player player = new UserPlayer(user);
+        Player player2 = new UserPlayer(user2);
+
+        lobby.addPlayer(player);
+        lobby.addPlayer(player2);
 
         final MapType mapType = createMapType();
         final List<Plague> plagues = List.of();
