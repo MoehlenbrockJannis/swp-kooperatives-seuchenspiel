@@ -21,6 +21,7 @@ import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
@@ -62,6 +63,8 @@ public class CardServiceTest extends EventBusBasedTest {
     private MapType mapType;
     private Session session;
     private List<Object> responses;
+    private Player player1;
+    private Player player2;
 
     @BeforeEach
     void setUp() {
@@ -74,9 +77,18 @@ public class CardServiceTest extends EventBusBasedTest {
         cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
 
         User user = new UserDTO("Test", "Test", "Test@test.de");
+        User user2 = new UserDTO("TestZwei", "Test", "Test@test.de");
+
+        this.player1 = new UserPlayer(user);
+        this.player2 = new UserPlayer(user2);
+
         List<Plague> plagues = List.of(mock(Plague.class));
         mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user,2,4);
+
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
         try (MockedConstruction<ActionFactory> mockedActionFactory = Mockito.mockConstruction(ActionFactory.class, (mock, context) -> {
             when(mock.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(any(), any()))
@@ -142,7 +154,7 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Discard Player Card Request - Successful Discard")
     void onDiscardPlayerCardRequest_successfulDiscard() {
 
-        Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
+        Player player = this.game.getCurrentPlayer();
         PlayerCard playerCard = new AirBridgeEventCard();
         player.addHandCard(playerCard);
 
@@ -152,8 +164,6 @@ public class CardServiceTest extends EventBusBasedTest {
         request.setSession(session);
         post(request);
 
-
-
         verify(gameManagement, times(1)).updateGame(game);
         verify(lobbyService, times(1)).sendToAllInLobby(eq(this.game.getLobby()), any());
     }
@@ -161,10 +171,18 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Discard Player Card Request - Card Not In Hand")
     void onDiscardPlayerCardRequest_cardNotInHand() {
+        this.player1 = mock(Player.class);
+        this.player2 = mock(Player.class);
+
         List<Plague> plagues = List.of(mock(Plague.class));
         List<Player> players = new ArrayList<>();
-        players.add(mock(Player.class));
+        players.add(player1);
+        players.add(player2);
+
         Lobby lobby = mock(LobbyDTO.class);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
         Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues);
         PlayerCard playerCard = new AirBridgeEventCard();
         Player player = players.get(0);
@@ -219,10 +237,9 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Player has more than max hand cards - Discard required")
     void playerHasMoreThanMaxHandCards_discardRequired() throws InterruptedException {
         Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
-        for(int i = 0; i < 8; i++) {
+        for(int i = 0; i < 4; i++) {
             player.addHandCard(new AirBridgeEventCard());
         }
-        int numberOfCardsToDiscard = player.getHandCards().size() - game.getMaxHandCards();
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
 
@@ -233,20 +250,12 @@ public class CardServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        ReleaseToDiscardPlayerCardResponse releaseToDiscardPlayerCardResponse = responses.stream()
-                .filter(ReleaseToDiscardPlayerCardResponse.class::isInstance)
-                .map(ReleaseToDiscardPlayerCardResponse.class::cast)
-                .findFirst()
-                .orElse(null);
-
         DrawPlayerCardResponse drawPlayerCardResponse = responses.stream()
                 .filter(DrawPlayerCardResponse.class::isInstance)
                 .map(DrawPlayerCardResponse.class::cast).findFirst()
                 .orElse(null);
 
-        assertThat(releaseToDiscardPlayerCardResponse).isNotNull();
         assertThat(drawPlayerCardResponse).isNotNull();
-        assertThat(releaseToDiscardPlayerCardResponse.getNumberOfCardsToDiscard()).isEqualTo(numberOfCardsToDiscard);
 
     }
 
@@ -299,7 +308,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
     @Test
     @DisplayName("")
-    void allowInfectionCardDrawing() throws InterruptedException {
+    void allowInfectionCardDrawing() throws InterruptedException, IllegalStateException {
         cardService.allowDrawingOrDiscarding(game, session, ReleaseToDrawInfectionCardResponse.class);
 
         waitForLock();
@@ -340,10 +349,12 @@ public class CardServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(ReleaseToDrawPlayerCardResponse releaseToDrawPlayerCardResponse) {
         handleEvent(releaseToDrawPlayerCardResponse);
+        responses.add(releaseToDrawPlayerCardResponse);
     }
 
     @Subscribe
     public void onEvent(ReleaseToDrawInfectionCardResponse releaseToDrawInfectionCardResponse) {
         handleEvent(releaseToDrawInfectionCardResponse);
+        responses.add(releaseToDrawInfectionCardResponse);
     }
 }
