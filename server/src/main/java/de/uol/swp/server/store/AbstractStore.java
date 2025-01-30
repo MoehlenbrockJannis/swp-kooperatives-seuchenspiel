@@ -28,8 +28,6 @@ public abstract class AbstractStore {
 
         subTypes.forEach(subType -> storeMap.put(getStoreInterface(subType), createStoreInstance(subType)));
 
-        subTypes.forEach(subType -> System.out.println("Created store: " + subType.getName()));
-
         return storeMap;
     }
 
