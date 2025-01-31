@@ -35,17 +35,15 @@ public class DataSource {
         return ds.getConnection();
     }
 
-    public static boolean isDatabaseAvailable() {
-        try (Connection connection = getConnection()) {
-            return true;
-        } catch (SQLException e) {
-            return false;
-        }
-    }
 
-
-
-            public static Optional<ResultSet> getResultSet(final String query) {
+    /**
+     * Returns a ResultSet from a given query.
+     *
+     * @param query The query to be executed
+     * @return ResultSet from the query
+     * @throws SQLException if a database access error occurs
+     */
+    public static Optional<ResultSet> getResultSet(final String query) {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
             return Optional.of(statement.executeQuery());
@@ -54,6 +52,12 @@ public class DataSource {
         }
     }
 
+    /**
+     * Executes a given query.
+     *
+     * @param query The query to be executed
+     * @throws SQLException if a database access error occurs
+     */
     public static void executeQuery(String query) throws SQLException {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
