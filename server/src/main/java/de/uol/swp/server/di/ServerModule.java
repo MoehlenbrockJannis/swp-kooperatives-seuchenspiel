@@ -1,9 +1,9 @@
 package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
-import de.uol.swp.server.ServerAvailabilityChecker;
 import de.uol.swp.server.card.CardManagement;
 import de.uol.swp.server.store.AbstractStore;
+import de.uol.swp.server.util.ServerAvailabilityChecker;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.greenrobot.eventbus.EventBus;
 
