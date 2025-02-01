@@ -65,14 +65,48 @@ public abstract class AbstractStore {
         if (Modifier.isAbstract(subType.getModifiers())) {
             return false;
         }
-        if (MainMemoryBasedStore.class.isAssignableFrom(subType)) {
+
+        if (isMainMemoryBasedStore(subType) && !isUserStore(subType)) {
             return true;
         }
+
         if (databaseIsAvailable) {
-            return DatabaseStore.class.isAssignableFrom(subType) && UserStore.class.isAssignableFrom(subType);
-        } else {
-            return MainMemoryBasedStore.class.isAssignableFrom(subType) && UserStore.class.isAssignableFrom(subType);
+            return isDatabaseStore(subType) && isUserStore(subType);
         }
+
+        return isMainMemoryBasedStore(subType) && isUserStore(subType);
+
+
+    }
+
+    /**
+     * Checks if the given subType is a main memory-based store.
+     *
+     * @param subType the class to check
+     * @return true if the subType is a main memory-based store, false otherwise
+     */
+    private static boolean isMainMemoryBasedStore(Class<? extends AbstractStore> subType) {
+        return MainMemoryBasedStore.class.isAssignableFrom(subType);
+    }
+
+    /**
+     * Checks if the given subType is a database store.
+     *
+     * @param subType the class to check
+     * @return true if the subType is a database store, false otherwise
+     */
+    private static boolean isDatabaseStore(Class<? extends AbstractStore> subType) {
+        return DatabaseStore.class.isAssignableFrom(subType);
+    }
+
+    /**
+     * Checks if the given subType is a user store.
+     *
+     * @param subType the class to check
+     * @return true if the subType is a user store, false otherwise
+     */
+    private static boolean isUserStore(Class<? extends AbstractStore> subType) {
+        return UserStore.class.isAssignableFrom(subType);
     }
 
     /**
