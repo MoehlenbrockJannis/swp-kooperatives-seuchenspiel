@@ -3,6 +3,7 @@ package de.uol.swp.server.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,16 @@ import java.util.Optional;
  */
 public class DataSource {
 
-    private static final HikariConfig config = new HikariConfig("hikari.properties");
+    private static final Dotenv dotenv = Dotenv.load();
+    private static final HikariConfig config = new HikariConfig();
+
+    static {
+        String url = "jdbc:" + dotenv.get("DB_TYP") + "://" + dotenv.get("DB_HOST") + ":" + dotenv.get("DB_PORT") + "/" + dotenv.get("DB_NAME");
+        config.setJdbcUrl(url);
+        config.setUsername(dotenv.get("DB_USER"));
+        config.setPassword(dotenv.get("DB_PASSWORD"));
+    }
+
     private static final HikariDataSource ds = new HikariDataSource(config);
 
     /**
@@ -41,7 +51,6 @@ public class DataSource {
      *
      * @param query The query to be executed
      * @return ResultSet from the query
-     * @throws SQLException if a database access error occurs
      */
     public static Optional<ResultSet> getResultSet(final String query) {
         try (Connection connection = getConnection();
