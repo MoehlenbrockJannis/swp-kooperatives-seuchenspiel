@@ -5,3 +5,5 @@ target/
 .vscode
 *.iml
 *.properties
+.env
+.env.*
