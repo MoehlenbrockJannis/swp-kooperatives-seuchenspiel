@@ -1,9 +1,10 @@
 package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
+import de.uol.swp.server.ServerAvailabilityChecker;
 import de.uol.swp.server.card.CardManagement;
-import de.uol.swp.server.database.DataSource;
 import de.uol.swp.server.store.AbstractStore;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
@@ -19,10 +20,19 @@ import java.util.Map;
 
 public class ServerModule extends AbstractModule {
 
+    private static final Dotenv dotenv = Dotenv.configure().load();
+
     private final EventBus bus = EventBus.getDefault();
     private final CardManagement cardManagement = new CardManagement();
+
+    String dbHost = dotenv.get("DB_HOST");
+    int dbPort = Integer.parseInt(dotenv.get("DB_PORT"));
+    int timeoutMs = Integer.parseInt(dotenv.get("TIMEOUT_MS"));
     @SuppressWarnings("rawtypes")
-    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(DataSource.isDatabaseAvailable());
+    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs));
+
+
+
 
     @Override
     protected void configure() {
