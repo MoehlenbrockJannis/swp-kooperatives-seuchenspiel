@@ -1,5 +1,6 @@
 package de.uol.swp.server.communication.netty;
 
+import de.uol.swp.common.LoggingHandler;
 import de.uol.swp.common.MyObjectDecoder;
 import de.uol.swp.common.MyObjectEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -54,6 +55,7 @@ public class Server {
 
                 @Override
                 protected void initChannel(SocketChannel ch) {
+                    ch.pipeline().addLast(new LoggingHandler());
                     // Encoder and decoder are both needed! Send and
                     // receive serializable objects
                     ch.pipeline().addLast(new MyObjectEncoder());
