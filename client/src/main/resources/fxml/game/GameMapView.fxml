@@ -8,6 +8,8 @@
     <Pane fx:id="webViewPane">
         <WebView fx:id="webView"/>
     </Pane>
+    <Pane fx:id="cityConnectionPane"/>
+    <Pane fx:id="cityNamePane"/>
     <Pane fx:id="cityMarkerPane"/>
     <Pane fx:id="plagueCubeMarkerPane"/>
     <Pane fx:id="researchLaboratoryPane"/>
