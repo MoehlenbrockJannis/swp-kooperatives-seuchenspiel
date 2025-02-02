@@ -218,14 +218,4 @@ public abstract class Player implements Serializable, UserContainerEntity {
         }
         return role.getRoleSpecificUnavailableActionClasses();
     }
-
-    /**
-     * Retrieves the hand card that matches the given player card.
-     *
-     * @param card the player card to find in the hand
-     * @return the matching player card from the hand
-     */
-    public PlayerCard getHandCardForGivenPlayerCard(PlayerCard card) {
-        return handCards.get(handCards.indexOf(card));
-    }
 }
