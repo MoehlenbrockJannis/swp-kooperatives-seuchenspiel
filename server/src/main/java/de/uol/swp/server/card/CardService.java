@@ -127,7 +127,7 @@ public class CardService extends AbstractService {
     @Subscribe
     public void onDiscardPlayerCardRequest(DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest) {
         getGameAndPlayer(discardPlayerCardRequest,(game, player) -> {
-            final PlayerCard playerCard = discardPlayerCardRequest.getCard();
+            final PlayerCard playerCard = player.getHandCardForGivenPlayerCard(discardPlayerCardRequest.getCard());
             if(!player.hasHandCard(playerCard)) {
                 return;
             }
