@@ -5,6 +5,8 @@ import de.uol.swp.server.card.CardManagement;
 import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.util.ServerAvailabilityChecker;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class ServerModule extends AbstractModule {
 
     private static final Dotenv dotenv = Dotenv.configure().load();
+    private static final Logger LOG = LogManager.getLogger(ServerModule.class);
 
     private final EventBus bus = EventBus.getDefault();
     private final CardManagement cardManagement = new CardManagement();
@@ -34,8 +37,13 @@ public class ServerModule extends AbstractModule {
 
 
 
+
+
     @Override
     protected void configure() {
+
+        LOG.info("Database connection: " + ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs));
+
         bind(EventBus.class).toInstance(bus);
         bind(CardManagement.class).toInstance(cardManagement);
         bindStores();
