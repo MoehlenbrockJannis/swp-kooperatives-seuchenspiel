@@ -162,6 +162,7 @@ public class LobbyDTO implements Lobby {
         determineLobbyStatus();
         return status;
     }
+
     private void determineLobbyStatus() {
         final Set<Player> players = getPlayers();
         if (players.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {

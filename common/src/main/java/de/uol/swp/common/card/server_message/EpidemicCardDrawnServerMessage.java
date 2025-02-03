@@ -8,11 +8,6 @@ import lombok.Getter;
 
 /**
  * Server message that is sent when an epidemic card is drawn.
- * This message indicates that an epidemic has been triggered in the game,
- * which leads to:
- * 1. Increased infection rate
- * 2. Infection of a city from the bottom card with three plague cubes
- * 3. Reshuffling of the infection discard pile onto the draw pile
  */
 @AllArgsConstructor
 @Getter

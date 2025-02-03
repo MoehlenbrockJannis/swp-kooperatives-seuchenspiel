@@ -288,7 +288,8 @@ public class Game implements Serializable {
 
 
     /**
-     * Divides the player stack into equal-sized substacks based on the number of epidemic cards.
+     * Divides the player stack into substacks based on the number of epidemic cards.
+     * Handles uneven distribution by calculating the exact number of cards per stack.
      *
      * @param playerStack The complete list of player cards to divide
      * @param numberOfStacks The number of stacks to divide into (number of epidemic cards)
@@ -296,13 +297,23 @@ public class Game implements Serializable {
      */
     private List<CardStack<PlayerCard>> dividePlayerStackIntoEpidemicStacks(List<PlayerCard> playerStack, int numberOfStacks) {
         List<CardStack<PlayerCard>> epidemicStacks = new ArrayList<>();
-        int cardsPerStack = playerStack.size() / numberOfStacks;
+        int totalCards = playerStack.size();
+
+        int baseCardsPerStack = totalCards / numberOfStacks;
+        int remainingCards = totalCards % numberOfStacks;
+
+        int currentIndex = 0;
 
         for (int i = 0; i < numberOfStacks; i++) {
-            CardStack<PlayerCard> subStack = createSubStack(playerStack, i, cardsPerStack);
+            int currentStackSize = baseCardsPerStack + (i < remainingCards ? 1 : 0);
+
+            CardStack<PlayerCard> subStack = new CardStack<>();
+            for (int j = 0; j < currentStackSize; j++) {
+                subStack.push(playerStack.get(currentIndex));
+                currentIndex++;
+            }
             epidemicStacks.add(subStack);
         }
-
         return epidemicStacks;
     }
 

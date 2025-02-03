@@ -666,7 +666,6 @@ public class LobbyPresenter extends AbstractPresenter {
         alert.showAndWait();
     }
 
-    @FXML
     private void initializeDifficultyComboBox() {
         difficultyComboBox.setItems(FXCollections.observableArrayList(GameDifficulty.values()));
         difficultyComboBox.setValue(GameDifficulty.getDefault());
@@ -714,18 +713,24 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onDifficultyUpdateServerMessage(DifficultyUpdateServerMessage message) {
-        Platform.runLater(() -> {
-            if (lobby.equals(message.getLobby())) {
-                GameDifficulty newDifficulty = message.getDifficulty();
-                updateDifficultyComboBox(newDifficulty);
-            }
-        });
+        if (lobby.equals(message.getLobby())) {
+            GameDifficulty newDifficulty = message.getDifficulty();
+            updateDifficultyComboBox(newDifficulty);
+        }
     }
 
+    /**
+     * Updates the difficulty combo box with the new difficulty setting.
+     * Ensures the update happens on the JavaFX Application Thread.
+     *
+     * @param newDifficulty the new difficulty setting to be displayed
+     */
     private void updateDifficultyComboBox(GameDifficulty newDifficulty) {
-        if (!newDifficulty.equals(difficultyComboBox.getValue())) {
-            difficultyComboBox.setValue(newDifficulty);
-            selectedDifficulty = newDifficulty;
-        }
+        Platform.runLater(() -> {
+            if (!newDifficulty.equals(difficultyComboBox.getValue())) {
+                difficultyComboBox.setValue(newDifficulty);
+                selectedDifficulty = newDifficulty;
+            }
+        });
     }
 }

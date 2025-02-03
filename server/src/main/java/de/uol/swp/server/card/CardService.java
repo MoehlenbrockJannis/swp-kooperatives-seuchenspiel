@@ -326,9 +326,9 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
+    private void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
         game.increaseInfectionLevel();
-        processBottomCard(game);
+        processBottomInfectionCardEpidemicBehavior(game);
         reshuffleInfectionDiscardPileOntoDrawPile(game);
         post(new EpidemicCardDrawnServerMessage(game, epidemicCard));
     }
@@ -339,22 +339,26 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    void processBottomCard(Game game) {
+    private void processBottomInfectionCardEpidemicBehavior(Game game) {
         InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
         Field field = bottomCard.getAssociatedField();
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
-                if (field.isInfectable(field.getPlague())) {
-                    handleInfectionProcess(game, bottomCard);
-                } else {
-                    game.getMap().startOutbreak(field, field.getPlague());
-                    break;
-                }
-            }
+            processEpidemicInfections(game, bottomCard, field);
         }
 
         cardManagement.discardInfectionCard(game, bottomCard);
+    }
+
+    private void processEpidemicInfections(Game game, InfectionCard bottomCard, Field field) {
+        for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
+            if (field.isInfectable(field.getPlague())) {
+                handleInfectionProcess(game, bottomCard);
+            } else {
+                game.getMap().startOutbreak(field, field.getPlague());
+                break;
+            }
+        }
     }
 
 
@@ -364,7 +368,7 @@ public class CardService extends AbstractService {
      *
      * @param game the current game state
      */
-    void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
+    private void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
         CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
         discardStack.shuffle();
 

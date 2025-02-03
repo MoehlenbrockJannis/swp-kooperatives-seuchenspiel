@@ -43,7 +43,7 @@ public class GameManagementTest {
     private Player mockPlayer2;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
-    private GameDifficulty mockDifficulty;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
@@ -67,8 +67,7 @@ public class GameManagementTest {
         mockInfectionCard = mock(InfectionCard.class);
         mockLobby.addPlayer(mockPlayer);
         mockLobby.addPlayer(mockPlayer2);
-        mockDifficulty = mock(GameDifficulty.class);
-        when(mockDifficulty.getNumberOfEpidemicCards()).thenReturn(4);
+        difficulty = GameDifficulty.getDefault();
     }
 
     @Test
@@ -87,7 +86,7 @@ public class GameManagementTest {
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
-        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, mockDifficulty);
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
 
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(lobby);
@@ -111,7 +110,7 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, mockDifficulty);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
@@ -123,7 +122,7 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, mockDifficulty);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
         game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
@@ -133,12 +132,16 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
-        Set<Player> players = new HashSet<>();
-        players.add(mockPlayer);
-        players.add(mockPlayer2);
-        when(mockLobby.getPlayers()).thenReturn(players);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
 
-        Game game = gameManagement.createGame(mockLobby, mapType, mockPlagues, mockDifficulty);
+        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));

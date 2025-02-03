@@ -4,7 +4,6 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
-import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -29,8 +28,6 @@ import java.util.Optional;
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.when;
 
 class CardManagementTest {
     private GameManagement gameManagement;
@@ -48,7 +45,6 @@ class CardManagementTest {
     private User user2;
     private Player player1;
     private Player player2;
-    private GameDifficulty mockDifficulty;
 
     @BeforeEach
     void setUp() {
@@ -75,10 +71,8 @@ class CardManagementTest {
         lobby = new LobbyDTO("lobby", user1, 1, 2);
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
-        mockDifficulty = mock(GameDifficulty.class);
-        when(mockDifficulty.getNumberOfEpidemicCards()).thenReturn(4);
 
-        game = gameManagement.createGame(lobby, mockMapType, mockPlagues, mockDifficulty);
+        game = gameManagement.createGame(lobby, mockMapType, mockPlagues, GameDifficulty.getDefault());
         gameManagement.addGame(game);
     }
 
