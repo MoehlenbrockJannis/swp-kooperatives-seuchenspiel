@@ -17,7 +17,11 @@ import java.util.Optional;
  */
 public class DataSource {
 
-    private static final Dotenv dotenv = Dotenv.load();
+    private static final String PATH_TO_ENV = "src/main/resources";
+
+    private static final Dotenv dotenv = Dotenv.configure()
+            .directory(PATH_TO_ENV)
+            .load();
     private static final HikariConfig config = new HikariConfig();
 
     static {
