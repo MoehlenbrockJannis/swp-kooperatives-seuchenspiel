@@ -3,9 +3,9 @@ package de.uol.swp.client.game;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.map.Field;
 import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
 import javafx.animation.*;
 import javafx.scene.Group;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
@@ -22,7 +22,7 @@ import lombok.Getter;
  */
 public class CityMarker extends Group {
 
-    private FadeTransition fadeTransition;
+    private Timeline colorTimeline;
     private Timeline scaleTimeline;
 
     @Getter
@@ -31,6 +31,7 @@ public class CityMarker extends Group {
     @Getter
     private static final int RADIUS = 10;
 
+    private final ColorAdjust colorAdjust = new ColorAdjust();
     private final Scale animationScale = new Scale(1.0, 1.0);
 
     /**
@@ -56,8 +57,6 @@ public class CityMarker extends Group {
         circleBorder.setStrokeType(StrokeType.OUTSIDE);
         circleBorder.setMouseTransparent(true);
 
-        this.getTransforms().add(animationScale);
-
         initHighlightAnimation();
 
         this.getChildren().addAll(circle, circleBorder);
@@ -71,11 +70,19 @@ public class CityMarker extends Group {
     private void initHighlightAnimation() {
         int duration = 800;
 
-        fadeTransition = new FadeTransition(Duration.millis(duration), this);
-        fadeTransition.setFromValue(1.0);
-        fadeTransition.setToValue(0.3);
-        fadeTransition.setCycleCount(Animation.INDEFINITE);
-        fadeTransition.setAutoReverse(true);
+        this.setEffect(colorAdjust);
+        this.getTransforms().add(animationScale);
+
+        colorTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(colorAdjust.brightnessProperty(), 0.0)
+                ),
+                new KeyFrame(Duration.millis(duration),
+                        new KeyValue(colorAdjust.brightnessProperty(), 0.7)
+                )
+        );
+        colorTimeline.setCycleCount(Animation.INDEFINITE);
+        colorTimeline.setAutoReverse(true);
 
         scaleTimeline = new Timeline(
                 new KeyFrame(Duration.ZERO,
@@ -91,13 +98,14 @@ public class CityMarker extends Group {
         scaleTimeline.setAutoReverse(true);
     }
 
+
     /**
      * Starts the highlight animation.
      *
      * @since 2024-10-12
      */
     public void highlight() {
-        fadeTransition.play();
+        colorTimeline.play();
         scaleTimeline.play();
     }
 
@@ -107,10 +115,10 @@ public class CityMarker extends Group {
      * @since 2024-10-12
      */
     public void unhighlight() {
-        fadeTransition.stop();
+        colorTimeline.stop();
         scaleTimeline.stop();
 
-        this.setOpacity(1.0);
+        colorAdjust.setBrightness(0.0);
         animationScale.setX(1.0);
         animationScale.setY(1.0);
     }
