@@ -16,6 +16,7 @@ import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.map.MapTypeService;
 import de.uol.swp.server.plague.PlagueService;
+import de.uol.swp.server.player.AIPlayerService;
 import de.uol.swp.server.player.turn.PlayerTurnService;
 import de.uol.swp.server.role.RoleManagement;
 import de.uol.swp.server.role.RoleService;
@@ -102,6 +103,7 @@ class ServerApp {
 		injector.getInstance(ActionService.class);
 		injector.getInstance(ApprovableService.class);
 		injector.getInstance(PlayerTurnService.class);
+		injector.getInstance(AIPlayerService.class);
 	}
 
 }
