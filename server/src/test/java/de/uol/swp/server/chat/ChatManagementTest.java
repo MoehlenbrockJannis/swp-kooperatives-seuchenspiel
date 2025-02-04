@@ -24,7 +24,7 @@ public class ChatManagementTest {
 
     private ChatManagement chatManagement;
     private User user = new UserDTO("TestUser", "TestUser", "TestUser@Mail.com");
-    private Lobby lobby = new LobbyDTO("TestLobby", user, 2, 4);
+    private Lobby lobby = new LobbyDTO("TestLobby", user);
     private  ChatManagement chatManagement2;
     private ChatStore chatStore = mock(MainMemoryBasedChatStore.class);
 

@@ -19,7 +19,7 @@ class LobbyUpdateStatusRequestTest {
     @BeforeEach
     void setUp() {
         UserDTO owner = new UserDTO("owner", "password", "owner@example.com");
-        testLobby = new LobbyDTO("TestLobby", owner, 2, 4);
+        testLobby = new LobbyDTO("TestLobby", owner);
         testStatus = LobbyStatus.RUNNING;
     }
 

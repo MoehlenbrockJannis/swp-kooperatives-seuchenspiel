@@ -43,13 +43,11 @@ public class LobbyService {
      *
      * @param lobbyName Name chosen for the new lobby
      * @param owner User who wants to create the new lobby
-     * @param minPlayers Minimum number of players for the lobby
-     * @param maxPlayers Maximum number of players for the lobby
      * @see CreateUserLobbyRequest
      * @since 2019-11-20
      */
-    public void createNewLobby(String lobbyName, User owner, int minPlayers, int maxPlayers) {
-        LobbyDTO lobby = new LobbyDTO(lobbyName, owner, minPlayers, maxPlayers);
+    public void createNewLobby(String lobbyName, User owner) {
+        LobbyDTO lobby = new LobbyDTO(lobbyName, owner);
         CreateUserLobbyRequest createLobbyRequest = new CreateUserLobbyRequest(lobby, owner);
         eventBus.post(createLobbyRequest);
     }

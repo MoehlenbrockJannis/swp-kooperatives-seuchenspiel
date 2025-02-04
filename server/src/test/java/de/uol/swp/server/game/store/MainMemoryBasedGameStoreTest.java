@@ -38,7 +38,7 @@ class MainMemoryBasedGameStoreTest {
 
         List<Plague> plagues = List.of(mock(Plague.class));
         MapType mapType = createMapType();
-        Lobby lobby = new LobbyDTO("Test", user,2,4);
+        Lobby lobby = new LobbyDTO("Test", user);
 
         lobby.addPlayer(player);
         lobby.addPlayer(player2);

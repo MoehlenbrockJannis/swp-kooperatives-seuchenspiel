@@ -78,7 +78,7 @@ public class GameManagementTest {
         Player player1 = new UserPlayer(user1);
         Player player2 = new UserPlayer(user2);
 
-        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
+        Lobby lobby = new LobbyDTO("lobby", user1);
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 
@@ -136,7 +136,7 @@ public class GameManagementTest {
         Player player1 = new UserPlayer(user1);
         Player player2 = new UserPlayer(user2);
 
-        Lobby lobby = new LobbyDTO("lobby", user1, 1, 2);
+        Lobby lobby = new LobbyDTO("lobby", user1);
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 

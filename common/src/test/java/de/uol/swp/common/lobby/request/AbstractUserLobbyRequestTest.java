@@ -19,7 +19,7 @@ class AbstractUserLobbyRequestTest {
 
     final UserDTO user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
     final UserDTO user1 = new UserDTO("Marco1", "Marco1", "Marco1@Grawunder.com");
-    final Lobby lobby = new LobbyDTO("TestLobby", user, 2, 4);
+    final Lobby lobby = new LobbyDTO("TestLobby", user);
 
     /**
      * Test for creation of the AbstractLobbyRequests

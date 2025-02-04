@@ -38,7 +38,7 @@ class PlayerTurnManagementTest {
         playerTurnManagement = new PlayerTurnManagement();
 
         final User user = new UserDTO("user", "pass", "");
-        final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+        final Lobby lobby = new LobbyDTO("lobby", user);
 
         final Player player = new AIPlayer("ai");
         lobby.addPlayer(player);

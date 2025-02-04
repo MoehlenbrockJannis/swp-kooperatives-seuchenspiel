@@ -84,7 +84,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
         List<Plague> plagues = List.of(mock(Plague.class));
         mapType = createMapType();
-        Lobby lobby = new LobbyDTO("Test", user,2,4);
+        Lobby lobby = new LobbyDTO("Test", user);
 
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);

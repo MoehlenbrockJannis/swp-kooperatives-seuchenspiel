@@ -26,7 +26,7 @@ class UserLeftLobbyMessageTest {
     @BeforeEach
     void setUp() {
         this.user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-        this.lobby = new LobbyDTO("TestLobby", this.user, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", this.user);
         this.player = new UserPlayer(this.user);
     }
 

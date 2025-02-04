@@ -67,7 +67,7 @@ class CardManagementTest {
         player1 = new UserPlayer(user1);
         player2 = new UserPlayer(user2);
 
-        lobby = new LobbyDTO("lobby", user1, 1, 2);
+        lobby = new LobbyDTO("lobby", user1);
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 

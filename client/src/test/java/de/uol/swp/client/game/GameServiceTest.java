@@ -33,7 +33,7 @@ public class GameServiceTest extends EventBusBasedTest {
     void setUp() {
         final String lobbyName = "test";
         final User user = new UserDTO("test", "", "");
-        this.lobby = new LobbyDTO(lobbyName, user, 2, 4);
+        this.lobby = new LobbyDTO(lobbyName, user);
         this.gameService = new GameService(getBus());
 
         City city1 = new City("test", "");
