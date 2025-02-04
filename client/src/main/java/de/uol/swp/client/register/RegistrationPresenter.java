@@ -1,18 +1,19 @@
 package de.uol.swp.client.register;
 
 import com.google.common.base.Strings;
-import lombok.NoArgsConstructor;
-import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
 import de.uol.swp.client.register.event.RegistrationErrorEvent;
 import de.uol.swp.client.user.ClientUserService;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.HashUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import lombok.NoArgsConstructor;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Manages the registration window
@@ -110,7 +111,7 @@ public class RegistrationPresenter extends AbstractPresenter {
             eventBus.post(new RegistrationErrorEvent("Bitte Email eingeben"));
         }
         else {
-            userService.createUser(new UserDTO(loginField.getText(), passwordField1.getText(), emailField.getText()));
+            userService.createUser(new UserDTO(loginField.getText(), HashUtil.hash(passwordField1.getText()), emailField.getText()));
         }
     }
 

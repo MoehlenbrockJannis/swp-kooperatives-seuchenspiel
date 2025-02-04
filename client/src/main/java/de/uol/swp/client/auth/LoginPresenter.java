@@ -2,6 +2,7 @@ package de.uol.swp.client.auth;
 
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.common.util.HashUtil;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -38,7 +39,7 @@ public class LoginPresenter extends AbstractPresenter {
      */
     @FXML
     private void onLoginButtonPressed(ActionEvent event) {
-        userService.login(loginField.getText(), passwordField.getText());
+        userService.login(loginField.getText(), HashUtil.hash(passwordField.getText()));
         loginField.clear();
         passwordField.clear();
         loginField.requestFocus();

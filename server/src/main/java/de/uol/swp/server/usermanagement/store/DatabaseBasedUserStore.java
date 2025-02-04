@@ -19,7 +19,7 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
 
     @Override
     public Optional<User> findUser(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + hash(password) + "'";
+        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
         try {
             ResultSet resultSet = DataSource.getResultSet(query).orElseThrow();
             if (resultSet.next()) {
@@ -47,24 +47,24 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
 
     @Override
     public User createUser(String username, String password, String eMail) {
-        String query = "INSERT INTO users (username, password, email, registered ) VALUES ('" + username + "', '" + hash(password) + "', '" + eMail + "', '" + getLocalDateTime() + "')";
+        String query = "INSERT INTO users (username, password, email, registered ) VALUES ('" + username + "', '" + password + "', '" + eMail + "', '" + getLocalDateTime() + "')";
         try {
             DataSource.executeQuery(query);
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
-        return new UserDTO(username, hash(password), eMail);
+        return new UserDTO(username, password, eMail);
     }
 
     @Override
     public User updateUser(String username, String password, String eMail) {
-        String query = "UPDATE users SET password = '" + hash(password) + "', email = '" + eMail + "' WHERE username = '" + username + "'";
+        String query = "UPDATE users SET password = '" + password + "', email = '" + eMail + "' WHERE username = '" + username + "'";
         try {
             DataSource.executeQuery(query);
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
-        return new UserDTO(username, hash(password), eMail);
+        return new UserDTO(username, password, eMail);
     }
 
     @Override
