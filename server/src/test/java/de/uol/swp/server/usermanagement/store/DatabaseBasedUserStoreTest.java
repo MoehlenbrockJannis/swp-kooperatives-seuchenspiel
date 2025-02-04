@@ -89,7 +89,7 @@ class DatabaseBasedUserStoreTest {
 
     @Test
     @DisplayName("Update a user successfully")
-    void updateUser() throws SQLException {
+    void updateUser() {
         String username = "test";
         String password = "test";
         String email = "test@example.com";
