@@ -41,7 +41,7 @@ class ServerApp {
 
 	/**
 	 * Main Method
-	 *
+	 * <p>
 	 * This method handles the creation of the server components and the start of
 	 * the server
 	 *
@@ -76,14 +76,15 @@ class ServerApp {
 	 * Helper method to create the services the server uses and for the time being
 	 * the test users
 	 *
-	 * @param injector the google guice injector used for dependency injection
+	 * @param injector the Google guice injector used for dependency injection
 	 * @since 2019-09-18
 	 */
 	private static void createServices(Injector injector) {
-		UserManagement userManagement = injector.getInstance(UserManagement.class);
+
 
 		// Remark: As these services are not referenced by any other class
 		// we will need to create instances here (and inject dependencies)
+		injector.getInstance(UserManagement.class);
 		injector.getInstance(UserService.class);
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);
