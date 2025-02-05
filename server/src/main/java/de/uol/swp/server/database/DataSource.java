@@ -1,9 +1,10 @@
 package de.uol.swp.server.database;
 
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,28 +16,18 @@ import java.util.Optional;
  * This class is responsible for the connection to the database.
  * It uses the HikariCP connection pool.
  */
+@Singleton
 public class DataSource {
 
-    private static final String PATH_TO_ENV = "src/main/resources";
+    private final HikariDataSource ds;
 
-    private static final Dotenv dotenv = Dotenv.configure()
-            .directory("./")
-            .load();
-    private static final HikariConfig config = new HikariConfig();
-
-    static {
-        String url = "jdbc:" + dotenv.get("DB_TYP") + "://" + dotenv.get("DB_HOST") + ":" + dotenv.get("DB_PORT") + "/" + dotenv.get("DB_NAME");
-        config.setJdbcUrl(url);
-        config.setUsername(dotenv.get("DB_USER"));
-        config.setPassword(dotenv.get("DB_PASSWORD"));
-    }
-
-    private static final HikariDataSource ds = new HikariDataSource(config);
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private DataSource() {
+    @Inject
+    public DataSource(DataSourceConfig config) {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(config.getUrl());
+        hikariConfig.setUsername(config.getUsername());
+        hikariConfig.setPassword(config.getPassword());
+        this.ds = new HikariDataSource(hikariConfig);
     }
 
     /**
@@ -45,10 +36,9 @@ public class DataSource {
      * @return Connection to the database
      * @throws SQLException if a database access error occurs
      */
-    public static Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return ds.getConnection();
     }
-
 
     /**
      * Returns a ResultSet from a given query.
@@ -56,9 +46,8 @@ public class DataSource {
      * @param query The query to be executed
      * @return ResultSet from the query
      */
-    public static Optional<ResultSet> getResultSet(final String query) {
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+    public Optional<ResultSet> getResultSet(final String query) {
+        try (PreparedStatement statement = prepareStatement(query)) {
             return Optional.of(statement.executeQuery());
         } catch (SQLException e) {
             return Optional.empty();
@@ -71,11 +60,20 @@ public class DataSource {
      * @param query The query to be executed
      * @throws SQLException if a database access error occurs
      */
-    public static void executeQuery(String query) throws SQLException {
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+    public void executeQuery(String query) throws SQLException {
+        try (PreparedStatement statement = prepareStatement(query)) {
             statement.executeUpdate();
         }
+    }
+
+    /**
+     * Prepares a statement for a given query.
+     *
+     * @param query The query to be executed
+     */
+    private PreparedStatement prepareStatement(String query) throws SQLException {
+        Connection connection = getConnection();
+        return connection.prepareStatement(query);
     }
 
 

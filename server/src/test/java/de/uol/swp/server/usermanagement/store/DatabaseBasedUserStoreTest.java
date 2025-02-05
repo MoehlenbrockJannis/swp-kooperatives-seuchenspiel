@@ -19,9 +19,11 @@ class DatabaseBasedUserStoreTest {
 
     private DatabaseBasedUserStore userStore;
     private ResultSet resultSet;
+    private DataSource dataSource;
 
     @BeforeEach
     void setUp() {
+        dataSource = mock(DataSource.class);
         userStore = new DatabaseBasedUserStore();
         resultSet = mock(ResultSet.class);
 
@@ -34,7 +36,7 @@ class DatabaseBasedUserStoreTest {
         String password = "test";
 
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(DataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
             when(resultSet.next()).thenReturn(true);
             when(resultSet.getString("username")).thenReturn(username);
             when(resultSet.getString("password")).thenReturn(password);
@@ -55,7 +57,7 @@ class DatabaseBasedUserStoreTest {
         String password = "test";
 
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(DataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
             when(resultSet.next()).thenReturn(true);
             when(resultSet.getString("username")).thenReturn(username);
             when(resultSet.getString("password")).thenReturn(password);
@@ -76,11 +78,11 @@ class DatabaseBasedUserStoreTest {
         String email = "test@example.com";
 
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> DataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
 
             User user = userStore.createUser(username, password, email);
 
-            mockedDataSource.verify(() -> DataSource.executeQuery(anyString()), times(1));
+            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
             assertThat(user).isNotNull();
             assertThat(user.getUsername()).isEqualTo(username);
         }
@@ -95,11 +97,11 @@ class DatabaseBasedUserStoreTest {
         String email = "test@example.com";
 
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> DataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
 
             User user = userStore.updateUser(username, password, email);
 
-            mockedDataSource.verify(() -> DataSource.executeQuery(anyString()), times(1));
+            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
             assertThat(user).isNotNull();
             assertThat(user.getUsername()).isEqualTo(username);
         }
@@ -111,11 +113,11 @@ class DatabaseBasedUserStoreTest {
         String username = "test";
 
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> DataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
 
             userStore.removeUser(username);
 
-            mockedDataSource.verify(() -> DataSource.executeQuery(anyString()), times(1));
+            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
         }
     }
 
@@ -123,7 +125,7 @@ class DatabaseBasedUserStoreTest {
     @DisplayName("Get all users")
     void getAllUsers() throws SQLException {
         try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(DataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
             when(resultSet.next()).thenReturn(true).thenReturn(false);
             when(resultSet.getString("username")).thenReturn("test");
             when(resultSet.getString("password")).thenReturn("test");

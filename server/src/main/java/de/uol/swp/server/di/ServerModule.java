@@ -2,9 +2,11 @@ package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
 import de.uol.swp.server.card.CardManagement;
+import de.uol.swp.server.database.DataSourceConfig;
+import de.uol.swp.server.env.DotEnvReader;
+import de.uol.swp.server.env.EnvReader;
 import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.util.ServerAvailabilityChecker;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
@@ -22,24 +24,20 @@ import java.util.Map;
 
 public class ServerModule extends AbstractModule {
 
-    private static final Dotenv dotenv = Dotenv.configure().load();
     private static final Logger LOG = LogManager.getLogger(ServerModule.class);
 
-    private final EventBus bus = EventBus.getDefault();
-    private final CardManagement cardManagement = new CardManagement();
+    public static final String TIMEOUT_MS = "TIMEOUT_MS";
 
-    String dbHost = dotenv.get("DB_HOST");
-    int dbPort = Integer.parseInt(dotenv.get("DB_PORT"));
-    int timeoutMs = Integer.parseInt(dotenv.get("TIMEOUT_MS"));
-    @SuppressWarnings("rawtypes")
-    private final Map<Class, AbstractStore> stores = AbstractStore.createStores(ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs));
+    private final EventBus bus = EventBus.getDefault();
+    private final EnvReader envReader = new DotEnvReader();
+
+    private final CardManagement cardManagement = new CardManagement();
 
     @Override
     protected void configure() {
 
-        LOG.info("Database connection: " + ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs));
-
         bind(EventBus.class).toInstance(bus);
+        bind(EnvReader.class).toInstance(envReader);
         bind(CardManagement.class).toInstance(cardManagement);
         bindStores();
     }
@@ -48,6 +46,19 @@ public class ServerModule extends AbstractModule {
      * Binds all stores to the corresponding classes.
      */
     private void bindStores() {
+        boolean isDatabaseAvailable = isIsDatabaseAvailable();
+        LOG.info("Database connection: {}", isDatabaseAvailable);
+
+        @SuppressWarnings("rawtypes")
+        final Map<Class, AbstractStore> stores = AbstractStore.createStores(isDatabaseAvailable);
         stores.forEach((key, value) -> bind(key).toInstance(value));
+    }
+
+    private boolean isIsDatabaseAvailable() {
+        final DataSourceConfig dataSourceConfig = new DataSourceConfig(envReader);
+        String dbHost = dataSourceConfig.getDbHost();
+        int dbPort = dataSourceConfig.getDbPort();
+        int timeoutMs = envReader.readInt(TIMEOUT_MS);
+        return ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs);
     }
 }
