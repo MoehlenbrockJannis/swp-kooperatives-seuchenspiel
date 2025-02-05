@@ -13,11 +13,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
 public class DatabaseBasedUserStore extends AbstractStore implements UserStore, DatabaseStore {
 
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String EMAIL = "email";
     private DataSource dataSource;
 
     @Inject
@@ -27,57 +31,41 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
 
     @Override
     public Optional<User> findUser(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
-        try {
-            ResultSet resultSet = this.dataSource.getResultSet(query).orElseThrow();
-            if (resultSet.next()) {
-                return getOptionalUserFromResultSet(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
-        }
-        return Optional.empty();
+        String query = "SELECT * FROM users WHERE "+ USERNAME +" = '" + username + "' AND " + PASSWORD + " = '" + password + "'";
+        return getOneUserByQuery(query);
     }
 
     @Override
     public Optional<User> findUser(String username) {
-        String query = "SELECT * FROM users WHERE username = '" + username + "'";
-        try {
-            ResultSet resultSet = this.dataSource.getResultSet(query).orElseThrow();
-            if (resultSet.next()) {
-                return getOptionalUserFromResultSet(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
-        }
-        return Optional.empty();
+        String query = "SELECT * FROM users WHERE " + USERNAME + " = '" + username + "'";
+        return getOneUserByQuery(query);
     }
 
     @Override
     public User createUser(String username, String password, String eMail) {
-        String query = "INSERT INTO users (username, password, email, registered ) VALUES ('" + username + "', '" + password + "', '" + eMail + "', '" + getLocalDateTime() + "')";
+        String query = "INSERT INTO users (" + USERNAME + ", " + PASSWORD + ", " + EMAIL + ", registered ) VALUES ('" + username + "', '" + password + "', '" + eMail + "', '" + getLocalDateTime() + "')";
         try {
             this.dataSource.executeQuery(query);
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
-        return new UserDTO(username, password, eMail);
+        return this.findUser(username).orElse(null);
     }
 
     @Override
     public User updateUser(String username, String password, String eMail) {
-        String query = "UPDATE users SET password = '" + password + "', email = '" + eMail + "' WHERE username = '" + username + "'";
+        String query = "UPDATE users SET " + PASSWORD + " = '" + password + "', " + EMAIL + " = '" + eMail + "' WHERE " + USERNAME + "= '" + username + "'";
         try {
             this.dataSource.executeQuery(query);
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
-        return new UserDTO(username, password, eMail);
+        return this.findUser(username).orElse(null);
     }
 
     @Override
     public void removeUser(String username) {
-        String sql = "DELETE FROM users WHERE username = '" + username + "'";
+        String sql = "DELETE FROM users WHERE " + USERNAME + " = '" + username + "'";
         try {
             this.dataSource.executeQuery(sql);
         } catch (SQLException e) {
@@ -90,13 +78,9 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
         List<User> users = new ArrayList<>();
         String query = "SELECT * FROM users";
         try {
-            ResultSet resultSet = this.dataSource.getResultSet(query).orElseThrow();
-            while (resultSet.next()) {
-                User newUser = new UserDTO(
-                        resultSet.getString("username"),
-                        resultSet.getString("password"),
-                        resultSet.getString("email")
-                );
+            ResultSet resultSet = this.dataSource.getResultSet(query).orElse(null);
+            while (Objects.requireNonNull(resultSet).next()) {
+                User newUser = getUserFromResultSet(resultSet);
                 users.add(newUser.getWithoutPassword());
             }
         } catch (SQLException e) {
@@ -106,15 +90,45 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
         return users;
     }
 
+    /**
+     * Returns the current date and time as a formatted string in the format "yyyy-MM-dd HH:mm:ss".
+     *
+     * @return the current date and time as a formatted string
+     */
     private String getLocalDateTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    private Optional<User> getOptionalUserFromResultSet(ResultSet resultSet) throws SQLException {
-        return Optional.of(new UserDTO(
-                resultSet.getString("username"),
-                resultSet.getString("password"),
-                resultSet.getString("email")
-        ).getWithoutPassword());
+    /**
+     * Returns a user object from a given ResultSet.
+     *
+     * @param resultSet the ResultSet to get the user from
+     * @return the user object
+     * @throws SQLException if a database access error occurs
+     */
+    private User getUserFromResultSet(ResultSet resultSet) throws SQLException {
+        return new UserDTO(
+                resultSet.getString(USERNAME),
+                resultSet.getString(PASSWORD),
+                resultSet.getString(EMAIL)
+        ).getWithoutPassword();
+    }
+
+    /**
+     * Returns a user object from a given query.
+     *
+     * @param query the query to get the user from
+     * @return the user object
+     */
+    private Optional<User> getOneUserByQuery(String query) {
+        try {
+            ResultSet resultSet = this.dataSource.getResultSet(query).orElse(null);
+            if (Objects.requireNonNull(resultSet).next()) {
+                return Optional.of(getUserFromResultSet(resultSet));
+            }
+        } catch (SQLException e ) {
+            throw new IllegalArgumentException(e);
+        }
+        return Optional.empty();
     }
 }

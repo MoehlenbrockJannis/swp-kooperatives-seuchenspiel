@@ -4,6 +4,5 @@ target/
 .idea
 .vscode
 *.iml
-*.properties
 .env
-.env.*
+
