@@ -205,7 +205,6 @@ public class Game implements Serializable {
         this.antidoteMarkers = new ArrayList<>();
 
         createPlayerStacks();
-        assignPlayerCardsToPlayers(playerDrawStack);
 
         createInfectionStacks();
 
@@ -269,23 +268,24 @@ public class Game implements Serializable {
      * Shuffles and prepares the player decks.
      * This method organizes the player cards into draw and discard stacks.
      */
-    private void createPlayerStacks () {
-        createPlayerDrawStack();
+    private void createPlayerStacks() {
         this.playerDiscardStack = new CardStack<>();
-    }
 
-    /**
-     * Creates and initializes the player draw stack by combining city cards, event cards,
-     * and epidemic cards in a specific manner to ensure balanced game difficulty.
-     */
-    private void createPlayerDrawStack() {
-        this.playerDrawStack = new CardStack<>();
         List<PlayerCard> baseStack = initializeBasePlayerStack();
-        List<CardStack<PlayerCard>> subStacks = dividePlayerStackIntoEpidemicStacks(baseStack, difficulty.getNumberOfEpidemicCards());
+        this.playerDrawStack = new CardStack<>();
+        this.playerDrawStack.addAll(baseStack);
+
+        assignPlayerCardsToPlayers(this.playerDrawStack);
+
+        List<PlayerCard> remainingCards = new ArrayList<>();
+        while (!this.playerDrawStack.isEmpty()) {
+            remainingCards.add(this.playerDrawStack.pop());
+        }
+
+        List<CardStack<PlayerCard>> subStacks = dividePlayerStackIntoEpidemicStacks(remainingCards, difficulty.getNumberOfEpidemicCards());
         addEpidemicCardsToSubStacks(subStacks);
         combineSubStacksIntoDrawStack(subStacks);
     }
-
 
     /**
      * Divides the player stack into substacks based on the number of epidemic cards.
@@ -330,19 +330,6 @@ public class Game implements Serializable {
         Collections.shuffle(initialStack);
         return initialStack;
     }
-
-
-    /**
-     * Creates a single substack from the list of player cards.
-     */
-    private CardStack<PlayerCard> createSubStack(List<PlayerCard> allCards, int stackIndex, int cardsPerStack) {
-        CardStack<PlayerCard> subStack = new CardStack<>();
-        int startIndex = stackIndex * cardsPerStack;
-        int endIndex = Math.min(startIndex + cardsPerStack, allCards.size());
-        subStack.addAll(allCards.subList(startIndex, endIndex));
-        return subStack;
-    }
-
 
     /**
      * Adds epidemic cards to the substacks and shuffles each substack.
@@ -572,12 +559,12 @@ public class Game implements Serializable {
     }
 
     /**
-     * Gets the number of infection cards to draw per turn.
-     *
-     * @return the number of infection cards to draw per turn
+     * Gets the number of infection cards to draw per turn based on the current infection level.
+     * The number of cards drawn increases as the infection level rises:
+     * @return the number of infection cards to draw per turn based on current infection level
      */
     public int getNumberOfInfectionCardsToDrawPerTurn () {
-        return this.numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
+        return this.infectionMarker.getLevelValue();
     }
 
     /**

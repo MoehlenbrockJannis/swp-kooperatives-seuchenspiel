@@ -727,7 +727,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     private void updateDifficultyComboBox(GameDifficulty newDifficulty) {
         Platform.runLater(() -> {
-            if (!newDifficulty.equals(difficultyComboBox.getValue())) {
+            if (shouldUpdateDifficulty(newDifficulty)) {
                 difficultyComboBox.setValue(newDifficulty);
                 selectedDifficulty = newDifficulty;
             }
