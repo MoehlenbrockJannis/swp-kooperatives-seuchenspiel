@@ -34,11 +34,6 @@ public class ServerModule extends AbstractModule {
     @SuppressWarnings("rawtypes")
     private final Map<Class, AbstractStore> stores = AbstractStore.createStores(ServerAvailabilityChecker.isServerAvailable(dbHost, dbPort, timeoutMs));
 
-
-
-
-
-
     @Override
     protected void configure() {
 
