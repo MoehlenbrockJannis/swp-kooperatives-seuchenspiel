@@ -1,19 +1,15 @@
 package de.uol.swp.common.util;
 
 import com.google.common.hash.Hashing;
+import lombok.NoArgsConstructor;
 
 import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class for hashing
  */
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class HashUtil {
-
-    /**
-     * Private constructor to prevent instantiation
-     */
-    private HashUtil() {
-    }
 
     /**
      * Calculates the hash for a given String

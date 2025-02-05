@@ -1,17 +1,13 @@
 package de.uol.swp.server.util;
 
+import lombok.NoArgsConstructor;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class ServerAvailabilityChecker {
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private ServerAvailabilityChecker() {
-    }
-
     /**
      * Checks if a server is available
      *
