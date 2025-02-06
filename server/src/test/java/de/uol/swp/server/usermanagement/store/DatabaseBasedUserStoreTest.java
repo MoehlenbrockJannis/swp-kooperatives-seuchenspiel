@@ -5,7 +5,6 @@ import de.uol.swp.server.database.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,6 +25,7 @@ class DatabaseBasedUserStoreTest {
         dataSource = mock(DataSource.class);
         userStore = new DatabaseBasedUserStore();
         resultSet = mock(ResultSet.class);
+        userStore.setDataSource(dataSource);
 
     }
 
@@ -35,19 +35,16 @@ class DatabaseBasedUserStoreTest {
         String username = "test";
         String password = "test";
 
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
-            when(resultSet.next()).thenReturn(true);
-            when(resultSet.getString("username")).thenReturn(username);
-            when(resultSet.getString("password")).thenReturn(password);
-            when(resultSet.getString("email")).thenReturn("test@example.com");
+        when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("username")).thenReturn(username);
+        when(resultSet.getString("password")).thenReturn(password);
+        when(resultSet.getString("email")).thenReturn("test@example.com");
 
-            Optional<User> user = userStore.findUser(username, password);
+        Optional<User> user = userStore.findUser(username, password);
 
-            assertThat(user).isPresent();
-            assertThat(user.get().getUsername()).isEqualTo(username);
-        }
-
+        assertThat(user).isPresent();
+        assertThat(user.get().getUsername()).isEqualTo(username);
     }
 
     @Test
@@ -56,82 +53,84 @@ class DatabaseBasedUserStoreTest {
         String username = "test";
         String password = "test";
 
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
-            when(resultSet.next()).thenReturn(true);
-            when(resultSet.getString("username")).thenReturn(username);
-            when(resultSet.getString("password")).thenReturn(password);
-            when(resultSet.getString("email")).thenReturn("test@example.com");
+        when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("username")).thenReturn(username);
+        when(resultSet.getString("password")).thenReturn(password);
+        when(resultSet.getString("email")).thenReturn("test@example.com");
 
-            Optional<User> user = userStore.findUser(username);
+        Optional<User> user = userStore.findUser(username);
 
-            assertThat(user).isPresent();
-            assertThat(user.get().getUsername()).isEqualTo(username);
-        }
+        assertThat(user).isPresent();
+        assertThat(user.get().getUsername()).isEqualTo(username);
     }
 
     @Test
     @DisplayName("Create a user successfully")
-    void createUserSuccessfully() {
+    void createUserSuccessfully() throws SQLException {
         String username = "test";
         String password = "test";
         String email = "test@example.com";
 
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+
+            doNothing().when(dataSource).executeQuery(anyString());
+            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+            when(resultSet.next()).thenReturn(true);
+            when(resultSet.getString("username")).thenReturn(username);
+            when(resultSet.getString("password")).thenReturn(password);
+            when(resultSet.getString("email")).thenReturn(email);
 
             User user = userStore.createUser(username, password, email);
 
-            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
+            verify(dataSource, times(1)).executeQuery(anyString());
             assertThat(user).isNotNull();
             assertThat(user.getUsername()).isEqualTo(username);
-        }
-
     }
 
     @Test
     @DisplayName("Update a user successfully")
-    void updateUser() {
+    void updateUser() throws SQLException {
         String username = "test";
         String password = "test";
         String email = "test@example.com";
 
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+        doNothing().when(dataSource).executeQuery(anyString());
+        when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("username")).thenReturn(username);
+        when(resultSet.getString("password")).thenReturn(password);
+        when(resultSet.getString("email")).thenReturn(email);
 
-            User user = userStore.updateUser(username, password, email);
+        User user = userStore.updateUser(username, password, email);
 
-            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
-            assertThat(user).isNotNull();
-            assertThat(user.getUsername()).isEqualTo(username);
-        }
+        verify(dataSource, times(1)).executeQuery(anyString());
+        assertThat(user).isNotNull();
+        assertThat(user.getUsername()).isEqualTo(username);
     }
 
     @Test
     @DisplayName("Remove a user successfully")
-    void removeUser() {
+    void removeUser() throws SQLException {
         String username = "test";
 
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            mockedDataSource.when(() -> dataSource.executeQuery(anyString())).thenAnswer(invocation -> null);
+            doNothing().when(dataSource).executeQuery(anyString());
 
             userStore.removeUser(username);
 
-            mockedDataSource.verify(() -> dataSource.executeQuery(anyString()), times(1));
-        }
+            verify(dataSource, times(1)).executeQuery(anyString());
+
     }
 
     @Test
     @DisplayName("Get all users")
     void getAllUsers() throws SQLException {
-        try (MockedStatic<DataSource> mockedDataSource = mockStatic(DataSource.class)) {
-            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
-            when(resultSet.next()).thenReturn(true).thenReturn(false);
-            when(resultSet.getString("username")).thenReturn("test");
-            when(resultSet.getString("password")).thenReturn("test");
-            when(resultSet.getString("email")).thenReturn("test@example.com");
+        when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+        when(resultSet.next()).thenReturn(true).thenReturn(false);
+        when(resultSet.getString("username")).thenReturn("test");
+        when(resultSet.getString("password")).thenReturn("test");
+        when(resultSet.getString("email")).thenReturn("test@example.com");
 
-            assertThat(userStore.getAllUsers()).isNotNull();
-        }
+        assertThat(userStore.getAllUsers()).isNotNull();
+
     }
 }
