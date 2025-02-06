@@ -28,6 +28,8 @@ public abstract class AbstractStore {
 
         subTypes.forEach(subType -> storeMap.put(getStoreInterface(subType), createStoreInstance(subType)));
 
+        subTypes.forEach(subType -> System.out.println("Store: " + subType.getName()));
+
         return storeMap;
     }
 
@@ -66,17 +68,11 @@ public abstract class AbstractStore {
             return false;
         }
 
-        if (isMainMemoryBasedStore(subType) && !isUserStore(subType)) {
-            return true;
+        if (databaseIsAvailable && isUserStore(subType)) {
+            return isDatabaseStore(subType);
+        } else {
+            return isMainMemoryBasedStore(subType);
         }
-
-        if (databaseIsAvailable) {
-            return isDatabaseStore(subType) && isUserStore(subType);
-        }
-
-        return isMainMemoryBasedStore(subType) && isUserStore(subType);
-
-
     }
 
     /**
