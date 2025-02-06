@@ -57,23 +57,11 @@ public class LobbyDTO implements Lobby {
         this.players = lobby.getPlayers();
     }
 
-    /**
-     * Returns the maximum number of players allowed for the game,
-     * which is determined by the game's maximum player limit.
-     *
-     * @return The maximum number of players (Game.MAX_NUMBER_OF_PLAYERS)
-     */
     @Override
     public int getMaxPlayers() {
         return Game.MAX_NUMBER_OF_PLAYERS;
     }
 
-    /**
-     * Returns the minimum number of players required to play the game,
-     * which is determined by the game's minimum player requirement.
-     *
-     * @return The minimum number of players (Game.MIN_NUMBER_OF_PLAYERS)
-     */
     @Override
     public int getMinPlayers() {
         return Game.MIN_NUMBER_OF_PLAYERS;
