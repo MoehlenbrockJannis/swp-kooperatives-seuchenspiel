@@ -1,11 +1,12 @@
 package de.uol.swp.server.lobby.store;
 
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.server.store.ContentStore;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface LobbyStore {
+public interface LobbyStore extends ContentStore {
 
     /**
      * Adds a lobby to the store.

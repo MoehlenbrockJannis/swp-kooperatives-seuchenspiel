@@ -2,13 +2,14 @@ package de.uol.swp.server.chat.store;
 
 
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.server.store.ContentStore;
 
 import java.util.List;
 
 /**
  * Interface for the chat store.
  */
-public interface ChatStore {
+public interface ChatStore extends ContentStore {
 
     /**
      * Adds a chat message to the store.
