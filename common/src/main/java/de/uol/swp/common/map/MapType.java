@@ -1,10 +1,13 @@
 package de.uol.swp.common.map;
 
 import de.uol.swp.common.plague.Plague;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Definition of a type of map
@@ -19,13 +22,17 @@ import java.util.*;
  * @author Tom Weelborg
  * @since 2024-09-02
  */
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 public class MapType implements Serializable {
+    @EqualsAndHashCode.Include
+    private String name;
     private byte[] backgroundImage;
     private List<MapSlot> map;
     private City startingCity;
 
-    public MapType(final List<MapSlot> map, final City startingCity) {
+    public MapType(final String name, final List<MapSlot> map, final City startingCity) {
+        this.name = name;
         this.map = map;
         this.startingCity = startingCity;
     }
@@ -45,20 +52,5 @@ public class MapType implements Serializable {
             plaguesSet.add(plague);
         }
         return plaguesSet;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MapType mapType = (MapType) o;
-        return Arrays.equals(backgroundImage, mapType.backgroundImage) &&
-                Objects.equals(map, mapType.map) &&
-                Objects.equals(startingCity, mapType.startingCity);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(Arrays.hashCode(backgroundImage), map, startingCity);
     }
 }

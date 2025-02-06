@@ -9,13 +9,20 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.triggerable.Triggerable;
+import de.uol.swp.common.triggerable.request.TriggerableRequest;
+import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.game.GameService;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -128,15 +135,88 @@ public class AIPlayerServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should handle approvable server message for AI player")
     void onApprovableServerMessage_approvesAutomatically() {
-        Game game = mock(Game.class);
         AIPlayer aiPlayer = mock(AIPlayer.class);
         Approvable approvable = mock(Approvable.class);
         when(approvable.getApprovingPlayer()).thenReturn(aiPlayer);
 
-        ApprovableServerMessage message = new ApprovableServerMessage(ApprovableMessageStatus.OUTBOUND, approvable);
+        ApprovableServerMessage message = new ApprovableServerMessage(
+                ApprovableMessageStatus.OUTBOUND,
+                approvable,
+                null,
+                null,
+                null,
+                null
+        );
         post(message);
 
         verify(message.getApprovable(), times(1)).approve();
+    }
+
+    @Test
+    @DisplayName("Should return the expected message if the approvable is approved and the message is not null and the player of it is ai")
+    void onApprovableServerMessage_approved() throws InterruptedException {
+        AIPlayer aiPlayer = mock(AIPlayer.class);
+        Approvable approvable = mock(Approvable.class);
+        when(approvable.getApprovingPlayer())
+                .thenReturn(aiPlayer);
+
+        final TriggerableRequest expected = new TriggerableRequest(mock(), null, null);
+
+        ApprovableServerMessage message = new ApprovableServerMessage(
+                ApprovableMessageStatus.APPROVED,
+                approvable,
+                expected,
+                aiPlayer,
+                null,
+                null
+        );
+        post(message);
+
+        waitForLock();
+
+        assertThat(event)
+                .isInstanceOf(TriggerableRequest.class);
+        final TriggerableRequest triggerableRequest = (TriggerableRequest) event;
+        assertThat(triggerableRequest)
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should send a message contained in the TriggerableServerMessage if requirements are met")
+    void onTriggerableServerMessage_sendMessage() throws InterruptedException {
+        final Message message = new TriggerableRequest(mock(), null, null);
+        onTriggerableServerMessageSetup(null, new AIPlayer("ai"), message);
+
+        assertThat(event)
+                .usingRecursiveComparison()
+                .isEqualTo(message);
+    }
+
+    @Test
+    @DisplayName("Should send nothing if Player of TriggerableServerMessage is not AI")
+    void onTriggerableServerMessage_notAI() throws InterruptedException {
+        final Message message = new TriggerableRequest(mock(), null, null);
+        onTriggerableServerMessageSetup(null, new UserPlayer(new UserDTO("user", "", "")), message);
+
+        assertThat(event)
+                .isNull();
+    }
+
+    @Test
+    @DisplayName("Should send nothing if Message of TriggerableServerMessage is null")
+    void onTriggerableServerMessage_noMessage() throws InterruptedException {
+        onTriggerableServerMessageSetup(null, new AIPlayer("ai"), null);
+
+        assertThat(event)
+                .isNull();
+    }
+
+    private void onTriggerableServerMessageSetup(final Triggerable triggerable, final Player player, final Message message) throws InterruptedException {
+        final TriggerableServerMessage triggerableServerMessage = new TriggerableServerMessage(triggerable, message, player);
+        post(triggerableServerMessage);
+
+        waitForLock();
     }
 
     @Test
@@ -159,4 +239,8 @@ public class AIPlayerServiceTest extends EventBusBasedTest {
         assertThat(aiPlayer.getHandCards()).contains(card);
     }
 
+    @Subscribe
+    public void onEvent(final TriggerableRequest triggerableRequest) {
+        handleEvent(triggerableRequest);
+    }
 }

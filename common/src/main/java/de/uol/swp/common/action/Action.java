@@ -1,6 +1,7 @@
 package de.uol.swp.common.action;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameInitializable;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.util.Command;
 
@@ -13,7 +14,7 @@ import de.uol.swp.common.util.Command;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-public interface Action extends Command {
+public interface Action extends Command, GameInitializable {
 
     /**
      * <p>

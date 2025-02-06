@@ -6,12 +6,18 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Presenter class for managing the player pane in the game UI.
@@ -36,6 +42,34 @@ public class PlayerPanePresenter extends AbstractPresenter {
     @FXML
     private ListView<PlayerCard> handCardsList;
 
+
+    private Map<PlayerCard, Runnable> handCardToClickListenerAssociation;
+
+    /**
+     * Initializes this {@link PlayerPanePresenter} when the corresponding fxml file is loaded.
+     * Initializes the {@link #handCardToClickListenerAssociation} and assigns click listeners to {@link #handCardsList}.
+     *
+     * @see #assignClickListenerToHandCardsList()
+     */
+    @FXML
+    private void initialize() {
+        this.handCardToClickListenerAssociation = new HashMap<>();
+        assignClickListenerToHandCardsList();
+    }
+
+    /**
+     * Assigns click listeners to {@link #handCardsList} and
+     * executes a {@link Runnable} stored in {@link #handCardToClickListenerAssociation}
+     * depending on which {@link PlayerCard} was clicked.
+     */
+    private void assignClickListenerToHandCardsList() {
+        this.handCardsList.setOnMouseClicked(event -> {
+            final PlayerCard selectedItem = this.handCardsList.getSelectionModel().getSelectedItem();
+            final Runnable clickListener = this.handCardToClickListenerAssociation.getOrDefault(selectedItem, () -> {});
+            clickListener.run();
+        });
+    }
+
     /**
      * Sets the hand cards of the player and updates the ListView.
      *
@@ -45,6 +79,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      */
     public void setHandCards(List<PlayerCard> handCardTitles) {
         Platform.runLater(() -> handCardsList.getItems().setAll(handCardTitles));
+        highlightHandCardCellsWithClickListeners();
     }
 
     /**
@@ -94,4 +129,42 @@ public class PlayerPanePresenter extends AbstractPresenter {
         return this.player.equals(player);
     }
 
+    /**
+     * Highlights given {@link PlayerCard} in {@link #handCardsList} and assigns given {@link Runnable} as click listener.
+     *
+     * @param handCard {@link PlayerCard} to highlight
+     * @param clickListener {@link Runnable} that is executed when given {@link PlayerCard} in {@link #handCardsList} is clicked
+     */
+    public void highlightHandCardAndAssignClickListener(final PlayerCard handCard, final Runnable clickListener) {
+        this.handCardToClickListenerAssociation.put(handCard, clickListener);
+        highlightHandCardCellsWithClickListeners();
+    }
+
+    /**
+     * Highlights all {@link ListCell} within {@link #handCardsList}
+     * that have hand cards with click listeners as defined by {@link #handCardToClickListenerAssociation}.
+     */
+    private void highlightHandCardCellsWithClickListeners() {
+        for (final Node node : this.handCardsList.lookupAll(".list-cell")) {
+            if (node instanceof ListCell<?> handCardListCell) {
+                highlightHandCardCellWithClickListener(handCardListCell);
+            }
+        }
+    }
+
+    /**
+     * Highlights a given {@link ListCell} if its item is contained in {@link #handCardToClickListenerAssociation}.
+     *
+     * @param handCardListCell the {@link ListCell} to determine highlighting status for
+     */
+    private void highlightHandCardCellWithClickListener(final ListCell<?> handCardListCell) {
+        Platform.runLater(() -> {
+            if (handCardListCell.getItem() instanceof PlayerCard playerCard &&
+                    this.handCardToClickListenerAssociation.containsKey(playerCard)) {
+                handCardListCell.setBackground(Background.fill(Color.BLUE));
+            } else {
+                handCardListCell.setBackground(Background.EMPTY);
+            }
+        });
+    }
 }

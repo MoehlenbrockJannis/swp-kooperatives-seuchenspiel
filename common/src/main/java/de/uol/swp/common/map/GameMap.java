@@ -7,6 +7,7 @@ import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -27,10 +28,12 @@ import java.util.Objects;
  * @author Tom Weelborg
  * @since 2024-09-02
  */
+@EqualsAndHashCode
 public class GameMap implements Serializable {
     private Game game;
     @Getter
     private MapType type;
+    @EqualsAndHashCode.Exclude
     @Getter
     private List<Field> fields;
 
