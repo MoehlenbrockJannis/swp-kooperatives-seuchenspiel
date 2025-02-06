@@ -252,11 +252,11 @@ public class ShareKnowledgeActionPresenter extends AbstractPresenter {
      * @param shareKnowledgeAction {@link ShareKnowledgeAction} to send
      * @param player target {@link Player} of the {@link ShareKnowledgeAction}
      * @see ShareKnowledgeAction#setTargetPlayer(Player)
-     * @see ApprovableService#sendApprovable(Approvable)
+     * @see ApprovableService#sendApprovableAction(Approvable)
      */
     private void sendActionAndCloseStage(final ShareKnowledgeAction shareKnowledgeAction, final Player player) {
         shareKnowledgeAction.setTargetPlayer(player);
-        approvableService.sendApprovable(shareKnowledgeAction);
+        approvableService.sendApprovableAction(shareKnowledgeAction);
         closeStage();
     }
 }

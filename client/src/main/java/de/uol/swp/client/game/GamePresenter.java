@@ -19,13 +19,15 @@ import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
-import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
-import de.uol.swp.common.user.User;
+import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -207,12 +209,6 @@ public class GamePresenter extends AbstractPresenter {
         Runnable executable = () -> this.game = message.getGame();
         executeIfTheUpdatedGameMessageRetrieves(message, executable);
 
-        Lobby currentLobby = this.game.getLobby();
-        User currentLoggedInUser = loggedInUserProvider.get();
-        Player currentPlayerForUser = currentLobby.getPlayerForUser(currentLoggedInUser);
-
-        Player currentPlayer = this.game.getCurrentPlayer();
-
         if (isTurnOver(this.game)) {
             EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
             eventBus.post(endTurnMessage);
@@ -232,6 +228,26 @@ public class GamePresenter extends AbstractPresenter {
        return this.game.getCurrentTurn().isOver();
     }
 
+    /**
+     * Handles a {@link TriggerableServerMessage} detected on the {@link #eventBus}.
+     * Sends the {@link Message} to process after it back if requirements are met.
+     *
+     * @param triggerableServerMessage {@link TriggerableServerMessage} from the {@link #eventBus}
+     * @see #answerSendMessageByPlayerServerMessageIfRequirementsAreMet(SendMessageByPlayerServerMessage)
+     */
+    @Subscribe
+    public void onTriggerableServerMessage(final TriggerableServerMessage triggerableServerMessage) {
+        answerSendMessageByPlayerServerMessageIfRequirementsAreMet(triggerableServerMessage);
+    }
+
+    /**
+     * Handles an {@link ApprovableServerMessage} detected on the {@link #eventBus}.
+     * Determines what to do with it depending on its status.
+     *
+     * @param approvableServerMessage {@link ApprovableServerMessage} from the {@link #eventBus}
+     * @see #determineUnansweredApprovableStrategy(Approvable, Message, Player, Message, Player)
+     * @see #answerSendMessageByPlayerServerMessageIfRequirementsAreMet(SendMessageByPlayerServerMessage)
+     */
     @Subscribe
     public void onApprovableServerMessage(final ApprovableServerMessage approvableServerMessage) {
         final Approvable approvable = approvableServerMessage.getApprovable();
@@ -241,42 +257,186 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         switch (approvableServerMessage.getStatus()) {
-            case APPROVED:
-                createApprovableInfoAlert("Aktion angenommen", approvable, approvable.getApprovedMessage());
-                if (approvable instanceof Action action && action.getExecutingPlayer().containsUser(loggedInUserProvider.get())) {
-                    actionService.sendAction(action.getGame(), action);
-                }
-                break;
-            case REJECTED:
-                createApprovableInfoAlert("Aktion abgelehnt", approvable, approvable.getRejectedMessage());
-                break;
             case OUTBOUND:
-                createApprovableAlertIfLoggedInUserControlsApprovingPlayer(approvable);
+                determineUnansweredApprovableStrategy(
+                        approvable,
+                        approvableServerMessage.getOnApproved(),
+                        approvableServerMessage.getOnApprovedPlayer(),
+                        approvableServerMessage.getOnRejected(),
+                        approvableServerMessage.getOnRejectedPlayer()
+                );
+                break;
+            case APPROVED, REJECTED, TEMPORARILY_REJECTED:
+                answerSendMessageByPlayerServerMessageIfRequirementsAreMet(approvableServerMessage);
                 break;
         }
     }
 
-    private void createApprovableInfoAlert(final String title, final Approvable approvable, final String contentText) {
-        Platform.runLater(() -> {
-            final Alert alert = createAlert(Alert.AlertType.INFORMATION, title, approvable.toString(), contentText);
-            alert.showAndWait();
-        });
-    }
+    /**
+     * Determine what to do with an unanswered given {@link Approvable}
+     * depending on whether an answer is required for it or not.
+     * If an answer is required, creates an alert that this {@link Player} has to respond to.
+     *
+     * @param approvable {@link Approvable} to answer
+     * @param onApproved {@link Message} to send if {@link Approvable} is approved
+     * @param onApprovedPlayer {@link Player} to send {@code onApproved}
+     * @param onRejected {@link Message} to send if {@link Approvable} is rejected
+     * @param onRejectedPlayer {@link Player} to send {@code onRejected}
+     */
+    private void determineUnansweredApprovableStrategy(final Approvable approvable,
+                                                       final Message onApproved,
+                                                       final Player onApprovedPlayer,
+                                                       final Message onRejected,
+                                                       final Player onRejectedPlayer) {
+        if (!approvable.getApprovingPlayer().containsUser(loggedInUserProvider.get())) {
+            return;
+        }
 
-    private void createApprovableAlertIfLoggedInUserControlsApprovingPlayer(final Approvable approvable) {
-        if (approvable.getApprovingPlayer().containsUser(loggedInUserProvider.get())) {
-            createApprovableAlert(approvable);
+        final Runnable approveApprovable = () -> approvableService.approveApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
+        final Runnable rejectApprovable = () -> approvableService.rejectApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
+        final Runnable temporarilyRejectApprovable = () -> approvableService.temporarilyRejectApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
+
+        if (approvable.isResponseRequired()) {
+            createApprovableAlert(
+                    approvable,
+                    approveApprovable,
+                    rejectApprovable
+            );
+        } else {
+            highlightApprovableAndReject(
+                    approvable,
+                    approveApprovable,
+                    onApproved,
+                    temporarilyRejectApprovable,
+                    onRejected
+            );
         }
     }
 
-    private void createApprovableAlert(final Approvable approvable) {
+    /**
+     * Answers a given {@link SendMessageByPlayerServerMessage} if the requirements are met.
+     *
+     * @param serverMessage {@link SendMessageByPlayerServerMessage} to answer
+     * @see #sendMessageIfGameIsCurrentGameAndPlayerIsCurrentPlayer(Message, Game, Player)
+     */
+    private void answerSendMessageByPlayerServerMessageIfRequirementsAreMet(final SendMessageByPlayerServerMessage serverMessage) {
+        sendMessageIfGameIsCurrentGameAndPlayerIsCurrentPlayer(
+                serverMessage.getMessageToSend(),
+                serverMessage.getGame(),
+                serverMessage.getReturningPlayer()
+        );
+    }
+
+    /**
+     * Sends given {@link Message} if given {@link Game} equals {@link #game} and given {@link Player} contains the logged-in user.
+     *
+     * @param message {@link Message} to send
+     * @param game {@link Game} to check equality for
+     * @param player {@link Player} to check whether it contains logged-in user
+     */
+    private void sendMessageIfGameIsCurrentGameAndPlayerIsCurrentPlayer(final Message message, final Game game, final Player player) {
+        if (game.equals(this.game) && player.containsUser(this.loggedInUserProvider.get()) && message != null) {
+            eventBus.post(message);
+        }
+    }
+
+    /**
+     * Creates an alert prompting the {@link Player} to either accept or reject given {@link Approvable}.
+     * The given runnables are what is executed if
+     *  either the {@link Player} accepts ({@code approveApprovable})
+     *  or the {@link Player} rejects ({@code rejectApprovable}).
+     *
+     * @param approvable {@link Approvable} to either accept or reject
+     * @param approveApprovable {@link Runnable} that is executed if the {@link Player} accepts
+     * @param rejectApprovable {@link Runnable} that is executed if the {@link Player} rejects
+     */
+    private void createApprovableAlert(final Approvable approvable, final Runnable approveApprovable, final Runnable rejectApprovable) {
         showConfirmationAlert(
                 "Aktion annehmen?",
                 approvable.toString(),
                 approvable.getApprovalRequestMessage(),
-                () -> approvableService.approveApprovable(approvable),
-                () -> approvableService.rejectApprovable(approvable)
+                approveApprovable,
+                rejectApprovable
         );
+    }
+
+    /**
+     * <p>
+     *     Highlights given {@link Approvable} and temporarily rejects it.
+     * </p>
+     *
+     * <p>
+     *     Also prevents an infinite cycle by resetting the {@link Message} to send after
+     *     on given {@code onApproved} {@link Message} if it is a {@link SendMessageByPlayerServerMessage}.
+     * </p>
+     *
+     * @param approvable {@link Approvable} to highlight and reject
+     * @param approveApprovable {@link Runnable} to approve the {@link Approvable}
+     * @param onApproved {@link Message} to send after {@link Approvable} is approved
+     * @param rejectApprovable {@link Runnable} to reject the {@link Approvable}
+     * @param onRejected {@link Message} to send after {@link Approvable} is rejected
+     */
+    private void highlightApprovableAndReject(final Approvable approvable,
+                                              final Runnable approveApprovable,
+                                              final Message onApproved,
+                                              final Runnable rejectApprovable,
+                                              final Message onRejected) {
+        resetMessageToSendIfMessageIsSendMessageByPlayerServerMessageAndMessagesToSendAreEqual(onApproved, onRejected);
+
+        rejectApprovable.run();
+
+        highlightApprovable(approvable, approveApprovable);
+    }
+
+    /**
+     * Resets the {@link Message} to send if given {@code message} is a {@link SendMessageByPlayerServerMessage} and
+     * given {@code messageToSend} is equal to the {@link Message} to send of {@code message}.
+     *
+     * @param message {@link Message} that may be a {@link SendMessageByPlayerServerMessage}
+     * @param messageToSend {@link Message} that may be given {@code message}'s {@link Message} to send
+     */
+    private void resetMessageToSendIfMessageIsSendMessageByPlayerServerMessageAndMessagesToSendAreEqual(final Message message,
+                                                                                                        final Message messageToSend) {
+        if (message instanceof SendMessageByPlayerServerMessage serverMessage && serverMessage.getMessageToSend().equals(messageToSend)) {
+            serverMessage.setMessageToSend(null);
+        }
+    }
+
+    /**
+     * Highlights given {@link Approvable} and sets a function to approve it.
+     *
+     * @param approvable {@link Approvable} to highlight
+     * @param approveApprovable function to approve given {@link Approvable}
+     */
+    private void highlightApprovable(final Approvable approvable, final Runnable approveApprovable) {
+        if (approvable instanceof EventCard eventCard) {
+            highlightEventCard(eventCard, approveApprovable);
+        }
+    }
+
+    /**
+     * Highlights given {@link EventCard} by delegating to the fitting {@link PlayerPanePresenter}.
+     * Also gives that a function to play it.
+     *
+     * @param eventCard {@link EventCard} to highlight
+     * @param playEventCard function to play given {@link EventCard}
+     */
+    private void highlightEventCard(final EventCard eventCard, final Runnable playEventCard) {
+        findPlayerPanePresenterByPlayer(eventCard.getPlayer()).ifPresent(
+                playerPanePresenter -> playerPanePresenter.highlightHandCardAndAssignClickListener(eventCard, playEventCard)
+        );
+    }
+
+    /**
+     * Finds a {@link PlayerPanePresenter} for a given {@link Player} in {@link #playerPanePresenterList}.
+     *
+     * @param player {@link Player} to search associated {@link PlayerPanePresenter} for
+     * @return {@link Optional} with {@link PlayerPanePresenter} for given {@link Player} or empty {@link Optional} if there is none
+     */
+    private Optional<PlayerPanePresenter> findPlayerPanePresenterByPlayer(final Player player) {
+        return this.playerPanePresenterList.stream()
+                .filter(playerPanePresenter -> playerPanePresenter.hasPlayer(player))
+                .findFirst();
     }
 
     /**
@@ -318,6 +478,17 @@ public class GamePresenter extends AbstractPresenter {
         );
     }
 
+    /**
+     * Creates and shows a confirmation alert with given {@code title}, {@code headerText}, {@code contentText} and
+     * a function to be executed on accepting ({@code acceptFunction}) and
+     * a function to be executed on rejecting ({@code rejectFunction}).
+     *
+     * @param title title of the alert
+     * @param headerText header text of the alert
+     * @param contentText content text of the alert
+     * @param acceptFunction function to bind to the accept button
+     * @param rejectFunction function to bind to the reject button
+     */
     private void showConfirmationAlert(final String title, final String headerText, final String contentText, final Runnable acceptFunction, final Runnable rejectFunction) {
         Platform.runLater(() -> {
             final Alert alert = createAlert(Alert.AlertType.CONFIRMATION, title, headerText, contentText);
@@ -335,6 +506,15 @@ public class GamePresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Creates an alert with given parameters for {@link Alert.AlertType}, {@code title}, {@code headerText} and {@code contentText}.
+     *
+     * @param alertType the type of the {@link Alert}
+     * @param title the title of the {@link Alert}
+     * @param headerText the header text of the {@link Alert}
+     * @param contentText the content text of the {@link Alert}
+     * @return a new {@link Alert} with given parameters
+     */
     private Alert createAlert(final Alert.AlertType alertType, final String title, final String headerText, final String contentText) {
         final Alert alert = new Alert(alertType);
         alert.setTitle(title);

@@ -9,6 +9,7 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
+import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.util.Command;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class PlayerTurn implements Serializable {
     @Getter
     private int numberOfPlayerCardsToDraw;
     @Getter
+    @Setter
     private int numberOfInfectionCardsToDraw;
     private boolean playedCarrier;
     @Getter
@@ -66,6 +68,7 @@ public class PlayerTurn implements Serializable {
         this.autoTriggerables = new ArrayList<>();
         this.manualTriggerables = new ArrayList<>();
         createPossibleActions();
+        createTriggerables();
     }
 
     /**
@@ -227,8 +230,27 @@ public class PlayerTurn implements Serializable {
     /**
      * Sets up the triggerable actions (automatic and manual) for the player's turn.
      */
-    private void createTriggerables() {
-        // TODO: 07.09.2024
+    public void createTriggerables() {
+        final List<Triggerable> triggerables = game.getTriggerables();
+        manualTriggerables.clear();
+        addTriggerables(triggerables, ManualTriggerable.class, manualTriggerables);
+        autoTriggerables.clear();
+        addTriggerables(triggerables, AutoTriggerable.class, autoTriggerables);
+    }
+
+    /**
+     * Adds every triggerable of given {@code type} to given {@code list}.
+     *
+     * @param triggerables {@link List} of {@link Triggerable}
+     * @param type {@link Class} of triggerables to find in {@code triggerables} and to put in {@code list}
+     * @param list {@link List} of triggerables of {@code type}
+     * @param <T> type of triggerables to find and add
+     */
+    private <T extends Triggerable> void addTriggerables(final List<Triggerable> triggerables, final Class<T> type, final List<T> list) {
+        triggerables.stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .forEach(list::add);
     }
 
     /**
@@ -276,6 +298,14 @@ public class PlayerTurn implements Serializable {
     }
 
     /**
+     * Resets {@link #currentAutoTriggerable} to {@code 0}
+     */
+    public void resetAutoTriggerables() {
+        this.currentAutoTriggerable = 0;
+        createTriggerables();
+    }
+
+    /**
      * Checks if there are any remaining manual triggerable effects.
      *
      * @return true if there are more manual triggerables, false otherwise
@@ -294,6 +324,14 @@ public class PlayerTurn implements Serializable {
             return this.manualTriggerables.get(currentManualTriggerable++);
         }
         return null;
+    }
+
+    /**
+     * Resets {@link #currentManualTriggerable} to {@code 0}
+     */
+    public void resetManualTriggerables() {
+        this.currentManualTriggerable = 0;
+        createTriggerables();
     }
 
     /**
@@ -415,7 +453,6 @@ public class PlayerTurn implements Serializable {
      * @return true if the turn is over, false otherwise
      */
     public boolean isOver() {
-        return !isInActionPhase() && !isInPlayerCardDrawPhase() && !isInInfectionCardDrawPhase() &&
-                !this.hasNextAutoTriggerable() && !this.hasNextManualTriggerable();
+        return !isInActionPhase() && !isInPlayerCardDrawPhase() && !isInInfectionCardDrawPhase();
     }
 }

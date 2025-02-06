@@ -31,15 +31,15 @@ import java.util.Map;
  * @author Tom Weelborg
  * @since 2024-09-02
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Field implements Serializable {
+    @EqualsAndHashCode.Include
     private GameMap map;
+    @EqualsAndHashCode.Include
     @Getter
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
     private Map<Plague, List<PlagueCube>> plagueCubes;
-    @Getter
-    private List<Player> playersOnField;
 
     /**
      * Constructor
@@ -51,7 +51,6 @@ public class Field implements Serializable {
         this.map = map;
         this.mapSlot = mapSlot;
         this.plagueCubes = new HashMap<>();
-        this.playersOnField = new ArrayList<>();
 
         initPlagueCubes();
     }
@@ -69,8 +68,6 @@ public class Field implements Serializable {
             List<PlagueCube> plagueList = new ArrayList<>();
             plagueCubes.put(plague, plagueList);
         }
-
-
     }
 
     /**
@@ -122,7 +119,7 @@ public class Field implements Serializable {
      *
      * @see #getPlague()
      * @see #infectField(PlagueCube)
-     * @see GameMap#getPlagueCubeOfPlague(Plague) 
+     * @see GameMap#getPlagueCubeOfPlague(Plague)
      */
     public void infectField() {
         final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
@@ -149,7 +146,7 @@ public class Field implements Serializable {
      * Infects this field with the given plagueCube by adding it to {@link #plagueCubes} if it is infectable.
      * Otherwise, it will call the {@link #map} to start an outbreak.
      *
-     * @see #getPlague() 
+     * @see #getPlague()
      * @see #isInfectable(Plague)
      * @see GameMap#startOutbreak(Field, Plague)
      */

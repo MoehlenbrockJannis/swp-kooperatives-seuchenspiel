@@ -2,15 +2,86 @@ package de.uol.swp.common.approvable.server_message;
 
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.server.AbstractServerMessage;
+import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * ServerMessage sent to communicate an {@link Approvable} between client and server.
+ * It can be either outbound, approved or rejected (or temporarily rejected).
+ * It specifies messages to send by a specified {@link Player} after it is either approved or rejected.
+ * <br>
+ * It implements {@link SendMessageByPlayerServerMessage} to determine which {@link Message} should be sent after.
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Getter
-public class ApprovableServerMessage extends AbstractServerMessage {
+public class ApprovableServerMessage extends AbstractServerMessage implements SendMessageByPlayerServerMessage {
     private final ApprovableMessageStatus status;
     private final Approvable approvable;
+    private Message onApproved;
+    private final Player onApprovedPlayer;
+    private Message onRejected;
+    private final Player onRejectedPlayer;
+
+    @Override
+    public Game getGame() {
+        return approvable.getGame();
+    }
+
+    /**
+     * Returns
+     *  {@link #onApprovedPlayer} if {@link #status} is {@link ApprovableMessageStatus#APPROVED} or
+     *  {@link #onRejectedPlayer} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
+     * Throws an {@link IllegalStateException} otherwise.
+     *
+     * @return returning {@link Player} if there currently is one
+     * @throws IllegalStateException if there is no returning {@link Player} at the moment
+     */
+    @Override
+    public Player getReturningPlayer() throws IllegalStateException {
+        return switch (status) {
+            case APPROVED -> onApprovedPlayer;
+            case REJECTED, TEMPORARILY_REJECTED -> onRejectedPlayer;
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    /**
+     * Returns
+     *  {@link #onApproved} if {@link #status} is {@link ApprovableMessageStatus#APPROVED} or
+     *  {@link #onRejected} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
+     * Throws an {@link IllegalStateException} otherwise.
+     *
+     * @return {@link Message} to send if there currently is one
+     * @throws IllegalStateException if there is no defined {@link Message} to send at the moment
+     */
+    @Override
+    public Message getMessageToSend() throws IllegalStateException {
+        return switch (status) {
+            case APPROVED -> onApproved;
+            case REJECTED, TEMPORARILY_REJECTED -> onRejected;
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    /**
+     * Sets
+     *  either {@link #onApproved} to given {@link Message} if {@link #status} is {@link ApprovableMessageStatus#APPROVED}
+     *  or {@link #onRejected} to given {@link Message} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
+     *
+     * @param message {@link Message} to send after approval or rejection
+     */
+    @Override
+    public void setMessageToSend(final Message message) {
+        switch (status) {
+            case APPROVED -> this.onApproved = message;
+            case REJECTED, TEMPORARILY_REJECTED -> this.onRejected = message;
+        }
+    }
 }

@@ -1,16 +1,18 @@
 package de.uol.swp.server.action;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -26,6 +28,7 @@ import java.util.Optional;
 public class ActionService extends AbstractService {
     private final CardService cardService;
     private final GameManagement gameManagement;
+    private final TriggerableService triggerableService;
 
     /**
      * Constructs a new ActionService with the specified EventBus and LobbyService.
@@ -33,10 +36,11 @@ public class ActionService extends AbstractService {
      * @param bus the EventBus used throughout the server
      */
     @Inject
-    public ActionService(EventBus bus, CardService cardService, GameManagement gameManagement) {
+    public ActionService(EventBus bus, CardService cardService, GameManagement gameManagement, TriggerableService triggerableService) {
         super(bus);
         this.cardService = cardService;
         this.gameManagement = gameManagement;
+        this.triggerableService = triggerableService;
     }
 
     /**
@@ -47,19 +51,32 @@ public class ActionService extends AbstractService {
      */
     @Subscribe
     public void onActionRequest(ActionRequest request) {
-        final Game game = request.getGame();
+        final Optional<Game> gameOptional = gameManagement.getGame(request.getGame());
+        if (gameOptional.isEmpty()) {
+            return;
+        }
+
+        final Game game = gameOptional.get();
+        final Player player = game.getCurrentPlayer();
+
+        if (triggerableService.checkForSendingManualTriggerables(game, request, player)) {
+            return;
+        }
+
+        final Action action = request.getAction();
+        action.initWithGame(game);
+
         final PlayerTurn currentPlayerTurn = game.getCurrentTurn();
-        currentPlayerTurn.executeCommand(request.getAction());
+        currentPlayerTurn.executeCommand(action);
 
         gameManagement.updateGame(game);
 
-        RetrieveUpdatedGameServerMessage actionServerMessage = new RetrieveUpdatedGameServerMessage(request.getGame());
+        RetrieveUpdatedGameServerMessage actionServerMessage = new RetrieveUpdatedGameServerMessage(game);
         actionServerMessage.initWithMessage(request);
         post(actionServerMessage);
 
-        final Optional<Session> requestSessionOptional = request.getSession();
-        if (!currentPlayerTurn.isActionExecutable() && requestSessionOptional.isPresent()) {
-            cardService.allowDrawingOrDiscarding(game, requestSessionOptional.get(), ReleaseToDrawPlayerCardResponse.class);
+        if (!currentPlayerTurn.isActionExecutable()) {
+            cardService.allowDrawingOrDiscarding(game, request, ReleaseToDrawPlayerCardResponse.class);
         }
 
         checkMoveResearchLaboratory(request);
