@@ -27,7 +27,7 @@ public interface LobbyStore {
      * @param lobbyID the ID of the lobby
      * @return the lobby
      */
-    Optional<Lobby> getLobby(String lobbyID);
+    Optional<Lobby> getLobby(int lobbyID);
 
     /**
      * Returns all lobbies.

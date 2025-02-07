@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractStore {
-
+    private final Random random = new Random();
 
     /**
      * Creates all stores that are available
@@ -114,4 +114,22 @@ public abstract class AbstractStore {
                 .toString();
     }
 
+    /**
+     * Generates a unique ID.
+     *
+     * @return A unique ID
+     */
+    protected int generateUniqueId() {
+        Set<Integer> ids = getIds();
+        var ref = new Object() {
+            int uniqueId;
+        };
+        do {
+
+            ref.uniqueId = this.random.nextInt(100000);
+        } while (ids.contains(ref.uniqueId));
+        return ref.uniqueId;
+    }
+
+    protected abstract Set<Integer> getIds();
 }

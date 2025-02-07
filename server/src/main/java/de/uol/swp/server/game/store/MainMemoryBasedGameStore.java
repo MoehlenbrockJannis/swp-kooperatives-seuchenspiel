@@ -4,21 +4,23 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.store.MainMemoryBasedStore;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * A game store that stores games in the main memory.
  */
 public class MainMemoryBasedGameStore extends AbstractStore implements GameStore, MainMemoryBasedStore {
     private final Map<Integer, Game> games = new HashMap<>();
-    private final Random random = new Random();
 
     @Override
     public void addGame(Game game) {
         if (doesGameExist(game)) {
             throw new IllegalArgumentException("Game with id " + game.getId() + " already exists");
         }
-        game.setId(generateUniqueGameId());
+        game.setId(generateUniqueId());
         games.put(game.getId(), game);
     }
 
@@ -40,7 +42,7 @@ public class MainMemoryBasedGameStore extends AbstractStore implements GameStore
     }
 
     @Override
-    public Set<Integer> getGameIds() {
+    public Set<Integer> getIds() {
         return games.keySet();
     }
 
@@ -63,22 +65,4 @@ public class MainMemoryBasedGameStore extends AbstractStore implements GameStore
             throw new IllegalArgumentException("Game with id " + game.getId() + " does not exist");
         }
     }
-
-    /**
-     * Generates a unique game ID.
-     *
-     * @return A unique game ID
-     */
-    private int generateUniqueGameId() {
-        Set<Integer> gameIds = this.getGameIds();
-        var ref = new Object() {
-            int uniqueGameId;
-        };
-        do {
-
-            ref.uniqueGameId = this.random.nextInt(100000);
-        } while (gameIds.contains(ref.uniqueGameId));
-        return ref.uniqueGameId;
-    }
-
 }

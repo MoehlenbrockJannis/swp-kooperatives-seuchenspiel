@@ -48,6 +48,7 @@ class LobbyServiceTest {
         this.secondOwnerAsPlayer = new UserPlayer(this.secondOwner);
         this.firstOwnerAsPlayer = new UserPlayer(this.firstOwner);
         this.lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+        this.lobby.setId(123);
         this.bus = EventBus.builder()
                 .logNoSubscriberMessages(false)
                 .sendNoSubscriberEvent(false)
@@ -79,7 +80,7 @@ class LobbyServiceTest {
         final CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, firstOwner);
         final CreateUserLobbyRequest request2 = new CreateUserLobbyRequest(lobby, secondOwner);
 
-        when(lobbyStore.getLobby(lobby.getName())).thenReturn(Optional.of(lobby));
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(lobby));
 
         bus.post(request);
 

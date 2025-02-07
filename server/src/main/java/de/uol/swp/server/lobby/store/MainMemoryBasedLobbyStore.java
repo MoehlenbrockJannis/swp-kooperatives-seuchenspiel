@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbyStore, MainMemoryBasedStore {
 
-    private final Map<String, Lobby> lobbies = new HashMap<>();
+    private final Map<Integer, Lobby> lobbies = new HashMap<>();
 
 
     @Override
@@ -19,17 +19,18 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
         if (doesLobbyExist(lobby)) {
             throw new IllegalArgumentException("Lobby " + lobby + " already exists!");
         }
-        lobbies.put(lobby.getName(), lobby);
+        lobby.setId(generateUniqueId());
+        lobbies.put(lobby.getId(), lobby);
     }
 
     @Override
     public void removeLobby(Lobby lobby) {
         throwLobbyNotFoundException(lobby);
-        lobbies.remove(lobby.getName());
+        lobbies.remove(lobby.getId());
     }
 
     @Override
-    public Optional<Lobby> getLobby(String lobbyID) {
+    public Optional<Lobby> getLobby(int lobbyID) {
         return Optional.ofNullable(lobbies.get(lobbyID));
     }
 
@@ -41,7 +42,7 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
     @Override
     public void updateLobby(Lobby lobby) {
         throwLobbyNotFoundException(lobby);
-        lobbies.put(lobby.getName(), lobby);
+        lobbies.put(lobby.getId(), lobby);
     }
 
     /**
@@ -50,7 +51,7 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
      * @param lobby the lobby to check
      */
     private boolean doesLobbyExist(Lobby lobby) {
-        return lobbies.containsKey(lobby.getName());
+        return lobbies.containsKey(lobby.getId());
     }
 
     /**
@@ -62,5 +63,10 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
         if (!doesLobbyExist(lobby)) {
             throw new IllegalArgumentException("Lobby " + lobby + " not found!");
         }
+    }
+
+    @Override
+    protected Set<Integer> getIds() {
+        return lobbies.keySet();
     }
 }

@@ -37,6 +37,7 @@ public class LobbyManagementTest {
     void setUp() {
         this.lobbyStore = mock(MainMemoryBasedLobbyStore.class);
         lobbyManagement = new LobbyManagement(lobbyStore);
+        lobby.setId(123);
     }
 
     LobbyManagement getDefaultManagement() {
@@ -105,10 +106,11 @@ public class LobbyManagementTest {
     void updateLobbyTest() {
         lobbyManagement.createLobby(lobby);
         LobbyDTO updatedLobby = new LobbyDTO("TestLobby", firstOwner, 3, 5);
+        updatedLobby.setId(123);
 
         lobbyManagement.updateLobby(updatedLobby);
 
-        when(lobbyStore.getLobby(lobby.getName())).thenReturn(Optional.of(updatedLobby));
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(updatedLobby));
 
         Optional<Lobby> result = lobbyManagement.getLobby(lobby);
         assertTrue(result.isPresent());
@@ -121,7 +123,7 @@ public class LobbyManagementTest {
     void updateLobbyStatusTest() {
         lobbyManagement.createLobby(lobby);
 
-        when(lobbyStore.getLobby(lobby.getName())).thenReturn(Optional.of(lobby));
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(lobby));
 
         lobbyManagement.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
 
@@ -155,10 +157,11 @@ public class LobbyManagementTest {
     @DisplayName("Create lobby with empty name")
     void createLobbyWithEmptyNameTest() {
         LobbyDTO emptyNameLobby = new LobbyDTO("", firstOwner, 2, 4);
+        emptyNameLobby.setId(1234);
 
         assertDoesNotThrow(() -> lobbyManagement.createLobby(emptyNameLobby));
 
-        when(lobbyStore.getLobby(emptyNameLobby.getName())).thenReturn(Optional.of(emptyNameLobby));
+        when(lobbyStore.getLobby(emptyNameLobby.getId())).thenReturn(Optional.of(emptyNameLobby));
         assertTrue(lobbyManagement.getLobby(emptyNameLobby).isPresent());
     }
 

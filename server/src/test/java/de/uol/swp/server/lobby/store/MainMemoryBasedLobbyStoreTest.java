@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class MainMemoryBasedLobbyStoreTest {
@@ -32,13 +32,15 @@ class MainMemoryBasedLobbyStoreTest {
     void addLobby() {
         lobbyStore.addLobby(defaultLobby);
 
-        assertThat(lobbyStore.getLobby(defaultLobby.getName())).contains(defaultLobby);
+        assertThat(lobbyStore.getLobby(defaultLobby.getId())).contains(defaultLobby);
     }
 
     @Test
     @DisplayName("Throw exception when adding an existing lobby")
     void addExistingLobby() {
         lobbyStore.addLobby(defaultLobby);
+
+        assertThat(lobbyStore.getLobby(defaultLobby.getId())).contains(defaultLobby);
 
         assertThatThrownBy(() -> lobbyStore.addLobby(defaultLobby)).isInstanceOf(IllegalArgumentException.class);
     }
@@ -49,11 +51,11 @@ class MainMemoryBasedLobbyStoreTest {
 
         lobbyStore.addLobby(defaultLobby);
 
-        assertThat(lobbyStore.getLobby(defaultLobby.getName())).contains(defaultLobby);
+        assertThat(lobbyStore.getLobby(defaultLobby.getId())).contains(defaultLobby);
 
         lobbyStore.removeLobby(defaultLobby);
 
-        assertThat(lobbyStore.getLobby(defaultLobby.getName())).isEmpty();
+        assertThat(lobbyStore.getLobby(defaultLobby.getId())).isEmpty();
     }
 
     @Test
@@ -68,7 +70,7 @@ class MainMemoryBasedLobbyStoreTest {
     void getLobby() {
 
         lobbyStore.addLobby(defaultLobby);
-        Optional<Lobby> retrievedLobby = lobbyStore.getLobby(defaultLobby.getName());
+        Optional<Lobby> retrievedLobby = lobbyStore.getLobby(defaultLobby.getId());
 
         assertThat(retrievedLobby).isPresent().contains(defaultLobby);
     }
@@ -76,7 +78,7 @@ class MainMemoryBasedLobbyStoreTest {
     @Test
     @DisplayName("Return empty when getting a non-existing lobby")
     void getNonExistingLobby() {
-        Optional<Lobby> retrievedLobby = lobbyStore.getLobby(defaultLobby.getName());
+        Optional<Lobby> retrievedLobby = lobbyStore.getLobby(defaultLobby.getId());
         assertThat(retrievedLobby).isEmpty();
     }
 
@@ -86,7 +88,8 @@ class MainMemoryBasedLobbyStoreTest {
 
         lobbyStore.addLobby(defaultLobby);
         lobbyStore.addLobby(defaultLobby2);
-        assertThat(lobbyStore.getAllLobbies()).isEqualTo(List.of(defaultLobby2, defaultLobby));
+        List<Lobby> allLobbies = lobbyStore.getAllLobbies();
+        assertThat(allLobbies).isNotNull().contains(defaultLobby, defaultLobby2);
     }
 
     @Test
@@ -98,7 +101,7 @@ class MainMemoryBasedLobbyStoreTest {
         defaultLobby.setStatus(LobbyStatus.RUNNING);
         lobbyStore.updateLobby(defaultLobby);
 
-        Lobby updatedLobby = lobbyStore.getLobby(defaultLobby.getName()).orElseThrow();
+        Lobby updatedLobby = lobbyStore.getLobby(defaultLobby.getId()).orElseThrow();
         assertThat(updatedLobby.getStatus()).isEqualTo(LobbyStatus.RUNNING);
 
     }

@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +29,9 @@ import java.util.stream.Collectors;
 
 @ToString
 public class LobbyDTO implements Lobby {
+    @Getter
+    @Setter
+    private int id;
     @Getter
     private final String name;
     @Getter

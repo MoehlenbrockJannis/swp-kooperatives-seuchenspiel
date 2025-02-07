@@ -60,7 +60,7 @@ public class LobbyManagement {
      * @since 2019-10-08
      */
     public Optional<Lobby> getLobby(Lobby lobby) {
-        return this.lobbyStore.getLobby(lobby.getName());
+        return this.lobbyStore.getLobby(lobby.getId());
     }
 
     /**
@@ -91,7 +91,7 @@ public class LobbyManagement {
      * @since 2024-08-29
      */
     public void updateLobbyStatus(Lobby lobby, LobbyStatus status) {
-        this.lobbyStore.getLobby(lobby.getName()).ifPresentOrElse(
+        this.lobbyStore.getLobby(lobby.getId()).ifPresentOrElse(
                 l -> {
                     l.setStatus(status);
                     updateLobby(l);

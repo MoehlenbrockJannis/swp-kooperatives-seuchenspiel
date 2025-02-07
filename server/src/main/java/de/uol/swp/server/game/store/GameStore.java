@@ -3,7 +3,6 @@ package de.uol.swp.server.game.store;
 import de.uol.swp.common.game.Game;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * A store for managing games.
@@ -39,12 +38,4 @@ public interface GameStore {
      * @param game The game to be removed
      */
     void removeGame(Game game);
-
-    /**
-     * Returns a list of all game ids.
-     *
-     * @return A list of all game ids
-     */
-    Set<Integer> getGameIds();
-
 }
