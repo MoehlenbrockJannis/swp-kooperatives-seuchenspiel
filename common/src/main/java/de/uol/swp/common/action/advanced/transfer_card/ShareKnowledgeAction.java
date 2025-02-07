@@ -76,6 +76,12 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
     }
 
     @Override
+    public void initWithGame(final Game game) {
+        super.initWithGame(game);
+        this.targetPlayer = game.findPlayer(this.targetPlayer).orElseThrow();
+    }
+
+    @Override
     public Player getApprovingPlayer() {
         return targetPlayer;
     }

@@ -16,4 +16,24 @@ public class AirBridgeEventCard extends EventCard{
     public AirBridgeEventCard() {
         super(DESCRIPTION_STRING, TITLE_STRING);
     }
+
+    @Override
+    public void trigger() {
+
+    }
+
+    @Override
+    public String getApprovalRequestMessage() {
+        return "";
+    }
+
+    @Override
+    public String getApprovedMessage() {
+        return "";
+    }
+
+    @Override
+    public String getRejectedMessage() {
+        return "";
+    }
 }

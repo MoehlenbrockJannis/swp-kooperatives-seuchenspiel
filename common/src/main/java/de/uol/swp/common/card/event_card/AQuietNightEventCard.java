@@ -1,5 +1,7 @@
 package de.uol.swp.common.card.event_card;
 
+import de.uol.swp.common.player.turn.PlayerTurn;
+
 /**
  * Represents the "A quiet night" event card.
  * This card allows the next player to skip the phase where they must play the Transmitter.
@@ -13,5 +15,29 @@ public class AQuietNightEventCard extends EventCard {
      */
     public AQuietNightEventCard() {
         super(DESCRIPTION_STRING, TITLE_STRING);
+    }
+
+    /**
+     * Sets the number of infection cards to draw in the current turn of {@link #game} to {@code 0}.
+     */
+    @Override
+    public void trigger() {
+        final PlayerTurn currentPlayerTurn = game.getCurrentTurn();
+        currentPlayerTurn.setNumberOfInfectionCardsToDraw(0);
+    }
+
+    @Override
+    public String getApprovalRequestMessage() {
+        return "Möchtest du die nächste Infektionskartenzugphase überspringen?";
+    }
+
+    @Override
+    public String getApprovedMessage() {
+        return "Die nächste Infektionskartenzugphase wird übersprungen.";
+    }
+
+    @Override
+    public String getRejectedMessage() {
+        return "Die nächste Infektionskartenzugphase findet statt.";
     }
 }

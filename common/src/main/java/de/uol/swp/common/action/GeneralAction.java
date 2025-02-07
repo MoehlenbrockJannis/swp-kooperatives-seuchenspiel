@@ -35,7 +35,11 @@ public abstract class GeneralAction implements Action {
         return getClass().getSimpleName();
     }
 
-
+    @Override
+    public void initWithGame(final Game game) {
+        this.game = game;
+        this.executingPlayer = game.findPlayer(this.executingPlayer).orElseThrow();
+    }
 }
 
 

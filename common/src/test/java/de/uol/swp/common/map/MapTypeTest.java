@@ -17,6 +17,8 @@ class MapTypeTest {
 
     private MapType mapType;
 
+    private String name;
+
     private MapSlot mapSlot1;
     private MapSlot mapSlot2;
     private MapSlot mapSlot3;
@@ -31,6 +33,8 @@ class MapTypeTest {
 
     @BeforeEach
     void setUp() {
+        name = "name";
+
         plague1 = new Plague("Plague1", new Color(10, 10, 10));
         plague2 = new Plague("Plague2", new Color(20, 20, 20));
         plague3 = new Plague("Plague3", new Color(30, 30, 30));
@@ -43,7 +47,7 @@ class MapTypeTest {
         mapSlot2 = new MapSlot(city2, List.of(city1, city3), plague2, 2, 2);
         mapSlot3 = new MapSlot(city3, List.of(city1, city2), plague3, 3, 3);
 
-        mapType = new MapType(List.of(mapSlot1, mapSlot2, mapSlot3), city1);
+        mapType = new MapType(name, List.of(mapSlot1, mapSlot2, mapSlot3), city1);
     }
 
     @Test
@@ -56,27 +60,20 @@ class MapTypeTest {
     }
 
     @Test
-    @DisplayName("Should return true if given object has same associated color and field")
+    @DisplayName("Should return true if given object has same name")
     void testEquals_true() {
-        final MapType equal = new MapType(List.of(mapSlot1, mapSlot2, mapSlot3), city1);
+        final MapType equal = new MapType(name, List.of(mapSlot1, mapSlot2, mapSlot3), city1);
 
         assertThat(mapType.equals(equal))
                 .isTrue();
     }
 
     @Test
-    @DisplayName("Should return false if given object does not have same associated color and field")
+    @DisplayName("Should return false if given object does not have same name")
     void testEquals_false() {
-        final City city4 = new City("City4", "City No.4");
-        final MapSlot mapSlot4 = new MapSlot(city4, List.of(city1, city2, city3), plague1, 4, 4);
-        final MapType otherMapSlots = new MapType(List.of(mapSlot1, mapSlot2, mapSlot3, mapSlot4), city1);
+        final MapType otherMap = new MapType("different", List.of(mapSlot1, mapSlot2, mapSlot3), city1);
 
-        assertThat(mapType.equals(otherMapSlots))
-                .isFalse();
-
-        final MapType otherStartingCity = new MapType(List.of(mapSlot1, mapSlot2, mapSlot3), city2);
-
-        assertThat(mapType.equals(otherStartingCity))
+        assertThat(mapType.equals(otherMap))
                 .isFalse();
     }
 
@@ -92,7 +89,7 @@ class MapTypeTest {
     @Test
     @DisplayName("Should return equal hash code for equal objects")
     void testHashCode() {
-        final MapType other = new MapType(List.of(mapSlot1, mapSlot2, mapSlot3), city1);
+        final MapType other = new MapType(name, List.of(mapSlot1, mapSlot2, mapSlot3), city1);
 
         assertThat(mapType.hashCode())
                 .hasSameHashCodeAs(other);
