@@ -164,6 +164,8 @@ public class GameMapPresenter extends AbstractPresenter {
                 movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
 
                 addResearchLaboratoryMarkers(retrieveUpdatedGameServerMessage.getGame());
+
+                unhighlightCityMarkers();
             });
         }
     }
@@ -314,7 +316,15 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addPlayerMarker(Player player) {
         PlayerMarker newPlayerMarker = createNewPlayerMarker(player);
-        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(newPlayerMarker, loggedInUserProvider, actionService, approvableService, game, cityMarkers);
+        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(
+                newPlayerMarker,
+                loggedInUserProvider,
+                actionService,
+                approvableService,
+                game,
+                cityMarkers,
+                this::unhighlightCityMarkers
+        );
         playerMarkerPresenter.initializeMouseEvents();
 
         playerMarkerPane.getChildren().add(newPlayerMarker);
@@ -465,6 +475,17 @@ public class GameMapPresenter extends AbstractPresenter {
             cityMarkers.put(field, cityMarker);
 
             handleWebViewSizeAndPosition(webView, cityMarker, field, CITY_MARKER_SCALE_FACTOR);
+        }
+    }
+
+    /**
+     * Unhighlights all city markers in {@link #cityMarkers} and removes action listeners from them.
+     */
+    private void unhighlightCityMarkers() {
+        for (final Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            final CityMarker cityMarker = entry.getValue();
+            cityMarker.unhighlight();
+            cityMarker.setOnMouseClicked(null);
         }
     }
 
