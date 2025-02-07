@@ -5,6 +5,7 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AQuietNightEventCard;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.message.Message;
@@ -45,12 +46,14 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     private Game game;
     private Player player1;
     private Player player2;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
         gameManagement = mock();
         gameService = mock();
         lobbyService = mock();
+        difficulty = GameDifficulty.getDefault();
         final EventBus eventBus = getBus();
 
         triggerableService = new TriggerableService(eventBus, gameManagement, gameService, lobbyService);
@@ -64,7 +67,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
 
         final List<Plague> plagues = List.of();
 
-        game = new Game(lobby, createMapType(), new ArrayList<>(lobby.getPlayers()), plagues);
+        game = new Game(lobby, createMapType(), new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
         game.addPlayerTurn(new PlayerTurn(
                 game,
                 player1,

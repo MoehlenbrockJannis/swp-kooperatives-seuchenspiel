@@ -37,12 +37,14 @@ public class GameServiceTest extends EventBusBasedTest {
     private MapType mapType;
     private List<Plague> plagues;
     private AIPlayer aiPlayer;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
         gameManagement = mock();
         lobbyService = mock();
         final EventBus eventBus = getBus();
+        difficulty = GameDifficulty.getDefault();
 
         gameService = new GameService(eventBus, gameManagement, lobbyService);
 
@@ -108,7 +110,7 @@ public class GameServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should return an Optional with session for an AIPlayer")
     void getSession_present() {
-        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues);
+        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, difficulty);
         post(createGameRequest);
 
         assertThat(gameService.getSession(aiPlayer))

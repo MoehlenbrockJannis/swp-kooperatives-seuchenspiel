@@ -98,17 +98,16 @@ public class CardService extends AbstractService {
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
-            player.addHandCard(playerCard);
-
-            final PlayerTurn playerTurn = game.getCurrentTurn();
-            playerTurn.reduceNumberOfPlayerCardsToDraw();
-            playerTurn.createTriggerables();
 
             if(playerCard instanceof EpidemicCard epidemicCard) {
                 triggerEpidemic(game, epidemicCard);
             } else {
                 player.addHandCard(playerCard);
             }
+
+            final PlayerTurn playerTurn = game.getCurrentTurn();
+            playerTurn.reduceNumberOfPlayerCardsToDraw();
+            playerTurn.createTriggerables();
 
             game.getCurrentTurn().reduceNumberOfPlayerCardsToDraw();
 

@@ -353,8 +353,14 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Draw Player Card Request - Draw Epidemic Card")
     void onDrawPlayerCardRequest_drawEpidemicCard() {
         setupEpidemicTestState();
+        when(gameManagement.getGame(any())).thenReturn(Optional.of(mockGame));
+        when(mockGame.findPlayer(any())).thenReturn(Optional.of(mockPlayer));
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+        when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         verify(mockGame).increaseInfectionLevel();
@@ -396,66 +402,133 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Process Bottom Card - With Antidote Marker")
     void processBottomInfectionCard_EpidemicBehavior_withAntidoteMarker() {
         setupEpidemicTestState();
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
+        when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+
+        CardStack<PlayerCard> playerDrawStack = new CardStack<>();
+        playerDrawStack.push(epidemicCard);
+        when(mockGame.getPlayerDrawStack()).thenReturn(playerDrawStack);
+        when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
+
+        PlayerTurn mockTurn = mock(PlayerTurn.class);
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+        when(mockTurn.isPlayerCardDrawExecutable()).thenReturn(true);
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(true);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         InOrder inOrder = inOrder(mockGame, mockField, cardManagement);
         inOrder.verify(mockGame).increaseInfectionLevel();
         verify(mockField, never()).isInfectable(mockPlague);
         inOrder.verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
+        verify(mockMap, never()).startOutbreak(any(), any());
     }
 
     @Test
     @DisplayName("Process Bottom Card - Causes Outbreak")
     void processBottomInfectionCard_EpidemicBehavior_causesOutbreak() {
         setupEpidemicTestState();
+
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
         when(mockField.isInfectable(mockPlague)).thenReturn(false);
 
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
+        when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+
+        CardStack<PlayerCard> playerDrawStack = new CardStack<>();
+        playerDrawStack.push(epidemicCard);
+        when(mockGame.getPlayerDrawStack()).thenReturn(playerDrawStack);
+        when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
+
+        PlayerTurn mockTurn = mock(PlayerTurn.class);
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+        when(mockTurn.isPlayerCardDrawExecutable()).thenReturn(true);
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         InOrder inOrder = inOrder(mockGame, mockMap, cardManagement);
         inOrder.verify(mockGame).increaseInfectionLevel();
         inOrder.verify(mockMap).startOutbreak(mockField, mockPlague);
         inOrder.verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
+
+        verify(mockGame, atLeast(1)).hasAntidoteMarkerForPlague(mockPlague);
+        verify(mockField).isInfectable(mockPlague);
     }
 
     @Test
     @DisplayName("Process Bottom Card - Multiple Infections")
     void processBottomInfectionCard_EpidemicBehavior_multipleInfections() {
         setupEpidemicTestState();
+
         List<List<Field>> infectedFieldsList = new ArrayList<>();
         when(mockTurn.getInfectedFieldsInTurn()).thenReturn(infectedFieldsList);
+
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
         when(mockField.isInfectable(mockPlague)).thenReturn(true);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
+        when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+
+        CardStack<PlayerCard> playerDrawStack = new CardStack<>();
+        playerDrawStack.push(epidemicCard);
+        when(mockGame.getPlayerDrawStack()).thenReturn(playerDrawStack);
+        when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
+
+        when(cardManagement.drawInfectionCardFromTheBottom(mockGame)).thenReturn(mockBottomCard);
+        when(mockBottomCard.getAssociatedField()).thenReturn(mockField);
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+        when(mockTurn.isPlayerCardDrawExecutable()).thenReturn(true);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
+        verify(mockGame).increaseInfectionLevel();
         verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
+        verify(mockMap, never()).startOutbreak(any(), any());
+        verify(mockTurn, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).getInfectedFieldsInTurn();
     }
 
     @Test
     @DisplayName("Trigger Epidemic - Complete Process")
     void triggerEpidemic_completeProcess() {
         setupEpidemicTestState();
+
         when(mockField.isInfectable(any(Plague.class))).thenReturn(false);
         when(mockGame.hasAntidoteMarkerForPlague(any(Plague.class))).thenReturn(false);
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
+        when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
 
         InfectionCard card1 = mock(InfectionCard.class);
         InfectionCard card2 = mock(InfectionCard.class);
         discardStack.push(card1);
         discardStack.push(card2);
 
+        PlayerTurn mockTurn = mock(PlayerTurn.class);
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+        when(mockTurn.isPlayerCardDrawExecutable()).thenReturn(true);
+
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         InOrder inOrder = inOrder(mockGame, cardManagement, discardStack, mockMap);
