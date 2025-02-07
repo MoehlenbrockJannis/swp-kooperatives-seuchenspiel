@@ -43,7 +43,7 @@ public abstract class AbstractStore {
      * @return the store that should be used
      */
     private static Optional<Class<AbstractStore>> getStore(Class<? extends ContentStore> storeInterface, boolean databaseIsAvailable) {
-        Set<Class<? extends ContentStore>> subTypes = getSubStores(storeInterface, getServerPackagePath(), subType -> !Modifier.isAbstract(subType.getModifiers()));
+        Set<Class<? extends ContentStore>> subTypes = getSubStores(storeInterface, storeInterface.getPackageName(), subType -> !Modifier.isAbstract(subType.getModifiers()));
 
         return findFirstMatchingStore(subTypes, subtype -> isDatabaseStore(subtype) && databaseIsAvailable)
                 .or(() -> findFirstMatchingStore(subTypes, AbstractStore::isMainMemoryBasedStore));
