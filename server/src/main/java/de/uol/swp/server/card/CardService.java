@@ -109,8 +109,6 @@ public class CardService extends AbstractService {
             playerTurn.reduceNumberOfPlayerCardsToDraw();
             playerTurn.createTriggerables();
 
-            game.getCurrentTurn().reduceNumberOfPlayerCardsToDraw();
-
             DrawPlayerCardResponse response = new DrawPlayerCardResponse(playerCard, game);
             response.initWithMessage(drawPlayerCardRequest);
             post(response);
