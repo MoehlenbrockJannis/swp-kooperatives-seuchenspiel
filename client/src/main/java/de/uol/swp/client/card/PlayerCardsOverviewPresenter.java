@@ -84,6 +84,11 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
 
     }
 
+    @Override
+    protected boolean isGameInCorrectDrawPhase() {
+        return gameSupplier.get().getCurrentTurn().isPlayerCardDrawExecutable();
+    }
+
     /**
      * Handles the response when a player card is drawn.
      *

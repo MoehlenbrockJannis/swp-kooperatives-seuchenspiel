@@ -36,6 +36,6 @@ public class TestUtils {
         MapSlot mapSlot = new MapSlot(city0, connectedCities, plague, 0, 0);
         mapSlotList.add(mapSlot);
 
-        return new MapType(mapSlotList, mapSlotList.get(0).getCity());
+        return new MapType("name", mapSlotList, mapSlotList.get(0).getCity());
     }
 }

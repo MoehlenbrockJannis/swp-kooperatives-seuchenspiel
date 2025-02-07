@@ -6,6 +6,7 @@ import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.card.Card;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -116,6 +118,13 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     abstract void discardCard();
 
     /**
+     * Returns whether the {@link Game} is in the correct phase to draw a {@link Card}
+     *
+     * @return {@code true} if {@link Game} is in correct phase, {@code false} otherwise
+     */
+    protected abstract boolean isGameInCorrectDrawPhase();
+
+    /**
      * Updates the labels for the number of cards in the draw and discard stacks.
      */
     public void updateLabels() {
@@ -193,6 +202,20 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.numberOfCardsToDiscard--;
         if (this.numberOfCardsToDiscard == 0) {
             this.discardStackHBox.setDisable(true);
+        }
+    }
+
+    /**
+     * Subscribes to a {@link RetrieveUpdatedGameServerMessage} on the {@link #eventBus} and
+     * disables the {@link #drawStackHBox} if no cards need to be drawn.
+     *
+     * @param retrieveUpdatedGameServerMessage the {@link RetrieveUpdatedGameServerMessage} on the {@link #eventBus}
+     * @see #isGameInCorrectDrawPhase()
+     */
+    @Subscribe
+    public void onRetrieveUpdatedGameServerMessage(final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
+        if (!isGameInCorrectDrawPhase()) {
+            this.drawStackHBox.setDisable(true);
         }
     }
 }

@@ -35,6 +35,14 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
      */
     private Field researchLaboratoryOriginField;
 
+    @Override
+    public void initWithGame(final Game game) {
+        super.initWithGame(game);
+        if (this.researchLaboratoryOriginField != null) {
+            this.researchLaboratoryOriginField = game.findField(this.researchLaboratoryOriginField).orElseThrow();
+        }
+    }
+
     /**
      * Sets the {@link #researchLaboratoryOriginField} to move a {@link ResearchLaboratory} from if needed.
      *

@@ -1,6 +1,7 @@
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.card.*;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.lobby.Lobby;
@@ -17,6 +18,7 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.util.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -611,6 +613,62 @@ public class Game implements Serializable {
      */
     public void nextPlayer() {
         this.indexOfCurrentPlayer = (this.indexOfCurrentPlayer + 1) % this.playersInTurnOrder.size();
+    }
+
+    /**
+     * Returns a {@link List} of all triggerables currently present in this {@link Game}.
+     *
+     * @return a {@link List} of all triggerables
+     */
+    public List<Triggerable> getTriggerables() {
+        return getPlayersInTurnOrder().stream()
+                .flatMap(player -> getAndPreparePlayerEventCards(player).stream())
+                .map(Triggerable.class::cast)
+                .toList();
+    }
+
+    /**
+     * Extracts all {@link EventCard} hand cards from given {@link Player} and prepares them for use.
+     *
+     * @param player {@link Player} to extract all {@link EventCard} hand cards from
+     * @return {@link List} of {@link EventCard}
+     * @see EventCard#setGame(Game)
+     * @see EventCard#setPlayer(Player)
+     */
+    private List<EventCard> getAndPreparePlayerEventCards(final Player player) {
+        return player.getHandCards().stream()
+                .filter(EventCard.class::isInstance)
+                .map(EventCard.class::cast)
+                .map(eventCard -> {
+                    eventCard.setPlayer(player);
+                    eventCard.setGame(this);
+                    return eventCard;
+                })
+                .toList();
+    }
+
+    /**
+     * Returns an {@link Optional} of a {@link Player} in {@link #playersInTurnOrder} that is equal to given {@link Player}.
+     *
+     * @return {@link Optional} of a {@link Player} in {@link #playersInTurnOrder} that is equal to given {@link Player}
+     * @see Player#equals(Object)
+     */
+    public Optional<Player> findPlayer(final Player player) {
+        return playersInTurnOrder.stream()
+                .filter(p -> p.equals(player))
+                .findFirst();
+    }
+
+    /**
+     * Returns an {@link Optional} of a {@link Field} in {@link #map} that is equal to given {@link Field}.
+     *
+     * @return {@link Optional} of a {@link Field} in {@link #map} that is equal to given {@link Field}
+     * @see Field#equals(Object)
+     */
+    public Optional<Field> findField(final Field field) {
+        return map.getFields().stream()
+                .filter(f -> f.equals(field))
+                .findFirst();
     }
 
     /**

@@ -20,6 +20,7 @@ import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
@@ -39,14 +41,16 @@ public class ActionServiceTest extends EventBusBasedTest {
     private ActionService actionService;
     private CardService cardService;
     private GameManagement gameManagement;
+    private TriggerableService triggerableService;
 
     @BeforeEach
     void setUp() {
         cardService = mock();
         gameManagement = mock();
+        triggerableService = mock();
         EventBus eventBus = getBus();
 
-        actionService = new ActionService(eventBus, cardService, gameManagement);
+        actionService = new ActionService(eventBus, cardService, gameManagement, triggerableService);
     }
 
     private static Stream<Arguments> onActionRequestSource() {
@@ -78,6 +82,9 @@ public class ActionServiceTest extends EventBusBasedTest {
                 .thenReturn(isInActionPhaseAfterActionExecution);
         game.addPlayerTurn(playerTurn);
 
+        when(gameManagement.getGame(game))
+                .thenReturn(Optional.of(game));
+
         final Action action = new WaiveAction();
         action.setGame(game);
         action.setExecutingPlayer(lobby.getPlayerForUser(user));
@@ -94,7 +101,7 @@ public class ActionServiceTest extends EventBusBasedTest {
         verify(gameManagement, times(1))
                 .updateGame(game);
         verify(cardService, times(timesCardServiceCalled))
-                .allowDrawingOrDiscarding(game, session, ReleaseToDrawPlayerCardResponse.class);
+                .allowDrawingOrDiscarding(game, actionRequest, ReleaseToDrawPlayerCardResponse.class);
         assertThat(this.event)
                 .isInstanceOf(RetrieveUpdatedGameServerMessage.class);
     }
