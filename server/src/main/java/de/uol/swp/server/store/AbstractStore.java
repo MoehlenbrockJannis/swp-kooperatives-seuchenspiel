@@ -1,11 +1,9 @@
 package de.uol.swp.server.store;
 
 
-import com.google.common.hash.Hashing;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -130,20 +128,5 @@ public abstract class AbstractStore {
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not create store: " + e.getMessage());
         }
-    }
-
-    /**
-     * Calculates the hash for a given String
-     * <p>
-     *
-     * @param toHash the String to calculate the hash for
-     * @return String containing the calculated hash
-     * @implSpec the hash method used is sha256
-     * @since 2019-09-04
-     */
-    protected String hash(String toHash) {
-        return Hashing.sha256()
-                .hashString(toHash, StandardCharsets.UTF_8)
-                .toString();
     }
 }

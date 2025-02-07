@@ -21,7 +21,6 @@ import de.uol.swp.server.player.turn.PlayerTurnService;
 import de.uol.swp.server.role.RoleManagement;
 import de.uol.swp.server.role.RoleService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
@@ -84,7 +83,6 @@ class ServerApp {
 
 		// Remark: As these services are not referenced by any other class
 		// we will need to create instances here (and inject dependencies)
-		injector.getInstance(UserManagement.class);
 		injector.getInstance(UserService.class);
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);

@@ -1,6 +1,7 @@
 package de.uol.swp.server.usermanagement.store;
 
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.database.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,9 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -73,18 +75,18 @@ class DatabaseBasedUserStoreTest {
         String email = "test@example.com";
 
 
-            doNothing().when(dataSource).executeQuery(anyString());
-            when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
-            when(resultSet.next()).thenReturn(true);
-            when(resultSet.getString("username")).thenReturn(username);
-            when(resultSet.getString("password")).thenReturn(password);
-            when(resultSet.getString("email")).thenReturn(email);
+        doNothing().when(dataSource).executeQuery(anyString());
+        when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("username")).thenReturn(username);
+        when(resultSet.getString("password")).thenReturn(password);
+        when(resultSet.getString("email")).thenReturn(email);
 
-            User user = userStore.createUser(username, password, email);
+        User user = userStore.createUser(username, password, email);
 
-            verify(dataSource, times(1)).executeQuery(anyString());
-            assertThat(user).isNotNull();
-            assertThat(user.getUsername()).isEqualTo(username);
+        verify(dataSource, times(1)).executeQuery(anyString());
+        assertThat(user).isNotNull();
+        assertThat(user.getUsername()).isEqualTo(username);
     }
 
     @Test
@@ -113,24 +115,30 @@ class DatabaseBasedUserStoreTest {
     void removeUser() throws SQLException {
         String username = "test";
 
-            doNothing().when(dataSource).executeQuery(anyString());
+        doNothing().when(dataSource).executeQuery(anyString());
 
-            userStore.removeUser(username);
+        userStore.removeUser(username);
 
-            verify(dataSource, times(1)).executeQuery(anyString());
+        verify(dataSource, times(1)).executeQuery(anyString());
 
     }
 
     @Test
     @DisplayName("Get all users")
     void getAllUsers() throws SQLException {
+        String username = "test";
+        String password = "";
+        String email = "test@example.com";
+        User user = new UserDTO(username, password, email);
+
         when(dataSource.getResultSet(anyString())).thenReturn(Optional.of(resultSet));
         when(resultSet.next()).thenReturn(true).thenReturn(false);
-        when(resultSet.getString("username")).thenReturn("test");
-        when(resultSet.getString("password")).thenReturn("test");
-        when(resultSet.getString("email")).thenReturn("test@example.com");
+        when(resultSet.getString("username")).thenReturn(username);
+        when(resultSet.getString("password")).thenReturn(password);
+        when(resultSet.getString("email")).thenReturn(email);
 
-        assertThat(userStore.getAllUsers()).isNotNull();
+        List<User> userList = userStore.getAllUsers();
+        assertThat(userList).contains(user);
 
     }
 }

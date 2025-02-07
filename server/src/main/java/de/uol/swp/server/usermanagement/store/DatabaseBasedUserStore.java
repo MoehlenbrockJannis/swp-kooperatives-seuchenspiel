@@ -81,7 +81,7 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
             ResultSet resultSet = this.dataSource.getResultSet(query).orElse(null);
             while (Objects.requireNonNull(resultSet).next()) {
                 User newUser = getUserFromResultSet(resultSet);
-                users.add(newUser.getWithoutPassword());
+                users.add(newUser);
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);

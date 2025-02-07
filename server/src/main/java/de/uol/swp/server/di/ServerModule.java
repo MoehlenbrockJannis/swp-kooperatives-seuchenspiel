@@ -46,7 +46,7 @@ public class ServerModule extends AbstractModule {
      * Binds all stores to the corresponding classes.
      */
     private void bindStores() {
-        boolean isDatabaseAvailable = isIsDatabaseAvailable();
+        boolean isDatabaseAvailable = isDatabaseAvailable();
         LOG.info("Database connection: {}", isDatabaseAvailable);
 
         @SuppressWarnings("rawtypes")
@@ -54,7 +54,7 @@ public class ServerModule extends AbstractModule {
         stores.forEach((key, value) -> bind(key).toInstance(value));
     }
 
-    private boolean isIsDatabaseAvailable() {
+    private boolean isDatabaseAvailable() {
         final DataSourceConfig dataSourceConfig = new DataSourceConfig(envReader);
         String dbHost = dataSourceConfig.getDbHost();
         int dbPort = dataSourceConfig.getDbPort();
