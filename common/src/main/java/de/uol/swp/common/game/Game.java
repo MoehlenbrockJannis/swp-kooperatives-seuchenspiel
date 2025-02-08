@@ -271,52 +271,54 @@ public class Game implements Serializable {
      * This method organizes the player cards into draw and discard stacks.
      */
     private void createPlayerStacks() {
-        this.playerDiscardStack = new CardStack<>();
-
-        List<PlayerCard> baseStack = initializeBasePlayerStack();
-        this.playerDrawStack = new CardStack<>();
-        this.playerDrawStack.addAll(baseStack);
-
+        initializeBasePlayerStack();
         assignPlayerCardsToPlayers(this.playerDrawStack);
-
-        List<PlayerCard> remainingCards = new ArrayList<>();
-        while (!this.playerDrawStack.isEmpty()) {
-            remainingCards.add(this.playerDrawStack.pop());
-        }
-
-        List<CardStack<PlayerCard>> subStacks = dividePlayerStackIntoEpidemicStacks(remainingCards, difficulty.getNumberOfEpidemicCards());
-        addEpidemicCardsToSubStacks(subStacks);
-        combineSubStacksIntoDrawStack(subStacks);
+        divideAndAddEpidemicCards(this.playerDrawStack);
     }
 
     /**
-     * Divides the player stack into substacks based on the number of epidemic cards.
-     * Handles uneven distribution by calculating the exact number of cards per stack.
+     * Divides the player stack into substacks, adds epidemic cards, and recombines them.
+     * This method handles the epidemic card integration process.
      *
-     * @param playerStack The complete list of player cards to divide
-     * @param numberOfStacks The number of stacks to divide into (number of epidemic cards)
-     * @return List of card substacks
+     * @param playerStack The stack to divide and modify
      */
-    private List<CardStack<PlayerCard>> dividePlayerStackIntoEpidemicStacks(List<PlayerCard> playerStack, int numberOfStacks) {
-        List<CardStack<PlayerCard>> epidemicStacks = new ArrayList<>();
-        int totalCards = playerStack.size();
+    private void divideAndAddEpidemicCards(CardStack<PlayerCard> playerStack) {
+        int numberOfEpidemicCards = difficulty.getNumberOfEpidemicCards();
+        int cardsPerStack = playerStack.size() / numberOfEpidemicCards;
+        int remainingCards = playerStack.size() % numberOfEpidemicCards;
 
-        int baseCardsPerStack = totalCards / numberOfStacks;
-        int remainingCards = totalCards % numberOfStacks;
+        List<CardStack<PlayerCard>> subStacks = new ArrayList<>();
 
-        int currentIndex = 0;
-
-        for (int i = 0; i < numberOfStacks; i++) {
-            int currentStackSize = baseCardsPerStack + (i < remainingCards ? 1 : 0);
-
-            CardStack<PlayerCard> subStack = new CardStack<>();
-            for (int j = 0; j < currentStackSize; j++) {
-                subStack.push(playerStack.get(currentIndex));
-                currentIndex++;
-            }
-            epidemicStacks.add(subStack);
+        for (int i = 0; i < numberOfEpidemicCards; i++) {
+            CardStack<PlayerCard> subStack = createSubStackWithEpidemicCard(playerStack, cardsPerStack, i < remainingCards);
+            subStacks.add(subStack);
         }
-        return epidemicStacks;
+
+        playerStack.clear();
+        for (CardStack<PlayerCard> subStack : subStacks) {
+            playerStack.addAll(subStack);
+        }
+    }
+
+    /**
+     * Creates a substack with the specified number of cards and adds an epidemic card.
+     *
+     * @param sourceStack The source stack to take cards from
+     * @param baseSize The base number of cards for this stack
+     * @param addExtraCard Whether to add an extra card for remainder distribution
+     * @return The created and shuffled substack
+     */
+    private CardStack<PlayerCard> createSubStackWithEpidemicCard(CardStack<PlayerCard> sourceStack, int baseSize, boolean addExtraCard) {
+        CardStack<PlayerCard> subStack = new CardStack<>();
+        int currentStackSize = baseSize + (addExtraCard ? 1 : 0);
+
+        for (int j = 0; j < currentStackSize && !sourceStack.isEmpty(); j++) {
+            subStack.push(sourceStack.pop());
+        }
+        subStack.push(new EpidemicCard());
+        subStack.shuffle();
+
+        return subStack;
     }
 
 
@@ -324,48 +326,15 @@ public class Game implements Serializable {
      * Initializes the player draw stack with city and event cards.
      * This creates the base deck before epidemic cards are added.
      */
-    private List<PlayerCard> initializeBasePlayerStack() {
-        List<PlayerCard> initialStack = new ArrayList<>();
-        initialStack.addAll(createCityCards());
+    private void initializeBasePlayerStack() {
+        this.playerDiscardStack = new CardStack<>();
+        this.playerDrawStack = new CardStack<>();
+        this.playerDrawStack.addAll(createCityCards());
+
         EventCardFactory eventCardFactory = new EventCardFactory();
-        initialStack.addAll(eventCardFactory.createEventCards());
-        Collections.shuffle(initialStack);
-        return initialStack;
-    }
+        this.playerDrawStack.addAll(eventCardFactory.createEventCards());
 
-    /**
-     * Adds epidemic cards to the substacks and shuffles each substack.
-     */
-    private void addEpidemicCardsToSubStacks(List<CardStack<PlayerCard>> subStacks) {
-        List<EpidemicCard> epidemicCards = createEpidemicCards();
-        for (int i = 0; i < epidemicCards.size(); i++) {
-            CardStack<PlayerCard> subStack = subStacks.get(i);
-            subStack.push(epidemicCards.get(i));
-            subStack.shuffle();
-        }
-    }
-
-    /**
-     * Combines all substacks back into the main player draw stack.
-     */
-    private void combineSubStacksIntoDrawStack(List<CardStack<PlayerCard>> subStacks) {
-        for (CardStack<PlayerCard> subStack : subStacks) {
-            this.playerDrawStack.addAll(subStack);
-        }
-    }
-
-
-    /**
-     * Creates the epidemic cards for the game.
-     *
-     * @return a list of EpidemicCard objects
-     */
-    private List<EpidemicCard> createEpidemicCards() {
-        List<EpidemicCard> epidemicCards = new ArrayList<>();
-        for (int i = 0; i < difficulty.getNumberOfEpidemicCards(); i++) {
-            epidemicCards.add(new EpidemicCard());
-        }
-        return epidemicCards;
+        this.playerDrawStack.shuffle();
     }
 
     /**
@@ -385,18 +354,15 @@ public class Game implements Serializable {
     /**
      * Assigns player cards to the players based on the initial setup.
      *
-     * @param cards the stack of player cards to be distributed among players
+     * @param cardStack the stack of player cards to be distributed among players
      */
-    private void assignPlayerCardsToPlayers(CardStack<PlayerCard> cards) {
+    private void assignPlayerCardsToPlayers(CardStack<PlayerCard> cardStack) {
         int numberOfPlayers = playersInTurnOrder.size();
         int cardsPerPlayer = AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS.get(numberOfPlayers);
 
         for (Player player : playersInTurnOrder) {
-            for (int i = 0; i < cardsPerPlayer; i++) {
-                if (!cards.isEmpty()) {
-                    PlayerCard card = cards.pop();
-                    player.addHandCard(card);
-                }
+            for (int i = 0; i < cardsPerPlayer && !cardStack.isEmpty(); i++) {
+                player.addHandCard(cardStack.pop());
             }
         }
     }
