@@ -1,6 +1,7 @@
 package de.uol.swp.server.player.turn;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
@@ -45,7 +46,9 @@ class PlayerTurnManagementTest {
 
         final MapType mapType = createMapType();
 
-        game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
+
+        game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
     }
 
     @Test

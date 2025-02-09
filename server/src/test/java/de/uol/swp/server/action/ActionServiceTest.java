@@ -5,6 +5,7 @@ import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
@@ -68,13 +69,14 @@ public class ActionServiceTest extends EventBusBasedTest {
         Player player2 = new UserPlayer(user2);
 
         final Lobby lobby = new LobbyDTO("lobby", user);
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
 
         lobby.addPlayer(player);
         lobby.addPlayer(player2);
 
         final MapType mapType = createMapType();
 
-        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
         final PlayerTurn playerTurn = mock();
         when(playerTurn.isActionExecutable())
                 .thenReturn(isInActionPhaseAfterActionExecution);

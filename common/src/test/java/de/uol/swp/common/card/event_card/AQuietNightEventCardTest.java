@@ -1,6 +1,7 @@
 package de.uol.swp.common.card.event_card;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.player.AIPlayer;
@@ -24,8 +25,9 @@ class AQuietNightEventCardTest {
     void setUp() {
         final Lobby lobby = new LobbyDTO("name", new UserDTO("user", "", ""));
         lobby.addPlayer(new AIPlayer("ai"));
+        GameDifficulty difficulty = GameDifficulty.getDefault();
 
-        game = new Game(lobby, TestUtils.createMapType(), new ArrayList<>(lobby.getPlayers()), List.of());
+        game = new Game(lobby, TestUtils.createMapType(), new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
 
         aQuietNightEventCard = new AQuietNightEventCard();
         aQuietNightEventCard.setGame(game);

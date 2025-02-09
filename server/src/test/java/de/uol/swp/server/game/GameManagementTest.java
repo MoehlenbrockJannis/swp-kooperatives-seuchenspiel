@@ -3,6 +3,7 @@ package de.uol.swp.server.game;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -21,9 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +43,7 @@ public class GameManagementTest {
     private Player mockPlayer2;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +67,7 @@ public class GameManagementTest {
         mockInfectionCard = mock(InfectionCard.class);
         mockLobby.addPlayer(mockPlayer);
         mockLobby.addPlayer(mockPlayer2);
+        difficulty = GameDifficulty.getDefault();
     }
 
     @Test
@@ -85,7 +86,7 @@ public class GameManagementTest {
         when(playerTurnManagement.createPlayerTurn(any()))
                 .thenReturn(playerTurn);
 
-        Game game = gameManagement.createGame(lobby, mapType, mockPlagues);
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
 
         assertThat(game).isNotNull();
         assertThat(game.getLobby()).isEqualTo(lobby);
@@ -109,7 +110,7 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
@@ -121,7 +122,7 @@ public class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
         game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
@@ -140,7 +141,7 @@ public class GameManagementTest {
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 
-        Game game = gameManagement.createGame(lobby, mapType, mockPlagues);
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
         gameManagement.addGame(game);
 
         when(gameManagement.getGame(game)).thenReturn(Optional.of(game));

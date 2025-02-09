@@ -1,6 +1,7 @@
 package de.uol.swp.server.game.store;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -42,8 +43,8 @@ class MainMemoryBasedGameStoreTest {
 
         lobby.addPlayer(player);
         lobby.addPlayer(player2);
-
-        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        GameDifficulty difficulty = GameDifficulty.getDefault();
+        this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
     }
 
     @Test

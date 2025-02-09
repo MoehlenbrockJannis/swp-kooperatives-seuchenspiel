@@ -1,6 +1,7 @@
 package de.uol.swp.client.lobby;
 
 import de.uol.swp.client.EventBusBasedTest;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -147,6 +148,20 @@ public class LobbyServiceTest extends EventBusBasedTest {
         assertInstanceOf(RetrieveAllPlaguesRequest.class, event);
     }
 
+    @Test
+    @DisplayName("Update lobby difficulty")
+    void updateDifficulty() throws InterruptedException {
+        lobbyService.updateDifficulty(lobby, GameDifficulty.HARD);
+
+        waitForLock();
+
+        assertInstanceOf(DifficultyUpdateRequest.class, event);
+
+        final DifficultyUpdateRequest difficultyUpdateRequest = (DifficultyUpdateRequest) event;
+        assertEquals(difficultyUpdateRequest.getLobby(), lobby);
+        assertEquals(difficultyUpdateRequest.getDifficulty(), GameDifficulty.HARD);
+    }
+
     @Subscribe
     public void onEvent(final CreateUserLobbyRequest createLobbyRequest) {
         handleEvent(createLobbyRequest);
@@ -190,5 +205,10 @@ public class LobbyServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final RetrieveAllPlaguesRequest retrieveAllPlaguesRequest) {
         handleEvent(retrieveAllPlaguesRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final DifficultyUpdateRequest difficultyUpdateRequest) {
+        handleEvent(difficultyUpdateRequest);
     }
 }
