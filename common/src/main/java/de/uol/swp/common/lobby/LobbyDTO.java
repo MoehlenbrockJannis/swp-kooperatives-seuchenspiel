@@ -75,7 +75,7 @@ public class LobbyDTO implements Lobby {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Lobby lobby) {
-            return name.equals(lobby.getName());
+            return id == lobby.getId();
         }
         return false;
     }
