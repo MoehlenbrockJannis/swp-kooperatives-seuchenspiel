@@ -9,10 +9,14 @@ import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.response.JoinUserLobbyResponse;
+import de.uol.swp.common.lobby.response.LobbyIsFullResponse;
+import de.uol.swp.common.lobby.response.LobbyNotJoinableResponse;
 import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
 import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -21,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -41,6 +46,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     @Inject
     private LobbyService lobbyService;
     private ObservableList<Lobby> lobbies;
+    private Timeline autoRefreshTimer;
 
     @FXML
     private TableView<Lobby> lobbiesTable;
@@ -202,6 +208,13 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     @Subscribe
     public void onLobbyFindLobbiesResponse(final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse) {
         setLobbyList(retrieveAllLobbiesResponse.getLobbies());
+
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+        }
+        autoRefreshTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> lobbyService.findLobbies()));
+        autoRefreshTimer.setCycleCount(Timeline.INDEFINITE);
+        autoRefreshTimer.play();
     }
 
     /**
@@ -271,6 +284,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     private void onCreateLobbyButtonPressed(final ActionEvent event) {
         final ShowLobbyCreateViewEvent showLobbyCreateViewEvent = new ShowLobbyCreateViewEvent();
         eventBus.post(showLobbyCreateViewEvent);
+        resetExistingTimer();
     }
 
     /**
@@ -284,13 +298,8 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * @see LobbyService#joinLobby(Lobby, User)
      */
     private void onLobbyRowClicked(final Lobby lobby) {
-        LobbyStatus clickedLobbyStatus = lobby.getStatus();
-        if (clickedLobbyStatus.equals(LobbyStatus.OPEN)) {
-            lobbyService.joinLobby(lobby, loggedInUserProvider.get());
-            backToMainMenu();
-        } else {
-            showLobbyJoinAlert(clickedLobbyStatus);
-        }
+        lobbyService.findLobbies();
+        lobbyService.joinLobby(lobby, loggedInUserProvider.get());
     }
 
     /**
@@ -326,6 +335,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
 
         final ShowLobbyViewEvent showLobbyViewEvent = new ShowLobbyViewEvent(joinUserLobbyResponse.getLobby());
         eventBus.post(showLobbyViewEvent);
+        backToMainMenu();
     }
 
     /**
@@ -346,7 +356,27 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     }
 
     private void backToMainMenu() {
+        resetExistingTimer();
         final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
         eventBus.post(showMainMenuEvent);
+    }
+
+    @Subscribe
+    public void onLobbyIsFullResponse(LobbyIsFullResponse response) {
+        Platform.runLater(() -> {
+            showLobbyJoinAlert(LobbyStatus.FULL);
+        });
+    }
+
+    @Subscribe
+    public void onLobbyNotJoinableResponse(LobbyNotJoinableResponse response) {
+        Platform.runLater(() -> {
+            showLobbyJoinAlert(response.getStatus());
+        });
+    }
+
+    private void resetExistingTimer() {
+        autoRefreshTimer.stop();
+        autoRefreshTimer = null;
     }
 }

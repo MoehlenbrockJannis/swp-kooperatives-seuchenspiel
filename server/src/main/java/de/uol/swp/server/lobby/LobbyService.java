@@ -5,10 +5,7 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
-import de.uol.swp.common.lobby.response.CreateLobbyResponse;
-import de.uol.swp.common.lobby.response.JoinUserLobbyResponse;
-import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
-import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
+import de.uol.swp.common.lobby.response.*;
 import de.uol.swp.common.lobby.server_message.*;
 import de.uol.swp.common.message.server.ServerMessage;
 import de.uol.swp.common.player.Player;
@@ -107,6 +104,20 @@ public class LobbyService extends AbstractService {
 
         if (lobby.containsUser(user)) {
             final JoinUserUserAlreadyInLobbyLobbyResponse response = new JoinUserUserAlreadyInLobbyLobbyResponse(lobby, user);
+            response.initWithMessage(lobbyJoinUserRequest);
+            post(response);
+            return;
+        }
+
+        if (lobby.getPlayers().size() >= lobby.getMaxPlayers()) {
+            final LobbyIsFullResponse response = new LobbyIsFullResponse(lobby, user);
+            response.initWithMessage(lobbyJoinUserRequest);
+            post(response);
+            return;
+        }
+
+        if (!lobby.getStatus().equals(LobbyStatus.OPEN)) {
+            final LobbyNotJoinableResponse response = new LobbyNotJoinableResponse(lobby, user, lobby.getStatus());
             response.initWithMessage(lobbyJoinUserRequest);
             post(response);
             return;
