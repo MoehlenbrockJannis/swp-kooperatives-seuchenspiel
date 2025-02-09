@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -79,7 +78,7 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
         String query = "SELECT * FROM users";
         try {
             ResultSet resultSet = this.dataSource.getResultSet(query).orElse(null);
-            while (Objects.requireNonNull(resultSet).next()) {
+            while (resultSet != null && resultSet.next()) {
                 User newUser = getUserFromResultSet(resultSet);
                 users.add(newUser);
             }
@@ -123,7 +122,7 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
     private Optional<User> getOneUserByQuery(String query) {
         try {
             ResultSet resultSet = this.dataSource.getResultSet(query).orElse(null);
-            if (Objects.requireNonNull(resultSet).next()) {
+            if (resultSet != null && resultSet.next()) {
                 return Optional.of(getUserFromResultSet(resultSet));
             }
         } catch (SQLException e ) {
