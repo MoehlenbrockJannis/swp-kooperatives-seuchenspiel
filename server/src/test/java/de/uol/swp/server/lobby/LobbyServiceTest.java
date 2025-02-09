@@ -1,5 +1,6 @@
 package de.uol.swp.server.lobby;
 
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -264,5 +265,20 @@ class LobbyServiceTest {
         assertDoesNotThrow(() -> lobbyService.sendToAllInLobby(null, message));
 
         verify(message, never()).setReceiver(any());
+    }
+
+    @Test
+    @DisplayName("Update difficulty in lobby")
+    void onDifficultyUpdateRequestTest() {
+        lobbyManagement.createLobby(lobby);
+        final GameDifficulty newDifficulty = GameDifficulty.HARD;
+        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, newDifficulty);
+
+        when(lobbyManagement.getLobby(lobby)).thenReturn(Optional.of(lobby));
+
+        bus.post(request);
+
+        verify(lobbyManagement, times(1)).getLobby(lobby);
+        verify(authService, times(1)).getSessions(eq(lobby.getUsers()));
     }
 }

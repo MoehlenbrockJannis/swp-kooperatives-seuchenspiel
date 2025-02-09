@@ -9,6 +9,7 @@ import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.server_message.*;
@@ -85,13 +86,19 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private int botCounter = 0;
     private List<String> botNames = new ArrayList<>();
+    private GameDifficulty selectedDifficulty;
+
+    @FXML
+    private ComboBox<GameDifficulty> difficultyComboBox;
 
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
+        this.selectedDifficulty = GameDifficulty.getDefault();
 
         updateStartGameButton();
         setTitle(lobby.getName());
         initializeComboBox();
+        initializeDifficultyComboBox();
 
         chatController.setLobby(lobby);
 
@@ -99,6 +106,7 @@ public class LobbyPresenter extends AbstractPresenter {
         userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
         disableAddAIButtonForNonOwners();
+        disableDifficultyMenuForNonOwners();
         lobbyService.getOriginalGameMapType();
         lobbyService.getPlagues();
     }
@@ -394,7 +402,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
         if (selectedMapType != null && plagueList != null) {
-            gameService.createGame(lobby, selectedMapType, plagueList);
+            gameService.createGame(lobby, selectedMapType, plagueList, selectedDifficulty);
         }
     }
 
@@ -658,4 +666,71 @@ public class LobbyPresenter extends AbstractPresenter {
         alert.showAndWait();
     }
 
+    private void initializeDifficultyComboBox() {
+        difficultyComboBox.setItems(FXCollections.observableArrayList(GameDifficulty.values()));
+        difficultyComboBox.setValue(GameDifficulty.getDefault());
+        difficultyComboBox.setOnAction(event -> handleDifficultyChange());
+    }
+
+    private void handleDifficultyChange() {
+        GameDifficulty newDifficulty = difficultyComboBox.getValue();
+        if (shouldUpdateDifficulty(newDifficulty)) {
+            selectedDifficulty = newDifficulty;
+            lobbyService.updateDifficulty(lobby, newDifficulty);
+        }
+    }
+
+    private boolean shouldUpdateDifficulty(GameDifficulty newDifficulty) {
+        return newDifficulty != null && !newDifficulty.equals(selectedDifficulty);
+    }
+
+    /**
+     * Disables the difficulty selection menu for users who are not the lobby owner.
+     *
+     * This method compares the currently logged-in user with the lobby owner and
+     * disables the difficulty combo box if the current user is not the owner of
+     * the lobby. This ensures that only the lobby owner can modify the game's
+     * difficulty settings.
+     *
+     * @since 2025-01-22
+     * @see #difficultyComboBox
+     */
+    private void disableDifficultyMenuForNonOwners() {
+        User currentUser = loggedInUserProvider.get();
+        User lobbyOwner = this.lobby.getOwner();
+
+        if(!currentUser.equals(lobbyOwner)) {
+            difficultyComboBox.setDisable(true);
+        }
+    }
+
+    /**
+     * Handles the server message when difficulty is updated in the lobby.
+     * Updates the UI to reflect the new difficulty setting for all clients.
+     *
+     * @param message the message containing the updated difficulty information
+     * @since 2025-01-28
+     */
+    @Subscribe
+    public void onDifficultyUpdateServerMessage(DifficultyUpdateServerMessage message) {
+        if (lobby.equals(message.getLobby())) {
+            GameDifficulty newDifficulty = message.getDifficulty();
+            updateDifficultyComboBox(newDifficulty);
+        }
+    }
+
+    /**
+     * Updates the difficulty combo box with the new difficulty setting.
+     * Ensures the update happens on the JavaFX Application Thread.
+     *
+     * @param newDifficulty the new difficulty setting to be displayed
+     */
+    private void updateDifficultyComboBox(GameDifficulty newDifficulty) {
+        Platform.runLater(() -> {
+            if (shouldUpdateDifficulty(newDifficulty)) {
+                difficultyComboBox.setValue(newDifficulty);
+                selectedDifficulty = newDifficulty;
+            }
+        });
+    }
 }

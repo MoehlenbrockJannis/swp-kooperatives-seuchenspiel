@@ -2,14 +2,16 @@ package de.uol.swp.common.card;
 
 import de.uol.swp.common.util.Color;
 
-public class EpidemicCard extends PlayerCard{
+public class EpidemicCard extends PlayerCard {
+    private static final Color DARK_GREEN = new Color(0, 100, 0);
+
     @Override
     public String getTitle() {
-        return "";
+        return "Epidemie";
     }
 
     @Override
     public Color getColor() {
-        return null;
+        return DARK_GREEN;
     }
 }
