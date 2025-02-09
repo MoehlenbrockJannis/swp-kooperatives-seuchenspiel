@@ -1,6 +1,7 @@
 package de.uol.swp.server.game;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
@@ -36,12 +37,14 @@ public class GameServiceTest extends EventBusBasedTest {
     private MapType mapType;
     private List<Plague> plagues;
     private AIPlayer aiPlayer;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
         gameManagement = mock();
         lobbyService = mock();
         final EventBus eventBus = getBus();
+        difficulty = GameDifficulty.getDefault();
 
         gameService = new GameService(eventBus, gameManagement, lobbyService);
 
@@ -56,10 +59,13 @@ public class GameServiceTest extends EventBusBasedTest {
 
         mapType = createMapType();
         plagues = List.of();
+        final MapType mapType = createMapType();
+        final List<Plague> plagues = List.of();
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
 
-        game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues);
+        game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
 
-        when(gameManagement.createGame(lobby, mapType, plagues))
+        when(gameManagement.createGame(lobby, mapType, plagues, difficulty))
                 .thenReturn(game);
 
         doAnswer(invocationOnMock -> {
@@ -71,7 +77,7 @@ public class GameServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should create a game from the CreateGameRequest and return the game with a CreateGameServerMessage")
     void onCreateGameRequest() throws InterruptedException {
-        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues);
+        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, difficulty);
         post(createGameRequest);
 
         waitForLock();
@@ -104,7 +110,7 @@ public class GameServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should return an Optional with session for an AIPlayer")
     void getSession_present() {
-        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues);
+        final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, difficulty);
         post(createGameRequest);
 
         assertThat(gameService.getSession(aiPlayer))

@@ -2,9 +2,7 @@ package de.uol.swp.common.card.stack;
 
 import de.uol.swp.common.card.Card;
 
-import java.util.Collections;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * A stack of cards that extends the functionality of the standard {@link Stack} class.
@@ -28,5 +26,4 @@ public class CardStack<C extends Card> extends Stack<C> {
     public C removeFirstCard() {
        return this.remove(0);
     }
-
 }

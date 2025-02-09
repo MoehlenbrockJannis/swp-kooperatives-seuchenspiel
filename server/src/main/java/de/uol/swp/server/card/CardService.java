@@ -2,6 +2,7 @@ package de.uol.swp.server.card;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uol.swp.common.card.EpidemicCard;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.EventCard;
@@ -14,6 +15,8 @@ import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
+import de.uol.swp.common.card.server_message.EpidemicCardDrawnServerMessage;
+import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
@@ -95,7 +98,12 @@ public class CardService extends AbstractService {
             }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
-            player.addHandCard(playerCard);
+
+            if(playerCard instanceof EpidemicCard epidemicCard) {
+                triggerEpidemic(game, epidemicCard);
+            } else {
+                player.addHandCard(playerCard);
+            }
 
             final PlayerTurn playerTurn = game.getCurrentTurn();
             playerTurn.reduceNumberOfPlayerCardsToDraw();
@@ -362,5 +370,65 @@ public class CardService extends AbstractService {
         final EndPlayerTurnRequest endPlayerTurnRequest = new EndPlayerTurnRequest(game);
         endPlayerTurnRequest.initWithMessage(origin);
         post(endPlayerTurnRequest);
+    }
+
+    /**
+     * Handles the epidemic event in the game by performing three steps:
+     * 1. Increases the infection rate
+     * 2. Infects the city from the bottom card with three plague cubes
+     * 3. Reshuffles the infection discard pile and places it on top of the draw pile
+     *
+     * @param game the current game state
+     */
+    private void triggerEpidemic(Game game, EpidemicCard epidemicCard) {
+        game.increaseInfectionLevel();
+        processBottomInfectionCardEpidemicBehavior(game);
+        reshuffleInfectionDiscardPileOntoDrawPile(game);
+        post(new EpidemicCardDrawnServerMessage(game, epidemicCard));
+    }
+
+    /**
+     * Draws the bottom card from the infection deck and triggers its processing
+     * through the standard infection card drawing mechanism.
+     *
+     * @param game the current game state
+     */
+    private void processBottomInfectionCardEpidemicBehavior(Game game) {
+        InfectionCard bottomCard = cardManagement.drawInfectionCardFromTheBottom(game);
+        Field field = bottomCard.getAssociatedField();
+
+        if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
+            processEpidemicInfections(game, bottomCard, field);
+        }
+
+        cardManagement.discardInfectionCard(game, bottomCard);
+    }
+
+    private void processEpidemicInfections(Game game, InfectionCard bottomCard, Field field) {
+        for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
+            if (field.isInfectable(field.getPlague())) {
+                handleInfectionProcess(game, bottomCard);
+            } else {
+                game.getMap().startOutbreak(field, field.getPlague());
+                break;
+            }
+        }
+    }
+
+
+    /**
+     * Takes all cards from the infection discard pile, shuffles them,
+     * and places them on top of the infection draw pile during an epidemic.
+     *
+     * @param game the current game state
+     */
+    private void reshuffleInfectionDiscardPileOntoDrawPile(Game game) {
+        CardStack<InfectionCard> discardStack = game.getInfectionDiscardStack();
+        discardStack.shuffle();
+
+        for (InfectionCard card : discardStack) {
+            game.getInfectionDrawStack().push(card);
+        }
+        discardStack.clear();
     }
 }

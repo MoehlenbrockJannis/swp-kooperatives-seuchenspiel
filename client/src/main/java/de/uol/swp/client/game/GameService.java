@@ -1,6 +1,7 @@
 package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.MapType;
@@ -34,8 +35,8 @@ public class GameService {
      * @param lobby The lobby from which the game is to be created
      * @see de.uol.swp.common.game.request.CreateGameRequest
      */
-    public void createGame(Lobby lobby, MapType mapType, List<Plague> plagueList) {
-        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagueList);
+    public void createGame(Lobby lobby, MapType mapType, List<Plague> plagueList, GameDifficulty difficulty) {
+        CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagueList, difficulty);
         eventBus.post(createGameRequest);
     }
 }
