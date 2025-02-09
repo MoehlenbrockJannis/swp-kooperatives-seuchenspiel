@@ -112,10 +112,10 @@ public class GameMap implements Serializable {
      * @param field Field of the outbreak
      * @param plague Outbreaking plague
      */
-    public void startOutbreak(final Field field, final Plague plague) {
-        startOutbreak(field, plague, new ArrayList<>());
+    public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
+        List<Field> outbrokenFields = new ArrayList<>();
+        startOutbreakRecursive(field, plague, infectedFields, outbrokenFields);
     }
-
     /**
      * Starts an outbreak on the given {@link Field} with the given {@link Plague}
      *
@@ -134,26 +134,27 @@ public class GameMap implements Serializable {
      * @see Plague
      * @see PlagueCube
      */
-    public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
-        final List<Field> outbreakingFields = new ArrayList<>();
-        outbreakingFields.add(field);
+    private void startOutbreakRecursive(Field field, Plague plague, List<Field> infectedFields, List<Field> outbrokenFields) {
+        if (outbrokenFields.contains(field)) {
+            return;
+        }
 
-        for (int i = 0; i < outbreakingFields.size(); i++) {
-            final Field outbreakingField = outbreakingFields.get(i);
+        outbrokenFields.add(field);
+        infectedFields.add(field);
 
-            game.startOutbreak();
+        game.startOutbreak();
 
-            final List<Field> neighborFields = getNeighborFieldsExcludingFields(outbreakingField, outbreakingFields);
-            for (final Field neighborField : neighborFields) {
-                if (!neighborField.isInfectable(plague)) {
-                    outbreakingFields.add(neighborField);
-                } else {
-                    final PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
-                    neighborField.infectField(plagueCube);
-                }
+        List<Field> neighborFields = getNeighborFields(field);
+
+        for (Field neighborField : neighborFields) {
+            if (neighborField.isInfectable(plague)) {
+                PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
+                neighborField.infectField(plagueCube);
+                infectedFields.add(neighborField);
+            } else if (!outbrokenFields.contains(neighborField)) {
+                startOutbreakRecursive(neighborField, plague, infectedFields, outbrokenFields);
             }
         }
-        infectedFields.addAll(outbreakingFields);
     }
 
     /**

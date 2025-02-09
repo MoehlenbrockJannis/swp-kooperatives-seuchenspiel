@@ -188,7 +188,8 @@ public class CardService extends AbstractService {
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
 
-            handleInfectionProcess(game, infectionCard);
+            List<Field> infectedFields = new ArrayList<>();
+            handleInfectionProcess(game, infectionCard, infectedFields);
 
             sendGameUpdateMessage(game);
         });
@@ -203,11 +204,14 @@ public class CardService extends AbstractService {
      * @param game the game in which the infection process is taking place
      * @param infectionCard the infection card to be processed
      */
-    private void handleInfectionProcess(Game game, InfectionCard infectionCard) {
-        List<Field> infectedFields = new ArrayList<>();
-
+    private void handleInfectionProcess(Game game, InfectionCard infectionCard, List<Field> infectedFields) {
         Field associatedField = infectionCard.getAssociatedField();
-        associatedField.infectField(infectedFields);
+
+        if (associatedField.isInfectable(associatedField.getPlague())) {
+            associatedField.infectField(infectedFields);
+        } else {
+            game.getMap().startOutbreak(associatedField, associatedField.getPlague(), infectedFields);
+        }
 
         PlayerTurn currentTurn = game.getCurrentTurn();
         List<List<Field>> infectedFieldsInTurn = currentTurn.getInfectedFieldsInTurn();
@@ -398,23 +402,14 @@ public class CardService extends AbstractService {
         Field field = bottomCard.getAssociatedField();
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            processEpidemicInfections(game, bottomCard, field);
+            List<Field> infectedFields = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                handleInfectionProcess(game, bottomCard, infectedFields);
+            }
         }
 
         cardManagement.discardInfectionCard(game, bottomCard);
     }
-
-    private void processEpidemicInfections(Game game, InfectionCard bottomCard, Field field) {
-        for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
-            if (field.isInfectable(field.getPlague())) {
-                handleInfectionProcess(game, bottomCard);
-            } else {
-                game.getMap().startOutbreak(field, field.getPlague());
-                break;
-            }
-        }
-    }
-
 
     /**
      * Takes all cards from the infection discard pile, shuffles them,

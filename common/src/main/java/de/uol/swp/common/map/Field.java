@@ -139,7 +139,13 @@ public class Field implements Serializable {
      */
     public void infectField(List<Field> infectedFields) {
         final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
-        infectField(plagueCube, infectedFields);
+        if (isInfectable(getPlague())) {
+            final List<PlagueCube> plagueCubeList = plagueCubes.get(getPlague());
+            plagueCubeList.add(plagueCube);
+            infectedFields.add(this);
+        } else {
+            map.startOutbreak(this, getPlague(), infectedFields);
+        }
     }
 
     /**
@@ -151,13 +157,7 @@ public class Field implements Serializable {
      * @see GameMap#startOutbreak(Field, Plague)
      */
     public void infectField(final PlagueCube plagueCube) {
-        final Plague plague = plagueCube.getPlague();
-        if (isInfectable(plague)) {
-            final List<PlagueCube> plagueCubeList = plagueCubes.get(plague);
-            plagueCubeList.add(plagueCube);
-        } else {
-            map.startOutbreak(this, plague);
-        }
+        infectField(plagueCube, new ArrayList<>());
     }
 
     /**
