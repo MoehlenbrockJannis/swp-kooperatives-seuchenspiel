@@ -42,6 +42,11 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     void discardCard() {
     }
 
+    @Override
+    protected boolean isGameInCorrectDrawPhase() {
+        return gameSupplier.get().getCurrentTurn().isInfectionCardDrawExecutable();
+    }
+
     /**
      * Handles the DrawInfectionCardServerMessage event.
      * Displays a popup with the drawn infection card.

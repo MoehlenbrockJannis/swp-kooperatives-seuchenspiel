@@ -3,12 +3,15 @@ package de.uol.swp.client.card;
 import com.google.inject.Inject;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.message.request.RequestMessage;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import org.greenrobot.eventbus.EventBus;
 
 /**
@@ -57,7 +60,12 @@ public class CardService {
      * @since 2024-09-20
      */
     public void sendDiscardPlayerCardRequest(Game game, Player player, PlayerCard playerCard) {
-        DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest = new DiscardPlayerCardRequest<>(game, player, playerCard);
+        RequestMessage discardPlayerCardRequest;
+        if (playerCard instanceof EventCard eventCard) {
+            discardPlayerCardRequest = new TriggerableRequest(eventCard, null, null);
+        } else {
+            discardPlayerCardRequest = new DiscardPlayerCardRequest<>(game, player, playerCard);
+        }
         eventBus.post(discardPlayerCardRequest);
     }
 

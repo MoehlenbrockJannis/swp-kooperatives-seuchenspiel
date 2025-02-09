@@ -5,12 +5,15 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
+import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.message.server.ServerMessage;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.communication.AISession;
-import de.uol.swp.server.usermanagement.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -29,7 +32,7 @@ public class GameService extends AbstractService {
     private final Map<Session, AIPlayer> aiPlayerSessions = new HashMap<>();
 
     private final GameManagement gameManagement;
-    private final AuthenticationService authenticationService;
+    private final LobbyService lobbyService;
 
     /**
      * Constructor
@@ -38,10 +41,10 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.server.di.ServerModule
      */
     @Inject
-    public GameService(EventBus eventBus, AuthenticationService authenticationService, GameManagement gameManagement) {
+    public GameService(EventBus eventBus, GameManagement gameManagement, LobbyService lobbyService) {
         super(eventBus);
         this.gameManagement = gameManagement;
-        this.authenticationService = authenticationService;
+        this.lobbyService = lobbyService;
     }
 
     /**
@@ -52,7 +55,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onCreateGameRequest(CreateGameRequest createGameRequest) {
-        final Game game = gameManagement.createGame(createGameRequest.getLobby(), createGameRequest.getMapType(), createGameRequest.getPlagues());
+        final Game game = gameManagement.createGame(createGameRequest.getLobby(), createGameRequest.getMapType(), createGameRequest.getPlagues(), createGameRequest.getDifficulty());
         gameManagement.addGame(game);
 
         final Set<Player> players = createGameRequest.getLobby().getPlayers();
@@ -66,8 +69,22 @@ public class GameService extends AbstractService {
         final CreateGameServerMessage response = new CreateGameServerMessage(game);
 
         response.initWithMessage(createGameRequest);
-        response.setReceiver(authenticationService.getSessions(createGameRequest.getLobby().getUsers()));
-        post(response);
+        lobbyService.sendToAllInLobby(createGameRequest.getLobby(), response);
+    }
+
+    /**
+     * Creates a {@link RetrieveUpdatedGameServerMessage} with given {@link Game} and
+     * sends it to all players within the associated {@link Lobby}.
+     *
+     * @param game the {@link Game} to update and send an update of
+     * @see GameManagement#updateGame(Game)
+     * @see LobbyService#sendToAllInLobby(Lobby, ServerMessage)
+     */
+    public void sendGameUpdate(final Game game) {
+        gameManagement.updateGame(game);
+
+        final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage = new RetrieveUpdatedGameServerMessage(game);
+        lobbyService.sendToAllInLobby(game.getLobby(), retrieveUpdatedGameServerMessage);
     }
 
     /**

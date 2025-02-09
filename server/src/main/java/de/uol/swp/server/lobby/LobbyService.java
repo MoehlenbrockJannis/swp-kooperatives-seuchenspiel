@@ -369,4 +369,28 @@ public class LobbyService extends AbstractService {
         sendToAll(message);
     }
 
+    /**
+     * Handles DifficultyUpdateRequests found on the EventBus
+     *
+     * When a DifficultyUpdateRequest is detected on the EventBus, this method updates
+     * the difficulty setting in the specified lobby and broadcasts the change to all
+     * users in that lobby.
+     *
+     * @param request The DifficultyUpdateRequest found on the EventBus
+     * @since 2025-01-28
+     */
+    @Subscribe
+    public void onDifficultyUpdateRequest(DifficultyUpdateRequest request) {
+        Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(request.getLobby());
+
+        if (lobbyOptional.isPresent()) {
+            final Lobby lobby = lobbyOptional.get();
+            DifficultyUpdateServerMessage message = new DifficultyUpdateServerMessage(
+                    lobby,
+                    request.getDifficulty()
+            );
+            sendToAllInLobby(lobby, message);
+        }
+    }
+
 }

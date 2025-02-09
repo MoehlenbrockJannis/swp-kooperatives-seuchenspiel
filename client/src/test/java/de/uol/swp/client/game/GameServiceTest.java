@@ -1,6 +1,7 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.EventBusBasedTest;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
@@ -18,7 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class GameServiceTest extends EventBusBasedTest {
     private GameService gameService;
@@ -28,6 +30,8 @@ public class GameServiceTest extends EventBusBasedTest {
     private MapType mapType;
 
     private List<Plague> plagueList;
+
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
@@ -40,13 +44,14 @@ public class GameServiceTest extends EventBusBasedTest {
         City city2 = new City("test", "");
         Plague plague = new Plague("test", new Color(0, 0, 0));
         List<MapSlot> mapSlotList = new ArrayList<>(List.of(new MapSlot(city1, new ArrayList<>(List.of(city2)), plague, 0, 0)));
-        this.mapType = new MapType(mapSlotList, city1);
+        this.mapType = new MapType("name", mapSlotList, city1);
         this.plagueList = new ArrayList<>(List.of(plague));
+        this.difficulty = GameDifficulty.getDefault();
     }
 
     @Test
     void createGame() throws InterruptedException {
-        gameService.createGame(lobby, mapType, plagueList);
+        gameService.createGame(lobby, mapType, plagueList, difficulty);
 
         waitForLock();
 

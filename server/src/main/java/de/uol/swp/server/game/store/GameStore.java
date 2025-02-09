@@ -1,6 +1,7 @@
 package de.uol.swp.server.game.store;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.server.store.ContentStore;
 
 import java.util.Optional;
 import java.util.Set;
@@ -8,7 +9,7 @@ import java.util.Set;
 /**
  * A store for managing games.
  */
-public interface GameStore {
+public interface GameStore extends ContentStore {
 
     /**
      * Adds a game to the list of managed games.

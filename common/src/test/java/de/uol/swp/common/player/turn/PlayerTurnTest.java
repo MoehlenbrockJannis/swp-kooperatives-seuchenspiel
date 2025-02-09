@@ -1,11 +1,11 @@
 package de.uol.swp.common.player.turn;
 
 import de.uol.swp.common.action.Action;
-import de.uol.swp.common.action.ActionFactory;
 import de.uol.swp.common.action.DiscardCardsAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -13,6 +13,8 @@ import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.triggerable.AutoTriggerable;
+import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.util.Color;
@@ -23,13 +25,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.MockedConstruction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static de.uol.swp.common.util.TestUtils.createMapType;
+import static de.uol.swp.common.util.TestUtils.createPlayerTurn;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,7 +57,6 @@ import static org.mockito.Mockito.*;
  * @since 2024-09-18
  */
 class PlayerTurnTest {
-
     private User defaultUser;
     private User defaultUser2;
     private Player defaultPlayer;
@@ -69,6 +70,7 @@ class PlayerTurnTest {
     private int numberOfPlayerCardsToDraw;
     private int numberOfInfectionCardsToDraw;
     private Command command;
+    private GameDifficulty difficulty;
 
     /**
      * This method is executed before each test case.
@@ -99,7 +101,7 @@ class PlayerTurnTest {
         this.roleCard2 = new RoleCard("", new Color(), roleAbility);
         this.defaultPlayer = new UserPlayer(this.defaultUser);
         this.defaultPlayer.setRole(roleCard1);
-
+        this.difficulty = GameDifficulty.getDefault();
         this.defaultPlayer2 = new UserPlayer(this.defaultUser2);
         this.defaultPlayer2.setRole(roleCard2);
 
@@ -108,21 +110,19 @@ class PlayerTurnTest {
 
         final MapType mapType = createMapType();
 
-        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        this.defaultGame = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
         this.numberOfActionsToDo = 4;
         this.numberOfPlayerCardsToDraw = 2;
         this.numberOfInfectionCardsToDraw = 1;
 
-        try (MockedConstruction<ActionFactory> mockedActionFactory = mockConstruction(ActionFactory.class)) {
-            this.defaultPlayerTurn = new PlayerTurn(
-                    defaultGame,
-                    this.defaultPlayer,
-                    this.numberOfActionsToDo,
-                    this.numberOfPlayerCardsToDraw,
-                    this.numberOfInfectionCardsToDraw
-            );
-            this.defaultGame.addPlayerTurn(defaultPlayerTurn);
-        }
+        this.defaultPlayerTurn = createPlayerTurn(
+                defaultGame,
+                this.defaultPlayer,
+                this.numberOfActionsToDo,
+                this.numberOfPlayerCardsToDraw,
+                this.numberOfInfectionCardsToDraw
+        );
+        this.defaultGame.addPlayerTurn(defaultPlayerTurn);
 
         this.command = mock(Command.class);
     }
@@ -159,9 +159,12 @@ class PlayerTurnTest {
 
     
     @Test
-    @DisplayName("Should return false if there is no next auto triggerable to check")
-    void hasNoNextAutoTriggerable() {
-        assertThat(this.defaultPlayerTurn.hasNextAutoTriggerable()).isFalse();
+    @DisplayName("Should return false if there is no next auto triggerable to check, true otherwise")
+    void hasNextAutoTriggerable() {
+        final boolean isAutoTriggerableInGame = defaultGame.getTriggerables().stream()
+                .anyMatch(AutoTriggerable.class::isInstance);
+
+        assertThat(this.defaultPlayerTurn.hasNextAutoTriggerable()).isEqualTo(isAutoTriggerableInGame);
     }
 
     @Test
@@ -171,9 +174,12 @@ class PlayerTurnTest {
     }
 
     @Test
-    @DisplayName("Should return false if there is no next manual triggerable to check")
-    void hasNoNextManualTriggerable() {
-        assertThat(this.defaultPlayerTurn.hasNextManualTriggerable()).isFalse();
+    @DisplayName("Should return false if there is no next manual triggerable to check, true otherwise")
+    void hasNextManualTriggerable() {
+        final boolean isManualTriggerableInGame = defaultGame.getTriggerables().stream()
+                .anyMatch(ManualTriggerable.class::isInstance);
+
+        assertThat(this.defaultPlayerTurn.hasNextManualTriggerable()).isEqualTo(isManualTriggerableInGame);
     }
 
     /**
@@ -201,7 +207,7 @@ class PlayerTurnTest {
     @Test
     @DisplayName("Should return false if there are no more actions to do")
     void hasNoActionsToDo() {
-        this.defaultPlayerTurn = new PlayerTurn(
+        this.defaultPlayerTurn = createPlayerTurn(
                 defaultGame,
                 this.defaultPlayer,
                 0,

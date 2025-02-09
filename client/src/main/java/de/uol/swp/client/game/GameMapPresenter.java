@@ -34,6 +34,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.Subscribe;
@@ -57,9 +58,15 @@ import java.util.Map;
 public class GameMapPresenter extends AbstractPresenter {
 
     private static final Logger LOG = LogManager.getLogger(GameMapPresenter.class);
-    private static final int SVG_VIEW_BOX_WIDTH = 2097;
-    private static final int SVG_VIEW_BOX_HEIGHT = 1075;
-    private static final double ASPECT_RATIO = (double) SVG_VIEW_BOX_WIDTH / SVG_VIEW_BOX_HEIGHT;
+    @Getter
+    private static final int SVG_VIEW_BOX_MIN_X = 0;
+    @Getter
+    private static final int SVG_VIEW_BOX_MIN_Y = 0;
+    @Getter
+    private static final int SVG_VIEW_BOX_MAX_X = 2097;
+    @Getter
+    private static final int SVG_VIEW_BOX_MAX_Y = 1075;
+    private static final double ASPECT_RATIO = (double) SVG_VIEW_BOX_MAX_X / SVG_VIEW_BOX_MAX_Y;
 
     private Game game;
 
@@ -67,6 +74,10 @@ public class GameMapPresenter extends AbstractPresenter {
     private Pane webViewPane;
     @FXML
     private WebView webView;
+    @FXML
+    private Pane cityConnectionPane;
+    @FXML
+    private Pane cityNamePane;
     @FXML
     private Pane cityMarkerPane;
     @FXML
@@ -83,11 +94,14 @@ public class GameMapPresenter extends AbstractPresenter {
     @Inject
     private ApprovableService approvableService;
 
+    private CityConnectionPanePresenter cityConnectionPanePresenter;
+    private CityNamePanePresenter cityNamePanePresenter;
     private final Map<Field, CityMarker> cityMarkers = new HashMap<>();
     private final Map<Player, PlayerMarker> playerMarkers = new HashMap<>();
     private final List<PlagueCubeMarkerPresenter> plagueCubeMarkerPresenters = new ArrayList<>();
 
     private static final double PLAYER_MARKER_SCALE_FACTOR = 1.75;
+    @Getter
     private static final double CITY_MARKER_SCALE_FACTOR = 2.25;
     private static final double PLAGUE_CUBE_MARKER_SCALE_FACTOR = 1.75;
     private static final double RESEARCH_LABORATORY_MARKER_SCALE_FACTOR = 1.75;
@@ -106,10 +120,10 @@ public class GameMapPresenter extends AbstractPresenter {
     public void initialize(Game game) {
         this.game = game;
         this.webView.setContextMenuEnabled(false);
-        this.cityMarkerPane.setPickOnBounds(false);
-        this.playerMarkerPane.setPickOnBounds(false);
-        this.plagueCubeMarkerPane.setPickOnBounds(false);
-        this.researchLaboratoryPane.setPickOnBounds(false);
+        setPanePickOnBoundsToFalse();
+
+        cityConnectionPanePresenter = new CityConnectionPanePresenter(this.game, this.webView, this.cityConnectionPane);
+        cityNamePanePresenter = new CityNamePanePresenter(this.game, this.webView, this.cityNamePane);
 
         bindSizePropertyOfWebView();
         loadSvgIntoWebView();
@@ -118,6 +132,19 @@ public class GameMapPresenter extends AbstractPresenter {
         addAllPlayerMarkers();
 
         addResearchLaboratoryMarkers(this.game);
+    }
+
+    /**
+     * Sets the pick-on-bounds property of the {@link Pane}s within the {@link GameMapPresenter} to false.
+     * This ensures that the {@link Pane}s do not intercept mouse events based on their bounds.
+     */
+    private void setPanePickOnBoundsToFalse() {
+        this.cityConnectionPane.setPickOnBounds(false);
+        this.cityNamePane.setPickOnBounds(false);
+        this.cityMarkerPane.setPickOnBounds(false);
+        this.playerMarkerPane.setPickOnBounds(false);
+        this.plagueCubeMarkerPane.setPickOnBounds(false);
+        this.researchLaboratoryPane.setPickOnBounds(false);
     }
 
     /**
@@ -137,6 +164,8 @@ public class GameMapPresenter extends AbstractPresenter {
                 movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
 
                 addResearchLaboratoryMarkers(retrieveUpdatedGameServerMessage.getGame());
+
+                unhighlightCityMarkers();
             });
         }
     }
@@ -174,12 +203,12 @@ public class GameMapPresenter extends AbstractPresenter {
     public void buildResearchLaboratoryMarker(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
         researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
 
-        double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
-        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_WIDTH;
-        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH + xOffset;
-        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT + yOffset;
-        double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
-        double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
+        double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_X;
+        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_X;
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_MAX_X + xOffset;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_MAX_Y + yOffset;
+        double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_MAX_X;
+        double yxScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_MAX_Y;
         NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, researchLaboratoryMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
         game.setResearchLaboratoryButtonClicked(false);
     }
@@ -287,7 +316,15 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addPlayerMarker(Player player) {
         PlayerMarker newPlayerMarker = createNewPlayerMarker(player);
-        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(newPlayerMarker, loggedInUserProvider, actionService, approvableService, game, cityMarkers);
+        PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(
+                newPlayerMarker,
+                loggedInUserProvider,
+                actionService,
+                approvableService,
+                game,
+                cityMarkers,
+                this::unhighlightCityMarkers
+        );
         playerMarkerPresenter.initializeMouseEvents();
 
         playerMarkerPane.getChildren().add(newPlayerMarker);
@@ -325,10 +362,10 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-10-04
      */
     private void bindLayoutProperties(PlayerMarker playerMarker, Field field, double xOffset, double yOffset) {
-        double xCoordinate = (field.getXCoordinate() + xOffset) / SVG_VIEW_BOX_WIDTH;
-        double yCoordinate = (field.getYCoordinate() - yOffset) / SVG_VIEW_BOX_HEIGHT;
-        double xScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_WIDTH;
-        double yxScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_HEIGHT;
+        double xCoordinate = (field.getXCoordinate() + xOffset) / SVG_VIEW_BOX_MAX_X;
+        double yCoordinate = (field.getYCoordinate() - yOffset) / SVG_VIEW_BOX_MAX_Y;
+        double xScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_MAX_X;
+        double yxScaleFactor = PLAYER_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_MAX_Y;
         NodeBindingUtils.bindWebViewSizeAndPositionToNode(webView, playerMarker, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 
@@ -442,6 +479,17 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
+     * Unhighlights all city markers in {@link #cityMarkers} and removes action listeners from them.
+     */
+    private void unhighlightCityMarkers() {
+        for (final Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            final CityMarker cityMarker = entry.getValue();
+            cityMarker.unhighlight();
+            cityMarker.setOnMouseClicked(null);
+        }
+    }
+
+    /**
      * Creates {@link PlagueCubeMarker} for each field in the game and adds them to the {@link #plagueCubeMarkerPane}.
      *
      * @see PlagueCubeMarker
@@ -530,10 +578,10 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param field The field to which the targetNode should be bound
      */
     private void handleWebViewSizeAndPosition(WebView sourceWebView, Node targetNode, Field field, double scaleFactor) {
-        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_WIDTH;
-        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_HEIGHT;
-        double xScaleFactor = scaleFactor / SVG_VIEW_BOX_WIDTH;
-        double yxScaleFactor = scaleFactor / SVG_VIEW_BOX_HEIGHT;
+        double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_MAX_X;
+        double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_MAX_Y;
+        double xScaleFactor = scaleFactor / SVG_VIEW_BOX_MAX_X;
+        double yxScaleFactor = scaleFactor / SVG_VIEW_BOX_MAX_Y;
         NodeBindingUtils.bindWebViewSizeAndPositionToNode(sourceWebView, targetNode, xCoordinate, yCoordinate, xScaleFactor, yxScaleFactor);
     }
 

@@ -39,7 +39,7 @@ public final class OriginalGameMapType {
      * @since 2024-09-22
      */
     public static MapType getMapType() {
-        return new MapType(createMapSlotList(), Cities.ATLANTA);
+        return new MapType("Weltkarte", createMapSlotList(), Cities.ATLANTA);
     }
 
     /**

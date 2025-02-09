@@ -1,6 +1,7 @@
 package de.uol.swp.common.game;
 
 import de.uol.swp.common.card.*;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.lobby.Lobby;
@@ -17,6 +18,7 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.util.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,11 +41,10 @@ public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
     public static final int MAX_NUMBER_OF_PLAYERS = 4;
-
+    public static final int EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS = 3;
     public static final int DEFAULT_MAX_NUMBER_OF_HAND_CARDS = 7;
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES = 24;
     public static final int DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES = 6;
-    public static final int DEFAULT_NUMBER_OF_EPIDEMIC_CARDS = 6;
     public static final int DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION = 3;
     public static final int DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD = 3;
@@ -65,7 +66,7 @@ public class Game implements Serializable {
     private int maxHandCards;
     private int numberOfPlagueCubesPerColor;
     private int numberOfResearchLaboratories;
-    private int numberOfEpidemicCards;
+    private GameDifficulty difficulty;
     private int numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
     private int numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution;
     @Getter
@@ -100,6 +101,7 @@ public class Game implements Serializable {
     @Getter
     private boolean isWon;
     @Getter
+    @Setter
     private boolean isLost;
     @Getter
     @Setter
@@ -115,8 +117,9 @@ public class Game implements Serializable {
      * @param type the type of game map to be used
      * @param players the list of players participating in the game
      * @param plagues the list of plagues that will be present in the game
+     * @param difficulty the number of epidemic cards in the player deck
      */
-    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues) {
+    public Game (Lobby lobby, MapType type, List<Player> players, List<Plague> plagues, GameDifficulty difficulty) {
         this(
             lobby,
             type,
@@ -125,7 +128,7 @@ public class Game implements Serializable {
             DEFAULT_MAX_NUMBER_OF_HAND_CARDS,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES,
             DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES,
-            DEFAULT_NUMBER_OF_EPIDEMIC_CARDS,
+            difficulty,
             DEFAULT_NUMBER_OF_INFECTION_CARDS_DRAWN_PER_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_NUMBER_OF_PLAGUE_CUBES_ADDED_TO_EVERY_FIELD_IN_FIRST_PHASE_OF_INITIAL_PLAGUE_CUBE_DISTRIBUTION,
             DEFAULT_MAX_NUMBER_OF_PLAGUE_CUBES_PER_FIELD,
@@ -144,7 +147,7 @@ public class Game implements Serializable {
      * @param maxHandCards the maximum number of cards a player can hold
      * @param numberOfPlagueCubesPerColor the number of plague cubes per color
      * @param numberOfResearchLaboratories the number of research laboratories in the game
-     * @param numberOfEpidemicCards the number of epidemic cards in the player deck
+     * @param difficulty the number of epidemic cards in the player deck
      * @param numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution
      *        the number of infection cards drawn during initial setup
      * @param numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution
@@ -161,7 +164,7 @@ public class Game implements Serializable {
             int maxHandCards,
             int numberOfPlagueCubesPerColor,
             int numberOfResearchLaboratories,
-            int numberOfEpidemicCards,
+            GameDifficulty difficulty,
             int numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution,
             int numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution,
             int maxNumberOfPlagueCubesPerField,
@@ -174,7 +177,7 @@ public class Game implements Serializable {
         this.maxHandCards = maxHandCards;
         this.numberOfPlagueCubesPerColor = numberOfPlagueCubesPerColor;
         this.numberOfResearchLaboratories = numberOfResearchLaboratories;
-        this.numberOfEpidemicCards = numberOfEpidemicCards;
+        this.difficulty = difficulty;
         this.numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution =
             numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
         this.numberOfPlagueCubesAddedToEveryFieldInFirstPhaseOfInitialPlagueCubesDistribution =
@@ -193,6 +196,8 @@ public class Game implements Serializable {
         List<Integer> outbreakLevels = Arrays.asList(0, 1, 2, 3, 4, 5, 8);
         this.outbreakMarker = new OutbreakMarker(outbreakLevels);
 
+        this.antidoteMarkers = new ArrayList<>();
+
         this.map = new GameMap(this, type);
 
         this.plagueCubes = new HashMap<>();
@@ -202,7 +207,6 @@ public class Game implements Serializable {
         this.antidoteMarkers = new ArrayList<>();
 
         createPlayerStacks();
-        assignPlayerCardsToPlayers(playerDrawStack);
 
         createInfectionStacks();
 
@@ -266,30 +270,71 @@ public class Game implements Serializable {
      * Shuffles and prepares the player decks.
      * This method organizes the player cards into draw and discard stacks.
      */
-    private void createPlayerStacks () {
-        createPlayerDrawStack();
-        this.playerDiscardStack = new CardStack<>();
+    private void createPlayerStacks() {
+        initializeBasePlayerStack();
+        assignPlayerCardsToPlayers(this.playerDrawStack);
+        divideAndAddEpidemicCards(this.playerDrawStack);
     }
 
     /**
-     * Creates the draw stack for player cards.
-     * This method initializes and shuffles the player card stack.
+     * Divides the player stack into substacks, adds epidemic cards, and recombines them.
+     * This method handles the epidemic card integration process.
+     *
+     * @param playerStack The stack to divide and modify
      */
-    private void createPlayerDrawStack () {
+    private void divideAndAddEpidemicCards(CardStack<PlayerCard> playerStack) {
+        int numberOfEpidemicCards = difficulty.getNumberOfEpidemicCards();
+        int cardsPerStack = playerStack.size() / numberOfEpidemicCards;
+        int remainingCards = playerStack.size() % numberOfEpidemicCards;
+
+        List<CardStack<PlayerCard>> subStacks = new ArrayList<>();
+
+        for (int i = 0; i < numberOfEpidemicCards; i++) {
+            CardStack<PlayerCard> subStack = createSubStackWithEpidemicCard(playerStack, cardsPerStack, i < remainingCards);
+            subStacks.add(subStack);
+        }
+
+        playerStack.clear();
+        for (CardStack<PlayerCard> subStack : subStacks) {
+            playerStack.addAll(subStack);
+        }
+    }
+
+    /**
+     * Creates a substack with the specified number of cards and adds an epidemic card.
+     *
+     * @param sourceStack The source stack to take cards from
+     * @param baseSize The base number of cards for this stack
+     * @param addExtraCard Whether to add an extra card for remainder distribution
+     * @return The created and shuffled substack
+     */
+    private CardStack<PlayerCard> createSubStackWithEpidemicCard(CardStack<PlayerCard> sourceStack, int baseSize, boolean addExtraCard) {
+        CardStack<PlayerCard> subStack = new CardStack<>();
+        int currentStackSize = baseSize + (addExtraCard ? 1 : 0);
+
+        for (int j = 0; j < currentStackSize && !sourceStack.isEmpty(); j++) {
+            subStack.push(sourceStack.pop());
+        }
+        subStack.push(new EpidemicCard());
+        subStack.shuffle();
+
+        return subStack;
+    }
+
+
+    /**
+     * Initializes the player draw stack with city and event cards.
+     * This creates the base deck before epidemic cards are added.
+     */
+    private void initializeBasePlayerStack() {
+        this.playerDiscardStack = new CardStack<>();
         this.playerDrawStack = new CardStack<>();
         this.playerDrawStack.addAll(createCityCards());
+
         EventCardFactory eventCardFactory = new EventCardFactory();
         this.playerDrawStack.addAll(eventCardFactory.createEventCards());
-        this.playerDrawStack.shuffle();
-    }
 
-    /**
-     * Creates the epidemic cards for the game.
-     *
-     * @return a list of EpidemicCard objects
-     */
-    private List<EpidemicCard> createEpidemicCards () {
-        return new ArrayList<EpidemicCard>();
+        this.playerDrawStack.shuffle();
     }
 
     /**
@@ -309,35 +354,19 @@ public class Game implements Serializable {
     /**
      * Assigns player cards to the players based on the initial setup.
      *
-     * @param cards the stack of player cards to be distributed among players
+     * @param cardStack the stack of player cards to be distributed among players
      */
-    private void assignPlayerCardsToPlayers(CardStack<PlayerCard> cards) {
+    private void assignPlayerCardsToPlayers(CardStack<PlayerCard> cardStack) {
         int numberOfPlayers = playersInTurnOrder.size();
         int cardsPerPlayer = AMOUNT_OF_PLAYERS_AND_STARTING_HAND_CARDS.get(numberOfPlayers);
 
         for (Player player : playersInTurnOrder) {
-            for (int i = 0; i < cardsPerPlayer; i++) {
-                if (!cards.isEmpty()) {
-                    PlayerCard card = cards.pop();
-                    player.addHandCard(card);
-                }
+            for (int i = 0; i < cardsPerPlayer && !cardStack.isEmpty(); i++) {
+                player.addHandCard(cardStack.pop());
             }
         }
     }
 
-    /**
-     * Shuffles epidemic cards into the player card stacks.
-     * This method ensures that epidemic cards are distributed evenly across substacks.
-     *
-     * @param epidemicCards the list of epidemic cards to be shuffled into the stacks
-     * @param playerCardSubStacks the list of player card substack
-     */
-    private void shuffleEpidemicCardsIntoPlayerSubStacks (
-            List<EpidemicCard> epidemicCards,
-            List<CardStack<Card>> playerCardSubStacks
-            ) {
-
-    }
 
     /**
      * Creates the infection stacks used in the game.
@@ -502,12 +531,12 @@ public class Game implements Serializable {
     }
 
     /**
-     * Gets the number of infection cards to draw per turn.
-     *
-     * @return the number of infection cards to draw per turn
+     * Gets the number of infection cards to draw per turn based on the current infection level.
+     * The number of cards drawn increases as the infection level rises:
+     * @return the number of infection cards to draw per turn based on current infection level
      */
     public int getNumberOfInfectionCardsToDrawPerTurn () {
-        return this.numberOfInfectionCardsDrawnPerPhaseOfInitialPlagueCubeDistribution;
+        return this.infectionMarker.getLevelValue();
     }
 
     /**
@@ -554,5 +583,68 @@ public class Game implements Serializable {
      */
     public void nextPlayer() {
         this.indexOfCurrentPlayer = (this.indexOfCurrentPlayer + 1) % this.playersInTurnOrder.size();
+    }
+
+    /**
+     * Returns a {@link List} of all triggerables currently present in this {@link Game}.
+     *
+     * @return a {@link List} of all triggerables
+     */
+    public List<Triggerable> getTriggerables() {
+        return getPlayersInTurnOrder().stream()
+                .flatMap(player -> getAndPreparePlayerEventCards(player).stream())
+                .map(Triggerable.class::cast)
+                .toList();
+    }
+
+    /**
+     * Extracts all {@link EventCard} hand cards from given {@link Player} and prepares them for use.
+     *
+     * @param player {@link Player} to extract all {@link EventCard} hand cards from
+     * @return {@link List} of {@link EventCard}
+     * @see EventCard#setGame(Game)
+     * @see EventCard#setPlayer(Player)
+     */
+    private List<EventCard> getAndPreparePlayerEventCards(final Player player) {
+        return player.getHandCards().stream()
+                .filter(EventCard.class::isInstance)
+                .map(EventCard.class::cast)
+                .map(eventCard -> {
+                    eventCard.setPlayer(player);
+                    eventCard.setGame(this);
+                    return eventCard;
+                })
+                .toList();
+    }
+
+    /**
+     * Returns an {@link Optional} of a {@link Player} in {@link #playersInTurnOrder} that is equal to given {@link Player}.
+     *
+     * @return {@link Optional} of a {@link Player} in {@link #playersInTurnOrder} that is equal to given {@link Player}
+     * @see Player#equals(Object)
+     */
+    public Optional<Player> findPlayer(final Player player) {
+        return playersInTurnOrder.stream()
+                .filter(p -> p.equals(player))
+                .findFirst();
+    }
+
+    /**
+     * Returns an {@link Optional} of a {@link Field} in {@link #map} that is equal to given {@link Field}.
+     *
+     * @return {@link Optional} of a {@link Field} in {@link #map} that is equal to given {@link Field}
+     * @see Field#equals(Object)
+     */
+    public Optional<Field> findField(final Field field) {
+        return map.getFields().stream()
+                .filter(f -> f.equals(field))
+                .findFirst();
+    }
+
+    /**
+     * Increases the infection level marker
+     */
+    public void increaseInfectionLevel() {
+        this.infectionMarker.increaseLevel();
     }
 }

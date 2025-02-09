@@ -2,6 +2,7 @@ package de.uol.swp.common.map;
 
 import de.uol.swp.common.plague.Plague;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import java.util.List;
  * @since 2024-09-02
  */
 @AllArgsConstructor
+@EqualsAndHashCode
 @Getter
 public class MapSlot implements Serializable {
     private City city;

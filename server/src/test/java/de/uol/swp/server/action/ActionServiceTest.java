@@ -5,6 +5,7 @@ import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
@@ -19,6 +20,7 @@ import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
@@ -38,14 +41,16 @@ public class ActionServiceTest extends EventBusBasedTest {
     private ActionService actionService;
     private CardService cardService;
     private GameManagement gameManagement;
+    private TriggerableService triggerableService;
 
     @BeforeEach
     void setUp() {
         cardService = mock();
         gameManagement = mock();
+        triggerableService = mock();
         EventBus eventBus = getBus();
 
-        actionService = new ActionService(eventBus, cardService, gameManagement);
+        actionService = new ActionService(eventBus, cardService, gameManagement, triggerableService);
     }
 
     private static Stream<Arguments> onActionRequestSource() {
@@ -64,17 +69,21 @@ public class ActionServiceTest extends EventBusBasedTest {
         Player player2 = new UserPlayer(user2);
 
         final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+        final GameDifficulty difficulty = GameDifficulty.getDefault();
 
         lobby.addPlayer(player);
         lobby.addPlayer(player2);
 
         final MapType mapType = createMapType();
 
-        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of());
+        final Game game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), List.of(), difficulty);
         final PlayerTurn playerTurn = mock();
         when(playerTurn.isActionExecutable())
                 .thenReturn(isInActionPhaseAfterActionExecution);
         game.addPlayerTurn(playerTurn);
+
+        when(gameManagement.getGame(game))
+                .thenReturn(Optional.of(game));
 
         final Action action = new WaiveAction();
         action.setGame(game);
@@ -92,7 +101,7 @@ public class ActionServiceTest extends EventBusBasedTest {
         verify(gameManagement, times(1))
                 .updateGame(game);
         verify(cardService, times(timesCardServiceCalled))
-                .allowDrawingOrDiscarding(game, session, ReleaseToDrawPlayerCardResponse.class);
+                .allowDrawingOrDiscarding(game, actionRequest, ReleaseToDrawPlayerCardResponse.class);
         assertThat(this.event)
                 .isInstanceOf(RetrieveUpdatedGameServerMessage.class);
     }
