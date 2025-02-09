@@ -1,6 +1,7 @@
 package de.uol.swp.server.usermanagement.store;
 
 import de.uol.swp.common.user.User;
+import de.uol.swp.server.store.ContentStore;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import java.util.Optional;
  * @author Marco Grawunder
  * @since 2019-08-13
  */
-public interface UserStore {
+public interface UserStore extends ContentStore {
 
     /**
      * Find a user by username and password

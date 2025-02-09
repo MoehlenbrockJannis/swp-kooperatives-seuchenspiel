@@ -55,7 +55,7 @@ public class GameService extends AbstractService {
      */
     @Subscribe
     public void onCreateGameRequest(CreateGameRequest createGameRequest) {
-        final Game game = gameManagement.createGame(createGameRequest.getLobby(), createGameRequest.getMapType(), createGameRequest.getPlagues());
+        final Game game = gameManagement.createGame(createGameRequest.getLobby(), createGameRequest.getMapType(), createGameRequest.getPlagues(), createGameRequest.getDifficulty());
         gameManagement.addGame(game);
 
         final Set<Player> players = createGameRequest.getLobby().getPlayers();

@@ -30,7 +30,7 @@ public class MainMemoryBasedUserStore extends AbstractStore implements UserStore
     @Override
     public Optional<User> findUser(String username, String password) {
         User usr = users.get(username);
-        if (usr != null && Objects.equals(usr.getPassword(),hash(password))) {
+        if (usr != null && Objects.equals(usr.getPassword(),password)) {
             return Optional.of(usr.getWithoutPassword());
         }
         return Optional.empty();
@@ -50,7 +50,7 @@ public class MainMemoryBasedUserStore extends AbstractStore implements UserStore
         if (Strings.isNullOrEmpty(username)){
             throw new IllegalArgumentException("Username must not be null");
         }
-        User usr = new UserDTO(username, hash(password), eMail);
+        User usr = new UserDTO(username, password, eMail);
         users.put(username, usr);
         return usr;
     }
