@@ -1,10 +1,10 @@
 package de.uol.swp.server.usermanagement;
 
 import com.google.common.base.Strings;
-import de.uol.swp.common.user.User;
-import de.uol.swp.server.usermanagement.store.UserStore;
-
 import com.google.inject.Inject;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.util.HashUtil;
+import de.uol.swp.server.usermanagement.store.UserStore;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +37,7 @@ public class UserManagement extends AbstractUserManagement {
 
     @Override
     public User login(String username, String password) {
-        Optional<User> user = userStore.findUser(username, password);
+        Optional<User> user = userStore.findUser(username, HashUtil.hash(password));
         if (user.isPresent()){
             this.loggedInUsers.put(username, user.get());
             return user.get();
@@ -57,7 +57,7 @@ public class UserManagement extends AbstractUserManagement {
         if (user.isPresent()){
             throw new UserManagementException("Nutzername existiert bereits!");
         }
-        return userStore.createUser(userToCreate.getUsername(), userToCreate.getPassword(), userToCreate.getEMail());
+        return userStore.createUser(userToCreate.getUsername(), HashUtil.hash(userToCreate.getPassword()), userToCreate.getEMail());
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UserManagement extends AbstractUserManagement {
         // Only update if there are new values
         String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
         String newEMail = firstNotNull(userToUpdate.getEMail(), user.get().getEMail());
-        return userStore.updateUser(userToUpdate.getUsername(), newPassword, newEMail);
+        return userStore.updateUser(userToUpdate.getUsername(), HashUtil.hash(newPassword), newEMail);
 
     }
 

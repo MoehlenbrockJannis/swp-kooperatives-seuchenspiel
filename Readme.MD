@@ -83,7 +83,12 @@ Ein Compound aus folgenden Komponenten kann erstellt werden:
      1. Maven "Frontend [clean,package]":
          - Run: "clean package"
          - Working directory: "C:\Path\to\SWP\client"
+## Setup - Datenbank
 
+Die Datenbank ist dauerhaft über eine Azure-VM erreichbar.
+
+- Im Projekt befindet sich eine `.env.example` Datei, dies muss kopiert werden und in `.env` umbenannt werden.
+- In der müssen die dort angegebenen Variablen mit den entsprechenden Werten gefüllt werden.
 ## Setup - Docker
 
 Der Server kann in einem Docker-Container gestartet werden. Das dazu notwendige Image kann über Maven gebaut werden.
