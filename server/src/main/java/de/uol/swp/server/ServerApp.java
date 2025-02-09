@@ -3,7 +3,6 @@ package de.uol.swp.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.common.Configuration;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.action.ActionService;
 import de.uol.swp.server.approvable.ApprovableService;
 import de.uol.swp.server.card.CardService;
@@ -22,7 +21,6 @@ import de.uol.swp.server.player.turn.PlayerTurnService;
 import de.uol.swp.server.role.RoleManagement;
 import de.uol.swp.server.role.RoleService;
 import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
 import de.uol.swp.server.usermanagement.UserService;
 import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +40,7 @@ class ServerApp {
 
 	/**
 	 * Main Method
-	 *
+	 * <p>
 	 * This method handles the creation of the server components and the start of
 	 * the server
 	 *
@@ -77,16 +75,11 @@ class ServerApp {
 	 * Helper method to create the services the server uses and for the time being
 	 * the test users
 	 *
-	 * @param injector the google guice injector used for dependency injection
+	 * @param injector the Google guice injector used for dependency injection
 	 * @since 2019-09-18
 	 */
 	private static void createServices(Injector injector) {
-		UserManagement userManagement = injector.getInstance(UserManagement.class);
 
-		// TODO: Remove after registration is implemented
-		for (int i = 0; i < 5; i++) {
-			userManagement.createUser(new UserDTO("test" + i, "test" + i, "test" + i + "@test.de"));
-		}
 
 		// Remark: As these services are not referenced by any other class
 		// we will need to create instances here (and inject dependencies)

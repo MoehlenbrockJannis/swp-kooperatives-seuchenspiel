@@ -428,14 +428,13 @@ public abstract class AbstractPresenter {
      * @since 2024-09-15
      */
     public void clearEventBus(){
-        if (this.eventBus == null) {
-            return;
+        if (this.eventBus != null) {
+            this.eventBus.unregister(this);
+            this.eventBus = null;
         }
 
-        this.eventBus.unregister(this);
         for (final AbstractPresenter presenter : associatedPresenters) {
             presenter.clearEventBus();
         }
-        this.eventBus = null;
     }
 }

@@ -1,8 +1,6 @@
 package de.uol.swp.client.register;
 
 import com.google.common.base.Strings;
-import lombok.NoArgsConstructor;
-import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.register.event.RegistrationCanceledEvent;
@@ -13,6 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import lombok.NoArgsConstructor;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Manages the registration window

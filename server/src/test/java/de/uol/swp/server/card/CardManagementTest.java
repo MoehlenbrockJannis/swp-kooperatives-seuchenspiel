@@ -3,6 +3,7 @@ package de.uol.swp.server.card;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -71,7 +72,7 @@ class CardManagementTest {
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 
-        game = gameManagement.createGame(lobby, mockMapType, mockPlagues);
+        game = gameManagement.createGame(lobby, mockMapType, mockPlagues, GameDifficulty.getDefault());
         gameManagement.addGame(game);
     }
 

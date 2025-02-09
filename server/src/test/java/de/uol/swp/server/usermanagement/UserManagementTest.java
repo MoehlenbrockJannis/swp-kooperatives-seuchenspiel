@@ -2,6 +2,7 @@ package de.uol.swp.server.usermanagement;
 
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.HashUtil;
 import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,7 @@ class UserManagementTest {
     UserManagement getDefaultManagement() {
         MainMemoryBasedUserStore store = new MainMemoryBasedUserStore();
         List<UserDTO> users = getDefaultUsers();
-        users.forEach(u -> store.createUser(u.getUsername(), u.getPassword(), u.getEMail()));
+        users.forEach(u -> store.createUser(u.getUsername(), HashUtil.hash(u.getPassword()), u.getEMail()));
         return new UserManagement(store);
     }
 

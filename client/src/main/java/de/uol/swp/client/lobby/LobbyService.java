@@ -1,6 +1,7 @@
 package de.uol.swp.client.lobby;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -157,6 +158,18 @@ public class LobbyService {
      */
     public void getPlagues(){
         RetrieveAllPlaguesRequest request = new RetrieveAllPlaguesRequest();
+        eventBus.post(request);
+    }
+
+    /**
+     * Posts a request to update the difficulty level of a lobby
+     *
+     * @param lobby The lobby to update the difficulty for
+     * @param difficulty The new difficulty selected
+     * @since 2025-01-28
+     */
+    public void updateDifficulty(Lobby lobby, GameDifficulty difficulty) {
+        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, difficulty);
         eventBus.post(request);
     }
 }
