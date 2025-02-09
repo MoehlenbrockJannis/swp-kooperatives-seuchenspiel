@@ -4,10 +4,7 @@ package de.uol.swp.server.store;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
