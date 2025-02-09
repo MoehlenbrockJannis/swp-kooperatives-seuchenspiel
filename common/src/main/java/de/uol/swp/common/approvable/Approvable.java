@@ -3,6 +3,8 @@ package de.uol.swp.common.approvable;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 
+import java.io.Serializable;
+
 /**
  * The {@code Approvable} interface defines an action that can be approved by a player.
  * It provides methods to get the approving player, check approval status, and approve the action.
@@ -10,7 +12,7 @@ import de.uol.swp.common.player.Player;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-public interface Approvable {
+public interface Approvable extends Serializable {
 
     /**
      * Returns the {@link Game} this {@link Approvable} is part of
@@ -58,5 +60,15 @@ public interface Approvable {
      * @return a {@link String} describing the rejection of this {@link Approvable}
      */
     String getRejectedMessage();
+
+    /**
+     * Determines whether a response to this {@link Approvable} is required or
+     * if the {@link Game} can continue without it.
+     *
+     * @return {@code true} if {@link Game} needs to be paused to respond to this {@link Approvable}, {@code false} otherwise
+     */
+    default boolean isResponseRequired() {
+        return true;
+    }
 }
 

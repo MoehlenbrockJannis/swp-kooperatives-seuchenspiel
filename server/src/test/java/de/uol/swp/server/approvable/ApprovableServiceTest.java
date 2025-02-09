@@ -6,6 +6,8 @@ import de.uol.swp.common.approvable.request.ApprovableRequest;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.player.Player;
 import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.lobby.LobbyService;
 import org.greenrobot.eventbus.Subscribe;
@@ -48,28 +50,53 @@ public class ApprovableServiceTest extends EventBusBasedTest {
         when(approvable.getGame())
                 .thenReturn(game);
 
+        final Message onApproved = null;
+        final Player onApprovedPlayer = null;
+        final Message onRejected = null;
+        final Player onRejectedPlayer = null;
+
         return Stream.of(
-                Arguments.of(ApprovableMessageStatus.OUTBOUND, approvable),
-                Arguments.of(ApprovableMessageStatus.APPROVED, approvable),
-                Arguments.of(ApprovableMessageStatus.REJECTED, approvable)
+                Arguments.of(ApprovableMessageStatus.OUTBOUND, approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer),
+                Arguments.of(ApprovableMessageStatus.APPROVED, approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer),
+                Arguments.of(ApprovableMessageStatus.REJECTED, approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer)
         );
     }
 
     @ParameterizedTest
     @MethodSource("onApprovableRequestSource")
     @DisplayName("Should react to an ApprovableRequest and post an ApprovableServerMessage with the same Status and Approvable")
-    void onApprovableRequest(final ApprovableMessageStatus status, final Approvable approvable) throws InterruptedException {
-        final ApprovableRequest approvableRequest = new ApprovableRequest(status, approvable);
+    void onApprovableRequest(final ApprovableMessageStatus status,
+                             final Approvable approvable,
+                             final Message onApproved,
+                             final Player onApprovedPlayer,
+                             final Message onRejected,
+                             final Player onRejectedPlayer) throws InterruptedException {
+        final ApprovableServerMessage expected = new ApprovableServerMessage(
+                status,
+                approvable,
+                onApproved,
+                onApprovedPlayer,
+                onRejected,
+                onRejectedPlayer
+        );
+
+        final ApprovableRequest approvableRequest = new ApprovableRequest(
+                status,
+                approvable,
+                onApproved,
+                onApprovedPlayer,
+                onRejected,
+                onRejectedPlayer
+        );
 
         postAndWait(approvableRequest);
 
         assertInstanceOf(ApprovableServerMessage.class, event);
 
         final ApprovableServerMessage approvableServerMessage = (ApprovableServerMessage) event;
-        assertThat(approvableServerMessage.getStatus())
-                .isEqualTo(status);
-        assertThat(approvableServerMessage.getApprovable())
-                .isEqualTo(approvable);
+        assertThat(approvableServerMessage)
+                .usingRecursiveComparison()
+                .isEqualTo(expected);
 
         verify(lobbyService)
                 .sendToAllInLobby(approvable.getGame().getLobby(), approvableServerMessage);

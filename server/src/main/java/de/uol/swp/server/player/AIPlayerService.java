@@ -17,9 +17,12 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameService;
@@ -125,10 +128,49 @@ public class AIPlayerService extends AbstractService {
         final Player approvingPlayer = approvable.getApprovingPlayer();
         final ApprovableMessageStatus approvableMessageStatus = message.getStatus();
 
-        if (approvingPlayer instanceof AIPlayer && approvableMessageStatus == ApprovableMessageStatus.OUTBOUND) {
+        if (!(approvingPlayer instanceof AIPlayer)) {
+            return;
+        }
+
+        if (approvableMessageStatus == ApprovableMessageStatus.OUTBOUND) {
             approvable.approve();
-            final ApprovableRequest approvableRequest = new ApprovableRequest(ApprovableMessageStatus.APPROVED, approvable);
+            final ApprovableRequest approvableRequest = new ApprovableRequest(
+                    ApprovableMessageStatus.APPROVED,
+                    approvable,
+                    message.getOnApproved(),
+                    message.getOnApprovedPlayer(),
+                    message.getOnRejected(),
+                    message.getOnRejectedPlayer()
+            );
             post(approvableRequest);
+        } else {
+            answerSendMessageByPlayerServerMessageIfRequirementsAreMet(message);
+        }
+    }
+
+    /**
+     * Handles the response of a {@link TriggerableServerMessage}
+     *
+     * @param message the {@link TriggerableServerMessage} to respond to
+     */
+    @Subscribe
+    public void onTriggerableServerMessage(final TriggerableServerMessage message) {
+        answerSendMessageByPlayerServerMessageIfRequirementsAreMet(message);
+    }
+
+    /**
+     * Answers a given {@link SendMessageByPlayerServerMessage}
+     * if it is to be answered by an {@link AIPlayer} and the {@link Message} to send is not {@code null}.
+     *
+     * @param serverMessage {@link SendMessageByPlayerServerMessage} to answer
+     */
+    private void answerSendMessageByPlayerServerMessageIfRequirementsAreMet(final SendMessageByPlayerServerMessage serverMessage) {
+        final Player returningPlayer = serverMessage.getReturningPlayer();
+        final Message message = serverMessage.getMessageToSend();
+        if (returningPlayer instanceof AIPlayer aiPlayer && message != null) {
+            final Optional<Session> sessionOptional = gameService.getSession(aiPlayer);
+            sessionOptional.ifPresent(message::setSession);
+            post(message);
         }
     }
 

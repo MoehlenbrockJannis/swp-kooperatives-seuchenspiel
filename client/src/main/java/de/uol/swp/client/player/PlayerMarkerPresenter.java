@@ -6,7 +6,7 @@ import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.game.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.simple.MoveAction;
-import de.uol.swp.common.approvable.Approvable;
+import de.uol.swp.common.action.simple.MoveAllyAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
@@ -37,11 +37,11 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private final ApprovableService approvableService;
     private final Game game;
     private final Map<Field, CityMarker> cityMarkers;
+    private final Runnable unhighlightCityMarkers;
 
     /**
      * Initializes the mouse events of the player marker
      */
-
     public void initializeMouseEvents() {
         initializeHoverEvents();
         initializeClickEvent();
@@ -156,11 +156,23 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
 
         for (final MoveAction possibleAction : possibleActions) {
             MenuItem actionItem = new MenuItem(possibleAction.toString());
-            actionItem.setOnAction(event -> prepareMoveAction(possibleAction));
+            actionItem.setOnAction(event -> moveActionClicked(possibleAction));
             contextMenu.getItems().add(actionItem);
         }
 
         return contextMenu;
+    }
+
+    /**
+     * Unhighlights all city markers and prepares the given {@link MoveAction}.
+     *
+     * @param moveAction {@link MoveAction} to prepare
+     * @see #unhighlightAllCityMarkers()
+     * @see #prepareMoveAction(MoveAction)
+     */
+    private void moveActionClicked(final MoveAction moveAction) {
+        unhighlightAllCityMarkers();
+        prepareMoveAction(moveAction);
     }
 
     /**
@@ -213,7 +225,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         }
     }
 
-
     /**
      * Executes the prepared action for the selected city.
      *
@@ -223,8 +234,8 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private void executeMoveActionOnCity(MoveAction moveAction, Field targetField) {
         moveAction.setTargetField(targetField);
 
-        if (moveAction instanceof Approvable approvable && !approvable.isApproved()) {
-            approvableService.sendApprovable(approvable);
+        if (moveAction instanceof MoveAllyAction approvable && !approvable.isApproved()) {
+            approvableService.sendApprovableAction(approvable);
         } else {
             actionService.sendAction(game, moveAction);
         }
@@ -233,12 +244,8 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     }
 
     private void unhighlightAllCityMarkers() {
-        for (Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
-            entry.getValue().unhighlight();
-            entry.getValue().setOnMouseClicked(null);
-        }
+        unhighlightCityMarkers.run();
     }
-
 
     /**
      * Creates a map of city markers keyed by the city name for quick lookup.

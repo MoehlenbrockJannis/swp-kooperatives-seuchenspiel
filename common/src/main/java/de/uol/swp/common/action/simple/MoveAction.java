@@ -1,5 +1,6 @@
 package de.uol.swp.common.action.simple;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import lombok.Getter;
@@ -59,6 +60,12 @@ public abstract class MoveAction extends SimpleAction {
 
         final Player player = getMovedPlayer();
         player.setCurrentField(targetField);
+    }
+
+    @Override
+    public void initWithGame(final Game game) {
+        super.initWithGame(game);
+        this.targetField = game.findField(this.targetField).orElseThrow();
     }
 
     /**

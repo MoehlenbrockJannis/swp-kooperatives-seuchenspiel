@@ -1,5 +1,6 @@
 package de.uol.swp.server.card;
 
+import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.ActionFactory;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
@@ -18,8 +19,11 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -31,8 +35,8 @@ import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
+import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.EventBusException;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +46,6 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -58,10 +61,11 @@ public class CardServiceTest extends EventBusBasedTest {
     private CardManagement cardManagement;
     private GameManagement gameManagement;
     private LobbyService lobbyService;
+    private TriggerableService triggerableService;
     private PlayerTurnManagement playerTurnManagement;
     private Game game;
     private MapType mapType;
-    private Session session;
+    private Message message;
     private List<Object> responses;
     private Player player1;
     private Player player2;
@@ -72,9 +76,10 @@ public class CardServiceTest extends EventBusBasedTest {
         lobbyService = mock(LobbyService.class);
         gameManagement = mock(GameManagement.class);
         playerTurnManagement = mock(PlayerTurnManagement.class);
+        triggerableService = mock();
         responses = new ArrayList<>();
         EventBus eventBus = getBus();
-        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService);
+        cardService = new CardService(eventBus, cardManagement, gameManagement, lobbyService, triggerableService);
 
         User user = new UserDTO("Test", "Test", "Test@test.de");
         User user2 = new UserDTO("TestZwei", "Test", "Test@test.de");
@@ -103,7 +108,13 @@ public class CardServiceTest extends EventBusBasedTest {
             ));
         }
 
-        session = UUIDSession.create(game.getLobby().getOwner());
+        message = mock();
+        final Session session = UUIDSession.create(game.getLobby().getOwner());
+        when(message.getSession())
+                .thenReturn(Optional.of(session));
+        final MessageContext context = mock();
+        when(message.getMessageContext())
+                .thenReturn(Optional.of(context));
     }
 
     @Test
@@ -143,7 +154,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.drawPlayerCard(any(Game.class))).thenReturn(playerCard);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         verify(gameManagement, times(1)).updateGame(game);
@@ -161,7 +172,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
 
         DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(game, player, playerCard);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         verify(gameManagement, times(1)).updateGame(game);
@@ -171,32 +182,30 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Discard Player Card Request - Card Not In Hand")
     void onDiscardPlayerCardRequest_cardNotInHand() {
-        this.player1 = mock(Player.class);
-        this.player2 = mock(Player.class);
+        this.player1 = new AIPlayer("ai1");
+        this.player2 = new AIPlayer("ai2");
 
         List<Plague> plagues = List.of(mock(Plague.class));
         List<Player> players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
 
-        Lobby lobby = mock(LobbyDTO.class);
+        Lobby lobby = new LobbyDTO("lobby", mock(), 2, 4);
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 
         Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues);
+        gameWithMockedPlayer.addPlayerTurn(new PlayerTurn(gameWithMockedPlayer, player1, 0, 0, 0));
         PlayerCard playerCard = new AirBridgeEventCard();
-        Player player = players.get(0);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(gameWithMockedPlayer));
-        doNothing().when(player).removeHandCard(playerCard);
 
-        DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(gameWithMockedPlayer, player, playerCard);
+        DiscardPlayerCardRequest<PlayerCard> request = new DiscardPlayerCardRequest<>(gameWithMockedPlayer, player1, playerCard);
         post(request);
 
-        assertThat(player.getHandCards()).doesNotContain(playerCard);
-        verify(player, never()).removeHandCard(playerCard);
+        assertThat(player1.getHandCards()).doesNotContain(playerCard);
         verify(cardManagement, never()).discardPlayerCard(this.game, playerCard);
-        verify(gameManagement, never()).updateGame(this.game);
+        verify(gameManagement, times(1)).updateGame(this.game);
     }
 
     @Test
@@ -204,6 +213,16 @@ public class CardServiceTest extends EventBusBasedTest {
     void onDrawInfectionCardRequest_successfulDraw() {
         InfectionCard infectionCard = mock(InfectionCard.class);
         Field associatedField = mock(Field.class);
+
+        final PlayerTurn playerTurn = game.getCurrentTurn();
+        final int numberOfActionsToDo = playerTurn.getNumberOfActionsToDo();
+        for (int i = 0; i < numberOfActionsToDo; i++) {
+            playerTurn.executeCommand(mock(Action.class));
+        }
+        final int numberOfPlayerCardsToDraw = playerTurn.getNumberOfPlayerCardsToDraw();
+        for (int i = 0; i < numberOfPlayerCardsToDraw; i++) {
+            playerTurn.reduceNumberOfPlayerCardsToDraw();
+        }
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
         when(cardManagement.drawInfectionCardFromTheTop(any(Game.class))).thenReturn(infectionCard);
@@ -245,7 +264,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
-        request.setSession(session);
+        request.initWithMessage(message);
         post(request);
 
         waitForLock();
@@ -256,32 +275,13 @@ public class CardServiceTest extends EventBusBasedTest {
                 .orElse(null);
 
         assertThat(drawPlayerCardResponse).isNotNull();
-
-    }
-
-    @Test
-    @DisplayName("Player has more than max hand cards - Session is empty")
-    void playerHasMoreThanMaxHandCards_sessionIsEmpty() throws InterruptedException {
-        Player player = this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner());
-        for (int i = 0; i < 8; i++) {
-            player.addHandCard(new AirBridgeEventCard());
-        }
-
-        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(game));
-
-        DrawPlayerCardRequest request = new DrawPlayerCardRequest(game, player);
-        assertThatThrownBy(() -> post(request))
-                .isInstanceOf(EventBusException.class)
-                        .hasCauseInstanceOf(NoSuchElementException.class);
-
-        waitForLock();
     }
 
     @Test
     @DisplayName("Player has more than max hand cards - Successful sending of the ReleaseToDrawCardResponse")
     void sendReleaseToDrawCardResponse() throws InterruptedException {
         Function<Game, ReleaseToDrawPlayerCardResponse> responseSupplier = ReleaseToDrawPlayerCardResponse::new;
-        cardService.sendReleaseToDrawCardResponse(game, session, responseSupplier);
+        cardService.sendReleaseToDrawCardResponse(game, message, responseSupplier);
         waitForLock();
 
         ReleaseToDrawPlayerCardResponse response = (ReleaseToDrawPlayerCardResponse) event;
@@ -292,7 +292,7 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("")
     void allowPlayerCardDrawing() throws InterruptedException {
-        cardService.allowDrawingOrDiscarding(game, session, ReleaseToDrawPlayerCardResponse.class);
+        cardService.allowDrawingOrDiscarding(game, message, ReleaseToDrawPlayerCardResponse.class);
 
         waitForLock();
 
@@ -308,8 +308,8 @@ public class CardServiceTest extends EventBusBasedTest {
 
     @Test
     @DisplayName("")
-    void allowInfectionCardDrawing() throws InterruptedException, IllegalStateException {
-        cardService.allowDrawingOrDiscarding(game, session, ReleaseToDrawInfectionCardResponse.class);
+    void allowInfectionCardDrawing() throws InterruptedException {
+        cardService.allowDrawingOrDiscarding(game, message, ReleaseToDrawInfectionCardResponse.class);
 
         waitForLock();
 
@@ -327,10 +327,9 @@ public class CardServiceTest extends EventBusBasedTest {
     @DisplayName("Allow Drawing Or Discarding - Handle exception")
     void allowDrawingOrDiscarding_handleException() {
         Game game = mock(Game.class);
-        Session session = mock(Session.class);
         Class<? extends AbstractGameResponse> responseMessage = AbstractGameResponse.class;
 
-        assertThatThrownBy(() -> cardService.allowDrawingOrDiscarding(game, session, responseMessage))
+        assertThatThrownBy(() -> cardService.allowDrawingOrDiscarding(game, message, responseMessage))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
