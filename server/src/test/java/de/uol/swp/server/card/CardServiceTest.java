@@ -190,7 +190,7 @@ public class CardServiceTest extends EventBusBasedTest {
         players.add(player1);
         players.add(player2);
 
-        Lobby lobby = new LobbyDTO("lobby", mock(), 2, 4);
+        Lobby lobby = new LobbyDTO("lobby", mock());
         lobby.addPlayer(player1);
         lobby.addPlayer(player2);
 

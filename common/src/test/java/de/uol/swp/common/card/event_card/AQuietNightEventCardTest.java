@@ -22,7 +22,7 @@ class AQuietNightEventCardTest {
 
     @BeforeEach
     void setUp() {
-        final Lobby lobby = new LobbyDTO("name", new UserDTO("user", "", ""), 2, 4);
+        final Lobby lobby = new LobbyDTO("name", new UserDTO("user", "", ""));
         lobby.addPlayer(new AIPlayer("ai"));
 
         game = new Game(lobby, TestUtils.createMapType(), new ArrayList<>(lobby.getPlayers()), List.of());
