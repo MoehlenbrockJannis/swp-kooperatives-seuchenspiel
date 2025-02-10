@@ -20,16 +20,6 @@
     <center>
         <VBox alignment="CENTER" spacing="10">
             <TextField fx:id="lobbyNameField" promptText="Lobby Name" styleClass="persistent-prompt" />
-            <HBox alignment="CENTER" spacing="10">
-                <children>
-                   <Label text="Spieleranzahl">
-                      <font>
-                         <Font size="18.0" />
-                      </font>
-                   </Label>
-                   <ComboBox fx:id="maxPlayersComboBox" />
-                </children>
-            </HBox>
             <BorderPane.margin>
                 <Insets left="20.0" right="20.0" />
             </BorderPane.margin>

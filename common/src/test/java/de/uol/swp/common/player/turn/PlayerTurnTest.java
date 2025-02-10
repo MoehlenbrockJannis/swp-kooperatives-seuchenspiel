@@ -94,7 +94,7 @@ class PlayerTurnTest {
     public void setUp() {
         this.defaultUser = new UserDTO("Joerg", "333", "Joerg@mail.com");
         this.defaultUser2 = new UserDTO("Juergen", "333", "Juergen@mail.com");
-        final Lobby lobby = new LobbyDTO("lobby", defaultUser, 1, 2);
+        final Lobby lobby = new LobbyDTO("lobby", defaultUser);
 
         this.roleAbility = mock(RoleAbility.class);
         this.roleCard1 = new RoleCard("", new Color(), roleAbility);
