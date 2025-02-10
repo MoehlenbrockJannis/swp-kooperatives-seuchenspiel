@@ -73,8 +73,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove one plague cube from current field")
     void removeOnePlagueCube() {
-        field.infectField(new PlagueCube(plague));
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         action.removeOnePlagueCube();
 
@@ -84,11 +84,12 @@ class CurePlagueActionTest {
                 .addPlagueCube(any());
     }
 
+
     @Test
     @DisplayName("Should remove all plague cubes from current field")
     void removeAllPlagueCubes() {
-        field.infectField(new PlagueCube(plague));
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         action.removeAllPlagueCubes();
 
@@ -122,7 +123,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         assertThat(action.isAvailable())
                 .isTrue();
@@ -155,7 +156,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         assertThat(action.isExecutable())
                 .isTrue();
@@ -178,8 +179,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove one plague cube from current field if action is executable and the option to remove all plague cubes is unavailable")
     void execute_oneCube() {
-        field.infectField(new PlagueCube(plague));
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         action.execute();
 
@@ -195,8 +196,8 @@ class CurePlagueActionTest {
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
 
-        field.infectField(new PlagueCube(plague));
-        field.infectField(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
+        field.infectField(new PlagueCube(plague), new ArrayList<>());
 
         action.execute();
 

@@ -106,33 +106,26 @@ public class GameMap implements Serializable {
     }
 
     /**
-     * Starts an outbreak on the given {@link Field} with the given {@link Plague} by calling the
-     * startOutbreak method with an empty list of infected fields.
+     * Starts an outbreak chain on the given field with the specified plague.
+     * This is the entry point for outbreak handling.
      *
-     * @param field Field of the outbreak
-     * @param plague Outbreaking plague
+     * @param field Field where the outbreak starts
+     * @param plague Type of plague causing the outbreak
+     * @param infectedFields List to track all fields that get infected during this outbreak chain
      */
     public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
         List<Field> outbrokenFields = new ArrayList<>();
         startOutbreakRecursive(field, plague, infectedFields, outbrokenFields);
     }
+
     /**
-     * Starts an outbreak on the given {@link Field} with the given {@link Plague}
+     * Recursively handles the outbreak chain, tracking both infected and outbreak fields.
+     * Prevents infinite loops by ensuring each field only outbreaks once per chain.
      *
-     * <p>
-     *     Calls the {@link Game} method to start an outbreak.
-     *     Infects all neighboring fields with a {@link PlagueCube} of the associated {@link Plague}.
-     *     Handles outbreaks on neighboring fields.
-     *     Prevents the same field from breaking out more than once.
-     *     Adds all fields that broke out to the infectedFields list.
-     * </p>
-     *
-     * @param field Field of the outbreak
-     * @param plague Outbreaking plague
-     * @see Field
-     * @see Game#startOutbreak()
-     * @see Plague
-     * @see PlagueCube
+     * @param field Current field experiencing an outbreak
+     * @param plague Type of plague causing the outbreak
+     * @param infectedFields Tracks all fields that get infected during this outbreak chain
+     * @param outbrokenFields Tracks fields that have already had an outbreak to prevent cycles
      */
     private void startOutbreakRecursive(Field field, Plague plague, List<Field> infectedFields, List<Field> outbrokenFields) {
         if (outbrokenFields.contains(field)) {
@@ -149,8 +142,7 @@ public class GameMap implements Serializable {
         for (Field neighborField : neighborFields) {
             if (neighborField.isInfectable(plague)) {
                 PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
-                neighborField.infectField(plagueCube);
-                infectedFields.add(neighborField);
+                neighborField.infectField(plagueCube, infectedFields);
             } else if (!outbrokenFields.contains(neighborField)) {
                 startOutbreakRecursive(neighborField, plague, infectedFields, outbrokenFields);
             }

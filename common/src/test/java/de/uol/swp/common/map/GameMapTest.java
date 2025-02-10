@@ -125,7 +125,7 @@ class GameMapTest {
         assertThat(field3.isCurable(plague))
                 .isFalse();
 
-        map.startOutbreak(field1, plague);
+        map.startOutbreak(field1, plague, new ArrayList<>());
 
         verify(game, times(1))
                 .startOutbreak();
@@ -144,13 +144,13 @@ class GameMapTest {
         final Field field3 = fields.get(2);
 
         for (int i = 0; i < game.getMaxNumberOfPlagueCubesPerField(); i++) {
-            field2.infectField(new PlagueCube(plague));
+            field2.infectField(new PlagueCube(plague), new ArrayList<>());
         }
 
         assertThat(field3.isCurable(plague))
                 .isFalse();
 
-        map.startOutbreak(field1, plague);
+        map.startOutbreak(field1, plague, new ArrayList<>());
 
         verify(game, times(2))
                 .startOutbreak();
@@ -241,7 +241,7 @@ class GameMapTest {
         when(game.hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
 
-        map.getFields().get(0).infectField(new PlagueCube(plague));
+        map.getFields().get(0).infectField(new PlagueCube(plague), new ArrayList<>());
 
         assertThat(map.isPlagueExterminated(plague))
                 .isFalse();

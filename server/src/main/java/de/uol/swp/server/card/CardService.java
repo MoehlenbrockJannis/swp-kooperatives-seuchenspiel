@@ -23,6 +23,7 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
+import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
@@ -206,9 +207,10 @@ public class CardService extends AbstractService {
      */
     private void handleInfectionProcess(Game game, InfectionCard infectionCard, List<Field> infectedFields) {
         Field associatedField = infectionCard.getAssociatedField();
+        PlagueCube plagueCube = game.getPlagueCubeOfPlague(associatedField.getPlague());
 
         if (associatedField.isInfectable(associatedField.getPlague())) {
-            associatedField.infectField(infectedFields);
+            associatedField.infectField(plagueCube, infectedFields);
         } else {
             game.getMap().startOutbreak(associatedField, associatedField.getPlague(), infectedFields);
         }
