@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test Class for the UserDTO
@@ -40,6 +40,7 @@ class LobbyDTOTest {
     @BeforeEach
     void setup() {
         this.lobby = new LobbyDTO("test", defaultUser, 2, 4);
+        this.lobby.setId(1234);
     }
 
     @Test
