@@ -57,7 +57,7 @@ class PlayerTurnServiceTest {
     void onEndPlayerTurnRequestTest() {
         Game game = mock(Game.class);
 
-        Lobby lobby = new LobbyDTO("TestLobby", null, 2, 4);
+        Lobby lobby = new LobbyDTO("TestLobby", null);
         when(game.getLobby()).thenReturn(lobby);
 
         EndPlayerTurnRequest request = new EndPlayerTurnRequest(game);

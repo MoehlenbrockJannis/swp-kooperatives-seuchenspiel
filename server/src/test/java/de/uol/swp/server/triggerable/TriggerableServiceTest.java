@@ -59,7 +59,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         triggerableService = new TriggerableService(eventBus, gameManagement, gameService, lobbyService);
 
         final User user = new UserDTO("user", "", "");
-        final Lobby lobby = new LobbyDTO("lobby", user, 2, 4);
+        final Lobby lobby = new LobbyDTO("lobby", user);
         player1 = lobby.getPlayerForUser(user);
 
         player2 = new AIPlayer("ai");

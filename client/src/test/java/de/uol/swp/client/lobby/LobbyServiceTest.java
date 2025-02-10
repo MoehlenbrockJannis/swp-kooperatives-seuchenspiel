@@ -31,14 +31,14 @@ public class LobbyServiceTest extends EventBusBasedTest {
     void setUp() {
         this.lobbyService = new LobbyService(getBus());
         this.user = new UserDTO("testo", "", "");
-        this.lobby = new LobbyDTO("TestLobby", user, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", user);
         this.defaultPlayer = new UserPlayer(this.user);
     }
 
     @Test
     @DisplayName("Create new lobby")
     void createNewLobby() throws InterruptedException {
-        lobbyService.createNewLobby(lobby.getName(), user, 2, 4);
+        lobbyService.createNewLobby(lobby.getName(), user);
 
         waitForLock();
 
