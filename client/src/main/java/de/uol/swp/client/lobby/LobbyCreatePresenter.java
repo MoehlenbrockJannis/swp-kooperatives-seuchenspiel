@@ -29,9 +29,6 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     private TextField lobbyNameField;
 
     @FXML
-    private PasswordField lobbyPasswordField;
-
-    @FXML
     private ComboBox<Integer> maxPlayersComboBox;
 
     @Inject
@@ -100,7 +97,6 @@ public class LobbyCreatePresenter extends AbstractPresenter {
      */
     private void clearInputFields() {
         lobbyNameField.clear();
-        lobbyPasswordField.clear();
         resetMaxPlayersComboBoxSelection();
     }
 
