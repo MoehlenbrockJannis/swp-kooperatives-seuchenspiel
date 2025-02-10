@@ -9,8 +9,11 @@ import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.plague.PlagueCubeIcon;
 import de.uol.swp.client.player.PlayerMarker;
+import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
@@ -22,14 +25,18 @@ import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
+import de.uol.swp.common.util.Color;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -42,6 +49,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -131,6 +139,12 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private Button waiveActionButton;
 
+    @FXML
+    private GridPane remainingComponentsPane;
+
+    private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
+    private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
+
     /**
      * <p>
      *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
@@ -195,6 +209,83 @@ public class GamePresenter extends AbstractPresenter {
         updateResearchLaboratoryButtonState();
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
+
+        setRemainingComponentsComponent();
+    }
+
+    /**
+     * Sets the remaining components of the current game to be displayed.
+     * This includes the remaining research laboratories and plague cubes.
+     */
+    private void setRemainingComponentsComponent() {
+        Platform.runLater(() -> {
+            clearRemainingComponentsComponent();
+            addRemainingResearchLaboratoriesToRemainingComponentsComponent();
+            addRemainingPlagueCubesToRemainingComponentsComponent();
+        });
+    }
+
+    /**
+     * Clears the remaining components component.
+     */
+    private void clearRemainingComponentsComponent() {
+        remainingComponentsPane.getChildren().clear();
+    }
+
+    /**
+     * Adds the remaining research laboratories to the remaining components component.
+     */
+    private void addRemainingResearchLaboratoriesToRemainingComponentsComponent() {
+        int remainingResearchLaboratories = Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES - game.getResearchLaboratories().size();
+        int researchLaboratoryColumnIndex = 0;
+
+        ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(RESEARCH_LABORATORY_MARKER_SIZE);
+        createRemainingComponentsPresenter(remainingResearchLaboratories, researchLaboratoryMarker);
+
+        addComponentToRemainingComponents(researchLaboratoryMarker, researchLaboratoryColumnIndex);
+    }
+
+    /**
+     * Adds the remaining plague cubes to the remaining components component.
+     */
+    private void addRemainingPlagueCubesToRemainingComponentsComponent() {
+        int columnIndex = 1;
+
+        for (Map.Entry<Plague, List<PlagueCube>> mapEntry : game.getPlagueCubes().entrySet()) {
+            Plague plague = mapEntry.getKey();
+            List<PlagueCube> plagueCubes = mapEntry.getValue();
+            int amountOfRemainingPlagueCubes = plagueCubes.size();
+            Color plagueColor = plague.getColor();
+            boolean isForeignPlagueCube = false;
+
+            PlagueCubeIcon plagueCubeIcon = new PlagueCubeIcon(PLAGUE_CUBE_MARKER_SIZE, ColorService.convertColorToJavaFXColor(plagueColor), isForeignPlagueCube);
+            createRemainingComponentsPresenter(amountOfRemainingPlagueCubes, plagueCubeIcon);
+            addComponentToRemainingComponents(plagueCubeIcon, columnIndex);
+            columnIndex++;
+        }
+    }
+
+    /**
+     * Creates a RemainingComponentsPresenter with the specified number of components and marker.
+     */
+    private void createRemainingComponentsPresenter(int numberOfComponents, Group marker) {
+        RemainingComponentsPresenter presenter = AbstractPresenter.loadFXMLPresenter(RemainingComponentsPresenter.class);
+        presenter.setNumberOfRemainingComponents(numberOfComponents);
+        presenter.setComponentSymbol(marker);
+        associatedPresenters.add(presenter);
+    }
+
+    /**
+     * Adds the given component to the remaining components component at the specified column index.
+     */
+    private void addComponentToRemainingComponents(Group marker, int columnIndex) {
+        int firstRowIndex = 0;
+
+        final Parent root = marker.getScene().getRoot();
+        remainingComponentsPane.getChildren().add(root);
+
+        GridPane.setColumnIndex(root, columnIndex);
+        GridPane.setRowIndex(root, firstRowIndex);
     }
 
     /**
@@ -217,6 +308,7 @@ public class GamePresenter extends AbstractPresenter {
 
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
+        setRemainingComponentsComponent();
     }
 
     /**
