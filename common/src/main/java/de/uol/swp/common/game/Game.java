@@ -83,6 +83,7 @@ public class Game implements Serializable {
     private List<Player> playersInTurnOrder;
     @Getter
     private List<Plague> plagues;
+    @Getter
     private Map<Plague, List<PlagueCube>> plagueCubes;
     @Getter
     private List<ResearchLaboratory> researchLaboratories;
