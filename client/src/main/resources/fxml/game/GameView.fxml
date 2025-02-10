@@ -110,10 +110,21 @@
     </Pane>
 
     <!-- Column 6 -->
-    <Pane style="-fx-background-color: pink; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="0">
-        <Text layoutX="40.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0"
-              text="Anzahl Forschungslabore/Seuchenwürfel"/>
-    </Pane>
+    <GridPane fx:id="remainingComponentsPane"
+              style="-fx-border-width: 10; -fx-border-color: whitesmoke; -fx-background-color: #dbdbdb;"
+              GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="0">
+        <rowConstraints>
+            <RowConstraints percentHeight="100" minHeight="0"/>
+        </rowConstraints>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+        </columnConstraints>
+    </GridPane>
+
 
     <StackPane fx:id="chatStackPane" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="4">
         <AnchorPane fx:id="chatAnchorPane">
