@@ -20,7 +20,6 @@
     <center>
         <VBox alignment="CENTER" spacing="10">
             <TextField fx:id="lobbyNameField" promptText="Lobby Name" styleClass="persistent-prompt" />
-            <PasswordField fx:id="lobbyPasswordField" promptText="Lobby Password" styleClass="persistent-prompt" />
             <BorderPane.margin>
                 <Insets left="20.0" right="20.0" />
             </BorderPane.margin>

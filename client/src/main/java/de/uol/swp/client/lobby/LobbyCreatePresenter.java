@@ -9,7 +9,6 @@ import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,9 +24,6 @@ import org.greenrobot.eventbus.Subscribe;
 public class LobbyCreatePresenter extends AbstractPresenter {
     @FXML
     private TextField lobbyNameField;
-
-    @FXML
-    private PasswordField lobbyPasswordField;
 
     @Inject
     private LobbyService lobbyService;
@@ -61,7 +57,6 @@ public class LobbyCreatePresenter extends AbstractPresenter {
      */
     private void clearInputFields() {
         lobbyNameField.clear();
-        lobbyPasswordField.clear();
     }
 
     @FXML

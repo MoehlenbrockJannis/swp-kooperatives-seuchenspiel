@@ -23,12 +23,6 @@
             <children>
                 <HBox spacing="10.0">
                     <children>
-                        <ComboBox fx:id="mapComboBox" promptText="Map" prefWidth="200.0" />
-                        <ComboBox fx:id="playerCountComboBox" promptText="Spieleranzahl" prefWidth="200.0" />
-                    </children>
-                </HBox>
-                <HBox spacing="10.0">
-                    <children>
                         <ComboBox fx:id="difficultyComboBox" promptText="Schwierigkeit" prefWidth="200.0" />
                         <ComboBox fx:id="roleComboBox" promptText="Rolle" prefWidth="200.0"/>
                     </children>
