@@ -23,8 +23,8 @@ class RetrieveAllLobbiesServerMessageTest {
         testLobbies = new ArrayList<>();
         UserDTO owner1 = new UserDTO("owner1", "password", "owner1@example.com");
         UserDTO owner2 = new UserDTO("owner2", "password", "owner2@example.com");
-        testLobbies.add(new LobbyDTO("Lobby1", owner1, 2, 4));
-        testLobbies.add(new LobbyDTO("Lobby2", owner2, 3, 6));
+        testLobbies.add(new LobbyDTO("Lobby1", owner1));
+        testLobbies.add(new LobbyDTO("Lobby2", owner2));
     }
 
     @Test
@@ -55,7 +55,7 @@ class RetrieveAllLobbiesServerMessageTest {
         List<Lobby> lobbies = message.getLobbies();
         int originalSize = lobbies.size();
 
-        lobbies.add(new LobbyDTO("NewLobby", new UserDTO("newOwner", "password", "new@example.com"), 2, 4));
+        lobbies.add(new LobbyDTO("NewLobby", new UserDTO("newOwner", "password", "new@example.com")));
 
         assertEquals(originalSize + 1, message.getLobbies().size(), "The size of the lobbies list should change");
         assertTrue(message.getLobbies().contains(lobbies.get(lobbies.size() - 1)), "The new lobby should be in the message's list");

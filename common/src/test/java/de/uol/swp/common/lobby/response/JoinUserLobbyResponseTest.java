@@ -22,7 +22,7 @@ class JoinUserLobbyResponseTest {
     void setUp() {
         owner = new UserDTO("owner", "password", "owner@example.com");
         joiningUser = new UserDTO("joiner", "password", "joiner@example.com");
-        testLobby = new LobbyDTO("TestLobby", owner, 2, 4);
+        testLobby = new LobbyDTO("TestLobby", owner);
         testLobby.setStatus(LobbyStatus.OPEN);
     }
 

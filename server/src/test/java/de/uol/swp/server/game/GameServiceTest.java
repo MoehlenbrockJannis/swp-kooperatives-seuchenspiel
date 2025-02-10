@@ -49,7 +49,7 @@ public class GameServiceTest extends EventBusBasedTest {
         gameService = new GameService(eventBus, gameManagement, lobbyService);
 
         final User user = new UserDTO("user", "pass", "");
-        lobby = new LobbyDTO("lobby", user, 1, 2);
+        lobby = new LobbyDTO("lobby", user);
 
         final User user2 = new UserDTO("user2", "pass2", "user2");
         lobby.joinUser(user2);

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 public class LobbyManagementTest {
 
     static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner);
 
     final EventBus bus = EventBus.getDefault();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
@@ -81,8 +81,8 @@ public class LobbyManagementTest {
     @DisplayName("Get all lobbies")
     void getAllLobbiesTest() {
         final List<Lobby> lobbies = List.of(
-                new LobbyDTO("1", new UserDTO("Test", "", ""), 2, 4),
-                new LobbyDTO("2", new UserDTO("Tom", "", ""), 2, 4)
+                new LobbyDTO("1", new UserDTO("Test", "", "")),
+                new LobbyDTO("2", new UserDTO("Tom", "", ""))
         );
 
         lobbies.forEach(lobbyManagement::createLobby);
@@ -104,7 +104,7 @@ public class LobbyManagementTest {
     @DisplayName("Update lobby")
     void updateLobbyTest() {
         lobbyManagement.createLobby(lobby);
-        LobbyDTO updatedLobby = new LobbyDTO("TestLobby", firstOwner, 3, 5);
+        LobbyDTO updatedLobby = new LobbyDTO("TestLobby", firstOwner);
 
         lobbyManagement.updateLobby(updatedLobby);
 
@@ -112,8 +112,8 @@ public class LobbyManagementTest {
 
         Optional<Lobby> result = lobbyManagement.getLobby(lobby);
         assertTrue(result.isPresent());
-        assertEquals(3, result.get().getMinPlayers());
-        assertEquals(5, result.get().getMaxPlayers());
+        assertEquals(2, result.get().getMinPlayers());
+        assertEquals(4, result.get().getMaxPlayers());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Drop non-existent lobby")
     void dropNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
 
         doThrow(IllegalArgumentException.class).when(lobbyStore).removeLobby(nonExistentLobby);
 
@@ -143,7 +143,7 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Update non-existent lobby")
     void updateNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
 
         doThrow(IllegalArgumentException.class).when(lobbyStore).updateLobby(nonExistentLobby);
 
@@ -154,7 +154,7 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Create lobby with empty name")
     void createLobbyWithEmptyNameTest() {
-        LobbyDTO emptyNameLobby = new LobbyDTO("", firstOwner, 2, 4);
+        LobbyDTO emptyNameLobby = new LobbyDTO("", firstOwner);
 
         assertDoesNotThrow(() -> lobbyManagement.createLobby(emptyNameLobby));
 
@@ -175,7 +175,7 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Update lobby status for non-existent lobby")
     void updateLobbyStatusForNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
 
         assertThrows(IllegalArgumentException.class, () -> lobbyManagement.updateLobbyStatus(nonExistentLobby, LobbyStatus.RUNNING));
 
