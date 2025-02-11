@@ -50,7 +50,9 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
     private void generateDialog() {
         addCardsToListView();
         getDialogPane().setPrefWidth(PREF_WIDTH);
-        setHeader();
+        if (description != null) {
+            setHeader();
+        }
         getDialogPane().setContent(cardListView);
         getDialogPane().getButtonTypes().add(button);
         setResult();
