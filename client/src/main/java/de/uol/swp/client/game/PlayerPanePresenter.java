@@ -1,6 +1,7 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
@@ -13,7 +14,9 @@ import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -167,21 +170,9 @@ public class PlayerPanePresenter extends AbstractPresenter {
 
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
         return () -> {
-            Dialog<InfectionCard> dialog = new Dialog<>();
-            ListView<InfectionCard> cardListView = new ListView<>();
-            cardListView.getItems().addAll(gameSupplier.get().getInfectionDiscardStack());
-            dialog.getDialogPane().setContent(cardListView);
-            ButtonType loginButtonType = new ButtonType("Ablegen", ButtonBar.ButtonData.OK_DONE);
-            dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-            dialog.setResultConverter(dialogButton -> {
-                if (dialogButton == loginButtonType) {
-                    return cardListView.getSelectionModel().getSelectedItem();
-                }
-                return null;
-            });
+            DiscardCardDialog<InfectionCard> dialog = new DiscardCardDialog<>(gameSupplier.get().getInfectionDiscardStack(), "Karte auswählen", toughPopulationEventCard.getDescription());
             dialog.showAndWait().ifPresent(card -> {
                 toughPopulationEventCard.setInfectionCard(card);
-                System.out.println("Selected card: " + toughPopulationEventCard.getInfectionCard().getTitle());
                 approve.run();
             });
         };
