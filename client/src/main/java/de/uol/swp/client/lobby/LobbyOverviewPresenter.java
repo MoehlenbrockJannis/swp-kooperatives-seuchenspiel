@@ -355,6 +355,18 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
         eventBus.post(showMainMenuEvent);
     }
 
+    /**
+     * Handles LobbyIsFullResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyIsFullResponse} is detected on the EventBus, this method gets
+     * called. It shows an alert to the user indicating that the lobby they tried to join is full.
+     * </p>
+     *
+     * @param response The LobbyIsFullResponse detected on the EventBus
+     * @see LobbyIsFullResponse
+     * @see #showLobbyJoinAlert(LobbyStatus)
+     */
     @Subscribe
     public void onLobbyIsFullResponse(LobbyIsFullResponse response) {
         Platform.runLater(() -> {
@@ -362,6 +374,19 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Handles LobbyNotJoinableResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyNotJoinableResponse} is detected on the EventBus, this method gets
+     * called. It shows an alert to the user indicating that the lobby they tried to join
+     * is not joinable with the specific status from the response.
+     * </p>
+     *
+     * @param response The LobbyNotJoinableResponse detected on the EventBus
+     * @see LobbyNotJoinableResponse
+     * @see #showLobbyJoinAlert(LobbyStatus)
+     */
     @Subscribe
     public void onLobbyNotJoinableResponse(LobbyNotJoinableResponse response) {
         Platform.runLater(() -> {
