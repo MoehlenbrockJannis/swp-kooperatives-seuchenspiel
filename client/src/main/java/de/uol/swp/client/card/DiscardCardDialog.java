@@ -69,6 +69,9 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
         });
     }
 
+    /**
+     * Sets the header of the dialog.
+     */
     private void setHeader() {
         Label label = new Label(description);
         label.setWrapText(true);
