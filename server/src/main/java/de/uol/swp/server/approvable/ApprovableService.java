@@ -1,6 +1,7 @@
 package de.uol.swp.server.approvable;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
@@ -18,6 +19,7 @@ import org.greenrobot.eventbus.Subscribe;
  *
  * @author Tom Weelborg
  */
+@Singleton
 public class ApprovableService extends AbstractService {
     private final LobbyService lobbyService;
 

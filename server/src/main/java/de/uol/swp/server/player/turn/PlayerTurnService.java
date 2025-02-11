@@ -1,6 +1,7 @@
 package de.uol.swp.server.player.turn;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
@@ -19,6 +20,7 @@ import org.greenrobot.eventbus.Subscribe;
  * @author Silas van Thiel
  * @since 2025-01-20
  */
+@Singleton
 public class PlayerTurnService extends AbstractService {
 
     private final PlayerTurnManagement playerTurnManagement;
