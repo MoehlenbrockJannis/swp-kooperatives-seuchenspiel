@@ -141,10 +141,8 @@ public abstract class AbstractStore {
         do {
             uniqueId = this.random.nextInt(100000);
         } while (ids.contains(uniqueId));
-
         return uniqueId;
     }
-
 
     protected abstract Set<Integer> getIds();
 }
