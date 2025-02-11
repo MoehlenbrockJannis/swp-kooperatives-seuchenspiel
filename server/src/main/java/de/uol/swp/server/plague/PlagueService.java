@@ -1,5 +1,6 @@
 package de.uol.swp.server.plague;
 
+import com.google.inject.Singleton;
 import de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest;
 import de.uol.swp.common.plague.response.RetrieveAllPlaguesResponse;
 import de.uol.swp.server.AbstractService;
@@ -14,6 +15,7 @@ import org.greenrobot.eventbus.Subscribe;
  * @author David Scheffler
  * @since 2024-09-23
  */
+@Singleton
 public class PlagueService extends AbstractService {
 
     /**
