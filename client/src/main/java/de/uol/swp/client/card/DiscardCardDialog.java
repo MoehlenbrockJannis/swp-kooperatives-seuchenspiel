@@ -29,6 +29,13 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
         this(cardStack, titleButton, null);
     }
 
+    /**
+     * Constructs a new DiscardCardDialog with the given card stack, button title, and description.
+     *
+     * @param cardStack the card stack to discard a card from
+     * @param titleButton the title of the button
+     * @param description the description of the dialog
+     */
     public DiscardCardDialog(List<T> cardStack, String titleButton, String description) {
         super();
         this.cardStack = cardStack;
