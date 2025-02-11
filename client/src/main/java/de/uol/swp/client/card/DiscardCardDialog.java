@@ -56,7 +56,6 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
         getDialogPane().setContent(cardListView);
         getDialogPane().getButtonTypes().add(button);
         setResult();
-
     }
 
     /**
