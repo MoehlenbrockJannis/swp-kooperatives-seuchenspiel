@@ -1,6 +1,7 @@
 package de.uol.swp.server.triggerable;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
@@ -22,6 +23,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
 
+@Singleton
 public class TriggerableService extends AbstractService {
     private final GameManagement gameManagement;
     private final GameService gameService;
