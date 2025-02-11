@@ -3,18 +3,21 @@ package de.uol.swp.common.card.event_card;
 
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.stack.CardStack;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 /**
  * Represents a Tough Population Event Card in the game.
  * This card allows the player to choose any card from the infection discard pile and remove it from the game.
  */
+@Setter
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class ToughPopulationEventCard extends  EventCard{
     private static final String DESCRIPTION_STRING = "Wählen Sie eine beliebige Karte aus dem Infektions-Ablagestapel und entfernen Sie sie aus dem Spiel.";
+    @EqualsAndHashCode.Include
     private static final String TITLE_STRING = "Zähe Bevölkerung";
 
-    @Setter
-    @Getter
     private InfectionCard infectionCard;
 
     /**
@@ -28,7 +31,6 @@ public class ToughPopulationEventCard extends  EventCard{
     public void trigger() {
         final CardStack<InfectionCard> infectionCardStack = game.getInfectionDiscardStack();
         infectionCardStack.remove(infectionCard);
-        System.out.println("Removed card from infection discard stack: " + infectionCard.getTitle());
     }
 
     @Override
