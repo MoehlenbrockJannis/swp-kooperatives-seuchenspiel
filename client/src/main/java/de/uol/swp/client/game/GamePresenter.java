@@ -25,15 +25,15 @@ import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
-import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
-import de.uol.swp.common.util.Color;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
+import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -696,6 +696,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void addPlayerPane(Player player, int index, boolean isLoggedInPlayer) {
         PlayerPanePresenter playerPanePresenter = createAndInitializePlayerPanePresenter(player);
+        final Supplier<Game> gameSupplier = this::getGame;
+        playerPanePresenter.setGameSupplier(gameSupplier);
         this.playerPanePresenterList.add(playerPanePresenter);
 
 

@@ -2,22 +2,28 @@ package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.player.PlayerMarker;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.event_card.AirBridgeEventCard;
+import de.uol.swp.common.card.event_card.ForecastEventCard;
+import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
+import de.uol.swp.common.card.event_card.ToughPopulationEventCard;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Presenter class for managing the player pane in the game UI.
@@ -42,6 +48,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
     @FXML
     private ListView<PlayerCard> handCardsList;
 
+    @Setter
+    private Supplier<Game> gameSupplier;
 
     private Map<PlayerCard, Runnable> handCardToClickListenerAssociation;
 
@@ -136,8 +144,47 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @param clickListener {@link Runnable} that is executed when given {@link PlayerCard} in {@link #handCardsList} is clicked
      */
     public void highlightHandCardAndAssignClickListener(final PlayerCard handCard, final Runnable clickListener) {
-        this.handCardToClickListenerAssociation.put(handCard, clickListener);
+        this.handCardToClickListenerAssociation.put(handCard, createRunnableForEventCard(handCard, clickListener));
         highlightHandCardCellsWithClickListeners();
+    }
+
+    private Runnable createRunnableForEventCard(final PlayerCard playerCard, final Runnable clickListener) {
+        if (playerCard instanceof AirBridgeEventCard airBridgeEventCard) {
+            return prepareAirBridgeEventCard(airBridgeEventCard, clickListener);
+        } else if (playerCard instanceof ForecastEventCard) {
+
+        } else if (playerCard instanceof GovernmentSubsidiesEventCard) {
+
+        } else if (playerCard instanceof ToughPopulationEventCard toughPopulationEventCard) {
+            return prepareToughPopulationEventCard(toughPopulationEventCard, clickListener);
+        }
+        return clickListener;
+    }
+
+    private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard, final Runnable approve) {
+        return approve;
+    }
+
+    private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
+        return () -> {
+            Dialog<InfectionCard> dialog = new Dialog<>();
+            ListView<InfectionCard> cardListView = new ListView<>();
+            cardListView.getItems().addAll(gameSupplier.get().getInfectionDiscardStack());
+            dialog.getDialogPane().setContent(cardListView);
+            ButtonType loginButtonType = new ButtonType("Ablegen", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == loginButtonType) {
+                    return cardListView.getSelectionModel().getSelectedItem();
+                }
+                return null;
+            });
+            dialog.showAndWait().ifPresent(card -> {
+                toughPopulationEventCard.setInfectionCard(card);
+                System.out.println("Selected card: " + toughPopulationEventCard.getInfectionCard().getTitle());
+                approve.run();
+            });
+        };
     }
 
     /**
