@@ -7,6 +7,7 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.*;
 import de.uol.swp.common.lobby.server_message.*;
+import de.uol.swp.common.message.response.AbstractResponseMessage;
 import de.uol.swp.common.message.server.ServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
@@ -94,7 +95,6 @@ public class LobbyService extends AbstractService {
         }
 
         final Lobby lobby = lobbyOptional.get();
-
         final User user = lobbyJoinUserRequest.getUser();
 
         if (user == null) {
@@ -102,24 +102,9 @@ public class LobbyService extends AbstractService {
             return;
         }
 
-        if (lobby.containsUser(user)) {
-            final JoinUserUserAlreadyInLobbyLobbyResponse response = new JoinUserUserAlreadyInLobbyLobbyResponse(lobby, user);
-            response.initWithMessage(lobbyJoinUserRequest);
-            post(response);
-            return;
-        }
-
-        if (lobby.getPlayers().size() >= lobby.getMaxPlayers()) {
-            final LobbyIsFullResponse response = new LobbyIsFullResponse(lobby, user);
-            response.initWithMessage(lobbyJoinUserRequest);
-            post(response);
-            return;
-        }
-
-        if (!lobby.getStatus().equals(LobbyStatus.OPEN)) {
-            final LobbyNotJoinableResponse response = new LobbyNotJoinableResponse(lobby, user, lobby.getStatus());
-            response.initWithMessage(lobbyJoinUserRequest);
-            post(response);
+        Optional<AbstractResponseMessage> validationResponse = validateLobbyJoin(lobby, user, lobbyJoinUserRequest);
+        if (validationResponse.isPresent()) {
+            post(validationResponse.get());
             return;
         }
 
@@ -131,6 +116,36 @@ public class LobbyService extends AbstractService {
 
         final JoinUserLobbyServerMessage userJoinedLobbyMessage = new JoinUserLobbyServerMessage(lobby, user.getWithoutPassword());
         sendToAllInLobby(lobby, userJoinedLobbyMessage);
+    }
+
+    /**
+     * This method checks various conditions that must be met before a user can join a lobby
+     *
+     * @param lobby The lobby to validate
+     * @param user The user attempting to join
+     * @param request The original join request for response initialization
+     * @return Optional containing an error response if validation fails, empty if successful
+     */
+    private Optional<AbstractResponseMessage> validateLobbyJoin(Lobby lobby, User user, JoinUserLobbyRequest request) {
+        if (lobby.containsUser(user)) {
+            final JoinUserUserAlreadyInLobbyLobbyResponse response = new JoinUserUserAlreadyInLobbyLobbyResponse(lobby, user);
+            response.initWithMessage(request);
+            return Optional.of(response);
+        }
+
+        if (!lobby.getStatus().equals(LobbyStatus.OPEN)) {
+            final LobbyNotJoinableResponse response = new LobbyNotJoinableResponse(lobby, user, lobby.getStatus());
+            response.initWithMessage(request);
+            return Optional.of(response);
+        }
+
+        if (lobby.getPlayers().size() >= lobby.getMaxPlayers()) {
+            final LobbyIsFullResponse response = new LobbyIsFullResponse(lobby, user);
+            response.initWithMessage(request);
+            return Optional.of(response);
+        }
+
+        return Optional.empty();
     }
 
 

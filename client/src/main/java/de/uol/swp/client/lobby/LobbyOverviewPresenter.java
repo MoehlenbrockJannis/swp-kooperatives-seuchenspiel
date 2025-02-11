@@ -208,13 +208,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     @Subscribe
     public void onLobbyFindLobbiesResponse(final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse) {
         setLobbyList(retrieveAllLobbiesResponse.getLobbies());
-
-        if (autoRefreshTimer != null) {
-            autoRefreshTimer.stop();
-        }
-        autoRefreshTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> lobbyService.findLobbies()));
-        autoRefreshTimer.setCycleCount(Timeline.INDEFINITE);
-        autoRefreshTimer.play();
+        startAutoRefreshTimer();
     }
 
     /**
@@ -375,8 +369,23 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Stops and nullifies the auto-refresh timer for the lobby list
+     */
     private void resetExistingTimer() {
         autoRefreshTimer.stop();
         autoRefreshTimer = null;
+    }
+
+    /**
+     * Creates and starts a new auto-refresh timer for the lobby list
+     */
+    private void startAutoRefreshTimer() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+        }
+        autoRefreshTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> lobbyService.findLobbies()));
+        autoRefreshTimer.setCycleCount(Timeline.INDEFINITE);
+        autoRefreshTimer.play();
     }
 }
