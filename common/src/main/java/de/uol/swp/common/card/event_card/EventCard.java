@@ -49,5 +49,7 @@ public abstract class EventCard extends PlayerCard implements ManualTriggerable 
     public void initWithGame(final Game game) {
         this.game = game;
         this.player = game.findPlayer(this.player).orElseThrow();
+        this.player.removeHandCard(this);
+        this.player.addHandCard(this);
     }
 }
