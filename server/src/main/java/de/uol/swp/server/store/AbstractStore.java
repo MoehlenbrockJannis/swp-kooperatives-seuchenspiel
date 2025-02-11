@@ -136,15 +136,15 @@ public abstract class AbstractStore {
      */
     protected int generateUniqueId() {
         Set<Integer> ids = getIds();
-        var ref = new Object() {
-            int uniqueId;
-        };
-        do {
+        int uniqueId;
 
-            ref.uniqueId = this.random.nextInt(100000);
-        } while (ids.contains(ref.uniqueId));
-        return ref.uniqueId;
+        do {
+            uniqueId = this.random.nextInt(100000);
+        } while (ids.contains(uniqueId));
+
+        return uniqueId;
     }
+
 
     protected abstract Set<Integer> getIds();
 }
