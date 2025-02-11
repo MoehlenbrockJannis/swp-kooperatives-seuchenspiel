@@ -32,11 +32,11 @@ class RetrieveAllLobbiesResponseTest {
 
         testLobbies = new ArrayList<>();
 
-        Lobby lobby1 = new LobbyDTO("Lobby1", owner1, 2, 4);
+        Lobby lobby1 = new LobbyDTO("Lobby1", owner1);
         lobby1.setStatus(LobbyStatus.OPEN);
         lobby1.joinUser(member1);
 
-        Lobby lobby2 = new LobbyDTO("Lobby2", owner2, 3, 6);
+        Lobby lobby2 = new LobbyDTO("Lobby2", owner2);
         lobby2.setStatus(LobbyStatus.RUNNING);
         lobby2.joinUser(member2);
 
@@ -54,7 +54,7 @@ class RetrieveAllLobbiesResponseTest {
     @Test
     @DisplayName("Response should handle lobby with no members")
     void lobbyWithNoMembersTest() {
-        Lobby emptyLobby = new LobbyDTO("EmptyLobby", owner1, 2, 4);
+        Lobby emptyLobby = new LobbyDTO("EmptyLobby", owner1);
         List<Lobby> lobbies = List.of(emptyLobby);
 
         RetrieveAllLobbiesResponse response = new RetrieveAllLobbiesResponse(lobbies);

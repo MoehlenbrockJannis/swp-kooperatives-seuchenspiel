@@ -68,7 +68,7 @@ public class ActionServiceTest extends EventBusBasedTest {
         Player player = new UserPlayer(user);
         Player player2 = new UserPlayer(user2);
 
-        final Lobby lobby = new LobbyDTO("lobby", user, 1, 2);
+        final Lobby lobby = new LobbyDTO("lobby", user);
         final GameDifficulty difficulty = GameDifficulty.getDefault();
 
         lobby.addPlayer(player);

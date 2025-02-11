@@ -23,7 +23,7 @@ class AQuietNightEventCardTest {
 
     @BeforeEach
     void setUp() {
-        final Lobby lobby = new LobbyDTO("name", new UserDTO("user", "", ""), 2, 4);
+        final Lobby lobby = new LobbyDTO("name", new UserDTO("user", "", ""));
         lobby.addPlayer(new AIPlayer("ai"));
         GameDifficulty difficulty = GameDifficulty.getDefault();
 

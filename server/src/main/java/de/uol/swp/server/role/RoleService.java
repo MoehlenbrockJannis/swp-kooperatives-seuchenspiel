@@ -1,6 +1,7 @@
 package de.uol.swp.server.role;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.response.ResponseMessage;
 import de.uol.swp.common.player.Player;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
  * @author Jannis Moehlenbrock
  * @since 2024-09-06
  */
+@Singleton
 public class RoleService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;

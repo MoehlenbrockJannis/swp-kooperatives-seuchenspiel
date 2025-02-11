@@ -27,7 +27,7 @@ class LobbyLeavePlayerRequestTest {
     void setUp() {
         this.user = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
         this.player = new UserPlayer(this.user);
-        this.lobby = new LobbyDTO("TestLobby", this.user, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", this.user);
     }
 
     /**
