@@ -13,7 +13,7 @@ public interface LobbyStore extends ContentStore {
      *
      * @param lobby the lobby to add
      */
-    Lobby createLobby(Lobby lobby);
+    Lobby addLobby(Lobby lobby);
 
     /**
      * Removes a lobby from the store.

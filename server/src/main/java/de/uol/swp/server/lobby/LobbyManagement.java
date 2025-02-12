@@ -34,7 +34,7 @@ public class LobbyManagement {
      * @since 2019-10-08
      */
     public Lobby createLobby(Lobby lobby) {
-       return this.lobbyStore.createLobby(lobby);
+       return this.lobbyStore.addLobby(lobby);
     }
 
     /**
