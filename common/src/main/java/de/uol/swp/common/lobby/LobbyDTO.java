@@ -1,5 +1,6 @@
 package de.uol.swp.common.lobby;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
@@ -39,10 +40,6 @@ public class LobbyDTO implements Lobby {
     private Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
-    @Getter
-    private int minPlayers;
-    @Getter
-    private int maxPlayers;
 
     /**
      * Constructor
@@ -50,26 +47,30 @@ public class LobbyDTO implements Lobby {
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
-     * @param minPlayers The minimum number of players that can join the lobby
-     * @param maxPlayers The maximum number of players that can join the lobby
      * @since 2019-10-08
      */
-    public LobbyDTO(String name, User creator, int minPlayers, int maxPlayers) {
+    public LobbyDTO(String name, User creator) {
         this.name = name;
         this.owner = creator;
         joinUser(creator);
         this.status = LobbyStatus.OPEN;
-        this.minPlayers = minPlayers;
-        this.maxPlayers = maxPlayers;
     }
 
     public LobbyDTO(Lobby lobby) {
         this.name = lobby.getName();
         this.owner = lobby.getOwner();
         this.status = lobby.getStatus();
-        this.minPlayers = lobby.getMinPlayers();
-        this.maxPlayers = lobby.getMaxPlayers();
         this.players = lobby.getPlayers();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        return Game.MAX_NUMBER_OF_PLAYERS;
+    }
+
+    @Override
+    public int getMinPlayers() {
+        return Game.MIN_NUMBER_OF_PLAYERS;
     }
 
     @Override
@@ -171,9 +172,9 @@ public class LobbyDTO implements Lobby {
 
     private void determineLobbyStatus() {
         final Set<Player> players = getPlayers();
-        if (players.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        if (players.size() < getMaxPlayers() && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
-        } else if (players.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        } else if (players.size() == getMaxPlayers() && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.FULL;
         } else {
             status = LobbyStatus.RUNNING;

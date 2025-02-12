@@ -1,6 +1,7 @@
 package de.uol.swp.server.action;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
@@ -24,7 +25,7 @@ import java.util.Optional;
  *
  * @author: Jannis Moehlenbrock
  */
-
+@Singleton
 public class ActionService extends AbstractService {
     private final CardService cardService;
     private final GameManagement gameManagement;

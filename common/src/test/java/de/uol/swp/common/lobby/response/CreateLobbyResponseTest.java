@@ -20,7 +20,7 @@ class CreateLobbyResponseTest {
     @BeforeEach
     void setUp() {
         owner = new UserDTO("owner", "password", "owner@example.com");
-        testLobby = new LobbyDTO("TestLobby", owner, 2, 4);
+        testLobby = new LobbyDTO("TestLobby", owner);
         testLobby.setStatus(LobbyStatus.OPEN);
     }
 

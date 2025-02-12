@@ -48,7 +48,7 @@ class LobbyServiceTest {
         this.secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
         this.secondOwnerAsPlayer = new UserPlayer(this.secondOwner);
         this.firstOwnerAsPlayer = new UserPlayer(this.firstOwner);
-        this.lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", firstOwner);
         this.lobby.setId(123);
         this.bus = EventBus.builder()
                 .logNoSubscriberMessages(false)
@@ -208,7 +208,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("User joins non-existent lobby")
     void lobbyJoinUserNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final JoinUserLobbyRequest request = new JoinUserLobbyRequest(nonExistentLobby, secondOwner);
 
         bus.post(request);
@@ -220,7 +220,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Last user leaves lobby")
     void lobbyLeaveUserLastUserTest() {
-        Lobby singleUserLobby = new LobbyDTO("SingleUserLobby", firstOwner, 1, 4);
+        Lobby singleUserLobby = new LobbyDTO("SingleUserLobby", firstOwner);
         lobbyManagement.createLobby(singleUserLobby);
 
         when(lobbyManagement.getLobby(singleUserLobby)).thenReturn(Optional.of(singleUserLobby));
@@ -237,7 +237,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("User leaves non-existent lobby")
     void lobbyLeaveUserNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(nonExistentLobby, firstOwnerAsPlayer);
 
         bus.post(request);
@@ -249,7 +249,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Update status of non-existent lobby")
     void onLobbyUpdateStatusRequestNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final UpdateLobbyStatusRequest request = new UpdateLobbyStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
 
         bus.post(request);

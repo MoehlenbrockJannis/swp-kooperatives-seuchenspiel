@@ -19,8 +19,8 @@ class MainMemoryBasedLobbyStoreTest {
 
     private MainMemoryBasedLobbyStore lobbyStore;
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
-    final Lobby defaultLobby = new LobbyDTO("TestLobby", defaultUser, 2, 4);
-    final Lobby defaultLobby2 = new LobbyDTO("TestLobby2", defaultUser, 2, 4);
+    final Lobby defaultLobby = new LobbyDTO("TestLobby", defaultUser);
+    final Lobby defaultLobby2 = new LobbyDTO("TestLobby2", defaultUser);
 
     @BeforeEach
     void setUp() {
