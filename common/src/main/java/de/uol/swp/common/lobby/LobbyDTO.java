@@ -57,6 +57,7 @@ public class LobbyDTO implements Lobby {
     }
 
     public LobbyDTO(Lobby lobby) {
+        this.id = lobby.getId();
         this.name = lobby.getName();
         this.owner = lobby.getOwner();
         this.status = lobby.getStatus();
@@ -83,7 +84,7 @@ public class LobbyDTO implements Lobby {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hashCode(id);
     }
 
     @Override

@@ -15,12 +15,14 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
 
 
     @Override
-    public void addLobby(Lobby lobby) {
+    public Lobby createLobby(Lobby lobby) {
         if (doesLobbyExist(lobby)) {
             throw new IllegalArgumentException("Lobby " + lobby + " already exists!");
         }
         lobby.setId(generateUniqueId());
         lobbies.put(lobby.getId(), lobby);
+
+        return lobbies.get(lobby.getId());
     }
 
     @Override
