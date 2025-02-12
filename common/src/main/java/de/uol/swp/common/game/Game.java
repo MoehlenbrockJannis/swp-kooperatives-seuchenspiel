@@ -194,7 +194,7 @@ public class Game implements Serializable {
         List<Integer> infectionLevels = Arrays.asList(2, 2, 2, 3, 3, 4, 4);
         this.infectionMarker = new InfectionMarker(infectionLevels);
 
-        List<Integer> outbreakLevels = Arrays.asList(0, 1, 2, 3, 4, 5, 8);
+        List<Integer> outbreakLevels = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8);
         this.outbreakMarker = new OutbreakMarker(outbreakLevels);
 
         this.antidoteMarkers = new ArrayList<>();
@@ -459,6 +459,7 @@ public class Game implements Serializable {
 
         if (cubes.isEmpty()) {
             isLost = true;
+            throw new NoPlagueCubesFoundException(plague.getName());
         }
 
         return cubes.remove(0);

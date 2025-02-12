@@ -116,7 +116,8 @@ public class Field implements Serializable {
      */
     public void infectField() {
         final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
-        infectField(plagueCube, new ArrayList<>());
+        final List<Field> infectedFields = new ArrayList<>();
+        infectField(plagueCube, infectedFields);
     }
 
 

@@ -235,16 +235,20 @@ public class CardServiceTest extends EventBusBasedTest {
         Field mockField = mock(Field.class);
         Plague mockPlague = mock(Plague.class);
         PlagueCube mockPlagueCube = mock(PlagueCube.class);
+        GameMap mockMap = mock(GameMap.class);
 
         when(mockPlague.getName()).thenReturn("TestPlague");
         when(mockGame.getPlagueCubeOfPlague(any(Plague.class))).thenReturn(mockPlagueCube);
         when(infectionCard.getAssociatedField()).thenReturn(mockField);
         when(mockField.getPlague()).thenReturn(mockPlague);
         when(mockField.isInfectable(any())).thenReturn(true);
+        when(mockGame.getMap()).thenReturn(mockMap);
+
         PlayerTurn mockTurn = mock(PlayerTurn.class);
         when(mockTurn.isInInfectionCardDrawPhase()).thenReturn(true);
         when(mockTurn.getNumberOfInfectionCardsToDraw()).thenReturn(1);
         when(mockTurn.isInfectionCardDrawExecutable()).thenReturn(true);
+        when(mockTurn.getInfectedFieldsInTurn()).thenReturn(new ArrayList<>());
         when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
@@ -261,6 +265,7 @@ public class CardServiceTest extends EventBusBasedTest {
         verify(cardManagement).drawInfectionCardFromTheTop(any(Game.class));
         verify(gameManagement).updateGame(any(Game.class));
         verify(lobbyService, times(2)).sendToAllInLobby(eq(mockGame.getLobby()), any());
+        verify(mockMap).setOutbreakCallback(any());
     }
 
     @Test
