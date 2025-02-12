@@ -47,6 +47,7 @@ class LobbyDTOTest {
     @DisplayName("Lobbys should be equal if names are equal")
     void equalsTest_equal() {
         final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next());
+        equalLobby.setId(1234);
         assertThat(lobby).isEqualTo(equalLobby);
     }
 
