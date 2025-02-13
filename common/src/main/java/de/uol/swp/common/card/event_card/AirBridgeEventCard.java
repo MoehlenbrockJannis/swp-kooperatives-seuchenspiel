@@ -36,4 +36,9 @@ public class AirBridgeEventCard extends EventCard{
     public String getRejectedMessage() {
         return "";
     }
+
+    @Override
+    public String getEffectMessage() {
+        return "";
+    }
 }

@@ -40,4 +40,9 @@ public class AQuietNightEventCard extends EventCard {
     public String getRejectedMessage() {
         return "Die nächste Infektionskartenzugphase findet statt.";
     }
+
+    @Override
+    public String getEffectMessage() {
+        return "";
+    }
 }

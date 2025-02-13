@@ -52,4 +52,6 @@ public abstract class EventCard extends PlayerCard implements ManualTriggerable 
         this.player.removeHandCard(this);
         this.player.addHandCard(this);
     }
+
+    public abstract String getEffectMessage();
 }
