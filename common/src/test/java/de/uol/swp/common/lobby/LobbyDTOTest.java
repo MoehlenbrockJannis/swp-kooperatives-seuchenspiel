@@ -68,7 +68,7 @@ class LobbyDTOTest {
     @Test
     @DisplayName("Hashcode should consist of a hashcode of the lobby's name")
     void hashCodeTest() {
-        final int hashcode = Objects.hashCode("test");
+        final int hashcode = Objects.hashCode(1234);
         assertThat(lobby.hashCode()).isEqualTo(hashcode);
     }
 
