@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.CreateGameRequest;
+import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
@@ -12,6 +13,7 @@ import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.communication.AISession;
 import org.greenrobot.eventbus.EventBus;
@@ -112,5 +114,25 @@ public class GameService extends AbstractService {
     public Optional<Session> getSession(AIPlayer aiPlayer) {
         Optional<Map.Entry<Session, AIPlayer>> entry = aiPlayerSessions.entrySet().stream().filter(e -> e.getValue().equals(aiPlayer)).findFirst();
         return entry.map(Map.Entry::getKey);
+    }
+
+    /**
+     * Handles a request from a player to leave the game.
+     * Sets the game as lost and ends the current turn.
+     *
+     * @param leaveGameRequest The request containing game and player information
+     */
+    @Subscribe
+    public void onLeaveGameRequest(LeaveGameRequest leaveGameRequest) {
+        Game game = leaveGameRequest.getGame();
+
+        if (!game.isLost()) {
+            game.setLost(true);
+            String message = "Ein Spieler hat das Spiel verlassen! Spiel verloren!";
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
+            post(systemLobbyMessageServerInternalMessage);
+        }
+        gameManagement.updateGame(game);
+        sendGameUpdate(game);
     }
 }

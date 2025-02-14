@@ -24,6 +24,7 @@ import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
@@ -169,6 +170,12 @@ public class GamePresenter extends AbstractPresenter {
         final Supplier<Game> gameSupplier = () -> getGame();
 
         stage.setTitle("Game: " + game.getLobby().getName());
+
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            confirmAndLeaveGame();
+        });
+
         stage.show();
 
         this.playerCardStackPane.getChildren().add(this.playerCardsOverviewPresenter.getScene().getRoot());
@@ -565,7 +572,14 @@ public class GamePresenter extends AbstractPresenter {
                 "Spiel verlassen",
                 "Möchten Sie das Spiel wirklich verlassen?",
                 "Wenn Sie das Spiel verlassen, wird das Spiel-Fenster geschlossen.",
-                this::closeStage,
+                () -> {
+                    LeaveGameRequest leaveGameRequest = new LeaveGameRequest(
+                            game,
+                            game.getLobby().getPlayerForUser(loggedInUserProvider.get())
+                    );
+                    eventBus.post(leaveGameRequest);
+                    stage.close();
+                },
                 () -> {}
         );
     }
