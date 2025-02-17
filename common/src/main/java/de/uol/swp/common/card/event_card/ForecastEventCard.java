@@ -25,9 +25,4 @@ public class ForecastEventCard extends EventCard {
     public String getEffectMessage() {
         return "";
     }
-
-    @Override
-    public String getEffectMessage() {
-        return "";
-    }
 }

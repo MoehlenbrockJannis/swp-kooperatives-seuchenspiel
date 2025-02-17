@@ -24,9 +24,4 @@ public class GovernmentSubsidiesEventCard extends EventCard {
     public String getEffectMessage() {
         return "";
     }
-
-    @Override
-    public String getEffectMessage() {
-        return "";
-    }
 }

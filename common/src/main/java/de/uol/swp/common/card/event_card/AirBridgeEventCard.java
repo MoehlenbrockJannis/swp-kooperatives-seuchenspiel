@@ -74,9 +74,4 @@ public class AirBridgeEventCard extends EventCard implements Approvable {
         this.targetField = this.game.findField(this.targetField).orElseThrow();
         this.targetPlayer = this.game.findPlayer(this.targetPlayer).orElseThrow();
     }
-
-    @Override
-    public String getEffectMessage() {
-        return "";
-    }
 }
