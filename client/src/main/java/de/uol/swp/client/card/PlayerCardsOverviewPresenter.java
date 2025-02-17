@@ -76,7 +76,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Override
     void discardCard() {
         Player currentPlayer = this.gameSupplier.get().getLobby().getPlayerForUser(loggedInUserProvider.get());
-        Card selectedCard = createDiscardDialog(currentPlayer).getSelectionModel().getSelectedItem();
+        Card selectedCard = createDiscardDialog(currentPlayer);
         if (selectedCard != null) {
             cardService.sendDiscardPlayerCardRequest(gameSupplier.get(),currentPlayer, (PlayerCard) selectedCard);
             reduceNumberOfCardsToDiscard();

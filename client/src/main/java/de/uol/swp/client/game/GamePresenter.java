@@ -682,6 +682,8 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void addPlayerPane(Player player, int index, boolean isLoggedInPlayer) {
         PlayerPanePresenter playerPanePresenter = createAndInitializePlayerPanePresenter(player);
+        final Supplier<Game> gameSupplier = this::getGame;
+        playerPanePresenter.setGameSupplier(gameSupplier);
         this.playerPanePresenterList.add(playerPanePresenter);
 
 
