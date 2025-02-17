@@ -23,12 +23,13 @@ public abstract class EventCard extends PlayerCard implements ManualTriggerable 
     protected Game game;
     @Setter
     protected Player player;
-    protected boolean isApproved;
 
     protected EventCard(String description, String title) {
         this.description = description;
         this.title = title;
     }
+
+    public abstract String getEffectMessage();
 
     @Override
     public String getTitle() {
@@ -41,13 +42,15 @@ public abstract class EventCard extends PlayerCard implements ManualTriggerable 
     }
 
     @Override
-    public void approve() {
-        this.isApproved = true;
-    }
-
-    @Override
     public void initWithGame(final Game game) {
         this.game = game;
         this.player = game.findPlayer(this.player).orElseThrow();
+        this.player.removeHandCard(this);
+        this.player.addHandCard(this);
+    }
+
+    @Override
+    public Player getAnsweringPlayer() {
+        return player;
     }
 }

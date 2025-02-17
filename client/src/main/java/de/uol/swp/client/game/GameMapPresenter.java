@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Manages the window representing the game map
@@ -97,7 +98,7 @@ public class GameMapPresenter extends AbstractPresenter {
     private CityConnectionPanePresenter cityConnectionPanePresenter;
     private CityNamePanePresenter cityNamePanePresenter;
     private final Map<Field, CityMarker> cityMarkers = new HashMap<>();
-    private final Map<Player, PlayerMarker> playerMarkers = new HashMap<>();
+    private final Map<Player, PlayerMarkerPresenter> playerMarkerPresenters = new HashMap<>();
     private final List<PlagueCubeMarkerPresenter> plagueCubeMarkerPresenters = new ArrayList<>();
 
     private static final double PLAYER_MARKER_SCALE_FACTOR = 1.75;
@@ -290,7 +291,6 @@ public class GameMapPresenter extends AbstractPresenter {
     private void movePlayerMarker(Game game) {
         this.game = game;
         playerMarkerPane.getChildren().removeIf(PlayerMarker.class::isInstance);
-        playerMarkers.clear();
         addAllPlayerMarkers();
     }
 
@@ -301,6 +301,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-09-28
      */
     private void addAllPlayerMarkers() {
+        playerMarkerPresenters.clear();
         List<Player> playersInTurnOrder = this.game.getPlayersInTurnOrder();
         for (Player player : playersInTurnOrder) {
             addPlayerMarker(player);
@@ -333,7 +334,7 @@ public class GameMapPresenter extends AbstractPresenter {
         int playerOnFieldIndex = currentField.getPlayersOnField().indexOf(player);
 
         bindPlayerMarkerToField(newPlayerMarker, currentField, playerOnFieldIndex);
-        playerMarkers.put(player, newPlayerMarker);
+        playerMarkerPresenters.put(player, playerMarkerPresenter);
     }
 
     /**
@@ -622,4 +623,60 @@ public class GameMapPresenter extends AbstractPresenter {
         return game.getCurrentTurn().getPossibleActions();
     }
 
+    /**
+     * Sets a click listener to all {@link PlayerMarker} with any of given {@code players}
+     * to highlight all given {@code availableFields} and invoke given {@code fieldAndPlayerSelectionConsumer}
+     * with {@link Player} of clicked {@link PlayerMarker} and clicked {@link Field}.
+     *
+     * @param players {@link List} of {@link Player} to assign click listeners to respective {@link PlayerMarker}
+     * @param availableFields {@link List} of {@link Field} to highlight
+     * @param fieldAndPlayerSelectionConsumer {@link BiConsumer} invoked with selected {@link Field} and {@link Player}
+     */
+    public void setClickListenersForPlayerMarkersAndFields(final List<Player> players,
+                                                           final List<Field> availableFields,
+                                                           final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
+        final List<PlayerMarkerPresenter> playerMarkerPresentersList = findPlayerMarkerPresentersByPlayers(players);
+
+        final Runnable unhighlightAllPlayerMarkers = () -> playerMarkerPresentersList.forEach(PlayerMarkerPresenter::unhighlight);
+        final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumerWithUnhighlighting = (field, player) -> {
+            unhighlightAllPlayerMarkers.run();
+            fieldAndPlayerSelectionConsumer.accept(field, player);
+        };
+
+        playerMarkerPresentersList.forEach(playerMarkerPresenter -> setClickListenersForPlayerMarkerAndFields(
+                playerMarkerPresenter,
+                availableFields,
+                fieldAndPlayerSelectionConsumerWithUnhighlighting
+        ));
+    }
+
+    /**
+     * Sets a click listeners to given {@link PlayerMarkerPresenter} and {@code availableFields} with highlighting and unhighlighting.
+     *
+     * @param playerMarkerPresenter {@link PlayerMarkerPresenter} of {@link PlayerMarker} to highlight
+     * @param availableFields {@link List} of fields to highlight and add click listeners to
+     * @param fieldAndPlayerSelectionConsumer {@link BiConsumer} called with clicked {@link Field} and {@link Player}
+     */
+    private void setClickListenersForPlayerMarkerAndFields(final PlayerMarkerPresenter playerMarkerPresenter,
+                                                           final List<Field> availableFields,
+                                                           final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
+        playerMarkerPresenter.highlight();
+        playerMarkerPresenter.setClickListenerForPlayerMarkerAndFields(
+                availableFields,
+                fieldAndPlayerSelectionConsumer
+        );
+    }
+
+    /**
+     * Returns a {@link List} of {@link PlayerMarkerPresenter} for players in {@code players}.
+     *
+     * @param players {@link List} of {@link Player} for each {@link PlayerMarkerPresenter}
+     * @return {@link List} of {@link PlayerMarkerPresenter} for players in {@code players}
+     */
+    private List<PlayerMarkerPresenter> findPlayerMarkerPresentersByPlayers(final List<Player> players) {
+        return this.playerMarkerPresenters.entrySet().stream()
+                .filter(entry -> players.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .toList();
+    }
 }

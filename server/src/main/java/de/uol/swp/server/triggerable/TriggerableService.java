@@ -2,8 +2,7 @@ package de.uol.swp.server.triggerable;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import de.uol.swp.common.approvable.ApprovableMessageStatus;
-import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
+import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.game.Game;
@@ -76,33 +75,25 @@ public class TriggerableService extends AbstractService {
     }
 
     /**
-     * Sends an {@link ApprovableServerMessage} with the next available {@link ManualTriggerable}
+     * Sends a {@link TriggerableServerMessage} with the next available {@link ManualTriggerable}
      * from the given {@link Game} to all players in the lobby.
-     * Sets a {@link TriggerableRequest} as the {@code onApproved} {@link Message} of the {@link ApprovableServerMessage}
-     * to be sent after executing the {@link ManualTriggerable}.
      *
      * @param game {@link Game} of the {@link ManualTriggerable}
      * @param cause {@link Message} to be sent after approving or rejecting the {@link ManualTriggerable}
      * @param player {@link Player} that is to send the {@link Message} {@code cause}
-     * @see TriggerableRequest
-     * @see ApprovableServerMessage
+     * @see TriggerableServerMessage
      */
     private void sendNextManualTriggerable(final Game game, final Message cause, final Player player) {
         final ManualTriggerable manualTriggerable = game.getCurrentTurn().getNextManualTriggerable();
 
         gameService.sendGameUpdate(game);
 
-        final TriggerableRequest triggerableRequest = new TriggerableRequest(manualTriggerable, cause, player);
-
-        final ApprovableServerMessage approvableServerMessage = new ApprovableServerMessage(
-                ApprovableMessageStatus.OUTBOUND,
+        final TriggerableServerMessage triggerableServerMessage = new TriggerableServerMessage(
                 manualTriggerable,
-                triggerableRequest,
-                manualTriggerable.getPlayer(),
                 cause,
                 player
         );
-        lobbyService.sendToAllInLobby(game.getLobby(), approvableServerMessage);
+        lobbyService.sendToAllInLobby(game.getLobby(), triggerableServerMessage);
     }
 
     /**
@@ -118,7 +109,7 @@ public class TriggerableService extends AbstractService {
     /**
      * Handles a {@link TriggerableRequest} detected on the {@link EventBus} by triggering the contained {@link Triggerable}.
      * If the {@link Triggerable} is an {@link EventCard}, it is discarded.
-     * After all the necessary measures, the {@link Game} is updated and a {@link TriggerableServerMessage} is sent back.
+     * After all the necessary measures, the {@link Game} is updated and a {@link AnswerableServerMessage} is sent back.
      *
      * @param triggerableRequest {@link TriggerableRequest} with {@link Triggerable} to trigger
      */
@@ -141,13 +132,7 @@ public class TriggerableService extends AbstractService {
             discardEventCard(eventCard, triggerableRequest);
         }
 
-        final TriggerableServerMessage triggerableServerMessage = new TriggerableServerMessage(
-                triggerable,
-                triggerableRequest.getCause(),
-                triggerableRequest.getReturningPlayer()
-        );
-        triggerableServerMessage.initWithMessage(triggerableRequest);
-        post(triggerableServerMessage);
+        sendAnswerableServerMessage(triggerableRequest);
     }
 
     /**
@@ -163,5 +148,26 @@ public class TriggerableService extends AbstractService {
         );
         discardPlayerCardRequest.initWithMessage(originOfDiscardingPlayer);
         post(discardPlayerCardRequest);
+    }
+
+    /**
+     * Sends an {@link AnswerableServerMessage} for given {@link TriggerableRequest}.
+     *
+     * @param triggerableRequest {@link TriggerableRequest} to send an {@link AnswerableServerMessage} for
+     */
+    private void sendAnswerableServerMessage(final TriggerableRequest triggerableRequest) {
+        final Triggerable triggerable = triggerableRequest.getTriggerable();
+        final Message cause = triggerableRequest.getCause();
+        final Player returningPlayer = triggerableRequest.getReturningPlayer();
+
+        if (triggerable instanceof ManualTriggerable manualTriggerable) {
+            final AnswerableServerMessage answerableServerMessage = new AnswerableServerMessage(
+                    manualTriggerable,
+                    cause,
+                    returningPlayer
+            );
+            answerableServerMessage.initWithMessage(triggerableRequest);
+            post(answerableServerMessage);
+        }
     }
 }

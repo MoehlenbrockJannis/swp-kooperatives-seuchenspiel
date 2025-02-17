@@ -21,17 +21,7 @@ public class GovernmentSubsidiesEventCard extends EventCard {
     }
 
     @Override
-    public String getApprovalRequestMessage() {
-        return "";
-    }
-
-    @Override
-    public String getApprovedMessage() {
-        return "";
-    }
-
-    @Override
-    public String getRejectedMessage() {
+    public String getEffectMessage() {
         return "";
     }
 }

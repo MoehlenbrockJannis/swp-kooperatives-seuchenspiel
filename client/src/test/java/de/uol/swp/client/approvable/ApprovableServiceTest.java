@@ -75,14 +75,6 @@ public class ApprovableServiceTest extends EventBusBasedTest {
         testAssertions(approvable, ApprovableMessageStatus.REJECTED, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
     }
 
-    @Test
-    @DisplayName("Should temporarily reject an Approvable via a request the EventBus")
-    void temporarilyRejectApprovable() throws InterruptedException {
-        approvableService.temporarilyRejectApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
-
-        testAssertions(approvable, ApprovableMessageStatus.TEMPORARILY_REJECTED, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
-    }
-
     private void testAssertions(final Approvable approvable,
                                 final ApprovableMessageStatus status,
                                 final Message onApproved,
