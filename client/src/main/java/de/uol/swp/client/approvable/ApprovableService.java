@@ -124,33 +124,6 @@ public class ApprovableService {
     }
 
     /**
-     * Sends an {@link ApprovableRequest} with status {@link ApprovableMessageStatus#TEMPORARILY_REJECTED} and given {@code approvable}
-     * to the server via the {@link #eventBus}.
-     * Represents the state when one {@link Player} temporarily rejects the {@link Approvable}.
-     *
-     * @param approvable the {@link Approvable} for the sent {@link ApprovableRequest}
-     * @param onApproved {@link Message} to send if {@link Approvable} is approved
-     * @param onApprovedPlayer {@link Player} to send {@code onApproved} if {@link Approvable} is approved
-     * @param onRejected {@link Message} to send if {@link Approvable} is rejected
-     * @param onRejectedPlayer {@link Player} to send {@code onRejected} if {@link Approvable} is rejected
-     * @see #sendApprovable(Approvable, ApprovableMessageStatus, Message, Player, Message, Player)
-     */
-    public void temporarilyRejectApprovable(final Approvable approvable,
-                                            final Message onApproved,
-                                            final Player onApprovedPlayer,
-                                            final Message onRejected,
-                                            final Player onRejectedPlayer) {
-        sendApprovable(
-                approvable,
-                ApprovableMessageStatus.TEMPORARILY_REJECTED,
-                onApproved,
-                onApprovedPlayer,
-                onRejected,
-                onRejectedPlayer
-        );
-    }
-
-    /**
      * Creates and sends an {@link ApprovableRequest} with {@code approvable} and {@code status}
      * to the server via the {@link #eventBus}.
      *

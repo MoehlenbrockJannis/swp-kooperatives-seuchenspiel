@@ -12,6 +12,7 @@ import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.plague.PlagueCubeIcon;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
+import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.action.Action;
@@ -20,21 +21,24 @@ import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBu
 import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.WaiveAction;
+import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
-import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
-import de.uol.swp.common.util.Color;
+import de.uol.swp.common.triggerable.ManualTriggerable;
+import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
+import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -90,6 +94,8 @@ public class GamePresenter extends AbstractPresenter {
     private LobbyService lobbyService;
     @Inject
     private ApprovableService approvableService;
+    @Inject
+    private TriggerableService triggerableService;
     @Inject
     private ActionService actionService;
 
@@ -328,6 +334,18 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Handles an {@link AnswerableServerMessage} detected on the {@link #eventBus}.
+     * Sends the {@link Message} to process after it back if requirements are met.
+     *
+     * @param answerableServerMessage {@link AnswerableServerMessage} from the {@link #eventBus}
+     * @see #answerSendMessageByPlayerServerMessageIfRequirementsAreMet(SendMessageByPlayerServerMessage)
+     */
+    @Subscribe
+    public void onAnswerableServerMessage(final AnswerableServerMessage answerableServerMessage) {
+        answerSendMessageByPlayerServerMessageIfRequirementsAreMet(answerableServerMessage);
+    }
+
+    /**
      * Handles a {@link TriggerableServerMessage} detected on the {@link #eventBus}.
      * Sends the {@link Message} to process after it back if requirements are met.
      *
@@ -336,6 +354,14 @@ public class GamePresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onTriggerableServerMessage(final TriggerableServerMessage triggerableServerMessage) {
+        final Triggerable triggerable = triggerableServerMessage.getTriggerable();
+        if (triggerable instanceof ManualTriggerable manualTriggerable) {
+            highlightManualTriggerable(manualTriggerable, () -> triggerableService.sendManualTriggerable(
+                    manualTriggerable,
+                    null,
+                    null
+            ));
+        }
         answerSendMessageByPlayerServerMessageIfRequirementsAreMet(triggerableServerMessage);
     }
 
@@ -365,16 +391,15 @@ public class GamePresenter extends AbstractPresenter {
                         approvableServerMessage.getOnRejectedPlayer()
                 );
                 break;
-            case APPROVED, REJECTED, TEMPORARILY_REJECTED:
+            case APPROVED, REJECTED:
                 answerSendMessageByPlayerServerMessageIfRequirementsAreMet(approvableServerMessage);
                 break;
         }
     }
 
     /**
-     * Determine what to do with an unanswered given {@link Approvable}
-     * depending on whether an answer is required for it or not.
-     * If an answer is required, creates an alert that this {@link Player} has to respond to.
+     * Determine what to do with an unanswered given {@link Approvable}.
+     * Creates an alert that this {@link Player} has to respond to.
      *
      * @param approvable {@link Approvable} to answer
      * @param onApproved {@link Message} to send if {@link Approvable} is approved
@@ -393,23 +418,12 @@ public class GamePresenter extends AbstractPresenter {
 
         final Runnable approveApprovable = () -> approvableService.approveApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
         final Runnable rejectApprovable = () -> approvableService.rejectApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
-        final Runnable temporarilyRejectApprovable = () -> approvableService.temporarilyRejectApprovable(approvable, onApproved, onApprovedPlayer, onRejected, onRejectedPlayer);
 
-        if (approvable.isResponseRequired()) {
-            createApprovableAlert(
-                    approvable,
-                    approveApprovable,
-                    rejectApprovable
-            );
-        } else {
-            highlightApprovableAndReject(
-                    approvable,
-                    approveApprovable,
-                    onApproved,
-                    temporarilyRejectApprovable,
-                    onRejected
-            );
-        }
+        createApprovableAlert(
+                approvable,
+                approveApprovable,
+                rejectApprovable
+        );
     }
 
     /**
@@ -434,7 +448,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param player {@link Player} to check whether it contains logged-in user
      */
     private void sendMessageIfGameIsCurrentGameAndPlayerIsCurrentPlayer(final Message message, final Game game, final Player player) {
-        if (game.equals(this.game) && player.containsUser(this.loggedInUserProvider.get()) && message != null) {
+        if (game.equals(this.game) && player != null && player.containsUser(this.loggedInUserProvider.get()) && message != null) {
             eventBus.post(message);
         }
     }
@@ -460,56 +474,14 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * <p>
-     *     Highlights given {@link Approvable} and temporarily rejects it.
-     * </p>
+     * Highlights given {@link ManualTriggerable} and sets a function to approve it.
      *
-     * <p>
-     *     Also prevents an infinite cycle by resetting the {@link Message} to send after
-     *     on given {@code onApproved} {@link Message} if it is a {@link SendMessageByPlayerServerMessage}.
-     * </p>
-     *
-     * @param approvable {@link Approvable} to highlight and reject
-     * @param approveApprovable {@link Runnable} to approve the {@link Approvable}
-     * @param onApproved {@link Message} to send after {@link Approvable} is approved
-     * @param rejectApprovable {@link Runnable} to reject the {@link Approvable}
-     * @param onRejected {@link Message} to send after {@link Approvable} is rejected
+     * @param manualTriggerable {@link ManualTriggerable} to highlight
+     * @param playManualTriggerable function to play given {@link ManualTriggerable}
      */
-    private void highlightApprovableAndReject(final Approvable approvable,
-                                              final Runnable approveApprovable,
-                                              final Message onApproved,
-                                              final Runnable rejectApprovable,
-                                              final Message onRejected) {
-        resetMessageToSendIfMessageIsSendMessageByPlayerServerMessageAndMessagesToSendAreEqual(onApproved, onRejected);
-
-        rejectApprovable.run();
-
-        highlightApprovable(approvable, approveApprovable);
-    }
-
-    /**
-     * Resets the {@link Message} to send if given {@code message} is a {@link SendMessageByPlayerServerMessage} and
-     * given {@code messageToSend} is equal to the {@link Message} to send of {@code message}.
-     *
-     * @param message {@link Message} that may be a {@link SendMessageByPlayerServerMessage}
-     * @param messageToSend {@link Message} that may be given {@code message}'s {@link Message} to send
-     */
-    private void resetMessageToSendIfMessageIsSendMessageByPlayerServerMessageAndMessagesToSendAreEqual(final Message message,
-                                                                                                        final Message messageToSend) {
-        if (message instanceof SendMessageByPlayerServerMessage serverMessage && serverMessage.getMessageToSend().equals(messageToSend)) {
-            serverMessage.setMessageToSend(null);
-        }
-    }
-
-    /**
-     * Highlights given {@link Approvable} and sets a function to approve it.
-     *
-     * @param approvable {@link Approvable} to highlight
-     * @param approveApprovable function to approve given {@link Approvable}
-     */
-    private void highlightApprovable(final Approvable approvable, final Runnable approveApprovable) {
-        if (approvable instanceof EventCard eventCard) {
-            highlightEventCard(eventCard, approveApprovable);
+    private void highlightManualTriggerable(final ManualTriggerable manualTriggerable, final Runnable playManualTriggerable) {
+        if (manualTriggerable instanceof EventCard eventCard) {
+            highlightEventCard(eventCard, playManualTriggerable);
         }
     }
 
@@ -746,6 +718,7 @@ public class GamePresenter extends AbstractPresenter {
     private PlayerPanePresenter createAndInitializePlayerPanePresenter(Player player) {
         PlayerPanePresenter playerPanePresenter = AbstractPresenter.loadFXMLPresenter(PlayerPanePresenter.class);
         playerPanePresenter.setPlayerInfo(player);
+        playerPanePresenter.setGameMapPresenter(this.gameMapController);
 
         PlayerMarker playerMarker = gameMapController.createNewPlayerMarker(player);
         playerPanePresenter.setPlayerMarker(playerMarker);

@@ -1,6 +1,6 @@
 package de.uol.swp.server.triggerable;
 
-import de.uol.swp.common.approvable.server_message.ApprovableServerMessage;
+import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AQuietNightEventCard;
 import de.uol.swp.common.card.event_card.EventCard;
@@ -13,7 +13,7 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import de.uol.swp.common.triggerable.Triggerable;
+import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import de.uol.swp.common.user.User;
@@ -101,9 +101,9 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         waitForLock();
 
         assertThat(event)
-                .isInstanceOf(ApprovableServerMessage.class);
-        final ApprovableServerMessage approvableServerMessage = (ApprovableServerMessage) event;
-        assertThat(approvableServerMessage.getApprovable())
+                .isInstanceOf(TriggerableServerMessage.class);
+        final TriggerableServerMessage triggerableServerMessage = (TriggerableServerMessage) event;
+        assertThat(triggerableServerMessage.getTriggerable())
                 .usingRecursiveComparison()
                 .isEqualTo(eventCard);
     }
@@ -132,7 +132,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger the triggerable")
     void onTriggerableRequest() throws InterruptedException {
-        final Triggerable triggerable = mock();
+        final ManualTriggerable triggerable = mock();
         when(triggerable.getGame())
                 .thenReturn(game);
         final Message cause = null;
@@ -147,10 +147,10 @@ public class TriggerableServiceTest extends EventBusBasedTest {
                 .trigger();
 
         assertThat(event)
-                .isInstanceOf(TriggerableServerMessage.class);
-        final TriggerableServerMessage triggerableServerMessage = (TriggerableServerMessage) event;
-        final TriggerableServerMessage expected = new TriggerableServerMessage(triggerable, cause, returningPlayer);
-        assertThat(triggerableServerMessage)
+                .isInstanceOf(AnswerableServerMessage.class);
+        final AnswerableServerMessage answerableServerMessage = (AnswerableServerMessage) event;
+        final AnswerableServerMessage expected = new AnswerableServerMessage(triggerable, cause, returningPlayer);
+        assertThat(answerableServerMessage)
                 .usingRecursiveComparison()
                 .isEqualTo(expected);
     }
@@ -177,8 +177,8 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
-    public void onEvent(final ApprovableServerMessage approvableServerMessage) {
-        handleEvent(approvableServerMessage);
+    public void onEvent(final AnswerableServerMessage answerableServerMessage) {
+        handleEvent(answerableServerMessage);
     }
 
     @Subscribe
