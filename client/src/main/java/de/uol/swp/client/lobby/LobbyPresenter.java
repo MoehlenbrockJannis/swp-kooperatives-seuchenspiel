@@ -443,10 +443,7 @@ public class LobbyPresenter extends AbstractPresenter {
         final Game game = event.getGame();
         final Lobby gameLobby = game.getLobby();
 
-        final String gameLobbyName = gameLobby.getName();
-        final String currentLobbyName = lobby.getName();
-
-        if(gameLobbyName.equals(currentLobbyName)) {
+        if(gameLobby.equals(lobby)) {
             loadGameScene(game);
         }
     }
