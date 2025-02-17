@@ -150,7 +150,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllRolesResponse(RetrieveAllRolesResponse message) {
-        if (lobby.getName().equals(message.getLobby().getName())) {
+        if (lobby.getId() == message.getLobby().getId()) {
             Platform.runLater(() -> {
                 Set<RoleCard> roles = message.getRoleCardSet();
                 availableRoles = FXCollections.observableArrayList(roles);

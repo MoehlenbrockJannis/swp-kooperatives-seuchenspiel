@@ -24,9 +24,9 @@ import lombok.Getter;
 public class ApprovableServerMessage extends AbstractServerMessage implements SendMessageByPlayerServerMessage {
     private final ApprovableMessageStatus status;
     private final Approvable approvable;
-    private Message onApproved;
+    private final Message onApproved;
     private final Player onApprovedPlayer;
-    private Message onRejected;
+    private final Message onRejected;
     private final Player onRejectedPlayer;
 
     @Override
@@ -37,7 +37,7 @@ public class ApprovableServerMessage extends AbstractServerMessage implements Se
     /**
      * Returns
      *  {@link #onApprovedPlayer} if {@link #status} is {@link ApprovableMessageStatus#APPROVED} or
-     *  {@link #onRejectedPlayer} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
+     *  {@link #onRejectedPlayer} if {@link #status} is {@link ApprovableMessageStatus#REJECTED}.
      * Throws an {@link IllegalStateException} otherwise.
      *
      * @return returning {@link Player} if there currently is one
@@ -47,7 +47,7 @@ public class ApprovableServerMessage extends AbstractServerMessage implements Se
     public Player getReturningPlayer() throws IllegalStateException {
         return switch (status) {
             case APPROVED -> onApprovedPlayer;
-            case REJECTED, TEMPORARILY_REJECTED -> onRejectedPlayer;
+            case REJECTED -> onRejectedPlayer;
             default -> throw new IllegalStateException();
         };
     }
@@ -55,7 +55,7 @@ public class ApprovableServerMessage extends AbstractServerMessage implements Se
     /**
      * Returns
      *  {@link #onApproved} if {@link #status} is {@link ApprovableMessageStatus#APPROVED} or
-     *  {@link #onRejected} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
+     *  {@link #onRejected} if {@link #status} is {@link ApprovableMessageStatus#REJECTED}.
      * Throws an {@link IllegalStateException} otherwise.
      *
      * @return {@link Message} to send if there currently is one
@@ -65,23 +65,8 @@ public class ApprovableServerMessage extends AbstractServerMessage implements Se
     public Message getMessageToSend() throws IllegalStateException {
         return switch (status) {
             case APPROVED -> onApproved;
-            case REJECTED, TEMPORARILY_REJECTED -> onRejected;
+            case REJECTED -> onRejected;
             default -> throw new IllegalStateException();
         };
-    }
-
-    /**
-     * Sets
-     *  either {@link #onApproved} to given {@link Message} if {@link #status} is {@link ApprovableMessageStatus#APPROVED}
-     *  or {@link #onRejected} to given {@link Message} if {@link #status} is {@link ApprovableMessageStatus#REJECTED} or {@link ApprovableMessageStatus#TEMPORARILY_REJECTED}.
-     *
-     * @param message {@link Message} to send after approval or rejection
-     */
-    @Override
-    public void setMessageToSend(final Message message) {
-        switch (status) {
-            case APPROVED -> this.onApproved = message;
-            case REJECTED, TEMPORARILY_REJECTED -> this.onRejected = message;
-        }
     }
 }

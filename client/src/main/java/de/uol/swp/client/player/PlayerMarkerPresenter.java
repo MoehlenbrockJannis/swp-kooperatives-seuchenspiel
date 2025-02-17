@@ -17,6 +17,8 @@ import javafx.scene.control.MenuItem;
 import lombok.AllArgsConstructor;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Presents the player marker on the game map.
@@ -168,24 +170,24 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      *
      * @param moveAction {@link MoveAction} to prepare
      * @see #unhighlightAllCityMarkers()
-     * @see #prepareMoveAction(MoveAction)
+     * @see #prepareMap(List, Consumer)
      */
     private void moveActionClicked(final MoveAction moveAction) {
         unhighlightAllCityMarkers();
-        prepareMoveAction(moveAction);
+        prepareMap(moveAction.getAvailableFields(), field -> executeMoveActionOnCity(moveAction, field));
     }
 
     /**
-     * Prepares the necessary steps for a MoveAction.
+     * Prepares the field with highlighting and click listeners
      *
-     * @param moveAction the MoveAction to prepare.
+     * @param availableFields {@link List} of {@link Field} to highlight
+     * @param fieldConsumer {@link Consumer} invoked when {@link Field} is clicked
      * @author Jannis Moehlenbrock
      */
-    private void prepareMoveAction(MoveAction moveAction) {
-        List<Field> availableFields = moveAction.getAvailableFields();
+    private void prepareMap(final List<Field> availableFields, final Consumer<Field> fieldConsumer) {
         Map<String, CityMarker> cityMarkerMap = createCityMarkerMap();
         List<CityMarker> localCityMarkers = getCityMarkers(cityMarkerMap, availableFields);
-        setupCityMarkerActions(availableFields, cityMarkerMap, moveAction);
+        setupCityMarkerActions(availableFields, cityMarkerMap, fieldConsumer);
         highlightCityMarkers(localCityMarkers);
     }
 
@@ -216,11 +218,11 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * @param cityMarkerMap a map of city names to CityMarkers.
      * @author Jannis Moehlenbrock
      */
-    private void setupCityMarkerActions(List<Field> availableFields, Map<String, CityMarker> cityMarkerMap, MoveAction moveAction) {
+    private void setupCityMarkerActions(List<Field> availableFields, Map<String, CityMarker> cityMarkerMap, Consumer<Field> fieldConsumer) {
         for (Field field : availableFields) {
             CityMarker cityMarker = cityMarkerMap.get(field.getCity().getName());
             if (cityMarker != null) {
-                cityMarker.setOnMouseClicked(event -> executeMoveActionOnCity(moveAction, field));
+                cityMarker.setOnMouseClicked(event -> fieldConsumer.accept(field));
             }
         }
     }
@@ -270,5 +272,31 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         for (CityMarker cityMarker : cityMarkers) {
             cityMarker.highlight();
         }
+    }
+
+    /**
+     * Sets a click listener to {@link #playerMarker} and highlights available fields and invokes given {@link Consumer} on click.
+     *
+     * @param availableFields {@link List} of {@link Field} to highlight
+     * @param fieldAndPlayerSelectionConsumer {@link BiConsumer} invoked when {@link #playerMarker} and a {@link Field} are clicked
+     */
+    public void setClickListenerForPlayerMarkerAndFields(final List<Field> availableFields, final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
+        playerMarker.setOnMouseClicked(event -> {
+            prepareMap(availableFields, field -> fieldAndPlayerSelectionConsumer.accept(field, playerMarker.getPlayer()));
+        });
+    }
+
+    /**
+     * Highlights the {@link #playerMarker}
+     */
+    public void highlight() {
+        this.playerMarker.highlight();
+    }
+
+    /**
+     * Unhighlights the {@link #playerMarker}
+     */
+    public void unhighlight() {
+        this.playerMarker.unhighlight();
     }
 }

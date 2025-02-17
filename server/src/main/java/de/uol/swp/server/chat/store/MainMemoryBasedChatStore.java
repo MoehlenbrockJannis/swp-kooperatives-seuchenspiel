@@ -5,10 +5,7 @@ import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.store.MainMemoryBasedStore;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A chat store that stores chat messages in the main memory.
@@ -48,5 +45,10 @@ public class MainMemoryBasedChatStore extends AbstractStore implements ChatStore
      */
     private void checkLobbyName(Lobby lobby) {
         lobbyChatMessages.computeIfAbsent(lobby, name -> new ArrayList<>());
+    }
+
+    @Override
+    protected Set<Integer> getIds() {
+        return Collections.emptySet();
     }
 }

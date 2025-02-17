@@ -26,11 +26,4 @@ public interface SendMessageByPlayerServerMessage extends ServerMessage {
      * @return the {@link Message} to send
      */
     Message getMessageToSend();
-
-    /**
-     * Sets the {@link Message} to send as given {@link Message}.
-     *
-     * @param message the {@link Message} to send
-     */
-    void setMessageToSend(final Message message);
 }

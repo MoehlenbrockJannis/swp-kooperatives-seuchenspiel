@@ -27,22 +27,7 @@ public class AQuietNightEventCard extends EventCard {
     }
 
     @Override
-    public String getApprovalRequestMessage() {
-        return "Möchtest du die nächste Infektionskartenzugphase überspringen?";
-    }
-
-    @Override
-    public String getApprovedMessage() {
-        return "Die nächste Infektionskartenzugphase wird übersprungen.";
-    }
-
-    @Override
-    public String getRejectedMessage() {
-        return "Die nächste Infektionskartenzugphase findet statt.";
-    }
-
-    @Override
     public String getEffectMessage() {
-        return "";
+        return "Die nächste Infektionskartenzugphase wird übersprungen.";
     }
 }

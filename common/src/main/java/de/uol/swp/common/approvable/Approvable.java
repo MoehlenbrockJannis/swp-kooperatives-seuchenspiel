@@ -1,9 +1,7 @@
 package de.uol.swp.common.approvable;
 
-import de.uol.swp.common.game.Game;
+import de.uol.swp.common.answerable.Answerable;
 import de.uol.swp.common.player.Player;
-
-import java.io.Serializable;
 
 /**
  * The {@code Approvable} interface defines an action that can be approved by a player.
@@ -12,14 +10,7 @@ import java.io.Serializable;
  *  @author Jannis Moehlenbrock
  *  @since 2024-09-17
  */
-public interface Approvable extends Serializable {
-
-    /**
-     * Returns the {@link Game} this {@link Approvable} is part of
-     *
-     * @return {@link Game} of this {@link Approvable}
-     */
-    Game getGame();
+public interface Approvable extends Answerable {
 
     /**
      * Returns the player who approves the action.
@@ -61,14 +52,9 @@ public interface Approvable extends Serializable {
      */
     String getRejectedMessage();
 
-    /**
-     * Determines whether a response to this {@link Approvable} is required or
-     * if the {@link Game} can continue without it.
-     *
-     * @return {@code true} if {@link Game} needs to be paused to respond to this {@link Approvable}, {@code false} otherwise
-     */
-    default boolean isResponseRequired() {
-        return true;
+    @Override
+    default Player getAnsweringPlayer() {
+        return getApprovingPlayer();
     }
 }
 

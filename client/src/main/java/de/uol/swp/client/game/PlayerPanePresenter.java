@@ -3,14 +3,16 @@ package de.uol.swp.client.game;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.player.PlayerMarker;
+import de.uol.swp.common.approvable.ApprovableMessageStatus;
+import de.uol.swp.common.approvable.request.ApprovableRequest;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
-import de.uol.swp.common.card.event_card.AirBridgeEventCard;
-import de.uol.swp.common.card.event_card.ForecastEventCard;
-import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
-import de.uol.swp.common.card.event_card.ToughPopulationEventCard;
+import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.Field;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -26,6 +28,7 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -53,6 +56,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
 
     @Setter
     private Supplier<Game> gameSupplier;
+    @Setter
+    private GameMapPresenter gameMapPresenter;
 
     private Map<PlayerCard, Runnable> handCardToClickListenerAssociation;
 
@@ -151,12 +156,20 @@ public class PlayerPanePresenter extends AbstractPresenter {
         highlightHandCardCellsWithClickListeners();
     }
 
+    /**
+     * Creates a new click listener if given {@link PlayerCard} is an {@link EventCard}
+     * by invoking methods that determine what to do with it.
+     *
+     * @param playerCard {@link PlayerCard} to create {@link Runnable} click listener for
+     * @param clickListener original, unmodified {@link Runnable} click listener
+     * @return potentially modified {@link Runnable} click listener for given {@link PlayerCard}
+     */
     private Runnable createRunnableForEventCard(final PlayerCard playerCard, final Runnable clickListener) {
         if (playerCard instanceof AirBridgeEventCard airBridgeEventCard) {
             return prepareAirBridgeEventCard(airBridgeEventCard, clickListener);
-        } else if (playerCard instanceof ForecastEventCard) {
+        } else if (playerCard instanceof ForecastEventCard forecastEventCard) {
 
-        } else if (playerCard instanceof GovernmentSubsidiesEventCard) {
+        } else if (playerCard instanceof GovernmentSubsidiesEventCard governmentSubsidiesEventCard) {
 
         } else if (playerCard instanceof ToughPopulationEventCard toughPopulationEventCard) {
             return prepareToughPopulationEventCard(toughPopulationEventCard, clickListener);
@@ -164,8 +177,69 @@ public class PlayerPanePresenter extends AbstractPresenter {
         return clickListener;
     }
 
+    /**
+     * Prepares a given {@link AirBridgeEventCard} for use.
+     *
+     * @param airBridgeEventCard {@link AirBridgeEventCard} to prepare an action listener for
+     * @param approve {@link Runnable} executing the given {@link AirBridgeEventCard}
+     * @return {@link Runnable} as action listener to play given {@link AirBridgeEventCard}
+     */
     private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard, final Runnable approve) {
-        return approve;
+        return () -> {
+            final Game game = airBridgeEventCard.getGame();
+            this.gameMapPresenter.setClickListenersForPlayerMarkersAndFields(
+                    game.getPlayersInTurnOrder(),
+                    game.getFields(),
+                    createAirBridgeEventCardPlayerAndFieldClickConsumer(airBridgeEventCard)
+            );
+        };
+    }
+
+    /**
+     * Creates a {@link BiConsumer} that is invoked with the target {@link Player} and {@link Field} of an {@link AirBridgeEventCard}.
+     *
+     * @param airBridgeEventCard {@link AirBridgeEventCard} that is played
+     * @return {@link BiConsumer} invoked with the target {@link Player} and {@link Field} of an {@link AirBridgeEventCard}
+     */
+    private BiConsumer<Field, Player> createAirBridgeEventCardPlayerAndFieldClickConsumer(final AirBridgeEventCard airBridgeEventCard) {
+        return (field, movedPlayer) -> {
+            airBridgeEventCard.setTargetPlayer(movedPlayer);
+            airBridgeEventCard.setTargetField(field);
+
+            Message messageToSend = createCorrectAirBridgeEventCardMessage(airBridgeEventCard, movedPlayer);
+            this.eventBus.post(messageToSend);
+        };
+    }
+
+    /**
+     * Creates the correct {@link Message} for an {@link AirBridgeEventCard}.
+     * The returned {@link Message} will be a {@link TriggerableRequest}
+     * if the holder of the {@link AirBridgeEventCard} is the moved {@link Player}.
+     * It will be an {@link ApprovableRequest} with status {@link ApprovableMessageStatus#OUTBOUND}
+     * if the moved {@link Player} is not the holder.
+     *
+     * @param airBridgeEventCard {@link AirBridgeEventCard} to send via the {@link Message}
+     * @return {@link TriggerableRequest} if moved {@link Player} is event card holder or {@link ApprovableRequest} if not
+     */
+    private Message createCorrectAirBridgeEventCardMessage(final AirBridgeEventCard airBridgeEventCard, final Player movedPlayer) {
+        Message messageToSend = new TriggerableRequest(airBridgeEventCard, null, null);
+
+        final Player eventCardHolder = airBridgeEventCard.getPlayer();
+
+        if (!eventCardHolder.equals(movedPlayer)) {
+            messageToSend = new ApprovableRequest(
+                    ApprovableMessageStatus.OUTBOUND,
+                    airBridgeEventCard,
+                    messageToSend,
+                    eventCardHolder,
+                    null,
+                    null
+            );
+        } else {
+            airBridgeEventCard.approve();
+        }
+
+        return messageToSend;
     }
 
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {

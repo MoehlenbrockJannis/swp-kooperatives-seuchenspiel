@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Interface to unify lobby objects
- *
+ * <p>
  * This is an Interface to allow for multiple types of lobby objects since it is
  * possible that not every client has to have every information of the lobby.
  *
@@ -17,6 +17,20 @@ import java.util.Set;
  * @since 2019-10-08
  */
 public interface Lobby extends Serializable {
+
+    /**
+     * Getter for the lobby's ID
+     *
+     * @return The ID of the lobby
+     */
+    int getId();
+
+    /**
+     * Setter for the lobby's ID
+     *
+     * @param id The new ID of the lobby
+     */
+    void setId(int id);
 
     /**
      * Getter for the lobby's name
@@ -51,7 +65,7 @@ public interface Lobby extends Serializable {
     void joinUser(User user);
 
     /**
-     * Removes an user from the lobby
+     * Removes a user from the lobby
      *
      * @param user The user to remove from the lobby
      * @since 2019-10-08
