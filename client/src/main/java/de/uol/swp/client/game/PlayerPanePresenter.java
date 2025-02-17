@@ -1,9 +1,11 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.game.Game;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Presenter class for managing the player pane in the game UI.
@@ -51,6 +54,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
     @FXML
     private ListView<PlayerCard> handCardsList;
 
+    @Setter
+    private Supplier<Game> gameSupplier;
     @Setter
     private GameMapPresenter gameMapPresenter;
 
@@ -167,7 +172,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         } else if (playerCard instanceof GovernmentSubsidiesEventCard governmentSubsidiesEventCard) {
 
         } else if (playerCard instanceof ToughPopulationEventCard toughPopulationEventCard) {
-
+            return prepareToughPopulationEventCard(toughPopulationEventCard, clickListener);
         }
         return clickListener;
     }
@@ -235,6 +240,24 @@ public class PlayerPanePresenter extends AbstractPresenter {
         }
 
         return messageToSend;
+    }
+
+    /**
+     * Prepares a given {@link ToughPopulationEventCard} for use.
+     *
+     * @param toughPopulationEventCard {@link ToughPopulationEventCard} to prepare an action listener for
+     * @param approve {@link Runnable} executing the given {@link ToughPopulationEventCard}
+     * @return {@link Runnable} as action listener to play given {@link ToughPopulationEventCard}
+     */
+    private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
+        return () -> {
+            String buttonText = "Karte auswählen";
+            DiscardCardDialog<InfectionCard> dialog = new DiscardCardDialog<>(gameSupplier.get().getInfectionDiscardStack(), buttonText, toughPopulationEventCard.getDescription());
+            dialog.showAndWait().ifPresent(card -> {
+                toughPopulationEventCard.setInfectionCard(card);
+                approve.run();
+            });
+        };
     }
 
     /**

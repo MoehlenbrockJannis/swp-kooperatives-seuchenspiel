@@ -1,5 +1,6 @@
 package de.uol.swp.common.util;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @since 2024-09-23
  */
 @Getter
+@EqualsAndHashCode
 public class Color implements Serializable {
     private int r;
     private int g;

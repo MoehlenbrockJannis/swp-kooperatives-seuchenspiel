@@ -10,7 +10,7 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -157,15 +157,9 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * @param currentPlayer the player whose hand cards are to be displayed in the dialog
      * @return a ListView containing the cards in the player's hand
      */
-    protected ListView<? extends Card> createDiscardDialog(Player currentPlayer) {
-        Dialog<Card> dialog = new Dialog<>();
-        ListView<Card> cardListView = new ListView<>();
-        cardListView.getItems().addAll(currentPlayer.getHandCards());
-        dialog.getDialogPane().setContent(cardListView);
-        ButtonType loginButtonType = new ButtonType("Ablegen", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-        dialog.showAndWait();
-        return cardListView;
+    protected Card createDiscardDialog(Player currentPlayer) {
+        DiscardCardDialog<? extends Card> discardCardDialog = new DiscardCardDialog<>(currentPlayer.getHandCards(), "Ablegen");
+        return discardCardDialog.showAndWait().orElse(null);
     }
 
     /**
