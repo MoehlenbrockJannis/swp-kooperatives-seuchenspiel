@@ -4,15 +4,14 @@ package de.uol.swp.server.store;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractStore {
+    private final Random random = new Random();
+
     /**
      * Creates all stores that are available
      * <p>
@@ -129,4 +128,21 @@ public abstract class AbstractStore {
             throw new IllegalArgumentException("Could not create store: " + e.getMessage());
         }
     }
+
+    /**
+     * Generates a unique ID.
+     *
+     * @return A unique ID
+     */
+    protected int generateUniqueId() {
+        Set<Integer> ids = getIds();
+        int uniqueId;
+
+        do {
+            uniqueId = this.random.nextInt(100000);
+        } while (ids.contains(uniqueId));
+        return uniqueId;
+    }
+
+    protected abstract Set<Integer> getIds();
 }

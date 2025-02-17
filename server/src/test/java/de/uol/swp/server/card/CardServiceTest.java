@@ -214,6 +214,9 @@ public class CardServiceTest extends EventBusBasedTest {
         Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues, difficulty);
         gameWithMockedPlayer.addPlayerTurn(new PlayerTurn(gameWithMockedPlayer, player1, 0, 0, 0));
         PlayerCard playerCard = new AirBridgeEventCard();
+        while (player1.hasHandCard(playerCard)) {
+            player1.removeHandCard(playerCard);
+        }
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(gameWithMockedPlayer));
 

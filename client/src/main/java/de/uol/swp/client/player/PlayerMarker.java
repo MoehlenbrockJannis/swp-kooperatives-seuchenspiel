@@ -1,9 +1,9 @@
 package de.uol.swp.client.player;
 
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.client.util.HighlightableMarker;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
-import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -18,7 +18,7 @@ import lombok.Getter;
  * @since 2024-09-28
  */
 @Getter
-public class PlayerMarker extends Group {
+public class PlayerMarker extends HighlightableMarker {
 
     private static final double DEFAULT_HEAD_RADIUS = 10.0;
     private static final double DEFAULT_BODY_TOP_X = 10.0;

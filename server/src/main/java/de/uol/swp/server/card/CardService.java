@@ -156,7 +156,7 @@ public class CardService extends AbstractService {
     private void sendPlayerCardDiscardMessage(final PlayerCard playerCard, final Player player, final Game game) {
         String message = String.format("%s hat \"%s\" abgeworfen.", player.getName(), playerCard.getTitle());
         if (playerCard instanceof EventCard eventCard) {
-            message += " " + eventCard.getApprovedMessage();
+            message += " " + eventCard.getEffectMessage();
         }
         SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage =
                 new SystemLobbyMessageServerInternalMessage(message, game.getLobby());

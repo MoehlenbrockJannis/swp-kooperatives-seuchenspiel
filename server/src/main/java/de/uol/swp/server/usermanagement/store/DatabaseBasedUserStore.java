@@ -11,9 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class DatabaseBasedUserStore extends AbstractStore implements UserStore, DatabaseStore {
@@ -129,5 +127,10 @@ public class DatabaseBasedUserStore extends AbstractStore implements UserStore, 
             throw new IllegalArgumentException(e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    protected Set<Integer> getIds() {
+        return Collections.emptySet();
     }
 }

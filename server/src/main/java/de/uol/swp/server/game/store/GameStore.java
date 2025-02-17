@@ -4,7 +4,6 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.server.store.ContentStore;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * A store for managing games.
@@ -40,12 +39,4 @@ public interface GameStore extends ContentStore {
      * @param game The game to be removed
      */
     void removeGame(Game game);
-
-    /**
-     * Returns a list of all game ids.
-     *
-     * @return A list of all game ids
-     */
-    Set<Integer> getGameIds();
-
 }

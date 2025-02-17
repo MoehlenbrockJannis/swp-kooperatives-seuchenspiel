@@ -13,7 +13,7 @@ public interface LobbyStore extends ContentStore {
      *
      * @param lobby the lobby to add
      */
-    void addLobby(Lobby lobby);
+    Lobby addLobby(Lobby lobby);
 
     /**
      * Removes a lobby from the store.
@@ -28,7 +28,7 @@ public interface LobbyStore extends ContentStore {
      * @param lobbyID the ID of the lobby
      * @return the lobby
      */
-    Optional<Lobby> getLobby(String lobbyID);
+    Optional<Lobby> getLobby(int lobbyID);
 
     /**
      * Returns all lobbies.

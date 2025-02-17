@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test Class for the UserDTO
@@ -40,12 +40,14 @@ class LobbyDTOTest {
     @BeforeEach
     void setup() {
         this.lobby = new LobbyDTO("test", defaultUser);
+        this.lobby.setId(1234);
     }
 
     @Test
     @DisplayName("Lobbys should be equal if names are equal")
     void equalsTest_equal() {
         final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next());
+        equalLobby.setId(1234);
         assertThat(lobby).isEqualTo(equalLobby);
     }
 
@@ -66,7 +68,7 @@ class LobbyDTOTest {
     @Test
     @DisplayName("Hashcode should consist of a hashcode of the lobby's name")
     void hashCodeTest() {
-        final int hashcode = Objects.hashCode("test");
+        final int hashcode = Objects.hashCode(1234);
         assertThat(lobby.hashCode()).isEqualTo(hashcode);
     }
 

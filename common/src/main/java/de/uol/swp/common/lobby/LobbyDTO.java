@@ -9,7 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +30,9 @@ import java.util.stream.Collectors;
 
 @ToString
 public class LobbyDTO implements Lobby {
+    @Getter
+    @Setter
+    private int id;
     @Getter
     private final String name;
     @Getter
@@ -51,6 +57,7 @@ public class LobbyDTO implements Lobby {
     }
 
     public LobbyDTO(Lobby lobby) {
+        this.id = lobby.getId();
         this.name = lobby.getName();
         this.owner = lobby.getOwner();
         this.status = lobby.getStatus();
@@ -70,14 +77,14 @@ public class LobbyDTO implements Lobby {
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Lobby lobby) {
-            return name.equals(lobby.getName());
+            return id == lobby.getId();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hashCode(id);
     }
 
     @Override

@@ -72,4 +72,8 @@ public class MainMemoryBasedUserStore extends AbstractStore implements UserStore
         return retUsers;
     }
 
+    @Override
+    protected Set<Integer> getIds() {
+        return Collections.emptySet();
+    }
 }
