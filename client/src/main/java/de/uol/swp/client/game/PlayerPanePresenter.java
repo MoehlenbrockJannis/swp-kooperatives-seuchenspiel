@@ -242,6 +242,13 @@ public class PlayerPanePresenter extends AbstractPresenter {
         return messageToSend;
     }
 
+    /**
+     * Prepares a given {@link ToughPopulationEventCard} for use.
+     *
+     * @param toughPopulationEventCard {@link ToughPopulationEventCard} to prepare an action listener for
+     * @param approve {@link Runnable} executing the given {@link ToughPopulationEventCard}
+     * @return {@link Runnable} as action listener to play given {@link ToughPopulationEventCard}
+     */
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
         return () -> {
             String buttonText = "Karte auswählen";
