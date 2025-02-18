@@ -89,7 +89,7 @@ public class GamePresenter extends AbstractPresenter {
     private GridPane playerContainer;
 
     @FXML
-    private GridPane ownPlayerContainer;
+    private StackPane ownPlayerContainer;
     @Inject
     private LobbyService lobbyService;
     @Inject
@@ -322,6 +322,9 @@ public class GamePresenter extends AbstractPresenter {
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
         setRemainingComponentsComponent();
+
+        Player currentPlayer = game.getCurrentPlayer();
+        playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
     }
 
     /**
@@ -691,26 +694,25 @@ public class GamePresenter extends AbstractPresenter {
         playerPanePresenter.setGameSupplier(gameSupplier);
         this.playerPanePresenterList.add(playerPanePresenter);
 
+        GridPane playerGridPane = playerPanePresenter.getPlayerGridPane();
 
-        final Parent root = playerPanePresenter.getScene().getRoot();
-
-        addPlayerToContainer(player, root, index, isLoggedInPlayer);
+        addPlayerToContainer(playerGridPane, index, isLoggedInPlayer);
     }
 
     /**
      * Adds a player's root pane to the appropriate container.
      *
-     * @param player the player whose pane is being added
-     * @param root the root pane of the player pane presenter
+     * @param playerGridPane the playerGridPane of the player pane presenter
      * @param index the index at which to place the player in the container
      * @since 2025-01-16
      * @author Marvin Tischer
      */
-    private void addPlayerToContainer(Player player, Parent root, int index, boolean isLoggedInPlayer) {
+    private void addPlayerToContainer(GridPane playerGridPane, int index, boolean isLoggedInPlayer) {
         if (isLoggedInPlayer) {
-            ownPlayerContainer.addRow(0, root);
+            ownPlayerContainer.getChildren().add(playerGridPane);
         } else {
-            playerContainer.add(root, 0, index);
+            StackPane otherPlayerStackPane = new StackPane(playerGridPane);
+            playerContainer.add(otherPlayerStackPane, 0, index);
         }
     }
 
@@ -725,7 +727,9 @@ public class GamePresenter extends AbstractPresenter {
     private PlayerPanePresenter createAndInitializePlayerPanePresenter(Player player) {
         PlayerPanePresenter playerPanePresenter = AbstractPresenter.loadFXMLPresenter(PlayerPanePresenter.class);
         playerPanePresenter.setPlayerInfo(player);
+        playerPanePresenter.createHandCardStackPane(isLobbyPlayer(player), game.getMaxHandCards());
         playerPanePresenter.setGameMapPresenter(this.gameMapController);
+        playerPanePresenter.updateHandCardGridPane(game.getCurrentPlayer());
 
         PlayerMarker playerMarker = gameMapController.createNewPlayerMarker(player);
         playerPanePresenter.setPlayerMarker(playerMarker);
