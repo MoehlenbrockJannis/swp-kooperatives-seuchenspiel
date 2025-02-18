@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<GridPane fx:id="playerPane" xmlns="http://javafx.com/javafx"
+<GridPane fx:id="playerGridPane" xmlns="http://javafx.com/javafx"
           xmlns:fx="http://javafx.com/fxml"
           fx:controller="de.uol.swp.client.game.PlayerPanePresenter">
-    <children>
-        <VBox fx:id="playerInfoBox" style="-fx-background-color: gray; -fx-padding: 5;" spacing="5" GridPane.columnIndex="0">
-            <Pane fx:id="symbolPane"
-                  style="-fx-background-color: transparent; -fx-shape: null;"/>
-            <Text fx:id="playerNameText" text="Spieler"
-                  style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
-            <Label fx:id="playerRoleLabel" text="Rolle" style="-fx-font-size: 10px;"/>
-        </VBox>
+    <HBox fx:id="playerInfoBox" style="-fx-padding: 0;" spacing="5"
+          GridPane.rowIndex="0">
+        <Pane fx:id="symbolPane"/>
+        <GridPane fx:id="playerTextGridPane" vgap="3">
+            <Pane fx:id="playerNameStackPane" GridPane.rowIndex="0">
+                <Text fx:id="playerNameText" text="Spieler"/>
+            </Pane>
+            <Pane fx:id="playerRoleStackPane" GridPane.rowIndex="1">
+                <Text fx:id="playerRoleText" text="Rolle"/>
+            </Pane>
 
-        <VBox style="-fx-background-color: gray; -fx-padding: 5;" spacing="5" GridPane.columnIndex="1" >
-            <ListView fx:id="handCardsList" style="-fx-font-size: 10px;"/>
-        </VBox>
-    </children>
-    <columnConstraints>
-        <ColumnConstraints percentWidth="50"/>
-        <ColumnConstraints percentWidth="50"/>
-    </columnConstraints>
+            <rowConstraints>
+                <RowConstraints percentHeight="50"/>
+                <RowConstraints percentHeight="50"/>
+            </rowConstraints>
+        </GridPane>
+    </HBox>
+
+    <StackPane fx:id="handCardStackPane" style="-fx-padding: 0;" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+            <GridPane fx:id="handCardGridPane"/>
+    </StackPane>
+
+    <rowConstraints>
+        <RowConstraints percentHeight="20"/>
+        <RowConstraints percentHeight="80"/>
+    </rowConstraints>
 </GridPane>

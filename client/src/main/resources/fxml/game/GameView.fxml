@@ -59,7 +59,7 @@
     </Pane>
 
     <!-- Column 1 -->
-    <GridPane fx:id="ownPlayerContainer" style="-fx-background-color: blue; -fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2"/>
+    <StackPane fx:id="ownPlayerContainer" style="-fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2"/>
 
 
     <!-- Column 2 -->

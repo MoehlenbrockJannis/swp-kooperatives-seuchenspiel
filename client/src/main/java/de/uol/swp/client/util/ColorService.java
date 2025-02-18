@@ -77,4 +77,25 @@ public class ColorService {
 
         return new Color(newRed, newGreen, newBlue, color.getOpacity());
     }
+
+    /**
+     * Interpolates between two colors based on a progress value.
+     *
+     * @param start the starting color
+     * @param end the ending color
+     * @param progress the progress value between 0.0 and 1.0
+     * @return the interpolated color
+     *
+     * @throws IllegalArgumentException if progress is outside the range [0.0, 1.0]
+     */
+    public static Color interpolateColor(Color start, Color end, double progress) {
+        if (progress < 0.0 || progress > 1.0) {
+            throw new IllegalArgumentException("Progress must be between 0.0 and 1.0");
+        }
+        double r = start.getRed() + (end.getRed() - start.getRed()) * progress;
+        double g = start.getGreen() + (end.getGreen() - start.getGreen()) * progress;
+        double b = start.getBlue() + (end.getBlue() - start.getBlue()) * progress;
+        return new Color(r, g, b, 1.0);
+    }
+
 }
