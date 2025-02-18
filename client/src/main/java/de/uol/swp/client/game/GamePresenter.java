@@ -480,6 +480,11 @@ public class GamePresenter extends AbstractPresenter {
      * @param playManualTriggerable function to play given {@link ManualTriggerable}
      */
     private void highlightManualTriggerable(final ManualTriggerable manualTriggerable, final Runnable playManualTriggerable) {
+        final Player answeringPlayer = manualTriggerable.getAnsweringPlayer();
+        if (!answeringPlayer.containsUser(loggedInUserProvider.get())) {
+            return;
+        }
+
         if (manualTriggerable instanceof EventCard eventCard) {
             highlightEventCard(eventCard, playManualTriggerable);
         }
