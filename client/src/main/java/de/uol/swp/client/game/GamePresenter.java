@@ -18,6 +18,7 @@ import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.WaiveAction;
@@ -29,6 +30,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.message.Message;
+import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
@@ -38,12 +40,14 @@ import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
+
 import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
@@ -63,6 +67,10 @@ import java.util.function.Supplier;
  */
 public class GamePresenter extends AbstractPresenter {
     public static final String GAME_FXML_FOLDER_PATH = "game/";
+
+    public static final String ANTIDOTE_IMAGE_FOLDER_PATH = "/images/action/AntidoteMarker";
+
+    public static final String FILE_EXTENSION_PNG =  ".png";
 
     @Getter
     private Game game;
@@ -147,6 +155,11 @@ public class GamePresenter extends AbstractPresenter {
     private Button waiveActionButton;
 
     @FXML
+    private HBox buttonContainer;
+
+    private List<Button> antidoteButtons;
+
+    @FXML
     private GridPane remainingComponentsPane;
 
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
@@ -222,6 +235,7 @@ public class GamePresenter extends AbstractPresenter {
         updateResearchLaboratoryButtonState();
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
+        addAntidoteMarkerButtons();
 
         setRemainingComponentsComponent();
     }
@@ -321,6 +335,7 @@ public class GamePresenter extends AbstractPresenter {
 
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
+        updateAntidoteMarkerButtons();
         setRemainingComponentsComponent();
 
         Player currentPlayer = game.getCurrentPlayer();
@@ -972,4 +987,192 @@ public class GamePresenter extends AbstractPresenter {
             bottomRightChatToggleButton.setVisible(!isChatVisible);
         }
     }
+
+    /**
+     * Clears the button container and initializes antidote marker buttons
+     * for each plague in the game. These buttons are initially disabled
+     * and display an antidote marker image.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    private void addAntidoteMarkerButtons(){
+
+        buttonContainer.getChildren().clear();
+
+        antidoteButtons = new ArrayList<>();
+        List<Plague> plagues = game.getPlagues();
+
+        int antidoteImageViewWidth = 50;
+        int antidoteImageViewHeight = 50;
+
+        for (int plagueCounter = 0; plagueCounter < plagues.size(); plagueCounter++) {
+            Button button = new Button();
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setDisable(true);
+
+            String antidoteImagePath = ANTIDOTE_IMAGE_FOLDER_PATH + plagueCounter + FILE_EXTENSION_PNG;
+            Image antidoteImage = new Image(antidoteImagePath);
+            ImageView antidoteImageView = new ImageView(antidoteImage);
+            antidoteImageView.setFitWidth(antidoteImageViewWidth);
+            antidoteImageView.setFitHeight(antidoteImageViewHeight);
+
+            button.setGraphic(antidoteImageView);
+
+            buttonContainer.getChildren().add(button);
+            antidoteButtons.add(button);
+        }
+    }
+
+
+    /**
+     * Retrieves the current {@code DiscoverAntidoteAction} for the ongoing turn, if available.
+     *
+     * @return An {@code Optional} containing the current {@code DiscoverAntidoteAction} if present,
+     *         otherwise an empty {@code Optional}.
+     * @author Marvin Tischer
+     * @since 2025-02-07
+     */
+    private Optional<DiscoverAntidoteAction> getCurrentDiscoverAntidoteAction() {
+        return game.getCurrentTurn().findActionOfType(DiscoverAntidoteAction.class);
+    }
+
+    /**
+     * Configures the given button to enable or disable antidote-related actions based on the
+     * availability of the specified plague and whether the current player is in the game.
+     *
+     * @param button The button to configure.
+     * @param plague The plague associated with the antidote action.
+     * @param action The {@code DiscoverAntidoteAction} that determines if the plague can be targeted.
+     * @author Marvin Tischer
+     * @since 2025-02-07
+     */
+    private void configureAntidoteButton(Button button, Plague plague, DiscoverAntidoteAction action) {
+
+        boolean hasPlague =  action.getAvailablePlagues().contains(plague);
+
+        if (hasPlague && isCurrentPlayerInGame()) {
+            button.setDisable(false);
+            button.setOnAction(event -> handleAntidoteMarkerButtonAction(plague, action));
+        } else {
+            button.setDisable(true);
+        }
+    }
+    /**
+     * Updates the antidote marker buttons by configuring them based on the current
+     * {@code DiscoverAntidoteAction} and the available plagues in the game.
+     * If no {@code DiscoverAntidoteAction} is present, the method exits early.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-07
+     */
+    private void updateAntidoteMarkerButtons() {
+        Optional<DiscoverAntidoteAction> optionalDiscoverAntidoteAction = getCurrentDiscoverAntidoteAction();
+        if(optionalDiscoverAntidoteAction.isEmpty()) {
+            disableAntidoteMarkerButtons();
+            return;
+        }
+        DiscoverAntidoteAction discoverAntidoteAction = optionalDiscoverAntidoteAction.get();
+
+        List<Plague> plagues = game.getPlagues();
+        for (Plague plague : plagues) {
+            if (checkIfAntidoteIsDiscovered(plague)) {
+                disableAntidoteMarkerButtons();
+            } else {
+                Button button = antidoteButtons.get(getAntidoteMarkerButtonIndexByPlague(plague));
+                configureAntidoteButton(button, plague, discoverAntidoteAction);
+            }
+        }
+    }
+
+    /**
+     * Checks if an antidote has been discovered for the specified plague.
+     *
+     * @param plague The plague to check.
+     * @return {@code true} if an antidote has been discovered for the given plague, otherwise {@code false}.
+     * @author Marvin Tischer
+     * @since 2025-02-17
+     */
+    private boolean checkIfAntidoteIsDiscovered(Plague plague) {
+        List<AntidoteMarker> antidoteMarkers = game.getAntidoteMarkers();
+
+        for (AntidoteMarker antidoteMarker : antidoteMarkers) {
+            if (plague.equals(antidoteMarker.getPlague())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Disables all antidote marker buttons, preventing further interactions.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-13
+     */
+    private void disableAntidoteMarkerButtons(){
+        for (Button button : antidoteButtons) {
+            button.setDisable(true);
+        }
+    }
+
+    /**
+     * Returns the index of the antidote marker button corresponding to the given plague.
+     * The index is determined based on the plague's name.
+     *
+     * @param plague The plague for which the button index is needed.
+     * @return The index of the antidote marker button, or -1 if the plague name is not recognized.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    private int getAntidoteMarkerButtonIndexByPlague(Plague plague) {
+        return switch (plague.getName()) {
+            case "Blau" -> 0;
+            case "Gelb" -> 1;
+            case "Schwarz" -> 2;
+            case "Rot" -> 3;
+            default -> -1;
+        };
+    }
+
+    /**
+     * Handles the action when an antidote marker button is clicked.
+     * Opens a selection popup for choosing city cards required for antidote research.
+     * After the selection, the action is sent, and the antidote button is disabled.
+     *
+     * @param plague The plague for which the antidote is being researched.
+     * @param action The {@link DiscoverAntidoteAction} associated with the current turn.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    private void handleAntidoteMarkerButtonAction(Plague plague, DiscoverAntidoteAction action) {
+        SelectCityCardsForAntidoteResearchPresenter selectionPopupPresenter = AbstractPresenter.loadFXMLPresenter(SelectCityCardsForAntidoteResearchPresenter.class);
+        selectionPopupPresenter.initialize(action, plague);
+
+        Stage stage = createSelectionStage(selectionPopupPresenter);
+        stage.showAndWait();
+
+        selectionPopupPresenter.sendDiscoverAntidoteAction();
+    }
+
+    /**
+     * Creates and configures a new selection stage for choosing city cards
+     * during antidote research.
+     *
+     * @param presenter The presenter responsible for providing the scene for selection.
+     * @return A configured {@code Stage} instance for the selection process.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-13
+     */
+    private Stage createSelectionStage(SelectCityCardsForAntidoteResearchPresenter presenter) {
+        Stage stage = new Stage();
+        stage.setTitle("Spielerkarten auswählen");
+        stage.setScene(presenter.getScene());
+        stage.setResizable(false);
+        return stage;
+    }
+
 }

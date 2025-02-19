@@ -105,12 +105,39 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
             return false;
         }
 
-        final List<PlayerCard> handCards = player.getHandCards();
-        return getGame().getPlagues().stream()
-                .anyMatch(p -> !getGame().hasAntidoteMarkerForPlague(p) && handCards.stream()
-                        .filter(card -> card instanceof CityCard cityCard && cityCard.hasPlague(p))
-                        .count() >= requiredAmountOfDiscardedCards
-                );
+        return !getAvailablePlagues().isEmpty();
+    }
+
+    /**
+     * This method returns a list of plagues that are currently available based on the number of
+     * discardable cards required to activate a plague.
+     *
+     * @return A list of plagues that are available.
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    public List<Plague> getAvailablePlagues() {
+        List<Plague> plaguesFromGame = getGame().getPlagues();
+        return plaguesFromGame.stream()
+                .filter(plague -> getDiscardableCardsForPlague(plague).size() >= requiredAmountOfDiscardedCards)
+                .toList();
+    }
+
+    /**
+     * This method returns a list of CityCard objects that can be discarded to activate a specific plague.
+     *
+     * @param plague The plague for which the discardable cards are being retrieved.
+     * @return A list of CityCards that can be discarded for the given plague.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    public List<CityCard> getDiscardableCardsForPlague(final Plague plague) {
+        List<PlayerCard> handCardsFromExecutingPlayer = getExecutingPlayer().getHandCards();
+        return handCardsFromExecutingPlayer.stream()
+                .filter(card -> card instanceof CityCard cityCard && cityCard.hasPlague(plague))
+                .map(CityCard.class::cast)
+                .toList();
     }
 
     /**
@@ -156,4 +183,5 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
 
         getGame().addAntidoteMarker(new AntidoteMarker(plague));
     }
+
 }

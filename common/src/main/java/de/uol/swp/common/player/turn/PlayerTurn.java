@@ -228,6 +228,23 @@ public class PlayerTurn implements Serializable {
     }
 
     /**
+     * Finds and returns the first available action of the specified type from the list of possible actions.
+     *
+     * @param <T> The type of action to search for, extending the {@code Action} class.
+     * @param type The class object of the action type to find.
+     * @return An {@code Optional} containing the first matching action if found, otherwise an empty {@code Optional}.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-05
+     */
+    public <T extends Action> Optional<T> findActionOfType(final Class<T> type) {
+        return possibleActions.stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .findFirst();
+    }
+
+    /**
      * Sets up the triggerable actions (automatic and manual) for the player's turn.
      */
     public void createTriggerables() {
