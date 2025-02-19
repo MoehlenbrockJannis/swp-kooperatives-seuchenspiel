@@ -106,7 +106,7 @@
     </Pane>
     <Pane style="-fx-background-color: darkslateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
           GridPane.rowIndex="8">
-        <Text layoutX="72.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gegenmittelmarker"/>
+        <HBox fx:id="buttonContainer" spacing="10" alignment="CENTER" style="-fx-padding: 10;"/>
     </Pane>
 
     <!-- Column 6 -->

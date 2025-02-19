@@ -2,6 +2,8 @@ package de.uol.swp.server.role;
 
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
+import de.uol.swp.common.action.advanced.discover_antidote.ReducedCostDiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.transfer_card.NoLimitsSendCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
@@ -9,6 +11,7 @@ import de.uol.swp.common.action.simple.car.CarActionForAlly;
 import de.uol.swp.common.action.simple.charter_flight.CharterFlightActionForAlly;
 import de.uol.swp.common.action.simple.direct_flight.DirectFlightActionForAlly;
 import de.uol.swp.common.action.simple.shuttle_flight.ShuttleFlightActionForAlly;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleAbility;
@@ -66,7 +69,7 @@ public class RoleManagement {
             "Wissenschaftler",
             RoleColors.WISSENSCHAFTLER_COLOR_GRAY,
             new RoleAbility(
-                    Map.of(),
+                    Map.of(DiscoverAntidoteAction.class, ReducedCostDiscoverAntidoteAction.class),
                     List.of(),
                     List.of()
             )
