@@ -87,6 +87,7 @@ public class Game implements Serializable {
     private Map<Plague, List<PlagueCube>> plagueCubes;
     @Getter
     private List<ResearchLaboratory> researchLaboratories;
+    @Getter
     private List<AntidoteMarker> antidoteMarkers;
     private OutbreakMarker outbreakMarker;
     private InfectionMarker infectionMarker;
@@ -649,4 +650,5 @@ public class Game implements Serializable {
     public void increaseInfectionLevel() {
         this.infectionMarker.increaseLevel();
     }
+
 }

@@ -21,12 +21,14 @@ class RoleCardTest {
     private String name;
     private Color color;
     private RoleAbility ability;
+    private int requiredCardsForDiscoveringAntidote;
 
     @BeforeEach
     void setUp() {
         name = "elor";
         color = new Color(255, 254, 253);
         ability = mock(RoleAbility.class);
+        requiredCardsForDiscoveringAntidote = 5;
 
         roleCard = new RoleCard(name, color, ability);
     }

@@ -3,10 +3,12 @@ package de.uol.swp.server.action;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.server.AbstractService;
@@ -81,6 +83,7 @@ public class ActionService extends AbstractService {
         }
 
         checkMoveResearchLaboratory(request);
+        sendDiscoveredAntidoteChatMessage(request);
     }
 
     /**
@@ -97,6 +100,28 @@ public class ActionService extends AbstractService {
             post(systemLobbyMessageServerInternalMessage);
 
             request.getGame().setRequiresTextMessageMovingResearchLaboratory(false);
+        }
+    }
+
+    /**
+     * Sends a chat message to the system lobby when a player discovers an antidote.
+     * The message includes the player's name and the name of the plague they researched.
+     *
+     * @param actionRequest The action request containing the game context and action details.
+     * @author Marvin Tischer
+     * @since 2025-02-12
+     */
+    private void sendDiscoveredAntidoteChatMessage(ActionRequest actionRequest) {
+        if (actionRequest.getAction() instanceof DiscoverAntidoteAction antidoteAction) {
+            Player currentPlayer = actionRequest.getGame().getCurrentPlayer();
+
+            Plague plague = antidoteAction.getPlague();
+            String plagueName = plague.getName();
+
+            String text = currentPlayer + " hat das Heilmittel " + plagueName + " erforscht!";
+
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, actionRequest.getGame().getLobby());
+            post(systemLobbyMessageServerInternalMessage);
         }
     }
 }
