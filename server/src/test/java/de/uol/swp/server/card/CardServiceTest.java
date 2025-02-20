@@ -27,6 +27,7 @@ import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
@@ -230,29 +231,44 @@ public class CardServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Test: Draw Infection Card Request - Successful Draw")
     void onDrawInfectionCardRequest_successfulDraw() {
+        Game mockGame = mock(Game.class);
+        when(mockGame.getLobby()).thenReturn(game.getLobby());
+
         InfectionCard infectionCard = mock(InfectionCard.class);
-        Field associatedField = mock(Field.class);
+        Field mockField = mock(Field.class);
+        Plague mockPlague = mock(Plague.class);
+        PlagueCube mockPlagueCube = mock(PlagueCube.class);
+        GameMap mockMap = mock(GameMap.class);
 
-        final PlayerTurn playerTurn = game.getCurrentTurn();
-        final int numberOfActionsToDo = playerTurn.getNumberOfActionsToDo();
-        for (int i = 0; i < numberOfActionsToDo; i++) {
-            playerTurn.executeCommand(mock(Action.class));
-        }
-        final int numberOfPlayerCardsToDraw = playerTurn.getNumberOfPlayerCardsToDraw();
-        for (int i = 0; i < numberOfPlayerCardsToDraw; i++) {
-            playerTurn.reduceNumberOfPlayerCardsToDraw();
-        }
+        when(mockPlague.getName()).thenReturn("TestPlague");
+        when(mockGame.getPlagueCubeOfPlague(any(Plague.class))).thenReturn(mockPlagueCube);
+        when(infectionCard.getAssociatedField()).thenReturn(mockField);
+        when(mockField.getPlague()).thenReturn(mockPlague);
+        when(mockField.isInfectable(any())).thenReturn(true);
+        when(mockGame.getMap()).thenReturn(mockMap);
 
-        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(this.game));
+        PlayerTurn mockTurn = mock(PlayerTurn.class);
+        when(mockTurn.isInInfectionCardDrawPhase()).thenReturn(true);
+        when(mockTurn.getNumberOfInfectionCardsToDraw()).thenReturn(1);
+        when(mockTurn.isInfectionCardDrawExecutable()).thenReturn(true);
+        when(mockTurn.getInfectedFieldsInTurn()).thenReturn(new ArrayList<>());
+        when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
+
+        when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(cardManagement.drawInfectionCardFromTheTop(any(Game.class))).thenReturn(infectionCard);
-        when(infectionCard.getAssociatedField()).thenReturn(associatedField);
 
-        DrawInfectionCardRequest request = new DrawInfectionCardRequest(game, this.game.getLobby().getPlayerForUser(this.game.getLobby().getOwner()));
+        Player mockPlayer = game.getLobby().getPlayerForUser(game.getLobby().getOwner());
+        when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
+        when(triggerableService.checkForSendingManualTriggerables(any(Game.class), any(), any(Player.class)))
+                .thenReturn(false);
+
+        DrawInfectionCardRequest request = new DrawInfectionCardRequest(mockGame, mockPlayer);
         post(request);
 
-        verify(cardManagement, times(1)).drawInfectionCardFromTheTop(game);
-        verify(gameManagement, times(1)).updateGame(game);
-        verify(lobbyService, times(2)).sendToAllInLobby(eq(this.game.getLobby()), any());
+        verify(cardManagement).drawInfectionCardFromTheTop(any(Game.class));
+        verify(gameManagement).updateGame(any(Game.class));
+        verify(lobbyService, times(2)).sendToAllInLobby(eq(mockGame.getLobby()), any());
+        verify(mockMap).setOutbreakCallback(any());
     }
 
     @Test
@@ -432,7 +448,7 @@ public class CardServiceTest extends EventBusBasedTest {
         inOrder.verify(mockGame).increaseInfectionLevel();
         verify(mockField, never()).isInfectable(mockPlague);
         inOrder.verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
-        verify(mockMap, never()).startOutbreak(any(), any());
+        verify(mockMap, never()).startOutbreak(any(), any(), any());
     }
 
     @Test
@@ -466,11 +482,11 @@ public class CardServiceTest extends EventBusBasedTest {
 
         InOrder inOrder = inOrder(mockGame, mockMap, cardManagement);
         inOrder.verify(mockGame).increaseInfectionLevel();
-        inOrder.verify(mockMap).startOutbreak(mockField, mockPlague);
+        verify(mockMap, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).startOutbreak(eq(mockField), eq(mockPlague), any());
         inOrder.verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
 
         verify(mockGame, atLeast(1)).hasAntidoteMarkerForPlague(mockPlague);
-        verify(mockField).isInfectable(mockPlague);
+        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
     }
 
     @Test
@@ -506,7 +522,7 @@ public class CardServiceTest extends EventBusBasedTest {
         verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
         verify(mockGame).increaseInfectionLevel();
         verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
-        verify(mockMap, never()).startOutbreak(any(), any());
+        verify(mockMap, never()).startOutbreak(any(), any(), any());
         verify(mockTurn, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).getInfectedFieldsInTurn();
     }
 
@@ -537,7 +553,7 @@ public class CardServiceTest extends EventBusBasedTest {
         InOrder inOrder = inOrder(mockGame, cardManagement, discardStack, mockMap);
         inOrder.verify(mockGame).increaseInfectionLevel();
         inOrder.verify(cardManagement).drawInfectionCardFromTheBottom(mockGame);
-        inOrder.verify(mockMap).startOutbreak(eq(mockField), any(Plague.class));
+        inOrder.verify(mockMap).startOutbreak(eq(mockField), any(Plague.class), any());
         inOrder.verify(discardStack).shuffle();
 
         verify(mockGame, atLeast(1)).getInfectionDrawStack();

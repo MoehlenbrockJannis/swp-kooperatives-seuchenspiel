@@ -111,62 +111,22 @@ public class Field implements Serializable {
     }
 
     /**
-     * Infects this field with the default plague as specified by the {@link #mapSlot}
-     *
-     * <p>
-     *     To get a {@link PlagueCube} of the default {@link Plague}, a method of the {@link #map} is called.
-     * </p>
-     *
-     * @see #getPlague()
-     * @see #infectField(PlagueCube)
-     * @see GameMap#getPlagueCubeOfPlague(Plague)
+     * Infects this field with its default plague type.
+     * Creates a new list to track infected fields.
      */
     public void infectField() {
         final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
-        infectField(plagueCube);
-    }
-
-    /**
-     * Infects this field with the default plague as specified by the {@link #mapSlot} and adds the infected field to the infectedFields list.
-     *
-     * <p>
-     *     To get a {@link PlagueCube} of the default {@link Plague}, a method of the {@link #map} is called.
-     * </p>
-     *
-     * @see #getPlague()
-     * @see #infectField(PlagueCube, List)
-     * @see GameMap#getPlagueCubeOfPlague(Plague)
-     */
-    public void infectField(List<Field> infectedFields) {
-        final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
+        final List<Field> infectedFields = new ArrayList<>();
         infectField(plagueCube, infectedFields);
     }
 
-    /**
-     * Infects this field with the given plagueCube by adding it to {@link #plagueCubes} if it is infectable.
-     * Otherwise, it will call the {@link #map} to start an outbreak.
-     *
-     * @see #getPlague()
-     * @see #isInfectable(Plague)
-     * @see GameMap#startOutbreak(Field, Plague)
-     */
-    public void infectField(final PlagueCube plagueCube) {
-        final Plague plague = plagueCube.getPlague();
-        if (isInfectable(plague)) {
-            final List<PlagueCube> plagueCubeList = plagueCubes.get(plague);
-            plagueCubeList.add(plagueCube);
-        } else {
-            map.startOutbreak(this, plague);
-        }
-    }
 
     /**
-     * Infects this field with the given plagueCube by adding it to {@link #plagueCubes} if it is infectable.
-     * Otherwise, it will call the {@link #map} to start an outbreak. Also adds the infected field to the infectedFields list.
+     * Attempts to infect this field with the given plague cube.
+     * If the field cannot be infected (already has maximum cubes), triggers an outbreak instead.
      *
-     * @see #getPlague()
-     * @see #isInfectable(Plague)
-     * @see GameMap#startOutbreak(Field, Plague)
+     * @param plagueCube The plague cube to add to this field
+     * @param infectedFields List tracking all fields that get infected in this infection chain
      */
     public void infectField(final PlagueCube plagueCube, List<Field> infectedFields) {
         final Plague plague = plagueCube.getPlague();

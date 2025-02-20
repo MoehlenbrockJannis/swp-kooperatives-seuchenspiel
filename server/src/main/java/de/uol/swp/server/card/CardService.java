@@ -23,6 +23,7 @@ import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
+import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
@@ -188,7 +189,8 @@ public class CardService extends AbstractService {
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
 
-            handleInfectionProcess(game, infectionCard);
+            List<Field> infectedFields = new ArrayList<>();
+            handleInfectionProcess(game, infectionCard, infectedFields);
 
             sendGameUpdateMessage(game);
         });
@@ -202,16 +204,35 @@ public class CardService extends AbstractService {
      *
      * @param game the game in which the infection process is taking place
      * @param infectionCard the infection card to be processed
+     * @param infectedFields list to track which fields got infected
      */
-    private void handleInfectionProcess(Game game, InfectionCard infectionCard) {
-        List<Field> infectedFields = new ArrayList<>();
-
+    private void handleInfectionProcess(Game game, InfectionCard infectionCard, List<Field> infectedFields) {
         Field associatedField = infectionCard.getAssociatedField();
-        associatedField.infectField(infectedFields);
+        PlagueCube plagueCube = game.getPlagueCubeOfPlague(associatedField.getPlague());
+
+        processInfection(game, associatedField, plagueCube, infectedFields);
 
         PlayerTurn currentTurn = game.getCurrentTurn();
         List<List<Field>> infectedFieldsInTurn = currentTurn.getInfectedFieldsInTurn();
         infectedFieldsInTurn.add(infectedFields);
+    }
+
+    /**
+     * Processes the infection of a field, either directly infecting it or starting an outbreak.
+     *
+     * @param game the game in which the infection takes place
+     * @param field the field to be infected
+     * @param plagueCube the plague cube to be placed
+     * @param infectedFields list to track which fields got infected
+     */
+    private void processInfection(Game game, Field field, PlagueCube plagueCube, List<Field> infectedFields) {
+        game.getMap().setOutbreakCallback((currentGame, outbreakField) -> sendOutbreakMessage(outbreakField, currentGame));
+
+        if (field.isInfectable(field.getPlague())) {
+            field.infectField(plagueCube, infectedFields);
+        } else {
+            game.getMap().startOutbreak(field, field.getPlague(), infectedFields);
+        }
     }
 
     /**
@@ -398,23 +419,14 @@ public class CardService extends AbstractService {
         Field field = bottomCard.getAssociatedField();
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
-            processEpidemicInfections(game, bottomCard, field);
+            List<Field> infectedFields = new ArrayList<>();
+            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
+                handleInfectionProcess(game, bottomCard, infectedFields);
+            }
         }
 
         cardManagement.discardInfectionCard(game, bottomCard);
     }
-
-    private void processEpidemicInfections(Game game, InfectionCard bottomCard, Field field) {
-        for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
-            if (field.isInfectable(field.getPlague())) {
-                handleInfectionProcess(game, bottomCard);
-            } else {
-                game.getMap().startOutbreak(field, field.getPlague());
-                break;
-            }
-        }
-    }
-
 
     /**
      * Takes all cards from the infection discard pile, shuffles them,
@@ -430,5 +442,17 @@ public class CardService extends AbstractService {
             game.getInfectionDrawStack().push(card);
         }
         discardStack.clear();
+    }
+
+    /**
+     * Sends a message informing players about an outbreak in the given city.
+     *
+     * @param field Field where the outbreak occurred
+     * @param game Game in which the outbreak occurred
+     */
+    private void sendOutbreakMessage(final Field field, final Game game) {
+        String message = String.format("Ausbruch in %s!!!", field.getCity().getName());
+        SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
+        post(systemLobbyMessageServerInternalMessage);
     }
 }
