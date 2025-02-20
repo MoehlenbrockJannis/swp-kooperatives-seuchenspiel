@@ -118,8 +118,8 @@ public class GameMap implements Serializable {
      * @param infectedFields List to track all fields that get infected during this outbreak chain
      */
     public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
-        List<Field> outbrokenFields = new ArrayList<>();
-        startOutbreakRecursive(field, plague, infectedFields, outbrokenFields);
+        List<Field> fieldsWithOutbreak = new ArrayList<>();
+        startOutbreakRecursive(field, plague, infectedFields, fieldsWithOutbreak);
     }
 
     /**

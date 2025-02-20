@@ -226,7 +226,7 @@ public class CardService extends AbstractService {
      * @param infectedFields list to track which fields got infected
      */
     private void processInfection(Game game, Field field, PlagueCube plagueCube, List<Field> infectedFields) {
-        game.getMap().setOutbreakCallback((g, f) -> sendOutbreakMessage(f, g));
+        game.getMap().setOutbreakCallback((currentGame, outbreakField) -> sendOutbreakMessage(outbreakField, currentGame));
 
         if (field.isInfectable(field.getPlague())) {
             field.infectField(plagueCube, infectedFields);
@@ -420,7 +420,7 @@ public class CardService extends AbstractService {
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
             List<Field> infectedFields = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
                 handleInfectionProcess(game, bottomCard, infectedFields);
             }
         }
