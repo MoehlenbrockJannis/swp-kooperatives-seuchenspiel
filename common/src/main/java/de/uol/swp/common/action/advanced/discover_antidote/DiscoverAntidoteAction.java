@@ -55,6 +55,11 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
         this.discardedCards = new ArrayList<>();
     }
 
+    @Override
+    public String toString() {
+        return "Gegenmittel entdecken";
+    }
+
     /**
      * Adds a {@link CityCard} to the list of discarded cards if the required amount has not been reached.
      *

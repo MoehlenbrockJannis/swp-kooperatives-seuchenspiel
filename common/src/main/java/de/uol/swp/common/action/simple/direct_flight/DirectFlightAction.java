@@ -17,6 +17,11 @@ import java.util.List;
  */
 public class DirectFlightAction extends MoveAction implements DiscardCardsAction {
 
+    @Override
+    public String toString() {
+        return "Direktflug";
+    }
+
     /**
      * <p>
      *     Returns a {@link List} of city cards with one element,

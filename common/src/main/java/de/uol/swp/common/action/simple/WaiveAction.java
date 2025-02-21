@@ -9,6 +9,11 @@ package de.uol.swp.common.action.simple;
  */
 public class WaiveAction extends SimpleAction {
 
+    @Override
+    public String toString() {
+        return "Verzicht";
+    }
+
     /**
      * <p>
      * Always {@code true}

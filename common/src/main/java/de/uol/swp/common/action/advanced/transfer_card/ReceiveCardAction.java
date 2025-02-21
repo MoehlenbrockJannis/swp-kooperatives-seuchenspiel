@@ -19,6 +19,11 @@ import java.util.stream.Collectors;
 public class ReceiveCardAction extends ShareKnowledgeAction {
 
     @Override
+    public String toString() {
+        return super.toString() + " (Karte erhalten)";
+    }
+
+    @Override
     protected Player getSender() {
         return getTargetPlayer();
     }

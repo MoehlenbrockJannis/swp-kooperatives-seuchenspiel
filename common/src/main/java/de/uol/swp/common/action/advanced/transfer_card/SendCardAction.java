@@ -19,6 +19,11 @@ import java.util.stream.Collectors;
 public class SendCardAction extends ShareKnowledgeAction {
 
     @Override
+    public String toString() {
+        return super.toString() + " (Karte verschicken)";
+    }
+
+    @Override
     protected Player getSender() {
         return getExecutingPlayer();
     }
