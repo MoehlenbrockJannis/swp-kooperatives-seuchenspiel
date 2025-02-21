@@ -25,6 +25,11 @@ public class CurePlagueAction extends AdvancedAction {
      */
     private Plague plague;
 
+    @Override
+    public String toString() {
+        return "Seuche behandeln";
+    }
+
     /**
      * Removes one plague cube from the field if any plague is present.
      * It checks if there is a plague on the field and, if so, cures one cube of the specified plague type.

@@ -17,6 +17,11 @@ import java.util.List;
 public class ShuttleFlightAction extends MoveAction {
 
     @Override
+    public String toString() {
+        return "Zubringerflug";
+    }
+
+    @Override
     public Player getMovedPlayer() {
         return getExecutingPlayer();
     }

@@ -18,6 +18,11 @@ import java.util.List;
  */
 public class CharterFlightAction extends MoveAction implements DiscardCardsAction {
 
+    @Override
+    public String toString() {
+        return "Charterflug";
+    }
+
     /**
      * <p>
      *     Returns a {@link List} of city cards with one element,

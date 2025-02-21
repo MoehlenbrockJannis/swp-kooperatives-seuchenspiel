@@ -42,6 +42,11 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
     @Setter(AccessLevel.NONE)
     private boolean isApproved;
 
+    @Override
+    public String toString() {
+        return "Wissen teilen";
+    }
+
     /**
      * <p>
      *     Returns {@code true} if there is at least one {@link Player} that a {@link CityCard} can be transferred with.

@@ -36,6 +36,11 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
     private Field researchLaboratoryOriginField;
 
     @Override
+    public String toString() {
+        return "Forschungslabor errichten";
+    }
+
+    @Override
     public void initWithGame(final Game game) {
         super.initWithGame(game);
         if (this.researchLaboratoryOriginField != null) {

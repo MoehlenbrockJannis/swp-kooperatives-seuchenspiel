@@ -16,6 +16,11 @@ import java.util.List;
 public class CarAction extends MoveAction {
 
     @Override
+    public String toString() {
+        return "Auto (oder Fähre)";
+    }
+
+    @Override
     public Player getMovedPlayer() {
         return getExecutingPlayer();
     }

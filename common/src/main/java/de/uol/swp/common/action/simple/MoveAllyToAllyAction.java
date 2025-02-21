@@ -17,6 +17,11 @@ public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
     @Setter(AccessLevel.NONE)
     private boolean isApproved;
 
+    @Override
+    public String toString() {
+        return "Spieler zu Spieler bewegen";
+    }
+
     /**
      * <p>
      *     Sets the given {@link Player} as {@link #targetAlly}.
