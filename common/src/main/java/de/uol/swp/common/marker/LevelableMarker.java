@@ -1,5 +1,7 @@
 package de.uol.swp.common.marker;
 
+import lombok.Getter;
+
 import java.util.List;
 
 /**
@@ -14,6 +16,7 @@ import java.util.List;
  * @since 2024-10-01
  */
 public abstract class LevelableMarker extends Marker{
+    @Getter
     private int level;
     private final List<Integer> levelValues;
     private int previousLevel;
@@ -44,8 +47,10 @@ public abstract class LevelableMarker extends Marker{
      * @since 2024-10-01
      */
     public void increaseLevel() {
-        this.previousLevel = getLevelValue();
-        level++;
+        if (!isAtMaximumLevel()) {
+            this.previousLevel = getLevelValue();
+            level++;
+        }
     }
 
     /**
@@ -59,6 +64,26 @@ public abstract class LevelableMarker extends Marker{
      */
     public int getLevelValue() {
         return this.levelValues.get(this.level);
+    }
+
+    /**
+     * Returns the level value associated with the given index.
+     *
+     * @return The level value of the given index.
+     * @since 2025-02-10
+     */
+    public int getLevelValue(int index) {
+        return this.levelValues.get(index);
+    }
+
+    /**
+     * Returns the number of levels of the marker.
+     *
+     * @return number of levels
+     * @since 2025-02-10
+     */
+    public int getNumberOfLevels() {
+        return this.levelValues.size();
     }
 
     /**
