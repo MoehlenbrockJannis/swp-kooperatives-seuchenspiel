@@ -95,7 +95,8 @@ public class ColorService {
         double r = start.getRed() + (end.getRed() - start.getRed()) * progress;
         double g = start.getGreen() + (end.getGreen() - start.getGreen()) * progress;
         double b = start.getBlue() + (end.getBlue() - start.getBlue()) * progress;
-        return new Color(r, g, b, 1.0);
+        double opacity = start.getOpacity() + (end.getOpacity() - start.getOpacity()) * progress;
+        return new Color(r, g, b, opacity);
     }
 
 }

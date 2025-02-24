@@ -54,9 +54,9 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </GridPane.margin>
     </Pane>
-    <Pane style="-fx-background-color: red; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.rowSpan="3">
-        <Text layoutX="10.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ausbrüche"/>
-    </Pane>
+    <StackPane fx:id="outbreakStackPane"
+               style="-fx-background-color: whitesmoke; -fx-border-width: 10; -fx-border-color: whitesmoke;"
+               GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.rowSpan="3"/>
 
     <!-- Column 1 -->
     <StackPane fx:id="ownPlayerContainer" style="-fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2"/>

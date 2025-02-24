@@ -89,6 +89,7 @@ public class Game implements Serializable {
     private List<ResearchLaboratory> researchLaboratories;
     @Getter
     private List<AntidoteMarker> antidoteMarkers;
+    @Getter
     private OutbreakMarker outbreakMarker;
     @Getter
     private InfectionMarker infectionMarker;
