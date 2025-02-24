@@ -61,17 +61,6 @@
                 </Button>
                 <HBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="100.0" prefWidth="250.0" spacing="10.0">
                     <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
-                            prefHeight="36.0" prefWidth="36.0">
-                        <graphic>
-                            <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                <Image url="@../images/setting-line-icon.png"/>
-                            </ImageView>
-                        </graphic>
-                        <cursor>
-                            <Cursor fx:constant="HAND"/>
-                        </cursor>
-                    </Button>
-                    <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
                             prefHeight="36.0" prefWidth="36.0" onAction="#onGameInstructionsButtonPressed">
                         <graphic>
                             <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -94,7 +83,7 @@
                         </cursor>
                     </Button>
                     <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
-                            prefHeight="36.0" prefWidth="36.0">
+                            prefHeight="36.0" prefWidth="36.0" onAction="#onApplicationCloseButton">
                         <graphic>
                             <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../images/close-line-icon.png"/>
