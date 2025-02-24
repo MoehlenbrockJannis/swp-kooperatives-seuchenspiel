@@ -4,10 +4,11 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.card.PlayerCardHBox;
 import de.uol.swp.client.player.PlayerMarker;
+import de.uol.swp.client.util.ColorService;
+import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
 import de.uol.swp.common.card.InfectionCard;
-import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.game.Game;
@@ -20,12 +21,13 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -242,7 +244,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         Text cardTitleText = new Text(playerCard.getTitle());
         Pane cardTitlePane = new Pane(cardTitleText);
 
-        bindTextFontSizeToPane(cardTitleText, cardTitlePane, false);
+        bindTextFontSizeToPane(cardTitleText, cardTitlePane);
         cardColorStackPane.prefWidthProperty().bind(playerCardHBox.heightProperty());
         cardColorCircle.radiusProperty().bind(cardColorStackPane.heightProperty().divide(3));
         playerCardHBox.getChildren().addAll(cardColorStackPane, cardTitlePane);
@@ -314,16 +316,12 @@ public class PlayerPanePresenter extends AbstractPresenter {
     /**
      * Binds the font size of a given {@link Text} to the given {@link Pane} and sets the bold font weight.
      *
-     * @param text              The {@link Text} whose font size will be bound to the given {@link Pane}.
-     * @param pane              The {@link Pane} whose size will be bound to the given {@link Text}.
-     * @param setBoldFontWeight Sets the given {@link Text}'s font weight to bold if {@code true}.
-     *                          Else the default font weight will be used.
+     * @param text The {@link Text} whose font size will be bound to the given {@link Pane}.
+     * @param pane The {@link Pane} whose size will be bound to the given {@link Text}.
+     * @see NodeBindingUtils#bindRegionSizeToTextFont(Region, Text, double)
      */
-    private void bindTextFontSizeToPane(Text text, Pane pane, boolean setBoldFontWeight) {
-        String fontWeightStyle = setBoldFontWeight ? "-fx-font-weight: bold;" : "";
-        text.styleProperty().bind(Bindings.concat(
-                fontWeightStyle + "-fx-font-size: ",
-                Bindings.min(pane.heightProperty(), pane.widthProperty()).divide(2).asString(), ";"));
+    private void bindTextFontSizeToPane(Text text, Pane pane) {
+        NodeBindingUtils.bindRegionSizeToTextFont(pane, text, 0.5);
         text.layoutYProperty().bind(pane.heightProperty().divide(1.5));
     }
 
@@ -387,9 +385,9 @@ public class PlayerPanePresenter extends AbstractPresenter {
         playerNameText.setText(player.getName());
         playerRoleText.setText(player.getRole().toString());
         this.player = player;
-
-        bindTextFontSizeToPane(playerNameText, playerNameStackPane, true);
-        bindTextFontSizeToPane(playerRoleText, playerRoleStackPane, false);
+        playerNameText.setFont(Font.font(null, FontWeight.BOLD, 10));
+        bindTextFontSizeToPane(playerNameText, playerNameStackPane);
+        bindTextFontSizeToPane(playerRoleText, playerRoleStackPane);
     }
 
     /**
@@ -453,7 +451,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Creates a new click listener if given {@link PlayerCard} is an {@link EventCard}
      * by invoking methods that determine what to do with it.
      *
-     * @param playerCard {@link PlayerCard} to create {@link Runnable} click listener for
+     * @param playerCard    {@link PlayerCard} to create {@link Runnable} click listener for
      * @param clickListener original, unmodified {@link Runnable} click listener
      * @return potentially modified {@link Runnable} click listener for given {@link PlayerCard}
      */
@@ -474,7 +472,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Prepares a given {@link AirBridgeEventCard} for use.
      *
      * @param airBridgeEventCard {@link AirBridgeEventCard} to prepare an action listener for
-     * @param approve {@link Runnable} executing the given {@link AirBridgeEventCard}
+     * @param approve            {@link Runnable} executing the given {@link AirBridgeEventCard}
      * @return {@link Runnable} as action listener to play given {@link AirBridgeEventCard}
      */
     private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard, final Runnable approve) {
@@ -539,7 +537,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Prepares a given {@link ToughPopulationEventCard} for use.
      *
      * @param toughPopulationEventCard {@link ToughPopulationEventCard} to prepare an action listener for
-     * @param approve {@link Runnable} executing the given {@link ToughPopulationEventCard}
+     * @param approve                  {@link Runnable} executing the given {@link ToughPopulationEventCard}
      * @return {@link Runnable} as action listener to play given {@link ToughPopulationEventCard}
      */
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {

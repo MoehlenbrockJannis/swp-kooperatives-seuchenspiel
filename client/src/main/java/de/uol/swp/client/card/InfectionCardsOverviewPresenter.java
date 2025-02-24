@@ -1,17 +1,33 @@
 package de.uol.swp.client.card;
 
 import com.google.inject.Inject;
+import de.uol.swp.common.card.Card;
 import de.uol.swp.common.card.response.ReleaseToDrawInfectionCardResponse;
 import de.uol.swp.common.card.server_message.DrawInfectionCardServerMessage;
+import de.uol.swp.common.card.stack.CardStack;
+import de.uol.swp.common.game.Game;
+import de.uol.swp.common.marker.InfectionMarker;
 import de.uol.swp.common.player.Player;
+import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Presenter class for handling the overview of infection cards.
  * Extends the CardsOverviewPresenter to provide specific functionality for infection cards.
  */
 public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
+    public static final Color ICON_COLOR = Color.DARKOLIVEGREEN;
+    public static final int INFECTION_MARKER_FONT_SIZE = 20;
+
+    private Label infectionMarkerLabel;
 
     /**
      * Constructor for InfectionCardsOverviewPresenter.
@@ -22,6 +38,20 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Inject
     public InfectionCardsOverviewPresenter(CardService service, EventBus eventBus) {
         super(service, eventBus);
+    }
+
+    @Override
+    public void initialize(
+            Supplier<Game> gameSupplier,
+            Function<Game, CardStack<? extends Card>> drawStackFunction,
+            Function<Game, CardStack<? extends Card>> discardStackFunction,
+            Pane parent
+    ) {
+        super.initialize(gameSupplier,drawStackFunction,discardStackFunction,parent);
+        createCardStackIcon(ICON_COLOR, cardIcon);
+        drawStackTooltip.setText("Infektions-Zugstapel");
+        discardStackTooltip.setText("Infektions-Ablagestapel");
+        setupInfectionMarkerLabel();
     }
 
     /**
@@ -45,6 +75,47 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Override
     protected boolean isGameInCorrectDrawPhase() {
         return gameSupplier.get().getCurrentTurn().isInfectionCardDrawExecutable();
+    }
+
+    /**
+    * Sets up the infection marker label.
+    * Initializes the label and adds it to the card icon.
+    * Updates the label with the current infection level.
+    */
+    private void setupInfectionMarkerLabel() {
+    this.infectionMarkerLabel = new Label();
+    Font labelFont = new Font(INFECTION_MARKER_FONT_SIZE);
+    this.infectionMarkerLabel.setFont(labelFont);
+    this.cardIcon.getChildren().add(infectionMarkerLabel);
+    updateInfectionMarkerLabel();
+    }
+
+    /**
+     * Updates the infection marker label with the current infection level.
+     */
+    public void updateInfectionMarkerLabel() {
+        Game game = gameSupplier.get();
+        InfectionMarker infectionMarker = game.getInfectionMarker();
+        int infectionLevel = infectionMarker.getLevelValue();
+        Platform.runLater(() -> {
+            this.infectionMarkerLabel.setText(Integer.toString(infectionLevel));
+            setColorForInfectionMarkerLabel();
+        });
+    }
+
+    /**
+     * Sets the color of the infection marker label based on the current infection level.
+     */
+    private void setColorForInfectionMarkerLabel() {
+        Game game = gameSupplier.get();
+        InfectionMarker infectionMarker = game.getInfectionMarker();
+        int infectionLevel = infectionMarker.getLevelValue();
+
+        switch (infectionLevel) {
+            case 3 -> this.infectionMarkerLabel.setTextFill(Color.ORANGE);
+            case 4 -> this.infectionMarkerLabel.setTextFill(Color.RED);
+            default -> this.infectionMarkerLabel.setTextFill(Color.WHITE);
+        }
     }
 
     /**
@@ -72,7 +143,7 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawInfectionCardResponse(ReleaseToDrawInfectionCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackHBox.setDisable(false);
+            this.drawStackNumberOfCardsLabel.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfInfectionCardsToDraw();
         }
     }

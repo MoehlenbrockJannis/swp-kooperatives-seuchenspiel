@@ -9,6 +9,7 @@ import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.marker.OutbreakMarkerPresenter;
 import de.uol.swp.client.plague.PlagueCubeIcon;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
@@ -29,8 +30,8 @@ import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
-import de.uol.swp.common.message.Message;
 import de.uol.swp.common.marker.AntidoteMarker;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
@@ -40,7 +41,6 @@ import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
-
 import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -98,6 +98,10 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private StackPane ownPlayerContainer;
+
+    @FXML
+    private StackPane outbreakStackPane;
+
     @Inject
     private LobbyService lobbyService;
     @Inject
@@ -161,6 +165,8 @@ public class GamePresenter extends AbstractPresenter {
 
     @FXML
     private GridPane remainingComponentsPane;
+
+    private OutbreakMarkerPresenter outbreakMarkerPresenter;
 
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
@@ -236,7 +242,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
         addAntidoteMarkerButtons();
-
+        initializeOutbreakMarkerPane();
         setRemainingComponentsComponent();
     }
 
@@ -340,6 +346,7 @@ public class GamePresenter extends AbstractPresenter {
 
         Player currentPlayer = game.getCurrentPlayer();
         playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
+        outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
     }
 
     /**
@@ -629,6 +636,7 @@ public class GamePresenter extends AbstractPresenter {
             executable.run();
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
+            infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
             updatePlayerInfo();
             updateShareKnowledgeActionButton();
         }
@@ -1175,4 +1183,15 @@ public class GamePresenter extends AbstractPresenter {
         return stage;
     }
 
+    /**
+     * Initializes the {@link #outbreakStackPane} using {@link OutbreakMarkerPresenter}
+     */
+    private void initializeOutbreakMarkerPane() {
+        List<javafx.scene.paint.Color> colorList = List.of(
+                javafx.scene.paint.Color.GREEN,
+                javafx.scene.paint.Color.YELLOW,
+                javafx.scene.paint.Color.RED
+        );
+        this.outbreakMarkerPresenter = new OutbreakMarkerPresenter(outbreakStackPane, game.getOutbreakMarker(), colorList);
+    }
 }

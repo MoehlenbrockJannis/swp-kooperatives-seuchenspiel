@@ -20,6 +20,7 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
@@ -158,9 +159,7 @@ public class CardService extends AbstractService {
         if (playerCard instanceof EventCard eventCard) {
             message += " " + eventCard.getEffectMessage();
         }
-        SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage =
-                new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
-        post(systemLobbyMessageServerInternalMessage);
+        sendSystemLobbyMessage(message, game.getLobby());
     }
 
     /**
@@ -406,6 +405,11 @@ public class CardService extends AbstractService {
         processBottomInfectionCardEpidemicBehavior(game);
         reshuffleInfectionDiscardPileOntoDrawPile(game);
         post(new EpidemicCardDrawnServerMessage(game, epidemicCard));
+
+        if(game.getInfectionMarker().hasInfectionrateChanged()) {
+            String message = String.format("Die Infektionsrate wurde auf %d erhöht.", game.getInfectionMarker().getLevelValue());
+            sendSystemLobbyMessage(message, game.getLobby());
+        }
     }
 
     /**
@@ -452,7 +456,17 @@ public class CardService extends AbstractService {
      */
     private void sendOutbreakMessage(final Field field, final Game game) {
         String message = String.format("Ausbruch in %s!!!", field.getCity().getName());
-        SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
+        sendSystemLobbyMessage(message, game.getLobby());
+    }
+
+    /**
+     * Sends a system message to all players in the specified lobby.
+     *
+     * @param message the message to be sent to the lobby
+     * @param lobby the lobby to which the message will be sent
+     */
+    private void sendSystemLobbyMessage(final String message, final Lobby lobby) {
+        SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, lobby);
         post(systemLobbyMessageServerInternalMessage);
     }
 }
