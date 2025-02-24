@@ -9,6 +9,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.SocketException;
+
 /**
  * This handler is called from netty when communications occur e.g. a new connection
  * is established or data is received
@@ -50,11 +52,12 @@ class NettyServerHandler extends SimpleChannelInboundHandler<RequestMessage> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ctx.channel().isActive() || ctx.channel().isOpen()) {
-            LOG.error("Exception caught ",cause);
+        if (cause instanceof SocketException && "Connection reset".equals(cause.getMessage())) {
+            LOG.info("Client hat die Verbindung getrennt: {}", ctx.channel().remoteAddress());
         } else {
-            delegate.clientDisconnected(new NettyMessageContext(ctx));
+            LOG.error("Unerwarteter Fehler: ", cause);
         }
+        ctx.close();
     }
 
 }

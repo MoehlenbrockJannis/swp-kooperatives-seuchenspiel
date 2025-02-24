@@ -12,7 +12,6 @@ import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.user.UserContainerEntity;
 import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
 import de.uol.swp.common.user.server_message.LoginServerMessage;
-import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
@@ -27,9 +26,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the main menu
@@ -226,18 +222,21 @@ public class MainMenuPresenter extends AbstractPresenter {
         gameInstructionsGridPane.setVisible(true);
     }
 
+    /**
+     * Handles the application close button event
+     *
+     * @param event The ActionEvent created by pressing the close button
+     */
     @FXML
     private void onApplicationCloseButton(ActionEvent event) {
         closeApplication();
     }
 
+    /**
+     * Performs a clean shutdown of the application by logging out and closing
+     */
     private void closeApplication() {
         userService.logout(loggedInUserProvider.get());
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
         Platform.runLater(() -> {
             javafx.application.Platform.exit();
             System.exit(0);
