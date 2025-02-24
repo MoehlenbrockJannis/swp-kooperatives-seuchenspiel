@@ -653,4 +653,13 @@ public class Game implements Serializable {
         this.infectionMarker.increaseLevel();
     }
 
+    /**
+     * Returns if a research laboratory move is required.
+     *
+     * @return true if a research laboratory move is required, false otherwise
+     */
+    public boolean requiresResearchLaboratoryMove() {
+        return researchLaboratories.size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES;
+    }
+
 }
