@@ -64,15 +64,6 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
     }
 
     /**
-     * Determines if the action requires moving an existing research laboratory to a new location.
-     *
-     * @return {@code true} if moving the research laboratory is required, otherwise {@code false}
-     */
-    public boolean requiresMovingOfResearchLaboratory() {
-        return getGame().getResearchLaboratories().size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES;
-    }
-
-    /**
      * Returns {@code true} if the current {@link Field} does not have a {@link ResearchLaboratory} and
      * the executing {@link Player} has the card of the current {@link Field} on hand.
      *
@@ -105,7 +96,7 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
     @Override
     public boolean isExecutable() {
         boolean isAvailable = isAvailable();
-        boolean requiresMove = requiresMovingOfResearchLaboratory();
+        boolean requiresMove = getGame().requiresResearchLaboratoryMove();
         boolean originFieldSet = researchLaboratoryOriginField != null;
 
         return isAvailable && (!requiresMove || originFieldSet);
@@ -125,7 +116,7 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
         }
 
         ResearchLaboratory researchLaboratory;
-        if (requiresMovingOfResearchLaboratory()) {
+        if (getGame().requiresResearchLaboratoryMove()) {
             researchLaboratory = researchLaboratoryOriginField.removeResearchLaboratory();
             this.getGame().getResearchLaboratories().remove(researchLaboratory);
         } else {

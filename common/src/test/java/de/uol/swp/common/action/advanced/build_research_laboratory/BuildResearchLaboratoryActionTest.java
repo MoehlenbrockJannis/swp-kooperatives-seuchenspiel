@@ -89,22 +89,6 @@ class BuildResearchLaboratoryActionTest {
                 .isInstanceOf(IllegalStateException.class);
     }
 
-    @Test
-    @DisplayName("Should return false if there are research laboratories on game")
-    void requiresMovingOfResearchLaboratory_false() {
-        when(game.hasResearchLaboratory()).thenReturn(true);
-        action.setGame(game);
-
-        assertThat(action.requiresMovingOfResearchLaboratory()).isFalse();
-    }
-
-    @Test
-    @DisplayName("Should return true if there research laboratories on game")
-    void requiresMovingOfResearchLaboratory_true() {
-        Game game1 = mock(Game.class);
-        action.setGame(game1);
-        when(game1.hasResearchLaboratory()).thenReturn(true);
-    }
 
     @Test
     @DisplayName("Should return true if executing player has a city card of current field on hand")

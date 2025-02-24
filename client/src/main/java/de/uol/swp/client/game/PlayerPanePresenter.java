@@ -461,7 +461,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         } else if (playerCard instanceof ForecastEventCard forecastEventCard) {
 
         } else if (playerCard instanceof GovernmentSubsidiesEventCard governmentSubsidiesEventCard) {
-
+            return prepareGovernmentSubsidiesEventCard(governmentSubsidiesEventCard, clickListener);
         } else if (playerCard instanceof ToughPopulationEventCard toughPopulationEventCard) {
             return prepareToughPopulationEventCard(toughPopulationEventCard, clickListener);
         }
@@ -548,6 +548,19 @@ public class PlayerPanePresenter extends AbstractPresenter {
                 toughPopulationEventCard.setInfectionCard(card);
                 approve.run();
             });
+        };
+    }
+
+    /**
+     * Prepares a given {@link GovernmentSubsidiesEventCard} for use.
+     *
+     * @param governmentSubsidiesEventCard {@link GovernmentSubsidiesEventCard} to prepare an action listener for
+     * @param approve {@link Runnable} executing the given {@link GovernmentSubsidiesEventCard}
+     * @return {@link Runnable} as action listener to play given {@link GovernmentSubsidiesEventCard}
+     */
+    private Runnable prepareGovernmentSubsidiesEventCard(final GovernmentSubsidiesEventCard governmentSubsidiesEventCard, final Runnable approve) {
+        return () -> {
+            gameMapPresenter.setClickListenersForGovernmentSubsidiesFields(governmentSubsidiesEventCard, approve);
         };
     }
 }
