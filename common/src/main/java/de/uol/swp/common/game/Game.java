@@ -90,6 +90,7 @@ public class Game implements Serializable {
     @Getter
     private List<AntidoteMarker> antidoteMarkers;
     private OutbreakMarker outbreakMarker;
+    @Getter
     private InfectionMarker infectionMarker;
     @Getter
     private CardStack<PlayerCard> playerDrawStack;

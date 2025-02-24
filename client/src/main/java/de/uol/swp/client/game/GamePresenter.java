@@ -29,8 +29,8 @@ import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
-import de.uol.swp.common.message.Message;
 import de.uol.swp.common.marker.AntidoteMarker;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
@@ -40,7 +40,6 @@ import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
-
 import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -629,6 +628,7 @@ public class GamePresenter extends AbstractPresenter {
             executable.run();
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
+            infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
             updatePlayerInfo();
             updateShareKnowledgeActionButton();
         }

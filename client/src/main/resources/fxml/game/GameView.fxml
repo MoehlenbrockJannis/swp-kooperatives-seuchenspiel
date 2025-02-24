@@ -147,10 +147,10 @@
     <!-- Column 7 -->
 
     <!-- Column 8 -->
-    <Pane fx:id="playerCardStackPane" style="-fx-background-color: teal; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
+    <Pane fx:id="playerCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
         <!--<Text layoutX="27.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spielerkarten"/>-->
     </Pane>
-    <Pane fx:id="infectionCardStackPane" style="-fx-background-color: darkolivegreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
+    <Pane fx:id="infectionCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
           GridPane.rowIndex="8">
     </Pane>
 

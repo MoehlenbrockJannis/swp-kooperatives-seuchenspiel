@@ -9,11 +9,16 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,11 +49,13 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     protected Label discardStackNumberOfCardsLabel;
     @FXML
     @Getter
-    protected VBox stackVBox;
+    protected HBox stackHBox;
     @FXML
-    protected HBox drawStackHBox;
+    protected VBox labelVBox;
     @FXML
-    protected HBox discardStackHBox;
+    protected StackPane cardIcon;
+    protected Tooltip drawStackTooltip;
+    protected Tooltip discardStackTooltip;
     protected final CardService cardService;
     @Inject
     protected LoggedInUserProvider loggedInUserProvider;
@@ -102,7 +109,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.drawCardStackFunction = drawStackFunction;
         this.discardCardStackFunction = discardStackFunction;
         this.parent = parent;
-        this.drawStackHBox.setOnMouseClicked(mouseEvent -> drawCard());
+        this.drawStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> drawCard());
         updateLabels();
         setupDesign();
     }
@@ -139,11 +146,61 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * Sets up the design of the card overview component.
      */
     private void setupDesign() {
-        stackVBox.prefWidthProperty().bind(parent.widthProperty());
-        stackVBox.prefHeightProperty().bind(parent.heightProperty());
-        stackVBox.setStyle(parent.getStyle());
-        this.drawStackHBox.setDisable(true);
-        this.discardStackHBox.setDisable(true);
+        this.stackHBox.setStyle(parent.getStyle());
+        Platform.runLater(this::bindSizes);
+        setupDesignForLabels();
+    }
+
+    /**
+     * Sets up the labels for the card overview component.
+     */
+    private void setupDesignForLabels() {
+        this.drawStackTooltip = new Tooltip();
+        this.discardStackTooltip = new Tooltip();
+        Tooltip.install(this.drawStackNumberOfCardsLabel, this.drawStackTooltip);
+        Tooltip.install(this.discardStackNumberOfCardsLabel, this.discardStackTooltip);
+        this.drawStackNumberOfCardsLabel.setDisable(true);
+        this.discardStackNumberOfCardsLabel.setDisable(true);
+
+    }
+
+    /**
+     * Binds the sizes of the components in the card overview component.
+     *
+     * <p>
+     * This method binds the preferred width and height properties of the stackHBox,
+     * cardIcon, drawStackNumberOfCardsLabel, and discardStackNumberOfCardsLabel
+     * to the corresponding properties of their parent components.
+     * </p>
+     */
+    private void bindSizes() {
+        int stackHBoxChildrenSize = this.stackHBox.getChildren().size();
+        int labelVBoxChildrenSize = this.labelVBox.getChildren().size();
+        DoubleProperty stackHBoxWidth = this.stackHBox.prefWidthProperty();
+        DoubleProperty stackHBoxHeight = this.stackHBox.prefHeightProperty();
+
+        this.stackHBox.prefWidthProperty().bind(this.parent.widthProperty());
+        this.stackHBox.prefHeightProperty().bind(this.parent.heightProperty());
+
+        this.cardIcon.prefWidthProperty().bind(stackHBoxWidth.divide(stackHBoxChildrenSize));
+        this.cardIcon.prefHeightProperty().bind(stackHBoxHeight);
+
+        this.drawStackNumberOfCardsLabel.prefWidthProperty().bind(stackHBoxWidth.divide(stackHBoxChildrenSize));
+        this.drawStackNumberOfCardsLabel.prefHeightProperty().bind(stackHBoxHeight.divide(stackHBoxChildrenSize));
+
+        this.discardStackNumberOfCardsLabel.prefWidthProperty().bind(stackHBoxWidth.divide(labelVBoxChildrenSize));
+        this.discardStackNumberOfCardsLabel.prefHeightProperty().bind(stackHBoxHeight.divide(labelVBoxChildrenSize));
+    }
+
+    /**
+     * Creates a rectangle icon for the CardStack with the specified color and adds it to the given StackPane.
+     *
+     * @param color     the color of the rectangle
+     * @param stackPane the StackPane to which the rectangle will be added
+     */
+    protected void createCardStackIcon(Color color, StackPane stackPane) {
+        Rectangle rectangle = new CardIcon(color, stackPane);
+        stackPane.getChildren().add(rectangle);
     }
 
     /**
@@ -179,29 +236,36 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     }
 
     /**
-     * Reduces the number of cards to draw and disables the draw stack if no cards are left to draw.
-     *
+     * Reduces the number of cards to draw by one.
      * <p>
-     * This method decrements the number of cards to draw by one. If the number of cards to draw
-     * reaches zero, it disables the first child of the stack VBox.
+     * This method decrements the number of cards to draw and disables the draw stack label
+     * if no more cards need to be drawn.
      * </p>
      */
     protected void reduceNumberOfCardsToDraw() {
         this.numberOfCardsToDraw--;
         if (this.numberOfCardsToDraw == 0) {
-            this.drawStackHBox.setDisable(true);
+            this.drawStackNumberOfCardsLabel.setDisable(true);
         }
     }
+
+    /**
+     * Reduces the number of cards to discard by one.
+     * <p>
+     * This method decrements the number of cards to discard and disables the discard stack label
+     * if no more cards need to be discarded.
+     * </p>
+     */
     protected void reduceNumberOfCardsToDiscard() {
         this.numberOfCardsToDiscard--;
         if (this.numberOfCardsToDiscard == 0) {
-            this.discardStackHBox.setDisable(true);
+            this.discardStackNumberOfCardsLabel.setDisable(true);
         }
     }
 
     /**
      * Subscribes to a {@link RetrieveUpdatedGameServerMessage} on the {@link #eventBus} and
-     * disables the {@link #drawStackHBox} if no cards need to be drawn.
+     * disables the {@link #drawStackNumberOfCardsLabel} if no cards need to be drawn.
      *
      * @param retrieveUpdatedGameServerMessage the {@link RetrieveUpdatedGameServerMessage} on the {@link #eventBus}
      * @see #isGameInCorrectDrawPhase()
@@ -209,7 +273,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     @Subscribe
     public void onRetrieveUpdatedGameServerMessage(final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         if (!isGameInCorrectDrawPhase()) {
-            this.drawStackHBox.setDisable(true);
+            this.drawStackNumberOfCardsLabel.setDisable(true);
         }
     }
 }
