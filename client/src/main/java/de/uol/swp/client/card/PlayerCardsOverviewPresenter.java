@@ -11,6 +11,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -21,6 +22,7 @@ import java.util.function.Supplier;
  * Presenter class for handling the overview of player cards.
  */
 public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
+    public static final Color ICON_COLOR = Color.TEAL;
 
     /**
      * Constructor for PlayerCardsOverviewPresenter.
@@ -49,7 +51,10 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
             Pane parent
     ) {
         super.initialize(gameSupplier,drawStackFunction,discardStackFunction,parent);
-        this.discardStackHBox.setOnMouseClicked(mouseEvent -> discardCard());
+        this.discardStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> discardCard());
+        createCardStackIcon(ICON_COLOR, cardIcon);
+        drawStackTooltip.setText("Spielerkarten-Zugstapel");
+        discardStackTooltip.setText("Spielerkarten-Ablagestapel");
     }
 
     /**
@@ -104,8 +109,6 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     public void onPlayerCardDrawnResponse(DrawPlayerCardResponse drawPlayerCardResponse) {
             handleCardPopup(drawPlayerCardResponse.getGame().getId(), drawPlayerCardResponse.getPlayerCard());
             reduceNumberOfCardsToDraw();
-
-
     }
 
     /**
@@ -121,7 +124,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawPlayerCardResponse(ReleaseToDrawPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackHBox.setDisable(false);
+            this.drawStackNumberOfCardsLabel.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfPlayerCardsToDraw();
         }
     }
@@ -139,8 +142,8 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.discardStackHBox.setDisable(false);
-            this.drawStackHBox.setDisable(true);
+            this.discardStackNumberOfCardsLabel.setDisable(false);
+            this.drawStackNumberOfCardsLabel.setDisable(true);
             this.numberOfCardsToDiscard = response.getNumberOfCardsToDiscard();
         }
     }

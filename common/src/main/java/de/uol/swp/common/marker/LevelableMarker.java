@@ -7,7 +7,7 @@ import java.util.List;
  * This class is serving as a base for markers that track the progression of certain game
  * states, such as infection or outbreak levels. Each level corresponds to a predefined value
  * from the list of levelValues, which can be accessed and manipulated by the marker.
- *
+ * <p>
  * This class provides functionality for increasing the level and retrieving the current level value.
  *
  * @see Marker
@@ -15,11 +15,12 @@ import java.util.List;
  */
 public abstract class LevelableMarker extends Marker{
     private int level;
-    private List<Integer> levelValues;
+    private final List<Integer> levelValues;
+    private int previousLevel;
 
     /**
      * Constructor for the LevelableMarker.
-     *
+     * <p>
      * Initializes the LevelableMarker with a list of level values, representing the
      * different stages or levels the marker can progress through. These values are
      * used to track changes in the marker's state, allowing it to increase its level
@@ -30,23 +31,26 @@ public abstract class LevelableMarker extends Marker{
      */
     protected LevelableMarker(List<Integer> levelValues) {
         this.levelValues = levelValues;
+        this.previousLevel = getLevelValue();
     }
 
     /**
      * Increases the marker's level by one.
-     *
+     * <p>
      * This method increments the current level of the marker, progressing it to the next
-     * stage based on the predefined levelValues.
+     * stage based on the predefined levelValues. It also updates the previous level value
+     * to the current level value before incrementing.
      *
      * @since 2024-10-01
      */
     public void increaseLevel() {
+        this.previousLevel = getLevelValue();
         level++;
     }
 
     /**
      * Retrieves the value associated with the current level.
-     *
+     * <p>
      * This method returns the value corresponding to the marker's current level
      * from the levelValues list.
      *
@@ -64,5 +68,17 @@ public abstract class LevelableMarker extends Marker{
      */
     public boolean isAtMaximumLevel() {
         return this.level >= this.levelValues.size() - 1;
+    }
+
+    /**
+     * Checks if the infection rate has changed.
+     *<p>
+     * This method compares the previous level value with the current level value
+     * to determine if there has been a change in the infection rate.
+     *
+     * @return true if the infection rate has changed, false otherwise
+     */
+    public boolean hasInfectionrateChanged() {
+       return this.previousLevel != getLevelValue();
     }
 }
