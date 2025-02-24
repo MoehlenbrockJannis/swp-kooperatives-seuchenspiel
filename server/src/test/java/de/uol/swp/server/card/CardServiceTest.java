@@ -23,6 +23,7 @@ import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.marker.InfectionMarker;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.response.AbstractGameResponse;
@@ -398,6 +399,11 @@ public class CardServiceTest extends EventBusBasedTest {
         mockMap = mock(GameMap.class);
         discardStack = spy(new CardStack<>());
         drawStack = spy(new CardStack<>());
+
+        InfectionMarker mockInfectionMarker = mock(InfectionMarker.class);
+        when(mockGame.getInfectionMarker()).thenReturn(mockInfectionMarker);
+        when(mockInfectionMarker.hasInfectionrateChanged()).thenReturn(true);
+        when(mockInfectionMarker.getLevelValue()).thenReturn(2);
 
         CardStack<PlayerCard> playerDrawStack = new CardStack<>();
         playerDrawStack.push(epidemicCard);
