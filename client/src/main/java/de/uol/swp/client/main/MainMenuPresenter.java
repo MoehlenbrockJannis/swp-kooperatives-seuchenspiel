@@ -10,11 +10,11 @@ import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.user.UserContainerEntity;
-import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
 import de.uol.swp.common.user.server_message.LoginServerMessage;
 import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -26,7 +26,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Manages the main menu
@@ -77,6 +76,15 @@ public class MainMenuPresenter extends AbstractPresenter {
     protected void createScene(final Parent root) {
         super.createScene(root);
         this.scene.getStylesheets().add(SceneManager.GAME_INSTRUCTIONS_STYLE_SHEET);
+
+        Platform.runLater(() -> {
+            if (scene != null && scene.getWindow() != null) {
+                scene.getWindow().setOnCloseRequest(event -> {
+                    event.consume();
+                    closeApplication();
+                });
+            }
+        });
     }
 
     /**
@@ -212,5 +220,16 @@ public class MainMenuPresenter extends AbstractPresenter {
     @FXML
     void onGameInstructionsButtonPressed(ActionEvent event) {
         gameInstructionsGridPane.setVisible(true);
+    }
+
+    @FXML
+    private void onApplicationCloseButton(ActionEvent event) {
+        closeApplication();
+    }
+
+    private void closeApplication() {
+        userService.logout(loggedInUserProvider.get());
+        javafx.application.Platform.exit();
+        System.exit(0);
     }
 }
