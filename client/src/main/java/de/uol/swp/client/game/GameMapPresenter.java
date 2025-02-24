@@ -17,6 +17,7 @@ import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
 import de.uol.swp.common.action.simple.WaiveAction;
+import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
@@ -42,10 +43,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -99,6 +97,7 @@ public class GameMapPresenter extends AbstractPresenter {
     private CityNamePanePresenter cityNamePanePresenter;
     private final Map<Field, CityMarker> cityMarkers = new HashMap<>();
     private final Map<Player, PlayerMarkerPresenter> playerMarkerPresenters = new HashMap<>();
+    private final List<ResearchLaboratoryMarkerPresenter> researchLaboratoryMarkerPresenters = new ArrayList<>();
     private final List<PlagueCubeMarkerPresenter> plagueCubeMarkerPresenters = new ArrayList<>();
 
     private static final double PLAYER_MARKER_SCALE_FACTOR = 1.75;
@@ -193,6 +192,7 @@ public class GameMapPresenter extends AbstractPresenter {
         ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
         buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
         ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
+        researchLaboratoryMarkerPresenters.add(researchLaboratoryMarkerPresenter);
         researchLaboratoryMarkerPresenter.initializeMouseEvents();
     }
 
@@ -218,6 +218,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * Removes all existing labs from the pane.
      */
     private void removeResearchLaboratoryMarkers() {
+        researchLaboratoryMarkerPresenters.clear();
         researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
     }
 
@@ -678,5 +679,64 @@ public class GameMapPresenter extends AbstractPresenter {
                 .filter(entry -> players.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .toList();
+    }
+
+    /**
+     * Sets click listeners for the government subsidies fields.
+     * <p>
+     * This method sets up click listeners for the current player's marker and the fields
+     * associated with the given {@link GovernmentSubsidiesEventCard}. When a field is clicked,
+     * the provided {@code approve} runnable is executed.
+     * </p>
+     *
+     * @param governmentSubsidiesEventCard the event card containing the fields for government subsidies
+     * @param approve the runnable to execute when a field is clicked
+     */
+    public void setClickListenersForGovernmentSubsidiesFields(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve) {
+        highlightCityMarkers();
+        setupGovernmentSubsidiesActions(governmentSubsidiesEventCard, approve);
+    }
+
+    /**
+     * Highlights all city markers in {@link #cityMarkers}.
+     */
+    private void highlightCityMarkers() {
+        for (final Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            final CityMarker cityMarker = entry.getValue();
+            cityMarker.highlight();
+        }
+    }
+
+    /**
+     * Sets up the actions for the government subsidies event card.
+     *
+     * @param governmentSubsidiesEventCard the event card to set up the actions for
+     * @param approve the runnable to execute when an action is approved
+     */
+    private void setupGovernmentSubsidiesActions(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve) {
+        for (final Map.Entry<Field, CityMarker> entry : cityMarkers.entrySet()) {
+            final CityMarker cityMarker = entry.getValue();
+            final Field field = entry.getKey();
+            cityMarker.setOnMouseClicked(event -> executeGovernmentSubsidiesAction(governmentSubsidiesEventCard, approve, field));
+        }
+    }
+
+    /**
+     * Executes the action for the given {@link GovernmentSubsidiesEventCard} and {@link Field}.
+     *
+     * @param governmentSubsidiesEventCard the event card to execute the action for
+     * @param approve the runnable to execute when the action is approved
+     * @param field the field to execute the action for
+     */
+    private void executeGovernmentSubsidiesAction(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve, Field field) {
+        governmentSubsidiesEventCard.setField(field);
+        unhighlightCityMarkers();
+
+        final boolean researchLaboratoryToBeMoved = game.requiresResearchLaboratoryMove();
+        if (researchLaboratoryToBeMoved) {
+            researchLaboratoryMarkerPresenters.forEach(presenter -> presenter.setClickListenerForGovernmentSubsidies(governmentSubsidiesEventCard, approve));
+        } else {
+            approve.run();
+        }
     }
 }
