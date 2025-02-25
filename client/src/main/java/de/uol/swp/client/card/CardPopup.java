@@ -23,12 +23,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CardPopup extends Popup {
 
-    private static final int DURATION = 3000;
+    private static final int DURATION = 2000;
     private static final double WIDTH = 150.00;
     private static final double HEIGHT = WIDTH * 1.5;
-    public static final int ARC_Value = 20;
+    public static final double LABEL_HEIGHT = HEIGHT * 0.1;
+    public static final int ARC_VALUE = 20;
     public static final Color STROKE_COLOR = Color.BLACK;
     public static final int STROKE_WIDTH = 2;
+    public static final int FONT_SIZE = 12;
+    public static final double OPACITY = 0.75;
+    private static final double SUB_RECTANGLE_SCALE = 0.92;
+    private static final Color LABEL_BACKGROUND_COLOR = Color.BLACK;
+    private static final Color LABEL_TEXT_COLOR = Color.WHITE;
+    public static final double LABEL_Y_OFFSET_FACTOR = 0.06;
+    public static final Color BACKGROUND_COLOR_MAIN_RECTANGLE = Color.WHITE;
 
     private final Card card;
     private final Stage window;
@@ -39,7 +47,8 @@ public class CardPopup extends Popup {
      */
     public void generatePopup() {
         this.setX(getWindowCenterX()-WIDTH);
-        this.setY(getWindowCenterY()-(HEIGHT / 2));
+        this.setY(getWindowCenterY());
+        this.group.setOpacity(OPACITY);
         this.getContent().add(group);
         generateMainRectangle();
         generateSubRectangle();
@@ -48,62 +57,79 @@ public class CardPopup extends Popup {
 
     }
 
+    /**
+     * Generates the main rectangle and adds it to the group.
+     */
     private void generateMainRectangle() {
-        Color backgroundColor = Color.WHITE;
-        Rectangle rectangle = generateRectangle(WIDTH, HEIGHT, backgroundColor);
+        Rectangle rectangle = generateRectangle(WIDTH, HEIGHT, BACKGROUND_COLOR_MAIN_RECTANGLE);
 
-        rectangle.setArcHeight(ARC_Value);
-        rectangle.setArcWidth(ARC_Value);
-        rectangle.setStroke(STROKE_COLOR);
-        rectangle.setStrokeWidth(STROKE_WIDTH);
         this.group.getChildren().add(rectangle);
     }
 
+    /**
+     * Generates the sub-rectangle and its labels, and adds them to the group.
+     */
     private void generateSubRectangle() {
         Color backgroundColor = ColorService.convertColorToJavaFXColor(card.getColor());
-        double width = WIDTH * 0.92;
-        double height = HEIGHT * 0.92;
+        double width = WIDTH * SUB_RECTANGLE_SCALE;
+        double height = HEIGHT * SUB_RECTANGLE_SCALE;
         double layoutX = (WIDTH - width) / 2;
+        double layoutY = (HEIGHT - height) / 2;
+        double labelYOffset = height * LABEL_Y_OFFSET_FACTOR;
+        double topLabelLayoutY = layoutY + labelYOffset;
+        double bottomLabelLayoutY = (layoutY + height - LABEL_HEIGHT) - labelYOffset;
         Rectangle rectangle = generateRectangle(width, height, backgroundColor);
 
-        rectangle.setLayoutY((HEIGHT - height)/ 2);
-
+        rectangle.setLayoutY(layoutY);
         rectangle.setLayoutX(layoutX);
         this.group.getChildren().add(rectangle);
 
-        Label topLabel = generateLabel(width, height, 0, layoutX);
-        Label bottomLabel = generateLabel(width, height,180, layoutX);
+
+        Label topLabel = generateLabel(width,0, layoutX, topLabelLayoutY);
+        Label bottomLabel = generateLabel(width,180, layoutX, bottomLabelLayoutY);
         this.group.getChildren().add(topLabel);
         this.group.getChildren().add(bottomLabel);
     }
 
+    /**
+     * Generates a rectangle with the specified properties.
+     *
+     * @param width the width of the rectangle
+     * @param height the height of the rectangle
+     * @param color the fill color of the rectangle
+     * @return the generated rectangle
+     */
     private Rectangle generateRectangle(double width, double height, Color color) {
         Rectangle rectangle = new Rectangle(width, height, color);
-        rectangle.setArcHeight(ARC_Value);
-        rectangle.setArcWidth(ARC_Value);
+        rectangle.setArcHeight(ARC_VALUE);
+        rectangle.setArcWidth(ARC_VALUE);
         rectangle.setStroke(STROKE_COLOR);
         rectangle.setStrokeWidth(STROKE_WIDTH);
         return rectangle;
     }
 
-    private Label generateLabel(double width, double height, double rotation, double layoutX) {
+    /**
+     * Generates a label with the specified properties.
+     *
+     * @param width the width of the label
+     * @param rotation the rotation angle of the label
+     * @param layoutX the X coordinate for the label's layout
+     * @param layoutY the Y coordinate for the label's layout
+     * @return the generated label
+     */
+    private Label generateLabel(double width, double rotation, double layoutX, double layoutY) {
         Label label = new Label(card.getTitle());
-        Background background = new Background(new BackgroundFill(Color.BLACK, null, null));
-        Font font = Font.font(null, FontWeight.BOLD, 12);
+        Background background = new Background(new BackgroundFill(LABEL_BACKGROUND_COLOR, null, null));
+        Font font = Font.font(null, FontWeight.BOLD, FONT_SIZE);
 
         label.setPrefWidth(width);
-        label.setPrefHeight(HEIGHT * 0.1);
-        label.setTextFill(Color.WHITE);
+        label.setPrefHeight(LABEL_HEIGHT);
+        label.setTextFill(LABEL_TEXT_COLOR);
         label.setBackground(background);
         label.setFont(font);
         label.setLayoutX(layoutX);
+        label.setLayoutY(layoutY);
         label.setRotate(rotation);
-        if (rotation < 180) {
-            label.setLayoutY(group.getLayoutY() + height * 0.06);
-        }else {
-            label.setLayoutY((group.getLayoutY() + HEIGHT * 0.92) - height * 0.08);
-        }
-
 
         return label;
     }
@@ -135,10 +161,5 @@ public class CardPopup extends Popup {
                 ae -> this.hide()
         ));
         timeline.play();
-    }
-
-    private Color getContrastingColor(Color color) {
-        double brightness = (color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
-        return brightness > 0.5 ? Color.BLACK : Color.WHITE;
     }
 }
