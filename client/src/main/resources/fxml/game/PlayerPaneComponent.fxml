@@ -8,7 +8,7 @@
     <HBox fx:id="playerInfoBox" style="-fx-padding: 0;" spacing="5"
           GridPane.rowIndex="0">
         <Pane fx:id="symbolPane"/>
-        <GridPane fx:id="playerTextGridPane" vgap="3">
+        <GridPane fx:id="playerTextGridPane" vgap="3" HBox.hgrow="ALWAYS">
             <Pane fx:id="playerNameStackPane" GridPane.rowIndex="0">
                 <Text fx:id="playerNameText" text="Spieler"/>
             </Pane>
@@ -21,6 +21,7 @@
                 <RowConstraints percentHeight="50"/>
             </rowConstraints>
         </GridPane>
+        <StackPane fx:id="playerNumberOfActionsPane" />
     </HBox>
 
     <StackPane fx:id="handCardStackPane" style="-fx-padding: 0;" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">

@@ -1,27 +1,24 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
-import de.uol.swp.client.card.SortInfectionCardsDialogPresenter;
 import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.card.PlayerCardHBox;
+import de.uol.swp.client.card.SortInfectionCardsDialogPresenter;
 import de.uol.swp.client.player.PlayerMarker;
-import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
-import de.uol.swp.common.card.event_card.AirBridgeEventCard;
-import de.uol.swp.common.card.event_card.ForecastEventCard;
-import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
-import de.uol.swp.common.card.event_card.ToughPopulationEventCard;
+import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -38,19 +35,19 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Presenter class for managing the player pane in the game UI.
@@ -63,9 +60,17 @@ import java.util.function.BiConsumer;
  * @since 2025-01-16
  */
 public class PlayerPanePresenter extends AbstractPresenter {
+    private static final int PLAYER_NUMBER_OF_ACTIONS_CIRCLE_X_POSITION = 20;
+    private static final int PLAYER_NUMBER_OF_ACTIONS_CIRCLE_Y_POSITION = 13;
+    private static final int PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS = 1; // 10
+    private static final double PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS_SCALE_FACTOR = 0.3;
+    private static final double PLAYER_NUMBER_OF_ACTIONS_TEXT_SCALE_FACTOR = 0.4;
+    
     @Getter
     @FXML
     private GridPane playerGridPane;
+    @FXML
+    private HBox playerInfoBox;
     @FXML
     private Pane playerNameStackPane;
     @FXML
@@ -78,6 +83,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
     private Pane symbolPane;
     @FXML
     private GridPane handCardGridPane;
+    @FXML
+    private StackPane playerNumberOfActionsPane;
 
     private Timeline borderTimeline;
 
@@ -330,6 +337,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
         playerGridPane.setBackground(new Background(new BackgroundFill(
                 PLAYER_GRID_PANE_BACKGROUND_COLOR, null, null)));
         setDefaultPlayerGridPaneBorder();
+        playerNumberOfActionsPane.prefHeightProperty().bind(playerInfoBox.heightProperty());
+        playerNumberOfActionsPane.prefWidthProperty().bind(playerInfoBox.heightProperty());
     }
 
     /**
@@ -407,6 +416,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         playerNameText.setFont(Font.font(null, FontWeight.BOLD, 10));
         bindTextFontSizeToPane(playerNameText, playerNameStackPane);
         bindTextFontSizeToPane(playerRoleText, playerRoleStackPane);
+        refreshNumberOfActionsToDo();
     }
 
     /**
@@ -691,5 +701,50 @@ public class PlayerPanePresenter extends AbstractPresenter {
         return () -> {
             gameMapPresenter.setClickListenersForGovernmentSubsidiesFields(governmentSubsidiesEventCard, approve);
         };
+    }
+
+    /**
+     * Refreshes the {@link #playerNumberOfActionsPane} by clearing it and
+     * then setting the number of actions the {@link #player} has to do
+     * if it is the current one in {@link #game}.
+     *
+     * @see #playerNumberOfActionsPane
+     * @see #isCurrentPlayerInGame()
+     * @see #addNumberOfActionsToDo()
+     */
+    private void refreshNumberOfActionsToDo() {
+        Platform.runLater(() -> {
+            this.playerNumberOfActionsPane.getChildren().clear();
+
+            if (isCurrentPlayerInGame()) {
+                addNumberOfActionsToDo();
+            }
+        });
+    }
+
+    /**
+     * Returns whether {@link #player} is the current one in {@link #game}.
+     *
+     * @return {@code true} if {@link #player} is equal to {@link Game#getCurrentPlayer()} for {@link #game}, {@code false} otherwise
+     * @see Game#getCurrentPlayer()
+     */
+    private boolean isCurrentPlayerInGame() {
+        return this.player.equals(this.game.getCurrentPlayer());
+    }
+
+    /**
+     * Adds the number of actions to do as {@link Text} in a {@link Circle} in the {@link #playerNumberOfActionsPane}.
+     */
+    private void addNumberOfActionsToDo() {
+        final Circle circle = new Circle(PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS);
+        circle.setFill(Color.DARKGREY);
+        circle.radiusProperty().bind(playerNumberOfActionsPane.heightProperty().multiply(PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS_SCALE_FACTOR));
+
+        final PlayerTurn currentPlayerTurn = this.game.getCurrentTurn();
+        final int numberOfActionsToDo = currentPlayerTurn.getNumberOfActionsToDo();
+        final Text text = new Text(Integer.toString(numberOfActionsToDo));
+        NodeBindingUtils.bindRegionSizeToTextFont(playerNumberOfActionsPane, text, PLAYER_NUMBER_OF_ACTIONS_TEXT_SCALE_FACTOR);
+
+        this.playerNumberOfActionsPane.getChildren().addAll(circle, text);
     }
 }

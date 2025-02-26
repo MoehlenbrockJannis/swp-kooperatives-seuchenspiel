@@ -652,6 +652,7 @@ public class GamePresenter extends AbstractPresenter {
         for (Player player : this.game.getPlayersInTurnOrder()) {
             for (PlayerPanePresenter playerPanePresenter : playerPanePresenterList) {
                 if (playerPanePresenter.hasPlayer(player)) {
+                    playerPanePresenter.setGame(this.game);
                     playerPanePresenter.setPlayerInfo(player);
                 }
             }
@@ -749,11 +750,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     private PlayerPanePresenter createAndInitializePlayerPanePresenter(Player player) {
         PlayerPanePresenter playerPanePresenter = AbstractPresenter.loadFXMLPresenter(PlayerPanePresenter.class);
+        playerPanePresenter.setGame(this.game);
         playerPanePresenter.setPlayerInfo(player);
         playerPanePresenter.createHandCardStackPane(isLobbyPlayer(player), game.getMaxHandCards());
         playerPanePresenter.setGameMapPresenter(this.gameMapController);
         playerPanePresenter.updateHandCardGridPane(game.getCurrentPlayer());
-        playerPanePresenter.setGame(this.game);
 
         PlayerMarker playerMarker = gameMapController.createNewPlayerMarker(player);
         playerPanePresenter.setPlayerMarker(playerMarker);
