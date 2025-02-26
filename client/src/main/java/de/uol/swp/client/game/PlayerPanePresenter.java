@@ -1,17 +1,23 @@
 package de.uol.swp.client.game;
 
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.card.SortInfectionCardsDialogPresenter;
 import de.uol.swp.client.card.DiscardCardDialog;
 import de.uol.swp.client.card.PlayerCardHBox;
 import de.uol.swp.client.player.PlayerMarker;
+import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
-import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
-import de.uol.swp.common.card.event_card.*;
+import de.uol.swp.common.card.event_card.AirBridgeEventCard;
+import de.uol.swp.common.card.event_card.ForecastEventCard;
+import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
+import de.uol.swp.common.card.event_card.ToughPopulationEventCard;
+import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.card.event_card.*;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.AIPlayer;
@@ -21,24 +27,30 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.function.BiConsumer;
 
 /**
  * Presenter class for managing the player pane in the game UI.
@@ -72,6 +84,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
     private int maxHandCards;
 
     private Player player;
+    @Setter
+    private Game game;
     private boolean isPresenterOfLobbyPlayer;
 
     private List<PlayerCard> currentlyDisplayedHandCards;
@@ -82,6 +96,11 @@ public class PlayerPanePresenter extends AbstractPresenter {
     private GameMapPresenter gameMapPresenter;
 
     private Map<PlayerCard, Runnable> handCardToClickListenerAssociation;
+
+    private static final double DIALOG_WIDTH = 400;
+    private static final double DIALOG_HEIGHT = 300;
+
+    private static final int NUMBER_OF_TOP_CARDS = 6;
 
     private static final Color PLAYER_GRID_PANE_BACKGROUND_COLOR = Color.GRAY;
 
@@ -459,7 +478,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         if (playerCard instanceof AirBridgeEventCard airBridgeEventCard) {
             return prepareAirBridgeEventCard(airBridgeEventCard, clickListener);
         } else if (playerCard instanceof ForecastEventCard forecastEventCard) {
-
+            return prepareForecastEventCard(forecastEventCard, clickListener);
         } else if (playerCard instanceof GovernmentSubsidiesEventCard governmentSubsidiesEventCard) {
             return prepareGovernmentSubsidiesEventCard(governmentSubsidiesEventCard, clickListener);
         } else if (playerCard instanceof ToughPopulationEventCard toughPopulationEventCard) {
@@ -549,6 +568,116 @@ public class PlayerPanePresenter extends AbstractPresenter {
                 approve.run();
             });
         };
+    }
+
+    /**
+     * Prepares a runnable event for handling the reordering of infection cards in a forecast event.
+     *
+     * @param forecastEventCard The {@link ForecastEventCard} to update with the reordered infection cards.
+     * @param approve A {@link Runnable} that will be executed after the forecast event card is updated.
+     * @return A {@link Runnable} that performs the above actions when executed.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-17
+     */
+    private Runnable prepareForecastEventCard(final ForecastEventCard forecastEventCard, final Runnable approve) {
+        return () -> {
+            List<InfectionCard> reorderedItems = openSortInfectionCardsDialog();
+            if (reorderedItems != null) {
+                forecastEventCard.setReorderedInfectionCards(reorderedItems);
+                approve.run();
+            }
+        };
+    }
+
+    /**
+     * Opens a dialog for sorting infection cards and returns the reordered list of cards.
+     *
+     * @return A reordered list of {@link InfectionCard} if confirmed, or {@code null} if the operation was canceled.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-17
+     */
+    private List<InfectionCard> openSortInfectionCardsDialog() {
+
+        SortInfectionCardsDialogPresenter listDialogPresenter = createListDialogPresenter();
+
+        Stage sortInfectionCardsDialogStage = createDialogStage(listDialogPresenter);
+        sortInfectionCardsDialogStage.showAndWait();
+
+        if (!listDialogPresenter.wasConfirmed()) {
+            return null;
+        }
+
+        return listDialogPresenter.getUpdatedList();
+    }
+
+    /**
+     * Creates and initializes a {@link SortInfectionCardsDialogPresenter} for sorting infection cards.
+     *
+     * @return A fully initialized {@link SortInfectionCardsDialogPresenter}.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-17
+     */
+    private SortInfectionCardsDialogPresenter createListDialogPresenter() {
+        SortInfectionCardsDialogPresenter listDialogPresenter =
+                AbstractPresenter.loadFXMLPresenter(SortInfectionCardsDialogPresenter.class);
+
+        Game game = this.gameSupplier.get();
+        CardStack<InfectionCard> infectionDrawStack = game.getInfectionDrawStack();
+        List<InfectionCard> topCards = infectionDrawStack.getTopCards(NUMBER_OF_TOP_CARDS);
+
+        listDialogPresenter.initialize(topCards);
+        return listDialogPresenter;
+    }
+
+    /**
+     * Creates a modal dialog stage for sorting infection cards with the given presenter.
+     *
+     * @param sortInfectionCardsDialogPresenter The presenter responsible for handling the infection card sorting dialog.
+     * @return A {@link Stage} representing the modal dialog for sorting infection cards.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-17
+     */
+    private Stage createDialogStage(SortInfectionCardsDialogPresenter sortInfectionCardsDialogPresenter) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(StageStyle.UNDECORATED);
+        dialogStage.setTitle("Reihenfolge ändern");
+        dialogStage.setScene(sortInfectionCardsDialogPresenter.getScene());
+        dialogStage.setWidth(DIALOG_WIDTH);
+        dialogStage.setHeight(DIALOG_HEIGHT);
+
+        enableDragging(dialogStage, sortInfectionCardsDialogPresenter.getScene());
+
+        return dialogStage;
+    }
+
+    /**
+     * Enables dragging of the given stage using the specified scene.
+     * This allows the user to move the stage by clicking and dragging anywhere in the scene.
+     *
+     * @param stage The stage to be moved.
+     * @param scene The scene used for tracking mouse events.
+     *
+     * @author Marvin Tischer
+     * @since 2025-02-25
+     */
+    private void enableDragging(Stage stage, Scene scene) {
+        final DoubleProperty mouseX = new SimpleDoubleProperty();
+        final DoubleProperty mouseY = new SimpleDoubleProperty();
+
+        scene.setOnMousePressed(event -> {
+            mouseX.set(event.getSceneX());
+            mouseY.set(event.getSceneY());
+        });
+
+        scene.setOnMouseDragged(event -> {
+            stage.setX(event.getScreenX() - mouseX.get());
+            stage.setY(event.getScreenY() - mouseY.get());
+        });
     }
 
     /**
