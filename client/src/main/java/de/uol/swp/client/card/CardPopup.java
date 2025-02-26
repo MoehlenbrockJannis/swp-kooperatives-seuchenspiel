@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class CardPopup extends Popup {
-
     private static final int DURATION = 2000;
     private static final double WIDTH = 150.00;
     private static final double HEIGHT = WIDTH * 1.5;
@@ -54,7 +53,6 @@ public class CardPopup extends Popup {
         generateSubRectangle();
         this.show(this.window);
         this.closePopup();
-
     }
 
     /**
@@ -83,7 +81,6 @@ public class CardPopup extends Popup {
         rectangle.setLayoutY(layoutY);
         rectangle.setLayoutX(layoutX);
         this.group.getChildren().add(rectangle);
-
 
         Label topLabel = generateLabel(width,0, layoutX, topLabelLayoutY);
         Label bottomLabel = generateLabel(width,180, layoutX, bottomLabelLayoutY);
