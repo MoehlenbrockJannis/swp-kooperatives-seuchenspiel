@@ -753,6 +753,7 @@ public class GamePresenter extends AbstractPresenter {
         playerPanePresenter.createHandCardStackPane(isLobbyPlayer(player), game.getMaxHandCards());
         playerPanePresenter.setGameMapPresenter(this.gameMapController);
         playerPanePresenter.updateHandCardGridPane(game.getCurrentPlayer());
+        playerPanePresenter.setGame(this.game);
 
         PlayerMarker playerMarker = gameMapController.createNewPlayerMarker(player);
         playerPanePresenter.setPlayerMarker(playerMarker);

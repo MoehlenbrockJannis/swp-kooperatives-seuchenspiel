@@ -34,4 +34,5 @@ public class ToughPopulationEventCard extends  EventCard{
     public String getEffectMessage() {
         return "Es wurde die Infektionskarte " + infectionCard.getTitle() + " aus den Spiel entfernt.";
     }
+
 }

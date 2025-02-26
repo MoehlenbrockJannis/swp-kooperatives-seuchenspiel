@@ -95,4 +95,5 @@ public class GovernmentSubsidiesEventCard extends EventCard {
         this.field = this.game.findField(this.field).orElseThrow();
         this.researchLaboratoryOriginField = this.researchLaboratoryOriginField == null ? null : this.game.findField(this.researchLaboratoryOriginField).orElseThrow();
     }
+
 }
