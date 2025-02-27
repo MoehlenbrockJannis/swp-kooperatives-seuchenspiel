@@ -3,8 +3,8 @@ package de.uol.swp.client;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.auth.LoginPresenter;
-import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.user.LoginPresenter;
+import de.uol.swp.client.user.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyCreatePresenter;
 import de.uol.swp.client.lobby.LobbyOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
@@ -119,7 +119,7 @@ public class SceneManager {
      * called. It calls a method to switch the current screen to the login screen.
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
-     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
+     * @see ShowLoginViewEvent
      * @since 2019-09-03
      */
     @Subscribe

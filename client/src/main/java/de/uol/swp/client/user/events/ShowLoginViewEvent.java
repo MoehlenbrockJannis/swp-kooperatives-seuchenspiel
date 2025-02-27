@@ -1,4 +1,4 @@
-package de.uol.swp.client.auth.events;
+package de.uol.swp.client.user.events;
 
 /**
  * Event used to show the login window

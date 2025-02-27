@@ -1,4 +1,4 @@
-package de.uol.swp.client.auth;
+package de.uol.swp.client.user;
 
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.register.event.ShowRegistrationViewEvent;

@@ -3,7 +3,7 @@ package de.uol.swp.client.main;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.SceneManager;
-import de.uol.swp.client.auth.events.ShowLoginViewEvent;
+import de.uol.swp.client.user.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
