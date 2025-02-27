@@ -7,7 +7,7 @@ import de.uol.swp.common.player.turn.PlayerTurn;
  * This card allows the next player to skip the phase where they must play the Transmitter.
  */
 public class AQuietNightEventCard extends EventCard {
-    private static final String DESCRIPTION_STRING = "Der nächste Spieler, der in seinem Spielzug den Überträger spielen muss, darf diese Phase komplett überspringen.";
+    private static final String DESCRIPTION_STRING = "Wirf diese Karte zu einem beliebigen Zeitpunkt ab, um die nächste Infektionskartenzugphase zu überspringen.";
     private static final String TITLE_STRING = "Eine ruhige Nacht";
 
     /**

@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Setter
 public class ForecastEventCard extends EventCard {
-    private static final String DESCRIPTION_STRING = "Sehen Sie sich die obersten 6 Karten des Infektions-Zug-Stapels an und bringen Sie sie ind eine Reihenfolge Ihrer Wahl. Legen Sie die Karten danach wieder oben auf den Stapel.";
+    private static final String DESCRIPTION_STRING = "Sehen Sie sich die obersten 6 Karten des Infektions-Zug-Stapels an und bringen Sie sie in eine Reihenfolge Ihrer Wahl. Legen Sie die Karten danach wieder oben auf den Stapel.";
     private static final String TITLE_STRING = "Prognose";
     private List<InfectionCard> reorderedInfectionCards;
 
