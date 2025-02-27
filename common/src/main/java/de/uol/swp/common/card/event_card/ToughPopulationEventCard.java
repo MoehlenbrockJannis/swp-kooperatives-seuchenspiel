@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ToughPopulationEventCard extends  EventCard{
-    private static final String DESCRIPTION_STRING = "Wählen Sie eine beliebige Karte aus dem Infektions-Ablagestapel und entfernen Sie sie aus dem Spiel.";
+    private static final String DESCRIPTION_STRING = "Wählen Sie eine beliebige Karte aus dem Infektions-Ablagestapel und entfernen Sie diese aus dem Spiel.";
     private static final String TITLE_STRING = "Zähe Bevölkerung";
 
     private InfectionCard infectionCard;

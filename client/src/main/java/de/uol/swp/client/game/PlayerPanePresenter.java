@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -274,8 +275,51 @@ public class PlayerPanePresenter extends AbstractPresenter {
         cardColorStackPane.prefWidthProperty().bind(playerCardHBox.heightProperty());
         cardColorCircle.radiusProperty().bind(cardColorStackPane.heightProperty().divide(3));
         playerCardHBox.getChildren().addAll(cardColorStackPane, cardTitlePane);
+
+        setupTooltipForEventCard(playerCardHBox, playerCard);
     }
 
+    /**
+     * Adds a tooltip displaying the description if the player card is an event card.
+     *
+     * @param playerCardHBox the UI container for the player card
+     * @param playerCard the card to check for tooltip installation
+     */
+    private void setupTooltipForEventCard(PlayerCardHBox playerCardHBox, PlayerCard playerCard) {
+        if (playerCard instanceof EventCard) {
+            EventCard eventCard = (EventCard) playerCard;
+
+            Tooltip tooltip = createConsistentTooltip(eventCard.getDescription());
+            Tooltip.install(playerCardHBox, tooltip);
+
+            playerCardHBox.setOnMouseEntered(event -> {
+                Tooltip.uninstall(playerCardHBox, tooltip);
+                Tooltip newTooltip = createConsistentTooltip(eventCard.getDescription());
+                Tooltip.install(playerCardHBox, newTooltip);
+            });
+        }
+    }
+
+    /**
+     * Creates a consistent styled tooltip with specified text.
+     *
+     * @param text The tooltip text.
+     * @return A Tooltip with predefined font, delays, duration, and wrapping.
+     */
+    private Tooltip createConsistentTooltip(String text) {
+        Tooltip tooltip = new Tooltip(text);
+
+        tooltip.setFont(new Font("System", 18));
+
+        tooltip.setShowDelay(Duration.millis(100));
+        tooltip.setShowDuration(Duration.millis(50000));
+        tooltip.setHideDelay(Duration.millis(300));
+
+        tooltip.setWrapText(true);
+        tooltip.setMaxWidth(400);
+
+        return tooltip;
+    }
     /**
      * Highlights and adds a click listener to the {@link PlayerCardHBox} that represents the given {@link PlayerCard}.
      *
