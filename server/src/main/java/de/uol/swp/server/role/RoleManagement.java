@@ -2,6 +2,8 @@ package de.uol.swp.server.role;
 
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
+import de.uol.swp.common.action.advanced.cure_plague.IncreasedEffectivenessCurePlagueAction;
 import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.discover_antidote.ReducedCostDiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.transfer_card.NoLimitsSendCardAction;
@@ -11,11 +13,11 @@ import de.uol.swp.common.action.simple.car.CarActionForAlly;
 import de.uol.swp.common.action.simple.charter_flight.CharterFlightActionForAlly;
 import de.uol.swp.common.action.simple.direct_flight.DirectFlightActionForAlly;
 import de.uol.swp.common.action.simple.shuttle_flight.ShuttleFlightActionForAlly;
-import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
 import de.uol.swp.common.util.RoleColors;
 import lombok.Getter;
 
@@ -51,9 +53,9 @@ public class RoleManagement {
             "Arzt",
             RoleColors.ARZT_COLOR_ORANGE,
             new RoleAbility(
-                    Map.of(),
+                    Map.of(CurePlagueAction.class, IncreasedEffectivenessCurePlagueAction.class),
                     List.of(),
-                    List.of()
+                    List.of(new CurePlagueAutoTriggerable())
             )
     );
     private final RoleCard betriebsexperte = new RoleCard(

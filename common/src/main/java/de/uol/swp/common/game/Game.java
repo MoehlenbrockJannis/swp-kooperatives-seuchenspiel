@@ -1,6 +1,9 @@
 package de.uol.swp.common.game;
 
-import de.uol.swp.common.card.*;
+import de.uol.swp.common.card.CityCard;
+import de.uol.swp.common.card.EpidemicCard;
+import de.uol.swp.common.card.InfectionCard;
+import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
@@ -25,6 +28,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 
 /**
@@ -220,6 +224,7 @@ public class Game implements Serializable {
         assignPlayersToStartingField();
         initializeStartResearchLaboratory();
     }
+
 
     @Override
     public boolean equals (Object obj) {
@@ -424,6 +429,7 @@ public class Game implements Serializable {
                 distributePlagueCubes(i, field);
             }
         }
+
     }
 
     /**
@@ -472,10 +478,18 @@ public class Game implements Serializable {
      * Adds a plague cube to the game map.
      * This method handles the addition of a plague cube to the appropriate location on the map.
      *
-     * @param plagueCube the plague cube to be added to the map
+     * @param cube the plague cube to be added to the map
      */
-    public void addPlagueCube (PlagueCube plagueCube) {
-
+    public void addPlagueCube(PlagueCube cube) {
+        Plague plague = cube.getPlague();
+        List<PlagueCube> cubes = plagueCubes.get(plague);
+        if (cubes != null) {
+            cubes.add(cube);
+        } else {
+            cubes = new ArrayList<>();
+            cubes.add(cube);
+            plagueCubes.put(plague, cubes);
+        }
     }
 
     /**
@@ -597,8 +611,10 @@ public class Game implements Serializable {
      */
     public List<Triggerable> getTriggerables() {
         return getPlayersInTurnOrder().stream()
-                .flatMap(player -> getAndPreparePlayerEventCards(player).stream())
-                .map(Triggerable.class::cast)
+                .flatMap(player -> Stream.concat(
+                        getAndPreparePlayerEventCards(player).stream(),
+                        getAndPreparePlayerRoleTriggerables(player).stream()
+                ))
                 .toList();
     }
 
@@ -618,6 +634,16 @@ public class Game implements Serializable {
                     eventCard.setPlayer(player);
                     eventCard.setGame(this);
                     return eventCard;
+                })
+                .toList();
+    }
+
+    public List<Triggerable> getAndPreparePlayerRoleTriggerables(final Player player) {
+        return player.getRole().getAbility().getTriggerables().stream()
+                .map(triggerable -> {
+                    triggerable.setPlayer(player);
+                    triggerable.setGame(this);
+                    return triggerable;
                 })
                 .toList();
     }

@@ -25,6 +25,9 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.plague.Plague;
+import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
@@ -188,8 +191,12 @@ public class CardService extends AbstractService {
             DrawInfectionCardServerMessage message = new DrawInfectionCardServerMessage(infectionCard, game);
             lobbyService.sendToAllInLobby(game.getLobby(), message);
 
+            Plague plague = infectionCard.getAssociatedField().getPlague();
             List<Field> infectedFields = new ArrayList<>();
-            handleInfectionProcess(game, infectionCard, infectedFields);
+
+            if(!game.hasAntidoteMarkerForPlague(plague)) {
+                handleInfectionProcess(game, infectionCard, infectedFields);
+            }
 
             sendGameUpdateMessage(game);
         });
@@ -310,7 +317,7 @@ public class CardService extends AbstractService {
         if (playerOptional.isEmpty()) return;
         final Player player = playerOptional.get();
 
-        if (triggerableService.checkForSendingManualTriggerables(game, gameRequest, player)) {
+        if (triggerableService.checkForExecutingTriggerables(game, gameRequest, player)) {
             return;
         }
         callback.accept(game,player);

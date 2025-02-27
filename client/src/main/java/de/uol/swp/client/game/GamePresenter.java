@@ -15,10 +15,9 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
-import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
@@ -56,10 +55,7 @@ import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -157,6 +153,8 @@ public class GamePresenter extends AbstractPresenter {
     private Button researchLaboratoryButton;
     @FXML
     private Button waiveActionButton;
+    @FXML
+    private Button curePlagueActionButton;
 
     @FXML
     private HBox buttonContainer;
@@ -239,6 +237,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeChat();
         updateShareKnowledgeActionButton();
         updateResearchLaboratoryButtonState();
+        updateCurePlagueButtonState();
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
         addAntidoteMarkerButtons();
@@ -291,7 +290,7 @@ public class GamePresenter extends AbstractPresenter {
             Color plagueColor = plague.getColor();
             boolean isForeignPlagueCube = false;
 
-            PlagueCubeIcon plagueCubeIcon = new PlagueCubeIcon(PLAGUE_CUBE_MARKER_SIZE, ColorService.convertColorToJavaFXColor(plagueColor), isForeignPlagueCube);
+            PlagueCubeIcon plagueCubeIcon = new PlagueCubeIcon(PLAGUE_CUBE_MARKER_SIZE, isForeignPlagueCube, plague);
             createRemainingComponentsPresenter(amountOfRemainingPlagueCubes, plagueCubeIcon);
             addComponentToRemainingComponents(plagueCubeIcon, columnIndex);
             columnIndex++;
@@ -342,6 +341,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
         updateAntidoteMarkerButtons();
+        updateCurePlagueButtonState();
         setRemainingComponentsComponent();
 
         Player currentPlayer = game.getCurrentPlayer();
@@ -769,12 +769,15 @@ public class GamePresenter extends AbstractPresenter {
      */
     @FXML
     private void addWaiveButtonPressed() {
-        if (isCurrentPlayerInGame()) {
-            if (game.getCurrentTurn().hasActionsToDo()) {
+        if (isCurrentPlayerInGame() && hasActionToDo()) {
                 gameMapController.sendWaiveAction();
                 updateWaiveButtonPressed();
             }
-        }
+
+    }
+
+    private boolean hasActionToDo() {
+        return game.getCurrentTurn().hasActionsToDo();
     }
 
     /**
@@ -783,13 +786,8 @@ public class GamePresenter extends AbstractPresenter {
      * Otherwise, the button is disabled.
      */
     private void updateWaiveButtonPressed() {
-        if (isCurrentPlayerInGame() && isWaiveActionAvailable() && game.getCurrentTurn().hasActionsToDo()) {
-            waiveActionButton.setDisable(false);
-        } else {
-            waiveActionButton.setDisable(true);
-        }
+        waiveActionButton.setDisable(!isCurrentPlayerInGame() || !isWaiveActionAvailable() || !hasActionToDo());
     }
-
 
     /**
      * Checks if a waive action is available in the list of possible actions for the current turn.
@@ -893,8 +891,41 @@ public class GamePresenter extends AbstractPresenter {
      * @return true if the action is a research laboratory build action, false otherwise
      */
     private boolean isResearchLaboratoryBuildAction(Action action) {
-        return action instanceof BuildResearchLaboratoryAction
-                || action instanceof ReducedCostBuildResearchLaboratoryAction;
+        return action instanceof BuildResearchLaboratoryAction;
+    }
+
+    /**
+     * Handles cure plague action button press.
+     * Prompts user to select plague cubes or prepares single cube cure action
+     * based on current game state. Updates button state afterward.
+     */
+    @FXML
+    private void executeCurePlagueActionButtonPressed() {
+        if(hasActionToDo() && isCurrentPlayerInGame() && isCurePlagueActionAvailable()) {
+            gameMapController.requireChoosePlagueCube();
+        }
+
+        updateCurePlagueButtonState();
+    }
+
+    /**
+     * Updates the state of the cure plague button based on the game state.
+     */
+    private void updateCurePlagueButtonState() {
+        if ((hasActionToDo() && isCurrentPlayerInGame())) {
+            curePlagueActionButton.setDisable(!isCurePlagueActionAvailable());
+        } else {
+            curePlagueActionButton.setDisable(true);
+        }
+    }
+
+    /**
+     * Checks if the cure plague action is available.
+     *
+     * @return true if the cure plague action is available, false otherwise
+     */
+    private boolean isCurePlagueActionAvailable() {
+        return game.getCurrentTurn().getPossibleActions().stream().anyMatch(CurePlagueAction.class::isInstance);
     }
 
     /**
@@ -958,7 +989,7 @@ public class GamePresenter extends AbstractPresenter {
         if (chatComponent != null) {
             String cssFile = "/css/GameChatStyle.css";
             if (getClass().getResource(cssFile) != null) {
-                chatComponent.getScene().getStylesheets().add(getClass().getResource(cssFile).toExternalForm());
+                chatComponent.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource(cssFile)).toExternalForm());
 
                 chatComponent.getStyleClass().add("game-chat-component");
 

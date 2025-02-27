@@ -31,6 +31,21 @@ public class TriggerableServiceTest extends EventBusBasedTest {
             }
 
             @Override
+            public void setGame(Game game) {
+
+            }
+
+            @Override
+            public Player getPlayer() {
+                return null;
+            }
+
+            @Override
+            public void setPlayer(Player player) {
+
+            }
+
+            @Override
             public void trigger() {
 
             }

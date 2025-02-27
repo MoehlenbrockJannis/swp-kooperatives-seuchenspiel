@@ -1,6 +1,5 @@
 package de.uol.swp.client.plague;
 
-import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
@@ -13,6 +12,7 @@ import javafx.scene.text.Text;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +32,8 @@ public class PlagueCubeMarker extends Group {
     @Setter
     private int numberOfAssociatedPlagueCubes;
     private final Text associatedPlagueCubeCounter;
+    @Getter
+    private final List<PlagueCubeIcon> plagueCubeIcons;
 
     /**
      * Constructor
@@ -66,7 +68,9 @@ public class PlagueCubeMarker extends Group {
 
         this.cubeSpacing = width * 0.08;
 
-        associatedPlagueCubeCounter = new Text();
+        this.associatedPlagueCubeCounter = new Text();
+
+        this.plagueCubeIcons = new ArrayList<>();
 
         initPlagueCubes(field);
 
@@ -92,50 +96,53 @@ public class PlagueCubeMarker extends Group {
      * @param field the {@link Field} that is represented by the {@link PlagueCubeMarker}
      */
     private void initAssociatedPlagueCubes(Field field) {
-        Color associatedPlagueColor = ColorService.convertColorToJavaFXColor(field.getPlague().getColor());
-
+        Plague plague = field.getPlague();
         if (numberOfAssociatedPlagueCubes == 1) {
-            createSinglePlagueCube(associatedPlagueColor);
+            createSinglePlagueCube(plague);
         } else if (numberOfAssociatedPlagueCubes == 2) {
-            createPairOfPlagueCubes(associatedPlagueColor);
+            createPairOfPlagueCubes(plague);
         } else if (numberOfAssociatedPlagueCubes >= 3) {
-            createPyramidOfPlagueCubes(associatedPlagueColor);
+            createPyramidOfPlagueCubes(plague);
         }
     }
 
     /**
      * Creates a single {@link PlagueCubeIcon} and add it to the {@link PlagueCubeMarker}
      *
-     * @param color the color of the {@link PlagueCubeIcon}
+     * @param plague the {@link Plague} represented by the created {@link PlagueCubeIcon}
      */
-    public void createSinglePlagueCube(Color color) {
-        this.getChildren().add(new PlagueCubeIcon(width, color, false));
+    public void createSinglePlagueCube(Plague plague) {
+        PlagueCubeIcon plagueCube = new PlagueCubeIcon(width, false, plague);
+
+        plagueCubeIcons.add(plagueCube);
+        this.getChildren().add(plagueCube);
     }
 
     /**
      * Creates a pair of {@link PlagueCubeIcon}s and adds them to the {@link PlagueCubeMarker}
      *
-     * @param color the color of the {@link PlagueCubeIcon}s
+     * @param plague the {@link Plague} represented by the created {@link PlagueCubeIcon}s
      */
-    public void createPairOfPlagueCubes(Color color) {
-        PlagueCubeIcon plagueCube1 = new PlagueCubeIcon(width, color, false);
-        PlagueCubeIcon plagueCube2 = new PlagueCubeIcon(width, color, false);
+    public void createPairOfPlagueCubes(Plague plague) {
+        PlagueCubeIcon plagueCube1 = new PlagueCubeIcon(width, false, plague);
+        PlagueCubeIcon plagueCube2 = new PlagueCubeIcon(width, false, plague);
 
         plagueCube1.setLayoutX(plagueCube1.getWidth() / 2 + cubeSpacing);
         plagueCube2.setLayoutX(-plagueCube2.getWidth() / 2 - cubeSpacing);
 
+        plagueCubeIcons.addAll(List.of(plagueCube1, plagueCube2));
         this.getChildren().addAll(plagueCube1, plagueCube2);
     }
 
     /**
      * Creates a pyramid of {@link PlagueCubeIcon}s and adds them to the {@link PlagueCubeMarker}
      *
-     * @param color the color of the {@link PlagueCubeIcon}s
+     * @param plague the {@link Plague} represented by the created {@link PlagueCubeIcon}s
      */
-    public void createPyramidOfPlagueCubes(Color color) {
-        PlagueCubeIcon plagueCube1 = new PlagueCubeIcon(width, color, false);
-        PlagueCubeIcon plagueCube2 = new PlagueCubeIcon(width, color, false);
-        PlagueCubeIcon plagueCube3 = new PlagueCubeIcon(width, color, false);
+    public void createPyramidOfPlagueCubes(Plague plague) {
+        PlagueCubeIcon plagueCube1 = new PlagueCubeIcon(width, false, plague);
+        PlagueCubeIcon plagueCube2 = new PlagueCubeIcon(width, false, plague);
+        PlagueCubeIcon plagueCube3 = new PlagueCubeIcon(width, false, plague);
 
         plagueCube1.setLayoutX(plagueCube1.getWidth() / 2 + cubeSpacing);
         plagueCube2.setLayoutX(-plagueCube2.getWidth() / 2 - cubeSpacing);
@@ -144,6 +151,7 @@ public class PlagueCubeMarker extends Group {
         plagueCube1.setLayoutY(plagueCube1.getTotalHeight() / 2 - cubeSpacing / 2);
         plagueCube3.setLayoutY(-plagueCube3.getTotalHeight() / 2 + cubeSpacing / 2);
 
+        plagueCubeIcons.addAll(List.of(plagueCube1, plagueCube2, plagueCube3));
         this.getChildren().addAll(plagueCube1, plagueCube2, plagueCube3);
     }
 
@@ -161,7 +169,7 @@ public class PlagueCubeMarker extends Group {
 
         for (Map.Entry<Plague, Integer> entry : foreignPlagueCubeCounts.entrySet()) {
             if (entry.getValue() > 0) {
-                addSingleForeignPlagueCube(numberOfForeignPlagueTypes, currentPlagueTypeCount, entry.getKey().getColor(), entry.getValue());
+                addSingleForeignPlagueCube(numberOfForeignPlagueTypes, currentPlagueTypeCount, entry.getValue(), entry.getKey());
 
                 currentPlagueTypeCount++;
             }
@@ -173,18 +181,18 @@ public class PlagueCubeMarker extends Group {
      *
      * @param foreignPlagueTypes     total amount of foreign {@link Plague}s types
      * @param currentPlagueTypeCount index of the foreign {@link Plague} type for which a {@link PlagueCubeIcon} is being created
-     * @param plagueColor            color of the foreign {@link Plague}
      * @param numberOfPlagueCubes    amount of {@link PlagueCube}s of the foreign {@link Plague}
+     * @param plague                 the {@link Plague} represented by the created {@link PlagueCubeIcon}
      */
-    private void addSingleForeignPlagueCube(int foreignPlagueTypes, int currentPlagueTypeCount, de.uol.swp.common.util.Color plagueColor, int numberOfPlagueCubes) {
+    private void addSingleForeignPlagueCube(int foreignPlagueTypes, int currentPlagueTypeCount, int numberOfPlagueCubes, Plague plague) {
         double yOffset = calculateYOffsetForForeignPlagueCubes(foreignPlagueTypes, currentPlagueTypeCount);
 
-        Color color = ColorService.convertColorToJavaFXColor(plagueColor);
-        PlagueCubeIcon plagueCube = new PlagueCubeIcon(foreignCubeWidth, color, true, numberOfPlagueCubes);
+        PlagueCubeIcon plagueCube = new PlagueCubeIcon(foreignCubeWidth, true, numberOfPlagueCubes, plague);
 
         plagueCube.setLayoutX(calculateXOffsetForForeignPlagueCubes());
         plagueCube.setLayoutY(yOffset);
 
+        plagueCubeIcons.add(plagueCube);
         this.getChildren().add(plagueCube);
     }
 
@@ -217,20 +225,23 @@ public class PlagueCubeMarker extends Group {
 
     /**
      * Deletes all associated (not foreign) {@link PlagueCubeIcon}s found in the {@link PlagueCubeMarker}
+     * and removes them from the {@link #plagueCubeIcons} {@link List}
      */
     public void deleteAllAssociatedPlagueCubes() {
         this.getChildren().removeIf(node ->
                 node instanceof PlagueCubeIcon plagueCube && !plagueCube.isForeignPlagueCube()
         );
+        plagueCubeIcons.removeIf(plagueCube -> !plagueCube.isForeignPlagueCube());
     }
 
     /**
-     * Deletes all foreign {@link PlagueCubeIcon}s found in the {@link PlagueCubeMarker}
+     * Deletes all foreign {@link PlagueCubeIcon}s found in the {@link PlagueCubeMarker} and removes them from the {@link #plagueCubeIcons} {@link List}
      */
     public void deleteAllForeignPlagueCubes() {
         this.getChildren().removeIf(node ->
                 node instanceof PlagueCubeIcon plagueCube && plagueCube.isForeignPlagueCube()
         );
+        plagueCubeIcons.removeIf(PlagueCubeIcon::isForeignPlagueCube);
     }
 
     /**

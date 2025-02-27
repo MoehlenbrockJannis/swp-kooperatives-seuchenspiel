@@ -4,6 +4,7 @@ import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.DiscardCardsAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.CityCard;
+import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
@@ -99,13 +100,12 @@ class PlayerTurnTest {
         this.roleAbility = mock(RoleAbility.class);
         this.roleCard1 = new RoleCard("", new Color(), roleAbility);
         this.roleCard2 = new RoleCard("", new Color(), roleAbility);
-        this.defaultPlayer = new UserPlayer(this.defaultUser);
+        this.defaultPlayer = lobby.getPlayerForUser(defaultUser);
         this.defaultPlayer.setRole(roleCard1);
         this.difficulty = GameDifficulty.getDefault();
         this.defaultPlayer2 = new UserPlayer(this.defaultUser2);
         this.defaultPlayer2.setRole(roleCard2);
 
-        lobby.addPlayer(this.defaultPlayer);
         lobby.addPlayer(this.defaultPlayer2);
 
         final MapType mapType = createMapType();
@@ -245,10 +245,12 @@ class PlayerTurnTest {
     @MethodSource("executeCommandSource")
     @DisplayName("Should call the execute() method on the given command")
     void executeCommand(final Command executedCommand, final int numberOfExpectedActionsToDoAfter) {
+        clearPlayerHandCards(defaultPlayer);
         if (executedCommand instanceof DiscardCardsAction discardCardsAction) {
             discardCardsAction.getDiscardedCards().forEach(defaultPlayer::addHandCard);
             when(discardCardsAction.getExecutingPlayer())
                     .thenReturn(defaultPlayer);
+            assertThat(defaultPlayer.getHandCards()).isNotEmpty();
         }
 
         defaultPlayerTurn.executeCommand(executedCommand);
@@ -262,6 +264,13 @@ class PlayerTurnTest {
                     .isEmpty();
             assertThat(defaultGame.getPlayerDiscardStack())
                     .isNotEmpty();
+        }
+    }
+
+    private void clearPlayerHandCards(Player player) {
+        List<PlayerCard> handCards = new ArrayList<>(player.getHandCards());
+        for(PlayerCard playerCard : handCards) {
+            player.removeHandCard(playerCard);
         }
     }
 

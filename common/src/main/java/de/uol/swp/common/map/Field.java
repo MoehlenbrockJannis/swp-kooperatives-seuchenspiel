@@ -1,5 +1,6 @@
 package de.uol.swp.common.map;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.exception.NoPlagueCubesOfPlagueOnFieldException;
 import de.uol.swp.common.map.exception.ResearchLaboratoryAlreadyBuiltOnFieldException;
 import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
@@ -8,6 +9,7 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,6 +41,8 @@ public class Field implements Serializable {
     @Getter
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
+    @Getter
+    @Setter
     private Map<Plague, List<PlagueCube>> plagueCubes;
 
     /**
@@ -339,5 +343,53 @@ public class Field implements Serializable {
             plagueCubeAmounts.put(entry.getKey(), entry.getValue().size());
         }
         return plagueCubeAmounts;
+    }
+    /**
+     * Removes plague cubes of the specified type and returns them to the game's supply.
+     * If player is a doctor with an antidote marker, cures the plague globally across all fields.
+     * Otherwise, removes plague cubes only from the current field.
+     *
+     * @param plague The type of plague to cure
+     * @param currentField The field where the cure action was initiated
+     * @param game The game instance
+     */
+    public void removeAllPlagueCubes(Plague plague, Field currentField, Game game) {
+        removeAllPlagueCubes(plague, currentField, game, false);
+    }
+
+    public void removeAllPlagueCubes(Plague plague, Field currentField, Game game, boolean isGlobalCure) {
+        if (isGlobalCure) {
+            cureAllFieldsOfPlague(plague, game);
+        } else {
+            cureFieldOfPlague(currentField, plague, game);
+        }
+    }
+
+    /**
+     * Cures all instances of the specified plague across all fields on the map.
+     * Used for the doctor's special ability with antidote marker.
+     *
+     * @param plague The type of plague to cure globally
+     * @param game The game instance containing the map and plague cube supply
+     */
+    private void cureAllFieldsOfPlague(Plague plague, Game game) {
+        game.getMap().getFields().forEach(field ->
+                cureFieldOfPlague(field, plague, game)
+        );
+    }
+
+    /**
+     * Cures all plague cubes of the specified type from a single field.
+     * Returns all cured plague cubes to the game's supply.
+     *
+     * @param field The field to cure plague cubes from
+     * @param plague The type of plague to cure
+     * @param game The game instance to return plague cubes to
+     */
+    private void cureFieldOfPlague(Field field, Plague plague, Game game) {
+        while (field.isCurable(plague)) {
+            PlagueCube curedCube = field.cure(plague);
+            game.addPlagueCube(curedCube);
+        }
     }
 }

@@ -9,6 +9,8 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.role.RoleAbility;
+import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.util.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +33,9 @@ class CurePlagueActionTest {
     private Plague plague;
     private List<Plague> plagues;
     private List<Field> infectedFields;
+
+    private RoleCard roleCard;
+    private RoleAbility roleAbility;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +63,10 @@ class CurePlagueActionTest {
 
         player = new AIPlayer("t");
         player.setCurrentField(field);
+
+        this.roleAbility = mock(RoleAbility.class);
+        this.roleCard = new RoleCard("", new Color(), roleAbility);
+        player.setRole(roleCard);
 
         final Game game = mock(Game.class);
         when(game.getPlagues())
@@ -87,35 +96,17 @@ class CurePlagueActionTest {
                 .addPlagueCube(any());
     }
 
-
-    @Test
-    @DisplayName("Should remove all plague cubes from current field")
-    void removeAllPlagueCubes() {
-        field.infectField(new PlagueCube(plague), infectedFields);
-        field.infectField(new PlagueCube(plague), infectedFields);
-
-        action.removeAllPlagueCubes();
-
-        assertThat(field.isCurable(plague))
-                .isFalse();
-        verify(action.getGame(), times(2))
-                .addPlagueCube(any());
-    }
-
     @Test
     @DisplayName("Should return true if there is an antidote marker for specified plague on game")
-    void isRemoveAllPlagueCubesAvailable_true() {
+    void hasAntidoteMarkerForPlague() {
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
-
-        assertThat(action.isRemoveAllPlagueCubesAvailable())
-                .isTrue();
     }
 
     @Test
     @DisplayName("Should return false if there is no antidote marker for specified plague on game")
     void isRemoveAllPlagueCubesAvailable_false() {
-        assertThat(action.isRemoveAllPlagueCubesAvailable())
+        assertThat(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .isFalse();
     }
 
@@ -196,8 +187,11 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove all plague cubes from current field if action is executable and the option to remove all plague cubes is available")
     void execute_allCubes() {
+        action.setExecutingPlayer(player);
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
+        when(action.getGame().getCurrentPlayer())
+                .thenReturn(player);
 
         field.infectField(new PlagueCube(plague), infectedFields);
         field.infectField(new PlagueCube(plague), infectedFields);

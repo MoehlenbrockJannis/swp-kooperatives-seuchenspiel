@@ -79,4 +79,9 @@ public class Color implements Serializable {
         this.g = validateValue(g);
         this.b = validateValue(b);
     }
+
+    @Override
+    public String toString() {
+        return r + "," + g + "," + b;
+    }
 }
