@@ -5,7 +5,6 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.card.EpidemicCard;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
-import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawInfectionCardRequest;
@@ -159,9 +158,6 @@ public class CardService extends AbstractService {
      */
     private void sendPlayerCardDiscardMessage(final PlayerCard playerCard, final Player player, final Game game) {
         String message = String.format("%s hat \"%s\" abgeworfen.", player.getName(), playerCard.getTitle());
-        if (playerCard instanceof EventCard eventCard) {
-            message += " " + eventCard.getEffectMessage();
-        }
         sendSystemLobbyMessage(message, game.getLobby());
     }
 

@@ -17,8 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class CardServiceTest extends EventBusBasedTest {
@@ -39,7 +38,7 @@ public class CardServiceTest extends EventBusBasedTest {
         cardService.sendDrawPlayerCardRequest(game, player);
         waitForLock();
 
-        assertTrue(event instanceof DrawPlayerCardRequest);
+        assertInstanceOf(DrawPlayerCardRequest.class, event);
 
         final DrawPlayerCardRequest drawPlayerCardRequest = (DrawPlayerCardRequest) event;
         assertEquals(drawPlayerCardRequest.getGame(), game);
@@ -47,24 +46,6 @@ public class CardServiceTest extends EventBusBasedTest {
         assertThat(drawPlayerCardRequest.getGame()).isEqualTo(game);
         assertThat(drawPlayerCardRequest.getPlayer()).isEqualTo(player);
 
-    }
-
-    @Test
-    @DisplayName("Send Triggerable Request and verify the event")
-    void sendDiscardPlayerCardRequest_EventCard() throws InterruptedException {
-        Game game = mock(Game.class);
-        Player player = mock(Player.class);
-        PlayerCard playerCard = mock(EventCard.class);
-
-        cardService.sendDiscardPlayerCardRequest(game, player, playerCard);
-        waitForLock();
-
-        assertThat(event).isInstanceOf(TriggerableRequest.class);
-
-        final TriggerableRequest triggerableRequest = (TriggerableRequest) event;
-        assertThat(triggerableRequest.getTriggerable()).isEqualTo(playerCard);
-        assertThat(triggerableRequest.getCause()).isNull();
-        assertThat(triggerableRequest.getReturningPlayer()).isNull();
     }
 
     @Test
