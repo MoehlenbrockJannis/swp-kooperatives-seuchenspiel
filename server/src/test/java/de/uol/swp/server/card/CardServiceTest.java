@@ -1,7 +1,5 @@
 package de.uol.swp.server.card;
 
-import de.uol.swp.common.action.Action;
-import de.uol.swp.common.action.ActionFactory;
 import de.uol.swp.common.card.EpidemicCard;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
@@ -33,23 +31,25 @@ import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.role.RoleAbility;
+import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.Color;
 import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.turn.PlayerTurnManagement;
 import de.uol.swp.server.triggerable.TriggerableService;
+import de.uol.swp.server.util.TestUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +87,9 @@ public class CardServiceTest extends EventBusBasedTest {
     private GameMap mockMap;
     private CardStack<InfectionCard> discardStack;
     private CardStack<InfectionCard> drawStack;
+    private RoleAbility roleAbility;
+    private RoleCard roleCard1;
+    private RoleCard roleCard2;
 
     @BeforeEach
     void setUp() {
@@ -102,29 +105,30 @@ public class CardServiceTest extends EventBusBasedTest {
         User user = new UserDTO("Test", "Test", "Test@test.de");
         User user2 = new UserDTO("TestZwei", "Test", "Test@test.de");
 
-        this.player1 = new UserPlayer(user);
-        this.player2 = new UserPlayer(user2);
+
+        this.roleAbility = mock(RoleAbility.class);
+        this.roleCard1 = new RoleCard("", new Color(), roleAbility);
+        this.roleCard2 = new RoleCard("", new Color(), roleAbility);
 
         List<Plague> plagues = List.of(mock(Plague.class));
         mapType = createMapType();
         Lobby lobby = new LobbyDTO("Test", user);
 
-        lobby.addPlayer(player1);
+        this.player1 = lobby.getPlayerForUser(user);
+        this.player1.setRole(roleCard1);
+        this.player2 = new UserPlayer(user2);
+        this.player2.setRole(roleCard2);
+
         lobby.addPlayer(player2);
 
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
-        try (MockedConstruction<ActionFactory> mockedActionFactory = Mockito.mockConstruction(ActionFactory.class, (mock, context) -> {
-            when(mock.createAllGeneralActionsExcludingSomeAndIncludingSomeRoleActions(any(), any()))
-                    .thenReturn(List.of());
-        })) {
-            this.game.addPlayerTurn(new PlayerTurn(
-                    game,
-                    game.getPlayersInTurnOrder().get(0),
-                    game.getNumberOfActionsPerTurn(),
-                    game.getNumberOfPlayerCardsToDrawPerTurn(),
-                    game.getNumberOfInfectionCardsToDrawPerTurn()
-            ));
-        }
+        this.game.addPlayerTurn(TestUtils.createPlayerTurn(
+                game,
+                game.getPlayersInTurnOrder().get(0),
+                game.getNumberOfActionsPerTurn(),
+                game.getNumberOfPlayerCardsToDrawPerTurn(),
+                game.getNumberOfInfectionCardsToDrawPerTurn()
+        ));
 
         message = mock();
         final Session session = UUIDSession.create(game.getLobby().getOwner());
@@ -203,6 +207,9 @@ public class CardServiceTest extends EventBusBasedTest {
         this.player1 = new AIPlayer("ai1");
         this.player2 = new AIPlayer("ai2");
 
+        player1.setRole(this.roleCard1);
+        player2.setRole(this.roleCard2);
+
         List<Plague> plagues = List.of(mock(Plague.class));
         List<Player> players = new ArrayList<>();
         players.add(player1);
@@ -213,7 +220,13 @@ public class CardServiceTest extends EventBusBasedTest {
         lobby.addPlayer(player2);
 
         Game gameWithMockedPlayer = new Game(lobby, mapType, players, plagues, difficulty);
-        gameWithMockedPlayer.addPlayerTurn(new PlayerTurn(gameWithMockedPlayer, player1, 0, 0, 0));
+        gameWithMockedPlayer.addPlayerTurn(TestUtils.createPlayerTurn(
+                gameWithMockedPlayer,
+                player1,
+                0,
+                0,
+                0
+        ));
         PlayerCard playerCard = new AirBridgeEventCard();
         while (player1.hasHandCard(playerCard)) {
             player1.removeHandCard(playerCard);
@@ -260,7 +273,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
         Player mockPlayer = game.getLobby().getPlayerForUser(game.getLobby().getOwner());
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
-        when(triggerableService.checkForSendingManualTriggerables(any(Game.class), any(), any(Player.class)))
+        when(triggerableService.checkForExecutingTriggerables(any(Game.class), any(), any(Player.class)))
                 .thenReturn(false);
 
         DrawInfectionCardRequest request = new DrawInfectionCardRequest(mockGame, mockPlayer);
@@ -377,7 +390,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.findPlayer(any())).thenReturn(Optional.of(mockPlayer));
         when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
         when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
-        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(triggerableService.checkForExecutingTriggerables(any(), any(), any())).thenReturn(false);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
         request.initWithMessage(message);
@@ -541,7 +554,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.hasAntidoteMarkerForPlague(any(Plague.class))).thenReturn(false);
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
-        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(triggerableService.checkForExecutingTriggerables(any(), any(), any())).thenReturn(false);
 
         InfectionCard card1 = mock(InfectionCard.class);
         InfectionCard card2 = mock(InfectionCard.class);

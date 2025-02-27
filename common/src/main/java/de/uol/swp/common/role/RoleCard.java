@@ -25,7 +25,6 @@ public class RoleCard extends Card {
 
     private String name;
     private Color color;
-    //private Image image;
     private RoleAbility ability;
 
     @Override

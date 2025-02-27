@@ -3,11 +3,13 @@ package de.uol.swp.server.action;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.action.Action;
+import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -62,7 +64,7 @@ public class ActionService extends AbstractService {
         final Game game = gameOptional.get();
         final Player player = game.getCurrentPlayer();
 
-        if (triggerableService.checkForSendingManualTriggerables(game, request, player)) {
+        if (triggerableService.checkForExecutingTriggerables(game, request, player)) {
             return;
         }
 
@@ -83,6 +85,7 @@ public class ActionService extends AbstractService {
         }
 
         checkMoveResearchLaboratory(request);
+        sendChatMessageIfPlagueCubeCure(request);
         sendDiscoveredAntidoteChatMessage(request);
     }
 
@@ -96,10 +99,21 @@ public class ActionService extends AbstractService {
         if(request.getAction().getGame().getResearchLaboratories().size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES &&
                 request.getGame().isRequiresTextMessageMovingResearchLaboratory()) {
             String text = "Die maximale Anzahl an Forschungslaboren wurde erreicht!";
-            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, request.getGame().getLobby());
+            Lobby lobby = request.getGame().getLobby();
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, lobby);
             post(systemLobbyMessageServerInternalMessage);
 
             request.getGame().setRequiresTextMessageMovingResearchLaboratory(false);
+        }
+    }
+
+    private void sendChatMessageIfPlagueCubeCure(ActionRequest request) {
+        if(request.getAction() instanceof CurePlagueAction curePlagueAction) {
+            Lobby lobby = request.getGame().getLobby();
+            String plagueName = curePlagueAction.getPlague().getName();
+            String text = "Der Seuchenwürfel " + plagueName + " wurde entfernt";
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, lobby);
+            post(systemLobbyMessageServerInternalMessage);
         }
     }
 

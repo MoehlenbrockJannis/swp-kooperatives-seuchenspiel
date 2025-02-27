@@ -9,6 +9,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
@@ -43,6 +44,28 @@ public class TriggerableService extends AbstractService {
         this.gameManagement = gameManagement;
         this.gameService = gameService;
         this.lobbyService = lobbyService;
+    }
+
+    public boolean checkForExecutingTriggerables(final Game game, final Message cause, final Player player) {
+        executeAutoTriggerables(game);
+        return checkForSendingManualTriggerables(game, cause, player);
+    }
+
+    private void executeAutoTriggerables(final Game game) {
+        PlayerTurn playerTurn = game.getCurrentTurn();
+        while(playerTurn.hasNextAutoTriggerable()) {
+            triggerAutoTriggerables(playerTurn, game);
+        }
+        playerTurn.resetAutoTriggerables();
+    }
+
+    private void triggerAutoTriggerables(PlayerTurn playerTurn, final Game game) {
+        AutoTriggerable autoTriggerable = playerTurn.getNextAutoTriggerable();
+        autoTriggerable.initWithGame(game);
+        if(autoTriggerable.isTriggered()) {
+            autoTriggerable.trigger();
+            gameService.sendGameUpdate(game);
+        }
     }
 
     /**

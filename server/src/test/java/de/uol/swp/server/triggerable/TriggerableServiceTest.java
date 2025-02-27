@@ -1,5 +1,10 @@
 package de.uol.swp.server.triggerable;
 
+import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
+import de.uol.swp.common.action.simple.car.CarActionForAlly;
+import de.uol.swp.common.action.simple.charter_flight.CharterFlightActionForAlly;
+import de.uol.swp.common.action.simple.direct_flight.DirectFlightActionForAlly;
+import de.uol.swp.common.action.simple.shuttle_flight.ShuttleFlightActionForAlly;
 import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.AQuietNightEventCard;
@@ -12,7 +17,9 @@ import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.role.RoleAbility;
+import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
@@ -22,16 +29,14 @@ import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.game.GameService;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.util.TestUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +55,9 @@ public class TriggerableServiceTest extends EventBusBasedTest {
 
     @BeforeEach
     void setUp() {
-        gameManagement = mock();
-        gameService = mock();
-        lobbyService = mock();
+        gameManagement = mock(GameManagement.class);
+        gameService = mock(GameService.class);
+        lobbyService = mock(LobbyService.class);
         difficulty = GameDifficulty.getDefault();
         final EventBus eventBus = getBus();
 
@@ -62,13 +67,32 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         final Lobby lobby = new LobbyDTO("lobby", user);
         player1 = lobby.getPlayerForUser(user);
 
+        if (player1 == null) {
+            player1 = new AIPlayer(user.getUsername());
+            lobby.addPlayer(player1);
+        }
+
         player2 = new AIPlayer("ai");
         lobby.addPlayer(player2);
+
+        RoleCard roleCard = new RoleCard("TestRole", null, new RoleAbility(
+                Map.of(),
+                List.of(
+                        MoveAllyToAllyAction.class,
+                        CarActionForAlly.class,
+                        CharterFlightActionForAlly.class,
+                        DirectFlightActionForAlly.class,
+                        ShuttleFlightActionForAlly.class
+                ),
+                List.of()
+        ));
+        player1.setRole(roleCard);
+        player2.setRole(roleCard);
 
         final List<Plague> plagues = List.of();
 
         game = new Game(lobby, createMapType(), new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
-        game.addPlayerTurn(new PlayerTurn(
+        game.addPlayerTurn(TestUtils.createPlayerTurn(
                 game,
                 player1,
                 2,
@@ -95,7 +119,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         player1.addHandCard(eventCard);
         game.getCurrentTurn().resetManualTriggerables();
 
-        assertThat(triggerableService.checkForSendingManualTriggerables(game, mock(), player1))
+        assertThat(triggerableService.checkForExecutingTriggerables(game, mock(), player1))
                 .isTrue();
 
         waitForLock();
@@ -115,7 +139,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         removeEventCardsFromPlayer(player2);
         game.getCurrentTurn().resetManualTriggerables();
 
-        assertThat(triggerableService.checkForSendingManualTriggerables(game, mock(), player1))
+        assertThat(triggerableService.checkForExecutingTriggerables(game, mock(), player1))
                 .isFalse();
     }
 
@@ -132,7 +156,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger the triggerable")
     void onTriggerableRequest() throws InterruptedException {
-        final ManualTriggerable triggerable = mock();
+        final ManualTriggerable triggerable = mock(ManualTriggerable.class);
         when(triggerable.getGame())
                 .thenReturn(game);
         final Message cause = null;
@@ -158,7 +182,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger and discard the EventCard")
     void onTriggerableRequest_EventCard() throws InterruptedException {
-        final EventCard eventCard = mock();
+        final EventCard eventCard = mock(EventCard.class);
         when(eventCard.getGame())
                 .thenReturn(game);
         when(eventCard.getPlayer())
@@ -173,6 +197,24 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         waitForLock();
 
         verify(eventCard, times(1))
+                .trigger();
+    }
+
+    @Test
+    @DisplayName("Should trigger AutoTriggerable")
+    void autoTriggerableTriggeredIfConditionsMet() throws InterruptedException {
+        final AutoTriggerable triggerable = mock(AutoTriggerable.class);
+        when(triggerable.getGame())
+                .thenReturn(game);
+        final Message cause = null;
+        final Player returningPlayer = null;
+
+        final TriggerableRequest triggerableRequest = new TriggerableRequest(triggerable, cause, returningPlayer);
+        post(triggerableRequest);
+
+        waitForLock();
+
+        verify(triggerable, times(1))
                 .trigger();
     }
 

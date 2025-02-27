@@ -261,10 +261,13 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
      * @throws IllegalStateException if an {@link Exception} occurs during instantiation
      */
     private <T extends ShareKnowledgeAction> T createShareKnowledgeAction(final Class<T> clazz) throws IllegalStateException {
+        if (clazz == null) {
+            throw new IllegalArgumentException("The class parameter cannot be null");
+        }
         try {
             return clazz.getConstructor().newInstance();
         } catch (final Exception e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException("Error creating instance of " + clazz.getName(), e);
         }
     }
 }

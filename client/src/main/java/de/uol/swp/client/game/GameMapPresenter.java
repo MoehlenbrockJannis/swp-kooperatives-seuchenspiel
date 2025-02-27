@@ -15,14 +15,17 @@ import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
-import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
+import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
+import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
+import de.uol.swp.common.triggerable.Triggerable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -43,7 +46,10 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -157,16 +163,34 @@ public class GameMapPresenter extends AbstractPresenter {
     public void onRetrieveUpdatedGameServerMessage(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         if (this.game.getId() == retrieveUpdatedGameServerMessage.getGame().getId()) {
             Platform.runLater(() -> {
+                Game updatedGame = retrieveUpdatedGameServerMessage.getGame();
+
                 removeResearchLaboratoryMarkers();
-
-                addNewPlagueCubeMarker(retrieveUpdatedGameServerMessage.getGame());
-
-                movePlayerMarker(retrieveUpdatedGameServerMessage.getGame());
-
-                addResearchLaboratoryMarkers(retrieveUpdatedGameServerMessage.getGame());
-
+                movePlayerMarker(updatedGame);
+                addResearchLaboratoryMarkers(updatedGame);
+                checkAndTriggerCurePlagueAutoTriggerable(updatedGame);
+                updatePlagueCubeMarkers();
+                addNewPlagueCubeMarker(updatedGame);
                 unhighlightCityMarkers();
             });
+        }
+    }
+
+    /**
+     * Checks all triggerable abilities of the current player and automatically triggers any eligible CurePlagueAutoTriggerable effects.
+     * This method iterates through the player's triggerable abilities, identifies any CurePlagueAutoTriggerable instances
+     * that are in a triggered state, and executes their trigger effects.
+     *
+     * @param game The game instance containing the current player and their triggerable abilities
+     */
+    public void checkAndTriggerCurePlagueAutoTriggerable(Game game) {
+        Player currentPlayer = game.getCurrentPlayer();
+        List<Triggerable> triggerables = game.getAndPreparePlayerRoleTriggerables(currentPlayer);
+
+        for (Triggerable triggerable : triggerables) {
+            if (triggerable instanceof CurePlagueAutoTriggerable curePlagueTriggerable && curePlagueTriggerable.isTriggered()) {
+                curePlagueTriggerable.trigger();
+            }
         }
     }
 
@@ -198,14 +222,14 @@ public class GameMapPresenter extends AbstractPresenter {
 
     /**
      * Scales and adds the research laboratory marker to the pane
-     * @param researchLaboratoryMarker
-     * @param field
+     * @param researchLaboratoryMarker laboratory marker
+     * @param field current field
      */
     public void buildResearchLaboratoryMarker(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
         researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
 
         double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_X;
-        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_X;
+        double yOffset = 3.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_Y;
         double xCoordinate = (double) field.getXCoordinate() / SVG_VIEW_BOX_MAX_X + xOffset;
         double yCoordinate = (double) field.getYCoordinate() / SVG_VIEW_BOX_MAX_Y + yOffset;
         double xScaleFactor = RESEARCH_LABORATORY_MARKER_SCALE_FACTOR / SVG_VIEW_BOX_MAX_X;
@@ -218,8 +242,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * Removes all existing labs from the pane.
      */
     private void removeResearchLaboratoryMarkers() {
-        researchLaboratoryMarkerPresenters.clear();
-        researchLaboratoryPane.getChildren().removeIf(node -> node instanceof ResearchLaboratoryMarker);
+        researchLaboratoryPane.getChildren().removeIf(ResearchLaboratoryMarker.class::isInstance);
     }
 
     /**
@@ -239,6 +262,45 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
+     * Prompts player to select a plague cube on their current field.
+     * Starts pulsing animation for plague cubes on the current player's field
+     * and sets up click handlers to trigger handlePlagueCubeClick().
+     * Used when multiple plague types exist on the same field.
+     */
+    public void requireChoosePlagueCube() {
+        Player currentPlayer = game.getCurrentTurn().getPlayer();
+        Field currentField = currentPlayer.getCurrentField();
+
+        plagueCubeMarkerPresenters.forEach(PlagueCubeMarkerPresenter::stopAnimation);
+
+        plagueCubeMarkerPresenters.stream()
+                .filter(plagueCubeMarkerPresenter -> plagueCubeMarkerPresenter.getField().equals(currentField))
+                .forEach(plagueCubeMarkerPresenter -> {
+                    plagueCubeMarkerPresenter.startPulsingAnimation();
+                    plagueCubeMarkerPresenter.addOnMouseClickedForEachPlagueCubeIcon(this::handlePlagueCubeClick);
+                });
+    }
+
+    /**
+     * Handles the click event on a plague cube and sends the CurePlagueAction to the backend.
+     * Removes click handlers from all plague cube markers, stops their animations,
+     * sets the selected plague on the CurePlagueAction, and sends it to the action service.
+     *
+     * @param plague The plague that was clicked and will be cured
+     */
+    private void handlePlagueCubeClick(Plague plague) {
+        plagueCubeMarkerPresenters.forEach(PlagueCubeMarkerPresenter::removeOnMouseClickedForEachPlagueCubeIcon);
+        plagueCubeMarkerPresenters.forEach(PlagueCubeMarkerPresenter::stopAnimation);
+        for (Action action : getPossibleTurnActions()) {
+            if (action instanceof CurePlagueAction curePlagueAction) {
+                curePlagueAction.setPlague(plague);
+                actionService.sendAction(game, curePlagueAction);
+                break;
+            }
+        }
+    }
+
+    /**
      * Creates a pulsating animation for a ResearchLaboratoryMarker
      *
      * @param marker The marker to animate
@@ -246,7 +308,7 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private Timeline createPulseAnimation(ResearchLaboratoryMarker marker) {
         Scale animationScale = new Scale(1.0, 1.0);
-        marker.getTransforms().removeIf(transform -> transform instanceof Scale);
+        marker.getTransforms().removeIf(Scale.class::isInstance);
         marker.getTransforms().add(animationScale);
 
         Timeline pulseTimeline = new Timeline(
@@ -277,17 +339,46 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void addNewPlagueCubeMarker(Game game) {
         List<List<Field>> infectedFieldsInTurn = game.getCurrentTurn().getInfectedFieldsInTurn();
-        if (!infectedFieldsInTurn.isEmpty()) {
-            List<Field> lastInfectedFields = infectedFieldsInTurn.get(infectedFieldsInTurn.size() - 1);
-            for (int i = 0; i < lastInfectedFields.size(); i++) {
-                addAnimatedPlagueCubeMarker(lastInfectedFields.get(i), i);
+
+        if (infectedFieldsInTurn.isEmpty()) {
+            return;
+        }
+
+        List<Field> lastInfectedFields = infectedFieldsInTurn.get(infectedFieldsInTurn.size() - 1);
+        for (Field field : lastInfectedFields) {
+            processField(field, game);
+        }
+    }
+
+    private void processField(Field field, Game game) {
+        for (Plague plague : field.getPlagueCubes().keySet()) {
+            if (!game.hasAntidoteMarkerForPlague(plague)) {
+                addAnimatedPlagueCubeMarker(field);
             }
         }
     }
 
     /**
+     * Updates the PlagueCubeMarkers based on the current game state.
+     *
+     */
+    private void updatePlagueCubeMarkers() {
+        clearPlagueCubeMarkers();
+        addAllPlagueCubeMarkers();
+    }
+
+    /**
+     * Removes all PlagueCubeMarkers.
+     */
+    private void clearPlagueCubeMarkers() {
+        plagueCubeMarkerPane.getChildren().clear();
+        plagueCubeMarkerPresenters.clear();
+    }
+
+    /**
      * Removes all existing player markers and create alle existing player markers after that
-     * @param game
+     *
+     * @param game the current game state
      */
     private void movePlayerMarker(Game game) {
         this.game = game;
@@ -380,7 +471,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @return The x offset of the playerMarker
      * @since 2024-10-04
      */
-    private double calculatePlayerXOffset(int playerOnFieldIndex, int playerAmountOnField,  double playerMarkerWidth) {
+    private double calculatePlayerXOffset(int playerOnFieldIndex, int playerAmountOnField, double playerMarkerWidth) {
         return (playerOnFieldIndex - (playerAmountOnField - 1) / 2.0) * playerMarkerWidth * PLAYER_MARKER_SCALE_FACTOR;
     }
 
@@ -397,8 +488,8 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Creates a new PlayerMarker for the given player
      *
-     * @param player The player for which a new PlayerMarker should be created
-     * @return The new PlayerMarker
+     * @param player the player for which a new PlayerMarker should be created
+     * @return the new PlayerMarker
      * @see PlayerMarker
      */
     public PlayerMarker createNewPlayerMarker(Player player) {
@@ -507,24 +598,22 @@ public class GameMapPresenter extends AbstractPresenter {
      * Creates animated plagueCubeMarker for the associated plague of a given field and adds them to the pane with delay.
      *
      * @param field field to create PlagueCubeMarker for
-     * @param delay the delay of the animation
      * @see PlagueCubeMarker
      * @since 2024-11-09
      */
-    private void addAnimatedPlagueCubeMarker(Field field, int delay) {
+    private void addAnimatedPlagueCubeMarker(Field field) {
         PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
 
-        animatePlagueCubeMarker(plagueCubeMarker, delay);
+        animatePlagueCubeMarker(plagueCubeMarker);
     }
 
     /**
      * Animates the PlagueCubeMarker
      *
      * @param plagueCubeMarker The PlagueCubeMarker to be animated
-     * @param delay            The delay of the animation
      * @since 2025-01-21
      */
-    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker, int delay) {
+    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker) {
         int animationDuration = 1000;
         int cycleCount = 2;
         long fromScaling = 1;
@@ -548,7 +637,7 @@ public class GameMapPresenter extends AbstractPresenter {
         );
 
         scaleTimeline.setCycleCount(cycleCount);
-        scaleTimeline.setDelay(Duration.seconds(delay));
+        scaleTimeline.setDelay(Duration.seconds(0));
 
         scaleTimeline.setAutoReverse(true);
         scaleTimeline.play();
@@ -598,7 +687,7 @@ public class GameMapPresenter extends AbstractPresenter {
     public void addResearchLaboratoryMarkerToField() {
         List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
         for (Action action : possibleActions) {
-            if (action instanceof BuildResearchLaboratoryAction || action instanceof ReducedCostBuildResearchLaboratoryAction) {
+            if (action instanceof BuildResearchLaboratoryAction) {
                 actionService.sendAction(game, action);
             }
         }

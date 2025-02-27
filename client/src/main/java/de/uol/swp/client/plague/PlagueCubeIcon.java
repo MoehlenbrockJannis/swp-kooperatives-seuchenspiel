@@ -1,6 +1,7 @@
 package de.uol.swp.client.plague;
 
 import de.uol.swp.client.util.ColorService;
+import de.uol.swp.common.plague.Plague;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -35,34 +36,38 @@ public class PlagueCubeIcon extends Group {
     @Getter
     private final boolean isForeignPlagueCube;
 
+    @Getter
+    private final Plague plague;
+
     /**
      * Constructor
      *
      * @param size  the size of the {@link PlagueCubeIcon}
-     * @param color the {@link Color} used for the {@link PlagueCubeIcon}
      * @param isForeignPlagueCube whether this {@link PlagueCubeIcon} represents a foreign plague cube or not
+     * @param plague the {@link Plague} represented by the {@link PlagueCubeIcon}
      */
-    public PlagueCubeIcon(double size, Color color, boolean isForeignPlagueCube) {
-        this(size, color, isForeignPlagueCube, -1);
+    public PlagueCubeIcon(double size, boolean isForeignPlagueCube, Plague plague) {
+        this(size, isForeignPlagueCube, -1, plague);
     }
 
     /**
      * Constructor
      *
      * @param size  the size of the {@link PlagueCubeIcon}
-     * @param color the {@link Color} used for the {@link PlagueCubeIcon}
      * @param isForeignPlagueCube whether this {@link PlagueCubeIcon} represents a foreign plague cube or not
      * @param numberOfPlagueCubes the amount of {@link de.uol.swp.common.plague.PlagueCube} displayed on the counter
+     * @param plague the {@link Plague} represented by the {@link PlagueCubeIcon}
      */
-    public PlagueCubeIcon(double size, Color color, boolean isForeignPlagueCube, int numberOfPlagueCubes) {
+    public PlagueCubeIcon(double size, boolean isForeignPlagueCube, int numberOfPlagueCubes, Plague plague) {
         this.width = size;
         this.height = size * 0.6;
         this.depth = size * 0.5;
+        this.plague = plague;
 
         xStartCoordinate = 0.0;
         yStartCoordinate = (-height + depth) / 2;
 
-        this.color = color;
+        this.color = ColorService.convertColorToJavaFXColor(plague.getColor());
 
         this.isForeignPlagueCube = isForeignPlagueCube;
 
