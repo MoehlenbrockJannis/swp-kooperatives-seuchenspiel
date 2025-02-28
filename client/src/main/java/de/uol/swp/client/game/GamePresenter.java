@@ -40,7 +40,6 @@ import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
-import de.uol.swp.common.util.Color;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -56,6 +55,7 @@ import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -123,7 +123,7 @@ public class GamePresenter extends AbstractPresenter {
     private PlayerCardsOverviewPresenter playerCardsOverviewPresenter;
     @Inject
     private InfectionCardsOverviewPresenter infectionCardsOverviewPresenter;
-
+    private List<RemainingComponentsPresenter> remainingComponentsPresenters;
     @FXML
     private Button topRightChatToggleButton;
 
@@ -242,6 +242,7 @@ public class GamePresenter extends AbstractPresenter {
         updateWaiveButtonPressed();
         addAntidoteMarkerButtons();
         initializeOutbreakMarkerPane();
+        this.remainingComponentsPresenters = new ArrayList<>();
         setRemainingComponentsComponent();
     }
 
@@ -251,29 +252,22 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void setRemainingComponentsComponent() {
         Platform.runLater(() -> {
-            clearRemainingComponentsComponent();
             addRemainingResearchLaboratoriesToRemainingComponentsComponent();
             addRemainingPlagueCubesToRemainingComponentsComponent();
         });
     }
 
     /**
-     * Clears the remaining components component.
-     */
-    private void clearRemainingComponentsComponent() {
-        remainingComponentsPane.getChildren().clear();
-    }
-
-    /**
      * Adds the remaining research laboratories to the remaining components component.
      */
     private void addRemainingResearchLaboratoriesToRemainingComponentsComponent() {
-        int remainingResearchLaboratories = Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES - game.getResearchLaboratories().size();
         int researchLaboratoryColumnIndex = 0;
 
         ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(RESEARCH_LABORATORY_MARKER_SIZE);
-        createRemainingComponentsPresenter(remainingResearchLaboratories, researchLaboratoryMarker);
-
+        createRemainingComponentsPresenter(
+                g -> Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES - g.getResearchLaboratories().size(),
+                researchLaboratoryMarker
+        );
         addComponentToRemainingComponents(researchLaboratoryMarker, researchLaboratoryColumnIndex);
     }
 
@@ -285,13 +279,13 @@ public class GamePresenter extends AbstractPresenter {
 
         for (Map.Entry<Plague, List<PlagueCube>> mapEntry : game.getPlagueCubes().entrySet()) {
             Plague plague = mapEntry.getKey();
-            List<PlagueCube> plagueCubes = mapEntry.getValue();
-            int amountOfRemainingPlagueCubes = plagueCubes.size();
-            Color plagueColor = plague.getColor();
             boolean isForeignPlagueCube = false;
 
             PlagueCubeIcon plagueCubeIcon = new PlagueCubeIcon(PLAGUE_CUBE_MARKER_SIZE, isForeignPlagueCube, plague);
-            createRemainingComponentsPresenter(amountOfRemainingPlagueCubes, plagueCubeIcon);
+            createRemainingComponentsPresenter(
+                    g -> g.getPlagueCubes().get(plague).size(),
+                    plagueCubeIcon
+            );
             addComponentToRemainingComponents(plagueCubeIcon, columnIndex);
             columnIndex++;
         }
@@ -300,10 +294,14 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Creates a RemainingComponentsPresenter with the specified number of components and marker.
      */
-    private void createRemainingComponentsPresenter(int numberOfComponents, Group marker) {
+    private void createRemainingComponentsPresenter(Function<Game,Integer> numberOfComponents, Group marker) {
         RemainingComponentsPresenter presenter = AbstractPresenter.loadFXMLPresenter(RemainingComponentsPresenter.class);
-        presenter.setNumberOfRemainingComponents(numberOfComponents);
-        presenter.setComponentSymbol(marker);
+        presenter.initialize(
+                this::getGame,
+                numberOfComponents,
+                marker
+        );
+        remainingComponentsPresenters.add(presenter);
         associatedPresenters.add(presenter);
     }
 
@@ -342,7 +340,6 @@ public class GamePresenter extends AbstractPresenter {
         updateWaiveButtonPressed();
         updateAntidoteMarkerButtons();
         updateCurePlagueButtonState();
-        setRemainingComponentsComponent();
 
         Player currentPlayer = game.getCurrentPlayer();
         playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
@@ -638,6 +635,7 @@ public class GamePresenter extends AbstractPresenter {
             infectionCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
             updatePlayerInfo();
+            updateRemainingComponents();
             updateShareKnowledgeActionButton();
         }
     }
@@ -657,6 +655,15 @@ public class GamePresenter extends AbstractPresenter {
                 }
             }
         }
+    }
+
+    /**
+     * Updates the labels of all {@}.
+     * This method iterates through the list of remaining components presenters
+     * and calls the updateLabel method on each presenter.
+     */
+    private void updateRemainingComponents() {
+        remainingComponentsPresenters.forEach(RemainingComponentsPresenter::updateLabel);
     }
 
     /**
