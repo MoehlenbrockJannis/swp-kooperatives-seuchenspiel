@@ -86,7 +86,6 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
             cardService.sendDiscardPlayerCardRequest(gameSupplier.get(),currentPlayer, (PlayerCard) selectedCard);
             reduceNumberOfCardsToDiscard();
         }
-
     }
 
     @Override
@@ -145,6 +144,8 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
             this.discardStackNumberOfCardsLabel.setDisable(false);
             this.drawStackNumberOfCardsLabel.setDisable(true);
             this.numberOfCardsToDiscard = response.getNumberOfCardsToDiscard();
+
+            Platform.runLater(this::discardCard);
         }
     }
 }
