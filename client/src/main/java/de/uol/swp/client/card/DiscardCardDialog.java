@@ -1,7 +1,9 @@
 package de.uol.swp.client.card;
 
 import de.uol.swp.common.card.Card;
+import javafx.event.Event;
 import javafx.scene.control.*;
+import javafx.stage.WindowEvent;
 
 import java.util.List;
 
@@ -10,7 +12,7 @@ import java.util.List;
  *
  * @param <T> the type of card that can be discarded
  */
-public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
+public class DiscardCardDialog<T extends Card> extends Dialog<T> {
 
     public static final double PREF_WIDTH = 350.00;
     private final List<T> cardStack;
@@ -55,7 +57,15 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
         }
         getDialogPane().setContent(cardListView);
         getDialogPane().getButtonTypes().add(button);
+
+        Button discardButton = (Button) getDialogPane().lookupButton(button);
+        discardButton.setDisable(true);
+
+        cardListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            discardButton.setDisable(newValue == null);
+        });
         setResult();
+        getDialogPane().getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, Event::consume);
     }
 
     /**
@@ -87,5 +97,3 @@ public  class DiscardCardDialog<T extends Card> extends Dialog<T> {
         getDialogPane().setHeader(label);
     }
 }
-
-
