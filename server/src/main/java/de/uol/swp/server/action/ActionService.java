@@ -10,6 +10,7 @@ import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
@@ -110,11 +111,22 @@ public class ActionService extends AbstractService {
     private void sendChatMessageIfPlagueCubeCure(ActionRequest request) {
         if(request.getAction() instanceof CurePlagueAction curePlagueAction) {
             Lobby lobby = request.getGame().getLobby();
-            String plagueName = curePlagueAction.getPlague().getName();
-            String text = "Der Seuchenwürfel " + plagueName + " wurde entfernt";
+            String text = getCurePlagueActionText(request, curePlagueAction);
+
             SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, lobby);
             post(systemLobbyMessageServerInternalMessage);
         }
+    }
+
+    private String getCurePlagueActionText(ActionRequest request, CurePlagueAction curePlagueAction) {
+        String plagueName = curePlagueAction.getPlague().getName();
+        Player currentPlayer = request.getGame().getCurrentPlayer();
+        Field currentField = currentPlayer.getCurrentField();
+        String currentCity = currentField.getCity().getName();
+
+        String text;
+        text = "Der/Die Seuchenwürfel der Stadt " + currentCity +  " ( " + plagueName + " ) wurde/n entfernt.";
+        return text;
     }
 
     /**
