@@ -24,8 +24,6 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
-import de.uol.swp.common.triggerable.Triggerable;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -168,29 +166,10 @@ public class GameMapPresenter extends AbstractPresenter {
                 removeResearchLaboratoryMarkers();
                 movePlayerMarker(updatedGame);
                 addResearchLaboratoryMarkers(updatedGame);
-                checkAndTriggerCurePlagueAutoTriggerable(updatedGame);
                 updatePlagueCubeMarkers();
                 addNewPlagueCubeMarker(updatedGame);
                 unhighlightCityMarkers();
             });
-        }
-    }
-
-    /**
-     * Checks all triggerable abilities of the current player and automatically triggers any eligible CurePlagueAutoTriggerable effects.
-     * This method iterates through the player's triggerable abilities, identifies any CurePlagueAutoTriggerable instances
-     * that are in a triggered state, and executes their trigger effects.
-     *
-     * @param game The game instance containing the current player and their triggerable abilities
-     */
-    public void checkAndTriggerCurePlagueAutoTriggerable(Game game) {
-        Player currentPlayer = game.getCurrentPlayer();
-        List<Triggerable> triggerables = game.getAndPreparePlayerRoleTriggerables(currentPlayer);
-
-        for (Triggerable triggerable : triggerables) {
-            if (triggerable instanceof CurePlagueAutoTriggerable curePlagueTriggerable && curePlagueTriggerable.isTriggered()) {
-                curePlagueTriggerable.trigger();
-            }
         }
     }
 
