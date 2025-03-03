@@ -55,9 +55,6 @@ import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -70,8 +67,6 @@ public class GamePresenter extends AbstractPresenter {
     public static final String ANTIDOTE_IMAGE_FOLDER_PATH = "/images/action/AntidoteMarker";
 
     public static final String FILE_EXTENSION_PNG =  ".png";
-
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Getter
     private Game game;
@@ -641,8 +636,7 @@ public class GamePresenter extends AbstractPresenter {
             infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
             updatePlayerInfo();
             updateShareKnowledgeActionButton();
-
-            scheduler.schedule(this::updateRemainingComponents, 500, TimeUnit.MILLISECONDS);
+            updateRemainingComponents();
         }
     }
 
