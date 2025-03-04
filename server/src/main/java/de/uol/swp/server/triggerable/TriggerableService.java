@@ -46,12 +46,8 @@ public class TriggerableService extends AbstractService {
         this.lobbyService = lobbyService;
     }
 
-    public boolean checkForExecutingTriggerables(final Game game, final Message cause, final Player player) {
-        executeAutoTriggerables(game);
-        return checkForSendingManualTriggerables(game, cause, player);
-    }
 
-    private void executeAutoTriggerables(final Game game) {
+    public void executeAutoTriggerables(final Game game) {
         PlayerTurn playerTurn = game.getCurrentTurn();
         while(playerTurn.hasNextAutoTriggerable()) {
             triggerAutoTriggerables(playerTurn, game);

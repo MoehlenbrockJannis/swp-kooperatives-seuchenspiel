@@ -273,7 +273,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
         Player mockPlayer = game.getLobby().getPlayerForUser(game.getLobby().getOwner());
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
-        when(triggerableService.checkForExecutingTriggerables(any(Game.class), any(), any(Player.class)))
+        when(triggerableService.checkForSendingManualTriggerables(any(Game.class), any(), any(Player.class)))
                 .thenReturn(false);
 
         DrawInfectionCardRequest request = new DrawInfectionCardRequest(mockGame, mockPlayer);
@@ -390,7 +390,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.findPlayer(any())).thenReturn(Optional.of(mockPlayer));
         when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
         when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
-        when(triggerableService.checkForExecutingTriggerables(any(), any(), any())).thenReturn(false);
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
         request.initWithMessage(message);
@@ -554,7 +554,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.hasAntidoteMarkerForPlague(any(Plague.class))).thenReturn(false);
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
-        when(triggerableService.checkForExecutingTriggerables(any(), any(), any())).thenReturn(false);
+        when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
 
         InfectionCard card1 = mock(InfectionCard.class);
         InfectionCard card2 = mock(InfectionCard.class);

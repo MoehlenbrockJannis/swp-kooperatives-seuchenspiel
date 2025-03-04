@@ -23,8 +23,6 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
-import de.uol.swp.common.plague.PlagueCube;
-import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
@@ -313,7 +311,7 @@ public class CardService extends AbstractService {
         if (playerOptional.isEmpty()) return;
         final Player player = playerOptional.get();
 
-        if (triggerableService.checkForExecutingTriggerables(game, gameRequest, player)) {
+        if (triggerableService.checkForSendingManualTriggerables(game, gameRequest, player)) {
             return;
         }
         callback.accept(game,player);
