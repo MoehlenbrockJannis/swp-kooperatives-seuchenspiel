@@ -14,13 +14,12 @@ import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
-import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.communication.AISession;
+import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.player.PlayerManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,10 +30,9 @@ import java.util.stream.Collectors;
 @Singleton
 public class GameService extends AbstractService {
 
-    private final Map<Session, AIPlayer> aiPlayerSessions = new HashMap<>();
-
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
+    private final PlayerManagement playerManagement;
 
     /**
      * Constructor
@@ -43,10 +41,11 @@ public class GameService extends AbstractService {
      * @see de.uol.swp.server.di.ServerModule
      */
     @Inject
-    public GameService(EventBus eventBus, GameManagement gameManagement, LobbyService lobbyService) {
+    public GameService(EventBus eventBus, GameManagement gameManagement, LobbyService lobbyService, PlayerManagement playerManagement) {
         super(eventBus);
         this.gameManagement = gameManagement;
         this.lobbyService = lobbyService;
+        this.playerManagement = playerManagement;
     }
 
     /**
@@ -65,7 +64,7 @@ public class GameService extends AbstractService {
 
         for (AIPlayer aiPlayer : aiPlayers) {
             Session newAiPlayerSession = AISession.createAISession(aiPlayer);
-            aiPlayerSessions.put(newAiPlayerSession, aiPlayer);
+            playerManagement.addAIPlayerSession(aiPlayer, newAiPlayerSession);
         }
 
         final CreateGameServerMessage response = new CreateGameServerMessage(game);
@@ -112,8 +111,7 @@ public class GameService extends AbstractService {
      * @since 2025-01-27
      */
     public Optional<Session> getSession(AIPlayer aiPlayer) {
-        Optional<Map.Entry<Session, AIPlayer>> entry = aiPlayerSessions.entrySet().stream().filter(e -> e.getValue().equals(aiPlayer)).findFirst();
-        return entry.map(Map.Entry::getKey);
+        return playerManagement.findSession(aiPlayer);
     }
 
     /**

@@ -347,7 +347,7 @@ public class CardService extends AbstractService {
      * @see Player#getHandCards()
      * @see Game#getMaxHandCards()
      */
-    private boolean doesPlayerRequireDiscardingOfHandCards(final Player player, final Game game) {
+    public boolean doesPlayerRequireDiscardingOfHandCards(final Player player, final Game game) {
         return player.getHandCards().size() > game.getMaxHandCards();
     }
 
