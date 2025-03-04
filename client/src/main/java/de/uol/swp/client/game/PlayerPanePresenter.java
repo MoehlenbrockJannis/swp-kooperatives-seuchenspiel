@@ -615,8 +615,12 @@ public class PlayerPanePresenter extends AbstractPresenter {
      */
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
         return () -> {
+            CardStack<InfectionCard> infectionDiscardStack = gameSupplier.get().getInfectionDiscardStack();
+            if (infectionDiscardStack.isEmpty()) {
+                return;
+            }
             String buttonText = "Karte auswählen";
-            DiscardCardDialog<InfectionCard> dialog = new DiscardCardDialog<>(gameSupplier.get().getInfectionDiscardStack(), buttonText, toughPopulationEventCard.getDescription());
+            DiscardCardDialog<InfectionCard> dialog = new DiscardCardDialog<>(infectionDiscardStack, buttonText, toughPopulationEventCard.getDescription());
             dialog.showAndWait().ifPresent(card -> {
                 toughPopulationEventCard.setInfectionCard(card);
                 approve.run();
