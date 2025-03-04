@@ -119,7 +119,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         player1.addHandCard(eventCard);
         game.getCurrentTurn().resetManualTriggerables();
 
-        assertThat(triggerableService.checkForExecutingTriggerables(game, mock(), player1))
+        assertThat(triggerableService.checkForSendingManualTriggerables(game, mock(), player1))
                 .isTrue();
 
         waitForLock();
@@ -139,7 +139,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
         removeEventCardsFromPlayer(player2);
         game.getCurrentTurn().resetManualTriggerables();
 
-        assertThat(triggerableService.checkForExecutingTriggerables(game, mock(), player1))
+        assertThat(triggerableService.checkForSendingManualTriggerables(game, mock(), player1))
                 .isFalse();
     }
 

@@ -65,6 +65,9 @@ public class ActionService extends AbstractService {
         final Game game = gameOptional.get();
         final Player player = game.getCurrentPlayer();
 
+        if (triggerableService.checkForSendingManualTriggerables(game, request, player)) {
+            return;
+        }
 
         final Action action = request.getAction();
         action.initWithGame(game);
@@ -74,9 +77,7 @@ public class ActionService extends AbstractService {
 
         gameManagement.updateGame(game);
 
-        if (triggerableService.checkForExecutingTriggerables(game, request, player)) {
-            return;
-        }
+        triggerableService.executeAutoTriggerables(game);
 
         RetrieveUpdatedGameServerMessage actionServerMessage = new RetrieveUpdatedGameServerMessage(game);
         actionServerMessage.initWithMessage(request);
