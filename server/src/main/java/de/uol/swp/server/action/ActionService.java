@@ -5,7 +5,9 @@ import com.google.inject.Singleton;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
+import de.uol.swp.common.action.advanced.transfer_card.ShareKnowledgeAction;
 import de.uol.swp.common.action.request.ActionRequest;
+import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
@@ -14,10 +16,12 @@ import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.player.PlayerManagement;
 import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -35,6 +39,7 @@ public class ActionService extends AbstractService {
     private final CardService cardService;
     private final GameManagement gameManagement;
     private final TriggerableService triggerableService;
+    private final PlayerManagement playerManagement;
 
     /**
      * Constructs a new ActionService with the specified EventBus and LobbyService.
@@ -42,11 +47,12 @@ public class ActionService extends AbstractService {
      * @param bus the EventBus used throughout the server
      */
     @Inject
-    public ActionService(EventBus bus, CardService cardService, GameManagement gameManagement, TriggerableService triggerableService) {
+    public ActionService(EventBus bus, CardService cardService, GameManagement gameManagement, TriggerableService triggerableService, PlayerManagement playerManagement) {
         super(bus);
         this.cardService = cardService;
         this.gameManagement = gameManagement;
         this.triggerableService = triggerableService;
+        this.playerManagement = playerManagement;
     }
 
     /**
@@ -90,6 +96,7 @@ public class ActionService extends AbstractService {
         checkMoveResearchLaboratory(request);
         sendChatMessageIfPlagueCubeCure(request);
         sendDiscoveredAntidoteChatMessage(request);
+        evaluateDiscardingOfHandCardsFromReceiverOfShareKnowledgeActionNeedTo(request);
     }
 
     /**
@@ -150,6 +157,37 @@ public class ActionService extends AbstractService {
 
             SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, actionRequest.getGame().getLobby());
             post(systemLobbyMessageServerInternalMessage);
+        }
+    }
+
+    /**
+     * Evaluates whether discarding a hand card is required after executing a {@link ShareKnowledgeAction}.
+     *
+     * @param actionRequest {@link ActionRequest} that contains the possible {@link ShareKnowledgeAction}
+     */
+    private void evaluateDiscardingOfHandCardsFromReceiverOfShareKnowledgeActionNeedTo(final ActionRequest actionRequest) {
+        final Action action = actionRequest.getAction();
+        if (action instanceof ShareKnowledgeAction shareKnowledgeAction) {
+            final Game game = action.getGame();
+            final Player receiver = shareKnowledgeAction.getReceiver();
+            playerManagement.findSession(receiver).ifPresent(session -> allowPlayerToDiscardHandCardIfRequired(game, receiver, session));
+        }
+    }
+
+    /**
+     * Allows a given {@link Player} to a discard a hand card if the requirements for that are met.
+     *
+     * @param game {@link Game} in which the {@link Player} is
+     * @param player {@link Player} that may be allowed to discard a hand card
+     * @param session {@link Session} of the {@link Player}
+     * @see CardService#doesPlayerRequireDiscardingOfHandCards(Player, Game)
+     */
+    private void allowPlayerToDiscardHandCardIfRequired(final Game game, final Player player, final Session session) {
+        if (cardService.doesPlayerRequireDiscardingOfHandCards(player, game)) {
+            final RetrieveUpdatedGameServerMessage message = new RetrieveUpdatedGameServerMessage(game);
+            message.setSession(session);
+            message.setMessageContext(null);
+            cardService.allowDrawingOrDiscarding(game, message, ReleaseToDiscardPlayerCardResponse.class);
         }
     }
 }

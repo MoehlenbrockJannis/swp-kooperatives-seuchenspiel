@@ -24,12 +24,12 @@ public class SendCardAction extends ShareKnowledgeAction {
     }
 
     @Override
-    protected Player getSender() {
+    public Player getSender() {
         return getExecutingPlayer();
     }
 
     @Override
-    protected Player getReceiver() {
+    public Player getReceiver() {
         return getTargetPlayer();
     }
 

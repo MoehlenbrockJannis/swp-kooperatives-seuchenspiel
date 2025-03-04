@@ -13,7 +13,9 @@ import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.EventBusBasedTest;
+import de.uol.swp.server.communication.AISession;
 import de.uol.swp.server.lobby.LobbyService;
+import de.uol.swp.server.player.PlayerManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +34,7 @@ public class GameServiceTest extends EventBusBasedTest {
     private GameService gameService;
     private GameManagement gameManagement;
     private LobbyService lobbyService;
+    private PlayerManagement playerManagement;
 
     private Game game;
     private Lobby lobby;
@@ -43,10 +47,11 @@ public class GameServiceTest extends EventBusBasedTest {
     void setUp() {
         gameManagement = mock();
         lobbyService = mock();
+        playerManagement = mock();
         final EventBus eventBus = getBus();
         difficulty = GameDifficulty.getDefault();
 
-        gameService = new GameService(eventBus, gameManagement, lobbyService);
+        gameService = new GameService(eventBus, gameManagement, lobbyService, playerManagement);
 
         final User user = new UserDTO("user", "pass", "");
         lobby = new LobbyDTO("lobby", user);
@@ -112,6 +117,9 @@ public class GameServiceTest extends EventBusBasedTest {
     void getSession_present() {
         final CreateGameRequest createGameRequest = new CreateGameRequest(lobby, mapType, plagues, difficulty);
         post(createGameRequest);
+
+        when(playerManagement.findSession(aiPlayer))
+                .thenReturn(Optional.of(AISession.createAISession(aiPlayer)));
 
         assertThat(gameService.getSession(aiPlayer))
                 .isPresent();

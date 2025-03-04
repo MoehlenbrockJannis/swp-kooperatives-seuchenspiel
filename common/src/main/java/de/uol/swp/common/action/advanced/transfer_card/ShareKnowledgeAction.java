@@ -142,7 +142,7 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
      *
      * @return sending {@link Player} of {@link #transferredCard}
      */
-    protected abstract Player getSender();
+    public abstract Player getSender();
 
     /**
      * <p>
@@ -151,7 +151,7 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
      *
      * @return receiving {@link Player} of {@link #transferredCard}
      */
-    protected abstract Player getReceiver();
+    public abstract Player getReceiver();
 
     /**
      * <p>
