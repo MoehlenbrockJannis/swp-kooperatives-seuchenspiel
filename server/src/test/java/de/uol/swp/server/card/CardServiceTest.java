@@ -124,8 +124,8 @@ public class CardServiceTest extends EventBusBasedTest {
         this.game = new Game(lobby, mapType, new ArrayList<>(lobby.getPlayers()), plagues, difficulty);
         this.game.addPlayerTurn(TestUtils.createPlayerTurn(
                 game,
-                game.getPlayersInTurnOrder().get(0),
-                game.getNumberOfActionsPerTurn(),
+                game.getCurrentPlayer(),
+                0,
                 game.getNumberOfPlayerCardsToDrawPerTurn(),
                 game.getNumberOfInfectionCardsToDrawPerTurn()
         ));
@@ -224,8 +224,8 @@ public class CardServiceTest extends EventBusBasedTest {
                 gameWithMockedPlayer,
                 player1,
                 0,
-                0,
-                0
+                2,
+                2
         ));
         PlayerCard playerCard = new AirBridgeEventCard();
         while (player1.hasHandCard(playerCard)) {
