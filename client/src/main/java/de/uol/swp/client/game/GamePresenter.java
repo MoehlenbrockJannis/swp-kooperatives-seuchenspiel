@@ -36,7 +36,6 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
-import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
@@ -328,20 +327,15 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameServerMessage message) {
         Runnable executable = () -> this.game = message.getGame();
+        Player currentPlayer = game.getCurrentPlayer();
         executeIfTheUpdatedGameMessageRetrieves(message, executable);
 
-        if (isTurnOver(this.game)) {
-            EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
-            eventBus.post(endTurnMessage);
-            updateResearchLaboratoryButtonState();
-        }
-
+        updateResearchLaboratoryButtonState();
         initializeResearchLaboratoryButton();
         updateWaiveButtonPressed();
         updateAntidoteMarkerButtons();
         updateCurePlagueButtonState();
 
-        Player currentPlayer = game.getCurrentPlayer();
         playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
         outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
     }
@@ -634,6 +628,7 @@ public class GamePresenter extends AbstractPresenter {
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
+            gameMapController.updateGameState(game);
             updatePlayerInfo();
             updateShareKnowledgeActionButton();
             updateRemainingComponents();
