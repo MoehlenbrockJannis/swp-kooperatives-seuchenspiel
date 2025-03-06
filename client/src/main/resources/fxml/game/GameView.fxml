@@ -4,7 +4,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
@@ -158,7 +157,6 @@
 
     <!-- Column 8 -->
     <Pane fx:id="playerCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
-        <!--<Text layoutX="27.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spielerkarten"/>-->
     </Pane>
     <Pane fx:id="infectionCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
           GridPane.rowIndex="8">

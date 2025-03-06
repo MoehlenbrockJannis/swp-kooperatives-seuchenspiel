@@ -49,8 +49,10 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     ) {
         super.initialize(gameSupplier,drawStackFunction,discardStackFunction,parent);
         createCardStackIcon(ICON_COLOR, cardIcon);
-        drawStackTooltip.setText("Infektions-Zugstapel");
-        discardStackTooltip.setText("Infektions-Ablagestapel");
+        drawStackTooltipText = "Infektions-Zugstapel";
+        discardStackTooltipText = "Infektions-Ablagestapel ansehen";
+        drawStackTooltip.setText(drawStackTooltipText);
+        discardStackTooltip.setText(discardStackTooltipText);
         setupInfectionMarkerLabel();
     }
 
@@ -75,6 +77,12 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Override
     protected boolean isGameInCorrectDrawPhase() {
         return gameSupplier.get().getCurrentTurn().isInfectionCardDrawExecutable();
+    }
+
+    @Override
+    protected void updateToolTips() {
+        reinstallTooltip(drawStackNumberOfCardsLabel, drawStackTooltip, drawStackTooltipText);
+        reinstallTooltip(discardStackNumberOfCardsLabel, discardStackTooltip, discardStackTooltipText);
     }
 
     /**

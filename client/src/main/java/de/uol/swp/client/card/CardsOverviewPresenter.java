@@ -3,6 +3,7 @@ package de.uol.swp.client.card;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.client.util.TooltipsUtil;
 import de.uol.swp.common.card.Card;
 import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
@@ -11,6 +12,7 @@ import de.uol.swp.common.player.Player;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
@@ -54,8 +56,11 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     protected VBox labelVBox;
     @FXML
     protected StackPane cardIcon;
+    protected String drawStackTooltipText;
+    protected String discardStackTooltipText;
     protected Tooltip drawStackTooltip;
     protected Tooltip discardStackTooltip;
+    protected DiscardStackPopup<? extends Card> discardStackPopup;
     protected final CardService cardService;
     @Inject
     protected LoggedInUserProvider loggedInUserProvider;
@@ -109,9 +114,26 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.drawCardStackFunction = drawStackFunction;
         this.discardCardStackFunction = discardStackFunction;
         this.parent = parent;
-        this.drawStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> drawCard());
+        setMouseEvents();
         updateLabels();
         setupDesign();
+    }
+
+    /**
+     * Sets mouse event handlers for the draw and discard stack labels.
+     * <p>
+     * This method sets up mouse click and mouse enter/exit event handlers for the draw and discard stack labels.
+     * When the draw stack label is clicked, the {@link #drawCard()} method is called.
+     * When the mouse enters the draw stack label, the {@link #updateToolTips()} method is called.
+     * When the mouse enters the discard stack label, the {@link #showCardStack()} method is called.
+     * When the mouse exits the discard stack label, the {@link #hideCardStack()} method is called.
+     * </p>
+     */
+    private void setMouseEvents() {
+        this.drawStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> drawCard());
+        this.drawStackNumberOfCardsLabel.setOnMouseEntered(mouseEvent -> updateToolTips());
+        this.discardStackNumberOfCardsLabel.setOnMouseEntered(mouseEvent -> showCardStack());
+        this.discardStackNumberOfCardsLabel.setOnMouseExited(mouseEvent -> hideCardStack());
     }
 
     /**
@@ -130,6 +152,36 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * @return {@code true} if {@link Game} is in correct phase, {@code false} otherwise
      */
     protected abstract boolean isGameInCorrectDrawPhase();
+
+    protected abstract void updateToolTips();
+
+    /**
+     * Shows the discard stack popup if the conditions are met.
+     * <p>
+     * This method checks if the popup should be shown using the {@link #shouldShowPopup()} method.
+     * If the conditions are met, it runs the setup and display of the discard stack popup on the JavaFX application thread.
+     * </p>
+     */
+    private void showCardStack() {
+       if (shouldShowPopup()) {
+           updateToolTips();
+           Platform.runLater(() -> {
+                setupCardStackPopup();
+               discardStackPopup.show(this.window);
+           });
+        }
+    }
+
+    /**
+     * Hides the discard stack popup.
+     * <p>
+     * This method runs on the JavaFX application thread and hides the discard stack popup
+     * if it is currently visible.
+     * </p>
+     */
+    private void hideCardStack() {
+        Platform.runLater(() -> discardStackPopup.hide());
+    }
 
     /**
      * Updates the labels for the number of cards in the draw and discard stacks.
@@ -152,16 +204,48 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     }
 
     /**
+     * Sets up the discard stack popup.
+     * <p>
+     * This method retrieves the discard stack using the discardCardStackFunction and initializes
+     * the discardStackPopup if it is null. If the discardStackPopup is already initialized,
+     * it updates the cards in the popup.
+     * </p>
+     */
+    private void setupCardStackPopup() {
+        CardStack<? extends Card> discardStack = discardCardStackFunction.apply(gameSupplier.get());
+        if(this.discardStackPopup == null) {
+            this.discardStackPopup = new DiscardStackPopup<>(discardStack, parent);
+        } else {
+            this.discardStackPopup.updateCards(discardStack);
+        }
+    }
+
+    /**
      * Sets up the labels for the card overview component.
      */
     private void setupDesignForLabels() {
-        this.drawStackTooltip = new Tooltip();
-        this.discardStackTooltip = new Tooltip();
+        this.drawStackTooltip = TooltipsUtil.createConsistentTooltip("");
+        this.discardStackTooltip = TooltipsUtil.createConsistentTooltip("");
         Tooltip.install(this.drawStackNumberOfCardsLabel, this.drawStackTooltip);
         Tooltip.install(this.discardStackNumberOfCardsLabel, this.discardStackTooltip);
         this.drawStackNumberOfCardsLabel.setDisable(true);
-        this.discardStackNumberOfCardsLabel.setDisable(true);
+    }
 
+    /**
+     * Resets the tooltip for a given node with new text.
+     * <p>
+     * This method uninstalls the current tooltip from the specified node, creates a new tooltip
+     * with the provided text, and installs the new tooltip on the node.
+     * </p>
+     *
+     * @param node    the node from which the tooltip will be uninstalled and reinstalled
+     * @param tooltip the current tooltip to be reset
+     * @param text    the new text for the tooltip
+     */
+    protected void reinstallTooltip(Node node, Tooltip tooltip, String text) {
+        Tooltip.uninstall(node, tooltip);
+        tooltip = TooltipsUtil.createConsistentTooltip(text);
+        Tooltip.install(node, tooltip);
     }
 
     /**
@@ -226,13 +310,22 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * @param card   the card to be displayed in the popup
      */
     protected void handleCardPopup(int gameID, Card card) {
-        if (this.gameSupplier.get().getId() == gameID) {
+        if (this.gameSupplier.get().getId() == gameID && shouldShowPopup()) {
             Platform.runLater(() -> {
                 CardPopup cardPopup = new CardPopup(card, window);
                 cardPopup.generatePopup();
             });
         }
 
+    }
+
+    /**
+     * Determines whether the popup should be shown based on the window state.
+     *
+     * @return {@code true} if the window is not confined or is focused, {@code false} otherwise
+     */
+    private boolean shouldShowPopup() {
+        return !this.window.isIconified() || this.window.isFocused();
     }
 
     /**
@@ -258,9 +351,6 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      */
     protected void reduceNumberOfCardsToDiscard() {
         this.numberOfCardsToDiscard--;
-        if (this.numberOfCardsToDiscard == 0) {
-            this.discardStackNumberOfCardsLabel.setDisable(true);
-        }
     }
 
     /**

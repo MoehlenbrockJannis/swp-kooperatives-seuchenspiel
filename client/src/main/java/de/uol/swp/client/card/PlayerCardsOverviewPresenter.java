@@ -51,10 +51,11 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
             Pane parent
     ) {
         super.initialize(gameSupplier,drawStackFunction,discardStackFunction,parent);
-        this.discardStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> discardCard());
         createCardStackIcon(ICON_COLOR, cardIcon);
-        drawStackTooltip.setText("Spielerkarten-Zugstapel");
-        discardStackTooltip.setText("Spielerkarten-Ablagestapel");
+        drawStackTooltipText = "Spielerkarten-Zugstapel";
+        discardStackTooltipText = "Spielerkarten-Ablagestapel ansehen";
+        drawStackTooltip.setText(drawStackTooltipText);
+        discardStackTooltip.setText(discardStackTooltipText);
     }
 
     /**
@@ -91,6 +92,12 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Override
     protected boolean isGameInCorrectDrawPhase() {
         return gameSupplier.get().getCurrentTurn().isPlayerCardDrawExecutable();
+    }
+
+    @Override
+    protected void updateToolTips() {
+        reinstallTooltip(drawStackNumberOfCardsLabel, drawStackTooltip, drawStackTooltipText);
+        reinstallTooltip(discardStackNumberOfCardsLabel, discardStackTooltip, discardStackTooltipText);
     }
 
     /**
@@ -141,7 +148,6 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.discardStackNumberOfCardsLabel.setDisable(false);
             this.drawStackNumberOfCardsLabel.setDisable(true);
             this.numberOfCardsToDiscard = response.getNumberOfCardsToDiscard();
 
