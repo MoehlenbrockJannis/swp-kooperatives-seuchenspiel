@@ -1,4 +1,4 @@
-package de.uol.swp.server.env;
+package de.uol.swp.common.env;
 
 /**
  * Interface for reading environment variables

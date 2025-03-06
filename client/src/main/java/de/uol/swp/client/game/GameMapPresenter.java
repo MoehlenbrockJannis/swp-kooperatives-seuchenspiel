@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * Manages the window representing the game map
@@ -71,7 +72,7 @@ public class GameMapPresenter extends AbstractPresenter {
     private static final int SVG_VIEW_BOX_MAX_Y = 1075;
     private static final double ASPECT_RATIO = (double) SVG_VIEW_BOX_MAX_X / SVG_VIEW_BOX_MAX_Y;
 
-    private Game game;
+    private Supplier<Game> gameSupplier;
 
     @FXML
     private Pane webViewPane;
@@ -118,16 +119,16 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Initializes the game map with the given game data.
      *
-     * @param game the game data to initialize the map with
+     * @param gameSupplier the game data to initialize the map with
      */
-    @FXML
-    public void initialize(Game game) {
-        this.game = game;
+    public void initialize(Supplier<Game> gameSupplier) {
+        this.gameSupplier = gameSupplier;
+        Game game = gameSupplier.get();
         this.webView.setContextMenuEnabled(false);
         setPanePickOnBoundsToFalse();
 
-        cityConnectionPanePresenter = new CityConnectionPanePresenter(this.game, this.webView, this.cityConnectionPane);
-        cityNamePanePresenter = new CityNamePanePresenter(this.game, this.webView, this.cityNamePane);
+        cityConnectionPanePresenter = new CityConnectionPanePresenter(game, this.webView, this.cityConnectionPane);
+        cityNamePanePresenter = new CityNamePanePresenter(game, this.webView, this.cityNamePane);
 
         bindSizePropertyOfWebView();
         loadSvgIntoWebView();
@@ -135,7 +136,7 @@ public class GameMapPresenter extends AbstractPresenter {
         addAllPlagueCubeMarkers();
         addAllPlayerMarkers();
 
-        addResearchLaboratoryMarkers(this.game);
+        addResearchLaboratoryMarkers(game);
     }
 
     /**
@@ -158,13 +159,13 @@ public class GameMapPresenter extends AbstractPresenter {
      * @author Jannis Moehlenbrock
      */
     public void updateGameState(Game updatedGame) {
-        this.game = updatedGame;
+        Game game = gameSupplier.get();
         Platform.runLater(() -> {
             removeResearchLaboratoryMarkers();
-            movePlayerMarker(updatedGame);
-            addResearchLaboratoryMarkers(updatedGame);
+            movePlayerMarker(game);
+            addResearchLaboratoryMarkers(game);
             updatePlagueCubeMarkers();
-            addNewPlagueCubeMarker(updatedGame);
+            addNewPlagueCubeMarker(game);
             unhighlightCityMarkers();
         });
     }
@@ -188,6 +189,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param field The field containing the research laboratory
      */
     private void createResearchLaboratoryMarker(Field field) {
+        Game game = gameSupplier.get();
         ResearchLaboratoryMarker researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
         buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
         ResearchLaboratoryMarkerPresenter researchLaboratoryMarkerPresenter = new ResearchLaboratoryMarkerPresenter(researchLaboratoryMarker, game, actionService, field);
@@ -201,6 +203,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param field current field
      */
     public void buildResearchLaboratoryMarker(ResearchLaboratoryMarker researchLaboratoryMarker, Field field) {
+        Game game = gameSupplier.get();
         researchLaboratoryPane.getChildren().add(researchLaboratoryMarker);
 
         double xOffset = 2.5 * CityMarker.getRADIUS() / SVG_VIEW_BOX_MAX_X;
@@ -226,6 +229,7 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     public void requireMoveResearchLaboratory() {
         for (Node node : researchLaboratoryPane.getChildren()) {
+            Game game = gameSupplier.get();
             if (node instanceof ResearchLaboratoryMarker researchLaboratoryMarker) {
                 Timeline pulseTimeline = createPulseAnimation(researchLaboratoryMarker);
                 pulseTimeline.stop();
@@ -243,6 +247,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * Used when multiple plague types exist on the same field.
      */
     public void requireChoosePlagueCube() {
+        Game game = gameSupplier.get();
         Player currentPlayer = game.getCurrentTurn().getPlayer();
         Field currentField = currentPlayer.getCurrentField();
 
@@ -264,6 +269,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param plague The plague that was clicked and will be cured
      */
     private void handlePlagueCubeClick(Plague plague) {
+        Game game = gameSupplier.get();
         plagueCubeMarkerPresenters.forEach(PlagueCubeMarkerPresenter::removeOnMouseClickedForEachPlagueCubeIcon);
         plagueCubeMarkerPresenters.forEach(PlagueCubeMarkerPresenter::stopAnimation);
         for (Action action : getPossibleTurnActions()) {
@@ -320,15 +326,22 @@ public class GameMapPresenter extends AbstractPresenter {
         }
 
         List<Field> lastInfectedFields = infectedFieldsInTurn.get(infectedFieldsInTurn.size() - 1);
-        for (Field field : lastInfectedFields) {
-            processField(field, game);
+        final int numberOfInfectedFields = lastInfectedFields.size();
+        for (int i = 0; i < numberOfInfectedFields; i++) {
+            final Field field = lastInfectedFields.get(i);
+            boolean isLastField = i == numberOfInfectedFields - 1;
+            processField(field, game, isLastField);
         }
     }
 
-    private void processField(Field field, Game game) {
-        for (Plague plague : field.getPlagueCubes().keySet()) {
+    private void processField(Field field, Game game, boolean isLastField) {
+        final List<Plague> plagues = new ArrayList<>(field.getPlagueCubes().keySet());
+        final int plaguesSize = plagues.size();
+        for (int i = 0; i < plaguesSize; i++) {
+            final Plague plague = plagues.get(i);
             if (!game.hasAntidoteMarkerForPlague(plague)) {
-                addAnimatedPlagueCubeMarker(field);
+                boolean isLastPlague = i == plaguesSize - 1;
+                addAnimatedPlagueCubeMarker(field, isLastField && isLastPlague);
             }
         }
     }
@@ -356,7 +369,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param game the current game state
      */
     private void movePlayerMarker(Game game) {
-        this.game = game;
         playerMarkerPane.getChildren().removeIf(PlayerMarker.class::isInstance);
         addAllPlayerMarkers();
     }
@@ -368,8 +380,9 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-09-28
      */
     private void addAllPlayerMarkers() {
+        Game game = gameSupplier.get();
         playerMarkerPresenters.clear();
-        List<Player> playersInTurnOrder = this.game.getPlayersInTurnOrder();
+        List<Player> playersInTurnOrder = game.getPlayersInTurnOrder();
         for (Player player : playersInTurnOrder) {
             addPlayerMarker(player);
         }
@@ -383,6 +396,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-10-04
      */
     private void addPlayerMarker(Player player) {
+        Game game = gameSupplier.get();
         PlayerMarker newPlayerMarker = createNewPlayerMarker(player);
         PlayerMarkerPresenter playerMarkerPresenter = new PlayerMarkerPresenter(
                 newPlayerMarker,
@@ -468,6 +482,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @see PlayerMarker
      */
     public PlayerMarker createNewPlayerMarker(Player player) {
+        Game game = gameSupplier.get();
         RoleCard playerRole = player.getRole();
         Color playerColor = ColorService.convertColorToJavaFXColor(playerRole.getColor());
         double playerSize = 0.75;
@@ -537,6 +552,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-09-10
      */
     private void addAllCityMarkers() {
+        Game game = gameSupplier.get();
         for (Field field : game.getFields()) {
             CityMarker cityMarker = new CityMarker(field);
             cityMarkerPane.getChildren().add(cityMarker);
@@ -564,6 +580,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @since 2024-11-09
      */
     private void addAllPlagueCubeMarkers() {
+        Game game = gameSupplier.get();
         for (Field field : game.getFields()) {
             createPlagueCubeMarker(field);
         }
@@ -576,10 +593,10 @@ public class GameMapPresenter extends AbstractPresenter {
      * @see PlagueCubeMarker
      * @since 2024-11-09
      */
-    private void addAnimatedPlagueCubeMarker(Field field) {
+    private void addAnimatedPlagueCubeMarker(Field field, boolean setFinnishListener) {
         PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
 
-        animatePlagueCubeMarker(plagueCubeMarker);
+        animatePlagueCubeMarker(plagueCubeMarker, setFinnishListener);
     }
 
     /**
@@ -588,7 +605,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param plagueCubeMarker The PlagueCubeMarker to be animated
      * @since 2025-01-21
      */
-    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker) {
+    private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker, boolean setFinnishListener) {
         int animationDuration = 1000;
         int cycleCount = 2;
         long fromScaling = 1;
@@ -616,8 +633,9 @@ public class GameMapPresenter extends AbstractPresenter {
 
         scaleTimeline.setAutoReverse(true);
         scaleTimeline.play();
-        scaleTimeline.setOnFinished(event -> sendEndPlayerTurnRequest());
-
+        if (setFinnishListener) {
+            scaleTimeline.setOnFinished(event -> sendEndPlayerTurnRequest(gameSupplier.get()));
+        }
     }
 
     /**
@@ -627,10 +645,10 @@ public class GameMapPresenter extends AbstractPresenter {
      * If both conditions are met, it creates an EndPlayerTurnRequest and posts it to the event bus.
      * </p>
      */
-    private void sendEndPlayerTurnRequest() {
+    private void sendEndPlayerTurnRequest(Game game) {
         Player currentPlayer = game.getCurrentPlayer();
         User loggedInUser = loggedInUserProvider.get();
-        if (isTurnOver(this.game) && currentPlayer.containsUser(loggedInUser)) {
+        if (isTurnOver(game) && currentPlayer.containsUser(loggedInUser)) {
             EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
             eventBus.post(endTurnMessage);
         }
@@ -642,7 +660,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @return True if the turn is over, false otherwise
      */
     private boolean isTurnOver(Game game) {
-        return this.game.getCurrentTurn().isOver();
+        return game.getCurrentTurn().isOver();
     }
 
     /**
@@ -687,6 +705,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * </p>
      */
     public void addResearchLaboratoryMarkerToField() {
+        Game game = gameSupplier.get();
         List<Action> possibleActions = game.getCurrentTurn().getPossibleActions();
         for (Action action : possibleActions) {
             if (action instanceof BuildResearchLaboratoryAction) {
@@ -701,6 +720,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * and if an action is an instance of WaiveAction, it sends that action using the action service.
      */
     public void sendWaiveAction() {
+        Game game = gameSupplier.get();
         for(Action action : getPossibleTurnActions()) {
             if(action instanceof WaiveAction) {
                 actionService.sendAction(game, action);
@@ -712,6 +732,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @return the possible turn actions
      */
     public List<Action> getPossibleTurnActions() {
+        Game game = gameSupplier.get();
         return game.getCurrentTurn().getPossibleActions();
     }
 
@@ -727,6 +748,7 @@ public class GameMapPresenter extends AbstractPresenter {
     public void setClickListenersForPlayerMarkersAndFields(final List<Player> players,
                                                            final List<Field> availableFields,
                                                            final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
+        Game game = gameSupplier.get();
         if (game.isGameLost()) {
             return;
         }
@@ -755,6 +777,7 @@ public class GameMapPresenter extends AbstractPresenter {
     private void setClickListenersForPlayerMarkerAndFields(final PlayerMarkerPresenter playerMarkerPresenter,
                                                            final List<Field> availableFields,
                                                            final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
+        Game game = gameSupplier.get();
         if (game.isGameLost()) {
             return;
         }
@@ -790,6 +813,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param approve the runnable to execute when a field is clicked
      */
     public void setClickListenersForGovernmentSubsidiesFields(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve) {
+        Game game = gameSupplier.get();
         if (game.isGameLost()) {
             return;
         }
@@ -829,6 +853,7 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param field the field to execute the action for
      */
     private void executeGovernmentSubsidiesAction(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve, Field field) {
+        Game game = gameSupplier.get();
         governmentSubsidiesEventCard.setField(field);
         unhighlightCityMarkers();
 

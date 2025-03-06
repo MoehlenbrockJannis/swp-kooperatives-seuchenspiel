@@ -16,6 +16,7 @@ import java.util.Optional;
  * This class is responsible for the connection to the database.
  * It uses the HikariCP connection pool.
  */
+@SuppressWarnings("SqlSourceToSinkFlow")
 @Singleton
 public class DataSource {
 
@@ -47,7 +48,8 @@ public class DataSource {
      * @return ResultSet from the query
      */
     public Optional<ResultSet> getResultSet(final String query) {
-        try (PreparedStatement statement = prepareStatement(query)) {
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
             return Optional.of(statement.executeQuery());
         } catch (SQLException e) {
             return Optional.empty();
@@ -61,21 +63,9 @@ public class DataSource {
      * @throws SQLException if a database access error occurs
      */
     public void executeQuery(String query) throws SQLException {
-        try (PreparedStatement statement = prepareStatement(query)) {
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
             statement.executeUpdate();
         }
     }
-
-    /**
-     * Prepares a statement for a given query.
-     *
-     * @param query The query to be executed
-     */
-    private PreparedStatement prepareStatement(String query) throws SQLException {
-        Connection connection = getConnection();
-        return connection.prepareStatement(query);
-    }
-
-
-
 }

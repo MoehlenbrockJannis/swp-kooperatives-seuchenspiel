@@ -1,7 +1,7 @@
 package de.uol.swp.server.database;
 
 import com.google.inject.Inject;
-import de.uol.swp.server.env.EnvReader;
+import de.uol.swp.common.env.EnvReader;
 import lombok.Getter;
 
 

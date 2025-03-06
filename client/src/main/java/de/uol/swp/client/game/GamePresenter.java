@@ -200,6 +200,8 @@ public class GamePresenter extends AbstractPresenter {
 
         stage.show();
 
+        gameMapController.initialize(gameSupplier);
+
         this.playerCardStackPane.getChildren().add(this.playerCardsOverviewPresenter.getScene().getRoot());
         this.playerCardsOverviewPresenter.initialize(
                 gameSupplier,
@@ -230,7 +232,6 @@ public class GamePresenter extends AbstractPresenter {
         });
         playerPanePresenterList = new ArrayList<>();
         addAllPlayers();
-        gameMapController.initialize(game);
         initializeMenuItems();
         chatComponentController.setLobby(game.getLobby());
         initializeChat();
