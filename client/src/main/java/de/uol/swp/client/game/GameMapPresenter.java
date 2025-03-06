@@ -19,11 +19,12 @@ import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.role.RoleCard;
+import de.uol.swp.common.user.User;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -39,7 +40,6 @@ import javafx.util.Duration;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -154,23 +154,19 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Handles game updates from the server, updating the game state as necessary.
      *
-     * @param retrieveUpdatedGameServerMessage the message containing the updated game state from the server
+     * @param updatedGame the updated game state received from the server
      * @author Jannis Moehlenbrock
      */
-    @Subscribe
-    public void onRetrieveUpdatedGameServerMessage(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
-        if (this.game.getId() == retrieveUpdatedGameServerMessage.getGame().getId()) {
-            Platform.runLater(() -> {
-                Game updatedGame = retrieveUpdatedGameServerMessage.getGame();
-
-                removeResearchLaboratoryMarkers();
-                movePlayerMarker(updatedGame);
-                addResearchLaboratoryMarkers(updatedGame);
-                updatePlagueCubeMarkers();
-                addNewPlagueCubeMarker(updatedGame);
-                unhighlightCityMarkers();
-            });
-        }
+    public void updateGameState(Game updatedGame) {
+        this.game = updatedGame;
+        Platform.runLater(() -> {
+            removeResearchLaboratoryMarkers();
+            movePlayerMarker(updatedGame);
+            addResearchLaboratoryMarkers(updatedGame);
+            updatePlagueCubeMarkers();
+            addNewPlagueCubeMarker(updatedGame);
+            unhighlightCityMarkers();
+        });
     }
 
     /**
@@ -620,6 +616,33 @@ public class GameMapPresenter extends AbstractPresenter {
 
         scaleTimeline.setAutoReverse(true);
         scaleTimeline.play();
+        scaleTimeline.setOnFinished(event -> sendEndPlayerTurnRequest());
+
+    }
+
+    /**
+     * Sends an EndPlayerTurnRequest if the current player's turn is over and they are the player of this client.
+     * <p>
+     * This method checks if the current player's turn is over and if the current player is the player of this client.
+     * If both conditions are met, it creates an EndPlayerTurnRequest and posts it to the event bus.
+     * </p>
+     */
+    private void sendEndPlayerTurnRequest() {
+        Player currentPlayer = game.getCurrentPlayer();
+        User loggedInUser = loggedInUserProvider.get();
+        if (isTurnOver(this.game) && currentPlayer.containsUser(loggedInUser)) {
+            EndPlayerTurnRequest endTurnMessage = new EndPlayerTurnRequest(game);
+            eventBus.post(endTurnMessage);
+        }
+    }
+
+    /**
+     * Checks if the current turn is over
+     * @param game The game to check
+     * @return True if the turn is over, false otherwise
+     */
+    private boolean isTurnOver(Game game) {
+        return this.game.getCurrentTurn().isOver();
     }
 
     /**

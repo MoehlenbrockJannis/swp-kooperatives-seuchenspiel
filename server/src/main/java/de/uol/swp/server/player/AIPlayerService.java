@@ -22,6 +22,7 @@ import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
@@ -91,7 +92,23 @@ public class AIPlayerService extends AbstractService {
         final PlayerTurn playerTurn = game.getCurrentTurn();
 
         if (isAIPlayerTurn(playerTurn)) {
+
+            endTurnIfOver(playerTurn, game);
+
             handleAIPlayerTurnProcess(game);
+        }
+    }
+
+    /**
+     * Ends the player's turn for the AI player if it is over.
+     *
+     * @param playerTurn the current player's turn
+     * @param game the current game
+     */
+    private void endTurnIfOver(PlayerTurn playerTurn, Game game) {
+        if (playerTurn.isOver()) {
+            EndPlayerTurnRequest endPlayerTurnRequest = new EndPlayerTurnRequest(game);
+            post(endPlayerTurnRequest);
         }
     }
 
