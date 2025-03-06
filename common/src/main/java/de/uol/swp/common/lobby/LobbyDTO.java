@@ -172,6 +172,9 @@ public class LobbyDTO implements Lobby {
     }
 
     private void determineLobbyStatus() {
+        if (status.equals(LobbyStatus.OVER)) {
+            return;
+        }
         final Set<Player> players = getPlayers();
         if (players.size() < getMaxPlayers() && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;

@@ -3,17 +3,22 @@ package de.uol.swp.server.game;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameEndReason;
 import de.uol.swp.common.game.request.CreateGameRequest;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyStatus;
+import de.uol.swp.common.lobby.request.UpdateLobbyStatusRequest;
 import de.uol.swp.common.message.server.ServerMessage;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
+import de.uol.swp.server.game.message.GameStateChangedInternalMessage;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.communication.AISession;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.PlayerManagement;
@@ -124,13 +129,55 @@ public class GameService extends AbstractService {
     public void onLeaveGameRequest(LeaveGameRequest leaveGameRequest) {
         Game game = leaveGameRequest.getGame();
 
-        if (!game.isLost()) {
-            game.setLost(true);
-            String message = "Ein Spieler hat das Spiel verlassen! Spiel verloren!";
-            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(message, game.getLobby());
-            post(systemLobbyMessageServerInternalMessage);
+        if (!game.isGameLost()) {
+            game.setGameLost(true);
+            gameManagement.updateGame(game);
+            post(new GameStateChangedInternalMessage(game, GameEndReason.PLAYER_LEFT_GAME));
         }
         gameManagement.updateGame(game);
         sendGameUpdate(game);
+    }
+
+    /**
+     * Handles game state change events and processes game end conditions.
+     * If the game is either won or lost, triggers the game end process.
+     *
+     * @param gameStateChangedInternalMessage The message containing the game and its state
+     */
+    @Subscribe
+    public void onGameStateChanged(GameStateChangedInternalMessage gameStateChangedInternalMessage) {
+        Game game = gameStateChangedInternalMessage.getGame();
+        if (!game.isGameLost() && !game.isGameWon()) {
+            return;
+        }
+
+        handleGameEnd(game, gameStateChangedInternalMessage.getReason());
+        deleteGameAndLobby(game);
+    }
+
+    /**
+     * Processes the end of a game by updating the lobby status and notifying players.
+     *
+     * @param game The game that has ended
+     * @param reason The reason why the game ended
+     */
+    private void handleGameEnd(Game game, GameEndReason reason) {
+        post(new UpdateLobbyStatusRequest(game.getLobby(), LobbyStatus.OVER));
+        post(new SystemLobbyMessageServerInternalMessage(reason.getDisplayMessage(), game.getLobby()));
+    }
+
+    /**
+     * Deletes both the game and its associated lobby from the system.
+     * Sends a notification to all players that the lobby has been closed.
+     *
+     * @param game The game to be deleted along with its lobby
+     */
+    private void deleteGameAndLobby(Game game) {
+        post(new SystemLobbyMessageServerInternalMessage(
+                "Diese Lobby wurde automatisch geschlossen!",
+                game.getLobby())
+        );
+        gameManagement.removeGame(game);
+        lobbyService.deleteLobby(game.getLobby());
     }
 }

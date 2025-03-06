@@ -263,9 +263,7 @@ public class LobbyService extends AbstractService {
             }
 
             if (isLobbyDroppable(lobby, player)) {
-                lobbyManagement.dropLobby(lobby);
-                LobbyDroppedServerInternalMessage message = new LobbyDroppedServerInternalMessage(lobby);
-                post(message);
+                deleteLobby(lobby);
             } else {
                 lobby.removePlayer(player);
 
@@ -419,4 +417,14 @@ public class LobbyService extends AbstractService {
         }
     }
 
+    /**
+     * Deletes a lobby from the lobby management system
+     *
+     * @param lobby The lobby to be deleted
+     */
+    public void deleteLobby(Lobby lobby) {
+        lobbyManagement.dropLobby(lobby);
+        LobbyDroppedServerInternalMessage message = new LobbyDroppedServerInternalMessage(lobby);
+        post(message);
+    }
 }

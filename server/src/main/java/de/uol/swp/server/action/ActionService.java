@@ -68,6 +68,10 @@ public class ActionService extends AbstractService {
             return;
         }
 
+        if (request.getGame().isGameLost()) {
+            return;
+        }
+
         final Game game = gameOptional.get();
         final Player player = game.getCurrentPlayer();
 

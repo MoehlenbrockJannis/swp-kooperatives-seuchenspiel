@@ -366,6 +366,10 @@ public class PlayerTurn implements Serializable {
      * @param command the command to be executed
      */
     public void executeCommand(Command command) {
+        if (game.isGameLost()) {
+            return;
+        }
+
         if (command instanceof DiscardCardsAction discardCardsAction) {
             fulfillDiscardCardsAction(discardCardsAction);
         } else {
@@ -440,36 +444,34 @@ public class PlayerTurn implements Serializable {
     /**
      * Checks if the player can execute actions.
      *
-     * @return {@code true} when {@link #isInActionPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     * @return {@code true} when {@link #isInActionPhase()} is {@code true},
+     *         {@link #areInteractionsBlocked} is {@code false}, and the game is not lost,
+     *         {@code false} otherwise
      */
-    public boolean isActionExecutable() {
-        return isInActionPhase() && !areInteractionsBlocked;
-    }
+    public boolean isActionExecutable() {return isInActionPhase() && !areInteractionsBlocked && !game.isGameLost();}
 
     /**
      * Checks if the player can draw player cards.
      *
-     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     * @return {@code true} when {@link #isInPlayerCardDrawPhase()} is {@code true},
+     *         {@link #areInteractionsBlocked} is {@code false}, and the game is not lost,
+     *         {@code false} otherwise
      */
-    public boolean isPlayerCardDrawExecutable() {
-        return isInPlayerCardDrawPhase() && !areInteractionsBlocked;
-    }
+    public boolean isPlayerCardDrawExecutable() {return isInPlayerCardDrawPhase() && !areInteractionsBlocked && !game.isGameLost();}
 
     /**
      * Checks if the player can draw infection cards.
      *
-     * @return {@code true} when {@link #isInInfectionCardDrawPhase()} is {@code true} and {@link #areInteractionsBlocked} is {@code false}, {@code false} otherwise
+     * @return {@code true} when {@link #isInInfectionCardDrawPhase()} is {@code true},
+     *         {@link #areInteractionsBlocked} is {@code false}, and the game is not lost,
+     *         {@code false} otherwise
      */
-    public boolean isInfectionCardDrawExecutable() {
-        return isInInfectionCardDrawPhase() && !areInteractionsBlocked;
-    }
+    public boolean isInfectionCardDrawExecutable() {return isInInfectionCardDrawPhase() && !areInteractionsBlocked && !game.isGameLost();}
 
     /**
      * Checks if the player's turn is over.
      *
-     * @return true if the turn is over, false otherwise
+     * @return true if the turn is over or the game is lost, false otherwise
      */
-    public boolean isOver() {
-        return !isInActionPhase() && !isInPlayerCardDrawPhase() && !isInInfectionCardDrawPhase();
-    }
+    public boolean isOver() {return (!isInActionPhase() && !isInPlayerCardDrawPhase() && !isInInfectionCardDrawPhase()) || game.isGameLost();}
 }
