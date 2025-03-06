@@ -7,6 +7,7 @@ import de.uol.swp.client.card.SortInfectionCardsDialogPresenter;
 import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.util.NodeBindingUtils;
+import de.uol.swp.client.util.TooltipsUtil;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.approvable.request.ApprovableRequest;
 import de.uol.swp.common.card.InfectionCard;
@@ -66,7 +67,8 @@ public class PlayerPanePresenter extends AbstractPresenter {
     private static final int PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS = 1; // 10
     private static final double PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS_SCALE_FACTOR = 0.3;
     private static final double PLAYER_NUMBER_OF_ACTIONS_TEXT_SCALE_FACTOR = 0.4;
-    
+    public static final int TOOLTIP_WIDTH = 400;
+
     @Getter
     @FXML
     private GridPane playerGridPane;
@@ -289,37 +291,17 @@ public class PlayerPanePresenter extends AbstractPresenter {
         if (playerCard instanceof EventCard) {
             EventCard eventCard = (EventCard) playerCard;
 
-            Tooltip tooltip = createConsistentTooltip(eventCard.getDescription());
+            Tooltip tooltip = TooltipsUtil.createConsistentTooltip(eventCard.getDescription(), TOOLTIP_WIDTH);
             Tooltip.install(playerCardHBox, tooltip);
 
             playerCardHBox.setOnMouseEntered(event -> {
                 Tooltip.uninstall(playerCardHBox, tooltip);
-                Tooltip newTooltip = createConsistentTooltip(eventCard.getDescription());
+                Tooltip newTooltip = TooltipsUtil.createConsistentTooltip(eventCard.getDescription(), TOOLTIP_WIDTH);
                 Tooltip.install(playerCardHBox, newTooltip);
             });
         }
     }
 
-    /**
-     * Creates a consistent styled tooltip with specified text.
-     *
-     * @param text The tooltip text.
-     * @return A Tooltip with predefined font, delays, duration, and wrapping.
-     */
-    private Tooltip createConsistentTooltip(String text) {
-        Tooltip tooltip = new Tooltip(text);
-
-        tooltip.setFont(new Font("System", 18));
-
-        tooltip.setShowDelay(Duration.millis(100));
-        tooltip.setShowDuration(Duration.millis(50000));
-        tooltip.setHideDelay(Duration.millis(300));
-
-        tooltip.setWrapText(true);
-        tooltip.setMaxWidth(400);
-
-        return tooltip;
-    }
     /**
      * Highlights and adds a click listener to the {@link PlayerCardHBox} that represents the given {@link PlayerCard}.
      *
