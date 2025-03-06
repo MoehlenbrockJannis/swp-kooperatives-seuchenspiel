@@ -1115,14 +1115,16 @@ public class GamePresenter extends AbstractPresenter {
             disableAntidoteMarkerButtons();
             return;
         }
-        DiscoverAntidoteAction discoverAntidoteAction = optionalDiscoverAntidoteAction.get();
 
+        DiscoverAntidoteAction discoverAntidoteAction = optionalDiscoverAntidoteAction.get();
         List<Plague> plagues = game.getPlagues();
+
         for (Plague plague : plagues) {
+            Button button = antidoteButtons.get(getAntidoteMarkerButtonIndexByPlague(plague));
+
             if (checkIfAntidoteIsDiscovered(plague)) {
-                disableAntidoteMarkerButtons();
+                button.setDisable(true);
             } else {
-                Button button = antidoteButtons.get(getAntidoteMarkerButtonIndexByPlague(plague));
                 configureAntidoteButton(button, plague, discoverAntidoteAction);
             }
         }
