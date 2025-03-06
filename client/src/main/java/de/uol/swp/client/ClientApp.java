@@ -1,31 +1,28 @@
 package de.uol.swp.client;
 
 
-import java.net.ConnectException;
-
-import de.uol.swp.client.di.FXMLLoaderProvider;
-import javafx.fxml.FXMLLoader;
-import lombok.Getter;
-import de.uol.swp.common.user.server_message.LogoutServerMessage;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uol.swp.client.di.ClientModule;
+import de.uol.swp.client.di.FXMLLoaderProvider;
 import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.Configuration;
+import de.uol.swp.common.env.EnvReader;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
 import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
 import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import io.netty.channel.Channel;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
-import java.util.List;
+import java.net.ConnectException;
 
 /**
  * The application class of the client
@@ -56,31 +53,13 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	private EventBus eventBus;
 
+	private EnvReader envReader;
+
 	private SceneManager sceneManager;
 
 	// -----------------------------------------------------
 	// Java FX Methods
 	// ----------------------------------------------------
-
-	@Override
-	public void init() {
-		Parameters p = getParameters();
-		List<String> args = p.getRaw();
-
-		if (args.size() != 2) {
-			host = "localhost";
-			port = Configuration.getDefaultPort();
-			LOG.info("Usage: {} host port", ClientConnection.class.getSimpleName());
-			LOG.info("Using default port {} {}", port, host);
-		} else {
-			host = args.get(0);
-			port = Integer.parseInt(args.get(1));
-		}
-
-		// do not establish connection here
-		// if connection is established in this stage, no GUI is shown and
-		// exceptions are only visible in console!
-	}
 
 
 	@Override
@@ -104,6 +83,11 @@ public class ClientApp extends Application implements ConnectionListener {
 		eventBus = injector.getInstance(EventBus.class);
 		// Register this class for de.uol.swp.client.events (e.g. for exceptions)
 		eventBus.register(this);
+
+		envReader = injector.getInstance(EnvReader.class);
+		host = envReader.readString("HOST");
+		port = envReader.readInt("PORT");
+		LOG.info("Using default port {} {}", port, host);
 
 		// Client app is created by java, so injection must
 		// be handled here manually

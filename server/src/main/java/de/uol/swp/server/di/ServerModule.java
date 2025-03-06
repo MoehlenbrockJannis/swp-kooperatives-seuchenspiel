@@ -1,10 +1,10 @@
 package de.uol.swp.server.di;
 
 import com.google.inject.AbstractModule;
+import de.uol.swp.common.env.DotEnvReader;
+import de.uol.swp.common.env.EnvReader;
 import de.uol.swp.server.card.CardManagement;
 import de.uol.swp.server.database.DataSourceConfig;
-import de.uol.swp.server.env.DotEnvReader;
-import de.uol.swp.server.env.EnvReader;
 import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.util.ServerAvailabilityChecker;
 import org.apache.logging.log4j.LogManager;
