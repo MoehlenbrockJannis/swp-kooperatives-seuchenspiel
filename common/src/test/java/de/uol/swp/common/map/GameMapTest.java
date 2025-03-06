@@ -3,6 +3,7 @@ package de.uol.swp.common.map;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.exception.FieldOfCityNotFoundException;
 import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
+import de.uol.swp.common.marker.OutbreakMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.util.Color;
@@ -54,6 +55,11 @@ class GameMapTest {
         numberOfPlagueCubes = 3;
 
         game = mock(Game.class);
+
+        OutbreakMarker outbreakMarker = mock(OutbreakMarker.class);
+        when(outbreakMarker.isAtMaximumLevel()).thenReturn(false);
+        when(game.getOutbreakMarker()).thenReturn(outbreakMarker);
+
         when(game.getPlagueCubeOfPlague(plague))
                 .thenReturn(new PlagueCube(plague));
         when(game.getMaxNumberOfPlagueCubesPerField())

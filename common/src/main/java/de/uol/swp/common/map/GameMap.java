@@ -6,6 +6,7 @@ import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
 import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -136,6 +137,10 @@ public class GameMap implements Serializable {
             return;
         }
 
+        if (game.getOutbreakMarker().isAtMaximumLevel()) {
+            return;
+        }
+
         if (outbreakCallback != null) {
             outbreakCallback.accept(game, field);
         }
@@ -145,17 +150,25 @@ public class GameMap implements Serializable {
 
         game.startOutbreak();
 
+        if (game.isGameLost()) {
+            return;
+        }
+
         List<Field> neighborFields = getNeighborFields(field);
         processNeighborFieldsForOutbreak(neighborFields, plague, infectedFields, fieldsWithOutbreak);
     }
 
     private void processNeighborFieldsForOutbreak(List<Field> neighborFields, Plague plague, List<Field> infectedFields, List<Field> fieldsWithOutbreak) {
         for (Field neighborField : neighborFields) {
-            if (neighborField.isInfectable(plague)) {
-                PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
-                neighborField.infectField(plagueCube, infectedFields);
-            } else if (!fieldsWithOutbreak.contains(neighborField)) {
-                startOutbreakRecursive(neighborField, plague, infectedFields, fieldsWithOutbreak);
+            try {
+                if (neighborField.isInfectable(plague)) {
+                    PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
+                    neighborField.infectField(plagueCube, infectedFields);
+                } else if (!fieldsWithOutbreak.contains(neighborField)) {
+                    startOutbreakRecursive(neighborField, plague, infectedFields, fieldsWithOutbreak);
+                }
+            } catch (NoPlagueCubesFoundException e) {
+                return;
             }
         }
     }

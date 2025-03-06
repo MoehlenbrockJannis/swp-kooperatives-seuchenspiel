@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum LobbyStatus {
     OPEN ("offen"),
     FULL ("voll"),
-    RUNNING ("im Spiel");
+    RUNNING ("im Spiel"),
+    OVER ("beendet");
 
     private final String status;
 }

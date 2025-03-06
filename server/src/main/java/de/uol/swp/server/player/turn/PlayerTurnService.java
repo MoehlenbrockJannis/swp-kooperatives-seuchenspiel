@@ -9,6 +9,8 @@ import de.uol.swp.common.player.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.lobby.LobbyService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -26,6 +28,7 @@ public class PlayerTurnService extends AbstractService {
     private final PlayerTurnManagement playerTurnManagement;
     private final GameManagement gameManagement;
     private final LobbyService lobbyService;
+    private static final Logger LOG = LogManager.getLogger(PlayerTurnService.class);
 
     /**
      * Constructor
@@ -53,12 +56,21 @@ public class PlayerTurnService extends AbstractService {
      */
     @Subscribe
     public void onEndPlayerTurnRequest(EndPlayerTurnRequest request) {
-        Game currentGame = request.getGame();
-        playerTurnManagement.startNewPlayerTurn(currentGame);
-        gameManagement.updateGame(currentGame);
+        try {
+            Game currentGame = request.getGame();
 
-        RetrieveUpdatedGameServerMessage message = new RetrieveUpdatedGameServerMessage(request.getGame());
-        Lobby currentLobby = currentGame.getLobby();
-        lobbyService.sendToAllInLobby(currentLobby, message);
+            if (currentGame.isGameLost()) {
+                return;
+            }
+
+            playerTurnManagement.startNewPlayerTurn(currentGame);
+            gameManagement.updateGame(currentGame);
+
+            RetrieveUpdatedGameServerMessage message = new RetrieveUpdatedGameServerMessage(currentGame);
+            Lobby currentLobby = currentGame.getLobby();
+            lobbyService.sendToAllInLobby(currentLobby, message);
+        } catch (IllegalArgumentException e) {
+            LOG.info(e.getMessage());
+        }
     }
 }

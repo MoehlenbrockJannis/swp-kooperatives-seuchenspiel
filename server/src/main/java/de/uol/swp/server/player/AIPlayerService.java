@@ -103,6 +103,11 @@ public class AIPlayerService extends AbstractService {
     @Subscribe
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse message) {
         final Game game = message.getGame();
+
+        if (game.isGameLost()) {
+            return;
+        }
+
         final PlayerTurn playerTurn = game.getCurrentTurn();
 
         if (isAIPlayerTurn(playerTurn)) {
@@ -201,28 +206,30 @@ public class AIPlayerService extends AbstractService {
      * @param game The current game
      */
     public void handleAIPlayerTurnProcess(Game game) {
+        if (game.isGameLost()) {
+            return;
+        }
 
         final PlayerTurn currentTurn = game.getCurrentTurn();
         final Player currentPlayer = currentTurn.getPlayer();
 
         scheduler.schedule(() -> {
-            if (currentTurn.isInInfectionCardDrawPhase()) {
+            if (!game.isGameLost() && currentTurn.isInInfectionCardDrawPhase()) {
                 handleAIInfectionCardDrawPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
 
         scheduler.schedule(() -> {
-            if (currentTurn.isInPlayerCardDrawPhase()) {
+            if (!game.isGameLost() && currentTurn.isInPlayerCardDrawPhase()) {
                 handleAIPlayerCardDrawPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
 
         scheduler.schedule(() -> {
-            if (currentTurn.isInActionPhase()) {
+            if (!game.isGameLost() && currentTurn.isInActionPhase()) {
                 handleAIPlayerActionPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
-
     }
 
     /**
@@ -232,6 +239,10 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIPlayerActionPhase(Game game, Player currentPlayer) {
+        if (game.isGameLost()) {
+            return;
+        }
+
         final Field currentField = currentPlayer.getCurrentField();
         final List<Field> neighborFields = currentField.getNeighborFields();
         final int randomIndex = getRandomIndexOffList(neighborFields);
@@ -267,6 +278,10 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIPlayerCardDrawPhase(Game game, Player currentPlayer) {
+        if (game.isGameLost()) {
+            return;
+        }
+
         final DrawPlayerCardRequest message = new DrawPlayerCardRequest(game, currentPlayer);
         final Session aiPlayerSession = getAIPlayerSession(currentPlayer);
         message.setSession(aiPlayerSession);
@@ -280,6 +295,10 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIInfectionCardDrawPhase(Game game, Player currentPlayer) {
+        if (game.isGameLost()) {
+            return;
+        }
+
         final DrawInfectionCardRequest message = new DrawInfectionCardRequest(game, currentPlayer);
         final Session aiPlayerSession = getAIPlayerSession(currentPlayer);
         message.setSession(aiPlayerSession);

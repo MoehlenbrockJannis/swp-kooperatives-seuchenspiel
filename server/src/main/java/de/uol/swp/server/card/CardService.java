@@ -32,6 +32,7 @@ import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.message.GameStateChangedInternalMessage;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
@@ -94,10 +95,6 @@ public class CardService extends AbstractService {
     @Subscribe
     public void onDrawPlayerCardRequest(DrawPlayerCardRequest drawPlayerCardRequest) {
         getGameAndPlayer(drawPlayerCardRequest,(game, player) -> {
-            if(game.getPlayerDrawStack().isEmpty()) {
-                //TODO: Send response that the game has been lost
-                return;
-            }
 
             final PlayerCard playerCard = gameManagement.drawPlayerCard(game);
 
@@ -116,6 +113,12 @@ public class CardService extends AbstractService {
             post(response);
 
             determineFollowingStepAndSendUpdate(game, player, drawPlayerCardRequest);
+
+            if(game.getPlayerDrawStack().isEmpty()) {
+                game.setGameLost(true);
+                post(new GameStateChangedInternalMessage(game, gameManagement.determineGameEndReason(game)));
+                sendGameUpdateMessage(game);
+            }
         });
     }
 
@@ -173,7 +176,7 @@ public class CardService extends AbstractService {
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             final PlayerTurn playerTurn = game.getCurrentTurn();
-            if (!playerTurn.isInInfectionCardDrawPhase()) {
+            if (game.isGameLost() || !playerTurn.isInInfectionCardDrawPhase()) {
                 determineFollowingStepAndSendUpdate(game, player, drawInfectionCardRequest);
                 return;
             }
@@ -215,6 +218,10 @@ public class CardService extends AbstractService {
         PlayerTurn currentTurn = game.getCurrentTurn();
         List<List<Field>> infectedFieldsInTurn = currentTurn.getInfectedFieldsInTurn();
         infectedFieldsInTurn.add(infectedFields);
+
+        if (game.isGameLost()) {
+            post(new GameStateChangedInternalMessage(game, gameManagement.determineGameEndReason(game)));
+        }
     }
 
     /**
@@ -366,6 +373,11 @@ public class CardService extends AbstractService {
         final PlayerTurn playerTurn = game.getCurrentTurn();
         playerTurn.setAreInteractionsBlocked(false);
 
+        if (game.isGameLost()) {
+            sendGameUpdateMessage(game);
+            return;
+        }
+
         if (doesPlayerRequireDiscardingOfHandCards(player, game)) {
             playerTurn.setAreInteractionsBlocked(true);
             allowDrawingOrDiscarding(game, origin, ReleaseToDiscardPlayerCardResponse.class);
@@ -425,7 +437,7 @@ public class CardService extends AbstractService {
 
         if (!game.hasAntidoteMarkerForPlague(field.getPlague())) {
             List<Field> infectedFields = new ArrayList<>();
-            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS; i++) {
+            for (int i = 0; i < Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS && !game.isGameLost(); i++) {
                 handleInfectionProcess(game, bottomCard, infectedFields);
             }
         }

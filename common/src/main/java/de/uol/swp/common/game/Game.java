@@ -107,10 +107,11 @@ public class Game implements Serializable {
     private CardStack<InfectionCard> infectionDiscardStack;
     private List<PlayerTurn> turns;
     @Getter
-    private boolean isWon;
+    @Setter
+    private boolean isGameWon;
     @Getter
     @Setter
-    private boolean isLost;
+    private boolean isGameLost;
     @Getter
     @Setter
     private boolean requiresTextMessageMovingResearchLaboratory;
@@ -194,8 +195,8 @@ public class Game implements Serializable {
         this.numberOfActionsPerTurn = numberOfActionsPerTurn;
         this.numberOfPlayerCardsToDrawPerTurn = numberOfPlayerCardsToDrawPerTurn;
         this.turns = new ArrayList<>();
-        this.isWon = false;
-        this.isLost = false;
+        this.isGameWon = false;
+        this.isGameLost = false;
         this.indexOfCurrentPlayer = 0;
 
         List<Integer> infectionLevels = Arrays.asList(2, 2, 2, 3, 3, 4, 4);
@@ -462,16 +463,15 @@ public class Game implements Serializable {
     public PlagueCube getPlagueCubeOfPlague (Plague plague) {
         List<PlagueCube> cubes = plagueCubes.get(plague);
 
-        if (cubes == null) {
+        if (cubes == null || cubes.isEmpty()) {
             throw new NoPlagueCubesFoundException(plague.getName());
         }
+        PlagueCube cube = cubes.remove(0);
 
         if (cubes.isEmpty()) {
-            isLost = true;
-            throw new NoPlagueCubesFoundException(plague.getName());
+            setGameLost(true);
         }
-
-        return cubes.remove(0);
+        return cube;
     }
 
     /**
@@ -545,7 +545,7 @@ public class Game implements Serializable {
         this.outbreakMarker.increaseLevel();
 
         if (this.outbreakMarker.isAtMaximumLevel()) {
-            this.isLost = true;
+            setGameLost(true);
         }
     }
 

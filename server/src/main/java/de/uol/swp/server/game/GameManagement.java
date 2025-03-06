@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
+import de.uol.swp.common.game.GameEndReason;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.map.MapType;
@@ -18,6 +19,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Manages the game
@@ -87,5 +89,79 @@ public class GameManagement {
      */
     public Optional<Game> getGame(Game game) {
         return this.gameStore.getGame(game);
+    }
+
+    /**
+     * Removes a game from the list of managed games.
+     *
+     * @param game The game to be removed
+     */
+    public void removeGame(Game game) {
+        this.gameStore.removeGame(game);
+    }
+
+    /**
+     * Determines why the game ended based on the current game state.
+     *
+     * @param game The game to analyze
+     * @return The reason why the game ended
+     */
+    public GameEndReason determineGameEndReason(Game game) {
+        return Stream.of(
+                        this.checkForWin(game),
+                        this.checkForEmptyDrawStack(game),
+                        this.checkForMaxOutbreaks(game),
+                        this.checkForNoPlagueCubes(game)
+                )
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No valid game end reason found"));
+    }
+
+    /**
+     * Checks if the game has been won by discovering all antidotes.
+     *
+     * @param game The game to check
+     * @return An Optional containing the win reason if the game is won, otherwise empty
+     */
+    private Optional<GameEndReason> checkForWin(Game game) {
+        return game.isGameWon()
+                ? Optional.of(GameEndReason.ALL_ANTIDOTES_DISCOVERED)
+                : Optional.empty();
+    }
+
+    /**
+     * Checks if the player draw stack is empty, which is a loss condition.
+     *
+     * @param game The game to check
+     * @return An Optional containing the empty draw stack reason if the stack is empty, otherwise empty
+     */
+    private Optional<GameEndReason> checkForEmptyDrawStack(Game game) {
+        return game.getPlayerDrawStack().isEmpty()
+                ? Optional.of(GameEndReason.NO_PLAYER_CARDS_LEFT)
+                : Optional.empty();
+    }
+
+    /**
+     * Checks if the maximum number of outbreaks has been reached, which is a loss condition.
+     *
+     * @param game The game to check
+     * @return An Optional containing the max outbreaks reason if the limit is reached, otherwise empty
+     */
+    private Optional<GameEndReason> checkForMaxOutbreaks(Game game) {
+        return game.getOutbreakMarker().isAtMaximumLevel()
+                ? Optional.of(GameEndReason.MAX_OUTBREAKS_REACHED)
+                : Optional.empty();
+    }
+
+    /**
+     * Checks if there are no plague cubes left, which is a loss condition.
+     *
+     * @param game The game to check
+     * @return An Optional containing the no plague cubes reason
+     */
+    private Optional<GameEndReason> checkForNoPlagueCubes(Game game) {
+        return Optional.of(GameEndReason.NO_PLAGUE_CUBES_LEFT);
     }
 }
