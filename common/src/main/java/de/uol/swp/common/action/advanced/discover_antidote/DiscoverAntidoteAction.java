@@ -36,7 +36,7 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
     /**
      * The list of {@link CityCard}s that have been discarded so far.
      */
-    private final List<CityCard> discardedCards;
+    private List<CityCard> discardedCards;
 
     @Setter
     private Plague plague;
@@ -189,4 +189,15 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
         getGame().addAntidoteMarker(new AntidoteMarker(plague));
     }
 
+    @Override
+    public void initWithGame(Game game) {
+        super.initWithGame(game);
+        this.discardedCards = getUpdatedDiscardedCards();
+    }
+
+    private List<CityCard> getUpdatedDiscardedCards() {
+        return discardedCards.stream()
+                .map(card -> getExecutingPlayer().getHandCardForGivenPlayerCard(card))
+                .toList();
+    }
 }

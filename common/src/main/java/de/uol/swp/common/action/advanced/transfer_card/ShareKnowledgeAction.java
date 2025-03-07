@@ -84,6 +84,7 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
     public void initWithGame(final Game game) {
         super.initWithGame(game);
         this.targetPlayer = game.findPlayer(this.targetPlayer).orElseThrow();
+        this.transferredCard = getSender().getHandCardForGivenPlayerCard(transferredCard);
     }
 
     @Override
