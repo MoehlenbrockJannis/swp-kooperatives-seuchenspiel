@@ -342,6 +342,8 @@ public class GameMapPresenter extends AbstractPresenter {
             if (!game.hasAntidoteMarkerForPlague(plague)) {
                 boolean isLastPlague = i == plaguesSize - 1;
                 addAnimatedPlagueCubeMarker(field, isLastField && isLastPlague);
+            }else {
+                sendEndPlayerTurnRequest(game);
             }
         }
     }

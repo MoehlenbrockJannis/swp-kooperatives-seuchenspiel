@@ -325,7 +325,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * @return {@code true} if the window is not confined or is focused, {@code false} otherwise
      */
     private boolean shouldShowPopup() {
-        return !this.window.isIconified() || this.window.isFocused();
+        return !this.window.isIconified() && this.window.isFocused();
     }
 
     /**
