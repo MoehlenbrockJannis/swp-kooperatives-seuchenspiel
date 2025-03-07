@@ -225,7 +225,12 @@ public abstract class Player implements Serializable, UserContainerEntity {
      * @param card the player card to find in the hand
      * @return the matching player card from the hand
      */
-    public PlayerCard getHandCardForGivenPlayerCard(PlayerCard card) {
-        return handCards.get(handCards.indexOf(card));
+    @SuppressWarnings("unchecked")
+    public <P extends PlayerCard> P getHandCardForGivenPlayerCard(P card) {
+        PlayerCard playerCard = handCards.get(handCards.indexOf(card));
+        if (playerCard != null) {
+            return (P) playerCard;
+        }
+        throw new NoSuchElementException("No matching card found in hand.");
     }
 }

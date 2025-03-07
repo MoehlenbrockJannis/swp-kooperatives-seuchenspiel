@@ -5,6 +5,7 @@ import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.ShareKnowledgeAction;
 import de.uol.swp.common.action.request.ActionRequest;
 import de.uol.swp.common.action.simple.WaiveAction;
+import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.card.response.ReleaseToDiscardPlayerCardResponse;
 import de.uol.swp.common.card.response.ReleaseToDrawPlayerCardResponse;
 import de.uol.swp.common.game.Game;
@@ -67,10 +68,10 @@ public class ActionServiceTest extends EventBusBasedTest {
 
         final User user = new UserDTO("user", "pass", "");
         final User user2 = new UserDTO("user1", "pass", "");
-        userPlayer1 = new UserPlayer(user);
         userPlayer2 = new UserPlayer(user2);
 
         final Lobby lobby = new LobbyDTO("lobby", user);
+        userPlayer1 = (UserPlayer) lobby.getPlayerForUser(user);
         final GameDifficulty difficulty = GameDifficulty.getDefault();
 
         lobby.addPlayer(userPlayer2);
@@ -92,6 +93,11 @@ public class ActionServiceTest extends EventBusBasedTest {
         final Player receiver = userPlayer2;
         if (action instanceof ShareKnowledgeAction shareKnowledgeAction) {
             shareKnowledgeAction.setTargetPlayer(receiver);
+            CityCard cityCard = userPlayer1.getHandCards().stream()
+                            .filter(CityCard.class::isInstance)
+                            .map(CityCard.class::cast)
+                            .findFirst().orElseThrow();
+            shareKnowledgeAction.setTransferredCard(cityCard);
         }
         when(playerManagement.findSession(receiver))
                 .thenReturn(Optional.of(mock()));
