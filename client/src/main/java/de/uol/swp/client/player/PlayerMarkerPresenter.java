@@ -14,7 +14,7 @@ import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.user.User;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  */
 
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PlayerMarkerPresenter extends AbstractPresenter {
 
     private final PlayerMarker playerMarker;
@@ -40,6 +40,7 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private final Game game;
     private final Map<Field, CityMarker> cityMarkers;
     private final Runnable unhighlightCityMarkers;
+    private ContextMenu contextMenu;
 
     /**
      * Initializes the mouse events of the player marker
@@ -75,8 +76,10 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
                 return;
             }
 
-            final ContextMenu contextMenu = createContextMenu();
-            contextMenu.show(playerMarker, event.getScreenX(), event.getScreenY());
+            if(contextMenu == null || !contextMenu.isShowing()) {
+                this.contextMenu = createContextMenu();
+                contextMenu.show(playerMarker, event.getScreenX(), event.getScreenY());
+            }
         });
     }
 
