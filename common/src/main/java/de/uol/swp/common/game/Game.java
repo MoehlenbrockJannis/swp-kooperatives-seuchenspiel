@@ -446,14 +446,6 @@ public class Game implements Serializable {
     }
 
     /**
-     * Determines the order in which players take their turns.
-     * This method sets up the turn order based on game rules.
-     */
-    private void determinePlayerOrder () {
-
-    }
-
-    /**
      * Retrieves a plague cube for the specified plague.
      * This method is used to get a cube of a specific plague color for game actions.
      *
