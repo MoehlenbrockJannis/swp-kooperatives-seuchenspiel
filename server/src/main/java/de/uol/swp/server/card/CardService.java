@@ -100,6 +100,7 @@ public class CardService extends AbstractService {
 
             if(playerCard instanceof EpidemicCard epidemicCard) {
                 triggerEpidemic(game, epidemicCard);
+                cardManagement.discardPlayerCard(game, playerCard);
             } else {
                 player.addHandCard(playerCard);
             }
