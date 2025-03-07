@@ -202,7 +202,7 @@ public class GameTest {
         }
         assertAll(
                 () -> assertThat(game.getOutbreakMarker().isAtMaximumLevel()).isTrue(),
-                () -> assertThat(game.isLost()).isTrue()
+                () -> assertThat(game.isGameLost()).isTrue()
         );
     }
 

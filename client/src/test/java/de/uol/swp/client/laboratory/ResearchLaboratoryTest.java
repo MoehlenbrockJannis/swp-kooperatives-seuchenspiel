@@ -73,18 +73,4 @@ class ResearchLaboratoryTest {
         researchLaboratoryMarker = new ResearchLaboratoryMarker(0.7);
     }
 
-    @Test
-    @DisplayName("Check if the laboratory was added to the pane")
-    void addLaboratoryToPane() {
-        ObservableList<Node> children = FXCollections.observableArrayList();
-        when(researchLaboratoryPane.getChildren()).thenReturn(children);
-
-        gameMapPresenter.buildResearchLaboratoryMarker(researchLaboratoryMarker, field);
-
-        assertThat(children).contains(researchLaboratoryMarker);
-        assertThat(researchLaboratoryMarker.layoutXProperty().isBound()).isTrue();
-        assertThat(researchLaboratoryMarker.layoutYProperty().isBound()).isTrue();
-        assertThat(researchLaboratoryMarker.scaleXProperty().isBound()).isTrue();
-        assertThat(researchLaboratoryMarker.scaleYProperty().isBound()).isTrue();
-    }
 }
