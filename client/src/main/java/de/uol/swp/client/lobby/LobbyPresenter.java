@@ -139,7 +139,34 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     private void initializeComboBox() {
         roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> selectRole());
+        roleComboBox.setButtonCell(createRoleComboBoxButtonCell());
+
+        Player player = lobby.getPlayerForUser(loggedInUserProvider.get());
+        if (player != null && player.getRole() != null) {
+            roleComboBox.setPromptText(player.getRole().getName());
+            roleComboBox.getSelectionModel().clearSelection();
+        }
         roleService.sendRetrieveAllRolesRequest(lobby);
+    }
+
+    /**
+     * Creates a custom button cell for the role combo box that properly displays
+     * either the selected role or the prompt text when no role is selected.
+     *
+     * @return A ListCell configured to display the role name or prompt text
+     */
+    private ListCell<RoleCard> createRoleComboBoxButtonCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(RoleCard roleCard, boolean isEmpty) {
+                super.updateItem(roleCard, isEmpty);
+                if (isEmpty) {
+                    setText(roleComboBox.getPromptText());
+                } else {
+                    setText(roleCard.getName());
+                }
+            }
+        };
     }
 
     /**
@@ -199,7 +226,7 @@ public class LobbyPresenter extends AbstractPresenter {
         Platform.runLater(() -> {
             if (roleAssignedMessage.isRoleAssigned()) {
                 roleComboBox.getSelectionModel().clearSelection();
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName()); //TODO Der Titel der Combobx bleibt noch leer.
+                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
             }
         });
     }
