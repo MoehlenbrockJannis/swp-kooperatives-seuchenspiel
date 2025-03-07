@@ -328,7 +328,6 @@ public class GamePresenter extends AbstractPresenter {
     @Subscribe
     public void onReceiveUpdatedGameMessage(RetrieveUpdatedGameServerMessage message) {
         Runnable executable = () -> this.game = message.getGame();
-        Player currentPlayer = game.getCurrentPlayer();
         executeIfTheUpdatedGameMessageRetrieves(message, executable);
 
         updateResearchLaboratoryButtonState();
@@ -337,7 +336,6 @@ public class GamePresenter extends AbstractPresenter {
         updateAntidoteMarkerButtons();
         updateCurePlagueButtonState();
 
-        playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
         outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
     }
 
@@ -626,11 +624,13 @@ public class GamePresenter extends AbstractPresenter {
     private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
         if(retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
             executable.run();
+            Player currentPlayer = game.getCurrentPlayer();
             playerCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateLabels();
             infectionCardsOverviewPresenter.updateInfectionMarkerLabel();
             gameMapController.updateGameState(game);
             updatePlayerInfo();
+            playerPanePresenterList.forEach(playerPanePresenter -> playerPanePresenter.updateHandCardGridPane(currentPlayer));
             updateShareKnowledgeActionButton();
             updateRemainingComponents();
         }
