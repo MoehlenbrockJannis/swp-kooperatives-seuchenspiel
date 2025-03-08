@@ -9,6 +9,7 @@ import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.marker.LevelableMarkerPresenter;
 import de.uol.swp.client.marker.OutbreakMarkerPresenter;
 import de.uol.swp.client.plague.PlagueCubeIcon;
 import de.uol.swp.client.player.PlayerMarker;
@@ -97,6 +98,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private StackPane outbreakStackPane;
 
+    @FXML
+    private StackPane infectionMarkerStackPane;
+
     @Inject
     private LobbyService lobbyService;
     @Inject
@@ -164,6 +168,8 @@ public class GamePresenter extends AbstractPresenter {
     private GridPane remainingComponentsPane;
 
     private OutbreakMarkerPresenter outbreakMarkerPresenter;
+    private LevelableMarkerPresenter infectionMarkerPresenter;
+
 
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
@@ -242,6 +248,7 @@ public class GamePresenter extends AbstractPresenter {
         updateWaiveButtonPressed();
         addAntidoteMarkerButtons();
         initializeOutbreakMarkerPane();
+        initializeInfectionMarkerPane();
         this.remainingComponentsPresenters = new ArrayList<>();
         setRemainingComponentsComponent();
     }
@@ -337,6 +344,7 @@ public class GamePresenter extends AbstractPresenter {
         updateCurePlagueButtonState();
 
         outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
+        infectionMarkerPresenter.updateLevelIndicator(game.getInfectionMarker().getLevel());
     }
 
     /**
@@ -1231,5 +1239,21 @@ public class GamePresenter extends AbstractPresenter {
                 javafx.scene.paint.Color.RED
         );
         this.outbreakMarkerPresenter = new OutbreakMarkerPresenter(outbreakStackPane, game.getOutbreakMarker(), colorList);
+    }
+
+    /**
+     * Initializes the {@link #infectionMarkerStackPane} using {@link LevelableMarkerPresenter}
+     */
+    private void initializeInfectionMarkerPane() {
+        List<javafx.scene.paint.Color> colorList = List.of(
+                javafx.scene.paint.Color.DARKOLIVEGREEN,
+                javafx.scene.paint.Color.YELLOW,
+                javafx.scene.paint.Color.ORANGE
+        );
+        this.infectionMarkerPresenter = new LevelableMarkerPresenter(infectionMarkerStackPane, game.getInfectionMarker(), colorList);
+        infectionMarkerStackPane.setVisible(false);
+        infectionMarkerStackPane.setMouseTransparent(true);
+        infectionCardsOverviewPresenter.setCardIconOnMouseEntered(() -> infectionMarkerStackPane.setVisible(true));
+        infectionCardsOverviewPresenter.setCardIconOnMouseExited(() -> infectionMarkerStackPane.setVisible(false));
     }
 }

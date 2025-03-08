@@ -156,4 +156,21 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
         }
     }
 
+    /**
+     * Sets the {@link Runnable} to be performed when the {@link #cardIcon} is entered by the mouse.
+     *
+     * @param runnable the action to be performed
+     */
+    public void setCardIconOnMouseEntered(Runnable runnable) {
+        cardIcon.setOnMouseEntered(event -> runnable.run());
+    }
+
+    /**
+     * Sets the {@link Runnable} to be performed when the {@link #cardIcon} is exited by the mouse.
+     *
+     * @param runnable the action to be performed
+     */
+    public void setCardIconOnMouseExited(Runnable runnable) {
+        cardIcon.setOnMouseExited(event -> runnable.run());
+    }
 }
