@@ -16,7 +16,7 @@ import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;

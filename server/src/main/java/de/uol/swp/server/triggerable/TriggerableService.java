@@ -8,7 +8,7 @@ import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;

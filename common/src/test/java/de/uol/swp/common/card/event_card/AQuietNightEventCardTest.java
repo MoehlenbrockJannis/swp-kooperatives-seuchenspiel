@@ -6,7 +6,7 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.User;

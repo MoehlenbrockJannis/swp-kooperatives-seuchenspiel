@@ -17,11 +17,11 @@ import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.map.MapTypeService;
 import de.uol.swp.server.plague.PlagueService;
 import de.uol.swp.server.player.AIPlayerService;
-import de.uol.swp.server.player.turn.PlayerTurnService;
+import de.uol.swp.server.game.turn.PlayerTurnService;
 import de.uol.swp.server.role.RoleManagement;
 import de.uol.swp.server.role.RoleService;
-import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserService;
+import de.uol.swp.server.user.AuthenticationService;
+import de.uol.swp.server.user.UserService;
 import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  * users while the MainMemoryBasedUserStore is still in use.
  *
  * @author Marco Grawunder
- * @see de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore
+ * @see de.uol.swp.server.user.store.MainMemoryBasedUserStore
  * @since 2017-03-17
  */
 class ServerApp {

@@ -3,6 +3,9 @@ package de.uol.swp.client;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uol.swp.client.communication.ClientConnection;
+import de.uol.swp.client.communication.ClientConnectionFactory;
+import de.uol.swp.client.communication.ConnectionListener;
 import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.di.FXMLLoaderProvider;
 import de.uol.swp.client.user.ClientUserService;
@@ -31,7 +34,7 @@ import java.net.ConnectException;
  * and registration responses and error messages
  *
  * @author Marco Grawunder
- * @see de.uol.swp.client.ConnectionListener
+ * @see ConnectionListener
  * @see javafx.application.Application
  * @since 2017-03-17
  */

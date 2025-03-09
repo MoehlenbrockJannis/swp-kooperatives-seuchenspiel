@@ -2,7 +2,7 @@ package de.uol.swp.common.action.simple;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.AIPlayer;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

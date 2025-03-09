@@ -1,10 +1,10 @@
 package de.uol.swp.server;
 
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.message.server_message.ServerMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
-import de.uol.swp.common.message.Message;
-import de.uol.swp.common.message.server.ServerMessage;
 
 import java.util.Collections;
 

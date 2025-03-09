@@ -1,9 +1,12 @@
 package de.uol.swp.common.lobby.server_message;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.message.server.AbstractServerMessage;
+import de.uol.swp.common.message.server_message.AbstractServerMessage;
 import de.uol.swp.common.user.User;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Base class for all user-related lobby server messages.

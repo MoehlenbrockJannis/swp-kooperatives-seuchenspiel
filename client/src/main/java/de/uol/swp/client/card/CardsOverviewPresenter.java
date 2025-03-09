@@ -75,16 +75,6 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     protected int numberOfCardsToDiscard;
 
     /**
-     * Returns the file path of the FXML file.
-     *
-     * @return the FXML file path
-     */
-    @Override
-    public String getFXMLFilePath() {
-        return "/fxml/game/CardOverviewComponent.fxml";
-    }
-
-    /**
      * Constructor for CardsOverviewPresenter.
      *
      * @param service  the CardService to be used for card operations
@@ -94,6 +84,11 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.cardService = service;
         this.eventBus = eventBus;
         createPresenter(this);
+    }
+
+    @Override
+    public String getFXMLFileName() {
+        return getViewNameForPresenterName(CardsOverviewPresenter.class.getSimpleName());
     }
 
     /**

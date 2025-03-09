@@ -1,24 +1,24 @@
 package de.uol.swp.server.communication;
 
 
+import com.google.inject.Inject;
+import de.uol.swp.common.message.Message;
+import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.request.RequestMessage;
 import de.uol.swp.common.message.response.ExceptionResponseMessage;
 import de.uol.swp.common.message.response.ResponseMessage;
-import de.uol.swp.common.message.server.ServerMessage;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
-import com.google.inject.Inject;
-import de.uol.swp.common.message.*;
+import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.server_message.LoginServerMessage;
 import de.uol.swp.common.user.server_message.LogoutServerMessage;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
 import de.uol.swp.server.message.ClientDisconnectedMessage;
 import de.uol.swp.server.message.ServerExceptionMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -6,7 +6,7 @@ import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.Session;
-import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.user.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;

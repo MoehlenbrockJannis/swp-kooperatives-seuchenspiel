@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Class used to store connected clients and Users in an identifiable way
  *
- * @see de.uol.swp.server.usermanagement.AuthenticationService#onLoginRequest(LoginRequest)
+ * @see de.uol.swp.server.user.AuthenticationService#onLoginRequest(LoginRequest)
  * @see de.uol.swp.common.user.Session
  * @author Marco Grawunder
  * @since 2017-03-17

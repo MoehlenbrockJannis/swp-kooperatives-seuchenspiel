@@ -11,7 +11,7 @@ import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.server.game.store.GameStore;
 import de.uol.swp.server.lobby.LobbyManagement;
-import de.uol.swp.server.player.turn.PlayerTurnManagement;
+import de.uol.swp.server.game.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

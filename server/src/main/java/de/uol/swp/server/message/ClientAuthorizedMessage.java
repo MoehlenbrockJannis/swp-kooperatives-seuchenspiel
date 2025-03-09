@@ -11,7 +11,7 @@ import java.util.Objects;
  * just logged in successfully
  *
  * @see de.uol.swp.server.message.AbstractServerInternalMessage
- * @see de.uol.swp.server.usermanagement.AuthenticationService
+ * @see de.uol.swp.server.user.AuthenticationService
  * @author Marco Grawunder
  * @since 2019-08-07
  */

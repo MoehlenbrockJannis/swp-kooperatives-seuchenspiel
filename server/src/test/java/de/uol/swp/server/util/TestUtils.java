@@ -7,7 +7,7 @@ import de.uol.swp.common.map.MapSlot;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.util.Color;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;

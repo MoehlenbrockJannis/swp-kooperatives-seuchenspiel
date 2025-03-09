@@ -4,7 +4,7 @@ import de.uol.swp.common.approvable.Approvable;
 import de.uol.swp.common.approvable.ApprovableMessageStatus;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.message.Message;
-import de.uol.swp.common.message.server.AbstractServerMessage;
+import de.uol.swp.common.message.server_message.AbstractServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
 import lombok.AllArgsConstructor;

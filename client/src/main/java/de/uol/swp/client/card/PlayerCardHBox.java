@@ -1,5 +1,6 @@
 package de.uol.swp.client.card;
 
+import de.uol.swp.client.player.PlayerPanePresenter;
 import de.uol.swp.common.card.PlayerCard;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -10,7 +11,7 @@ import lombok.Setter;
 
 /**
  * A {@link HBox} that can have a {@link PlayerCard} assigned to it.
- * This class is used for the {@link de.uol.swp.client.game.PlayerPanePresenter}.
+ * This class is used for the {@link PlayerPanePresenter}.
  */
 @Getter
 public class PlayerCardHBox extends HBox {

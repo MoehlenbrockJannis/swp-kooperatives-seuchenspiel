@@ -8,14 +8,14 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.response.*;
 import de.uol.swp.common.lobby.server_message.*;
 import de.uol.swp.common.message.response.AbstractResponseMessage;
-import de.uol.swp.common.message.server.ServerMessage;
+import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
-import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.user.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 

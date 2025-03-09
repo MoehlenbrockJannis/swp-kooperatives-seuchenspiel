@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<StackPane prefHeight="500.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/20.0.1"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.main_menu.MainMenuPresenter">
+    <BorderPane>
+        <left>
+            <VBox spacing="10.0" BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets bottom="20.0" left="20.0" top="20.0"/>
+                </BorderPane.margin>
+                <fx:include source="../user/UserContainerEntityListView.fxml" fx:id="userContainerEntityList"/>
+            </VBox>
+        </left>
+        <right>
+            <fx:include source="../chat/ChatView.fxml"/>
+        </right>
+        <center>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+                <BorderPane.margin>
+                    <Insets bottom="20.0" left="50.0" right="50.0"/>
+                </BorderPane.margin>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="P A N D E M I E" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="50.0"/>
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="50.0" top="50.0"/>
+                    </VBox.margin>
+                </Text>
+                <Button alignment="CENTER" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity"
+                        mnemonicParsing="false" onAction="#onCreateLobby" prefHeight="50.0" prefWidth="250.0"
+                        text="Lobby erstellen">
+                    <font>
+                        <Font size="20.0"/>
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND"/>
+                    </cursor>
+                </Button>
+                <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity"
+                        mnemonicParsing="false" onAction="#onJoinLobby" prefHeight="50.0" prefWidth="250.0"
+                        text="Lobby beitreten">
+                    <font>
+                        <Font size="20.0"/>
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND"/>
+                    </cursor>
+                </Button>
+                <HBox alignment="TOP_CENTER" maxWidth="-Infinity" prefHeight="100.0" prefWidth="250.0" spacing="10.0">
+                    <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
+                            prefHeight="36.0" prefWidth="36.0" onAction="#onGameInstructionsButtonPressed">
+                        <graphic>
+                            <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                <Image url="@../../images/question-mark-line-icon.png"/>
+                            </ImageView>
+                        </graphic>
+                        <cursor>
+                            <Cursor fx:constant="HAND"/>
+                        </cursor>
+                    </Button>
+                    <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
+                        prefHeight="36.0" prefWidth="36.0" onAction="#onLogoutButtonPressed">
+                        <graphic>
+                            <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                <Image url="@../../images/logout-line-icon.png"/>
+                            </ImageView>
+                        </graphic>
+                        <cursor>
+                            <Cursor fx:constant="HAND"/>
+                        </cursor>
+                    </Button>
+                    <Button alignment="CENTER" focusTraversable="false" maxWidth="-Infinity" mnemonicParsing="false"
+                            prefHeight="36.0" prefWidth="36.0" onAction="#onApplicationCloseButton">
+                        <graphic>
+                            <ImageView fitHeight="24.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                <Image url="@../../images/close-line-icon.png"/>
+                            </ImageView>
+                        </graphic>
+                        <cursor>
+                            <Cursor fx:constant="HAND"/>
+                        </cursor>
+                    </Button>
+                </HBox>
+            </VBox>
+        </center>
+    </BorderPane>
+    <fx:include source="../game/instructions/GameInstructionsView.fxml" fx:id="gameInstructionsGridPane"/>
+</StackPane>

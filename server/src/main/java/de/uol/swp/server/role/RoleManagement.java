@@ -18,7 +18,7 @@ import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
-import de.uol.swp.common.util.RoleColors;
+import de.uol.swp.common.role.RoleColors;
 import lombok.Getter;
 
 import java.util.*;
