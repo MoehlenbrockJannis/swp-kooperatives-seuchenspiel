@@ -317,6 +317,7 @@ public class GameMapPresenter extends AbstractPresenter {
         List<List<Field>> infectedFieldsInTurn = game.getCurrentTurn().getInfectedFieldsInTurn();
 
         if (infectedFieldsInTurn.isEmpty()) {
+            sendEndPlayerTurnRequest(game);
             return;
         }
 
@@ -334,10 +335,11 @@ public class GameMapPresenter extends AbstractPresenter {
         final int plaguesSize = plagues.size();
         for (int i = 0; i < plaguesSize; i++) {
             final Plague plague = plagues.get(i);
+            final boolean isLastPlague = i == plaguesSize - 1;
+            final boolean requiresSendingOfEndPlayerTurnRequest = isLastField && isLastPlague;
             if (!game.hasAntidoteMarkerForPlague(plague)) {
-                boolean isLastPlague = i == plaguesSize - 1;
-                addAnimatedPlagueCubeMarker(field, isLastField && isLastPlague);
-            }else {
+                addAnimatedPlagueCubeMarker(field, requiresSendingOfEndPlayerTurnRequest);
+            } else if (requiresSendingOfEndPlayerTurnRequest) {
                 sendEndPlayerTurnRequest(game);
             }
         }
