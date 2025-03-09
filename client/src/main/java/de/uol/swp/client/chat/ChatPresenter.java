@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -23,6 +24,10 @@ import java.util.List;
 
 public class ChatPresenter extends AbstractPresenter {
     private Lobby lobby;
+
+    @FXML
+    private Label chatTitleLabel;
+
     @FXML
     private ListView<String> chatView;
     private ObservableList<String> chatMessages;
@@ -75,6 +80,8 @@ public class ChatPresenter extends AbstractPresenter {
     public void setLobby(Lobby lobby) {
         this.lobby = lobby;
         chatService.retrieveChat(this.lobby);
+
+        Platform.runLater(() -> chatTitleLabel.setText("Lobby-Chat"));
     }
 
 
