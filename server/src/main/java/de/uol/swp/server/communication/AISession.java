@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * Class used to store AI Players in an identifiable way
  *
- * @see de.uol.swp.server.usermanagement.AuthenticationService#onLoginRequest(LoginRequest)
+ * @see de.uol.swp.server.user.AuthenticationService#onLoginRequest(LoginRequest)
  * @see Session
  * @author Silas van Thiel
  * @since 2025-01-27

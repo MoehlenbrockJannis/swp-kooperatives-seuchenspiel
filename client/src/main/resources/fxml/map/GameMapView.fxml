@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<StackPane style="-fx-background-color: #a6d1f1;" xmlns="http://javafx.com/javafx/22"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.map.GameMapPresenter">
+    <Pane fx:id="webViewPane">
+        <WebView fx:id="webView"/>
+    </Pane>
+    <Pane fx:id="cityConnectionPane"/>
+    <Pane fx:id="cityNamePane"/>
+    <Pane fx:id="cityMarkerPane"/>
+    <Pane fx:id="plagueCubeMarkerPane"/>
+    <Pane fx:id="researchLaboratoryPane"/>
+    <Pane fx:id="playerMarkerPane"/>
+</StackPane>

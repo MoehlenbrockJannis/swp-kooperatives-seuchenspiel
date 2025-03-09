@@ -110,13 +110,4 @@ public class RemainingComponentsPresenter extends AbstractPresenter {
     public void updateLabel() {
         setNumberOfRemainingComponents();
     }
-
-    /**
-     * Returns the FXML file path
-     * @return The FXML file path
-     */
-    @Override
-    public String getFXMLFilePath() {
-        return "/fxml/game/RemainingComponentsComponent.fxml";
-    }
 }

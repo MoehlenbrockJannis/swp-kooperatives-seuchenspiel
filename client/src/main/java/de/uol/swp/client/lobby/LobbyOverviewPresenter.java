@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
-import de.uol.swp.client.main.events.ShowMainMenuEvent;
+import de.uol.swp.client.main_menu.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -244,7 +244,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * It posts a ShowMainMenuEvent to the EventBus.
      * </p>
      *
-     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
+     * @see de.uol.swp.client.main_menu.events.ShowMainMenuEvent
      * @since 2024-08-24
      */
     @FXML

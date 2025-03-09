@@ -1,6 +1,6 @@
 package de.uol.swp.common.chat.server_message;
 
-import de.uol.swp.common.message.server.AbstractServerMessage;
+import de.uol.swp.common.message.server_message.AbstractServerMessage;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

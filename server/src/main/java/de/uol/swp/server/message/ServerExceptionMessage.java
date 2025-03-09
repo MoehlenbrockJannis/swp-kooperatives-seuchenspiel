@@ -8,7 +8,7 @@ import java.util.Objects;
  * This ServerMessage is used if something went wrong e.g. in the login process
  *
  * @see de.uol.swp.server.message.AbstractServerInternalMessage
- * @see de.uol.swp.server.usermanagement.AuthenticationService#onLoginRequest
+ * @see de.uol.swp.server.user.AuthenticationService#onLoginRequest
  * @author Marco Grawunder
  * @since 2019-08-07
  */

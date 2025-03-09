@@ -15,7 +15,7 @@ import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.game.GameManagement;
 import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
 import de.uol.swp.server.lobby.LobbyManagement;
-import de.uol.swp.server.player.turn.PlayerTurnManagement;
+import de.uol.swp.server.game.turn.PlayerTurnManagement;
 import de.uol.swp.server.role.RoleManagement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

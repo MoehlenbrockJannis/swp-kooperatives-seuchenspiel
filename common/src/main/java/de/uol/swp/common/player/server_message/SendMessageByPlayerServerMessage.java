@@ -2,7 +2,7 @@ package de.uol.swp.common.player.server_message;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.message.Message;
-import de.uol.swp.common.message.server.ServerMessage;
+import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.player.Player;
 
 public interface SendMessageByPlayerServerMessage extends ServerMessage {

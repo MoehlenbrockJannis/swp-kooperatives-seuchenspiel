@@ -13,7 +13,7 @@ import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;

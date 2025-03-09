@@ -35,8 +35,8 @@ public abstract class AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(AbstractPresenter.class);
     private static FXMLLoaderProvider fxmlLoaderProvider;
 
-    public static final String DEFAULT_FXML_FOLDER_PATH = "/fxml/";
-    public static final String COMPONENT_FXML_FOLDER_PATH = "component/";
+    public static final String DEFAULT_FXML_FOLDER_PATH = "/fxml";
+    public static final String PROJECT_ROOT_PACKAGE_NAME = "de.uol.swp.client";
     public static final String DEFAULT_FXML_FILE_SUFFIX = ".fxml";
 
     /**
@@ -194,7 +194,7 @@ public abstract class AbstractPresenter {
      * @since 2024-09-17
      */
     public String getFXMLFilePath() {
-        return getFXMLFolderPath() + getClass().getSimpleName().replace("Presenter", "View") + DEFAULT_FXML_FILE_SUFFIX;
+        return getFXMLFolderPath() + getFXMLFileName() + DEFAULT_FXML_FILE_SUFFIX;
     }
 
     /**
@@ -202,13 +202,48 @@ public abstract class AbstractPresenter {
      *
      * <p>
      *     By default, returns {@value #DEFAULT_FXML_FOLDER_PATH}
+     *     with the package path of this presenter class under the {@code client} package.
      * </p>
      *
      * @return Path to the folder of the associated FXML file
      * @since 2024-09-17
      */
     public String getFXMLFolderPath() {
-        return DEFAULT_FXML_FOLDER_PATH;
+        return DEFAULT_FXML_FOLDER_PATH + getPackagePathUnderProjectRoot() + "/";
+    }
+
+    /**
+     * Returns the package path of this class under the project root package.
+     *
+     * @return package path of this class under the project root package
+     */
+    public String getPackagePathUnderProjectRoot() {
+        return getClass().getPackageName()
+                .replace(PROJECT_ROOT_PACKAGE_NAME, "")
+                .replace(".", "/");
+    }
+
+    /**
+     * Returns the file name for the associated fxml file.
+     *
+     * <p>
+     *     By default, returns the class name of this {@link Class} with {@code Presenter} being replace with {@code View}.
+     * </p>
+     *
+     * @return file name for the associated fxml file
+     */
+    public String getFXMLFileName() {
+        return getViewNameForPresenterName(getClass().getSimpleName());
+    }
+
+    /**
+     * Returns the name of a view for a given presenter name.
+     *
+     * @param presenterName presenter name to return a view name for
+     * @return name of a view for a given presenter name
+     */
+    protected String getViewNameForPresenterName(final String presenterName) {
+        return presenterName.replace("Presenter", "View");
     }
 
     /**

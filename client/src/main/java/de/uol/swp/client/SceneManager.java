@@ -4,19 +4,19 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import de.uol.swp.client.user.LoginPresenter;
-import de.uol.swp.client.user.events.ShowLoginViewEvent;
+import de.uol.swp.client.user.event.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyCreatePresenter;
 import de.uol.swp.client.lobby.LobbyOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
-import de.uol.swp.client.main.MainMenuPresenter;
-import de.uol.swp.client.main.events.ShowMainMenuEvent;
-import de.uol.swp.client.register.RegistrationPresenter;
-import de.uol.swp.client.register.event.RegistrationCanceledEvent;
-import de.uol.swp.client.register.event.RegistrationErrorEvent;
-import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.client.main_menu.MainMenuPresenter;
+import de.uol.swp.client.main_menu.events.ShowMainMenuEvent;
+import de.uol.swp.client.user.RegistrationPresenter;
+import de.uol.swp.client.user.event.RegistrationCanceledEvent;
+import de.uol.swp.client.user.event.RegistrationErrorEvent;
+import de.uol.swp.client.user.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
 import de.uol.swp.common.role.response.RoleUnavailableResponse;
@@ -88,7 +88,7 @@ public class SceneManager {
      * </p>
      *
      * @param event The ShowMainMenuEvent detected on the EventBus
-     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
+     * @see de.uol.swp.client.main_menu.events.ShowMainMenuEvent
      * @since 2024-08-24
      */
     @Subscribe
@@ -104,7 +104,7 @@ public class SceneManager {
      * screen.
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
+     * @see ShowRegistrationViewEvent
      * @since 2019-09-03
      */
     @Subscribe
@@ -149,7 +149,7 @@ public class SceneManager {
      * called. It calls a method to show the screen shown before registration.
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
+     * @see RegistrationCanceledEvent
      * @since 2019-09-03
      */
     @Subscribe
@@ -164,7 +164,7 @@ public class SceneManager {
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationErrorEvent
+     * @see RegistrationErrorEvent
      * @since 2019-09-03
      */
     @Subscribe

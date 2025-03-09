@@ -3,17 +3,20 @@ package de.uol.swp.client.game;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
+import de.uol.swp.client.action.SelectCityCardsForAntidoteResearchPresenter;
 import de.uol.swp.client.action.ShareKnowledgeActionPresenter;
 import de.uol.swp.client.approvable.ApprovableService;
 import de.uol.swp.client.card.InfectionCardsOverviewPresenter;
 import de.uol.swp.client.card.PlayerCardsOverviewPresenter;
 import de.uol.swp.client.chat.ChatPresenter;
 import de.uol.swp.client.lobby.LobbyService;
+import de.uol.swp.client.map.GameMapPresenter;
+import de.uol.swp.client.map.research_laboratory.ResearchLaboratoryMarker;
 import de.uol.swp.client.marker.LevelableMarkerPresenter;
 import de.uol.swp.client.marker.OutbreakMarkerPresenter;
 import de.uol.swp.client.plague.PlagueCubeIcon;
 import de.uol.swp.client.player.PlayerMarker;
-import de.uol.swp.client.research_laboratory.ResearchLaboratoryMarker;
+import de.uol.swp.client.player.PlayerPanePresenter;
 import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.Action;
@@ -30,13 +33,13 @@ import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.server_message.SendMessageByPlayerServerMessage;
-import de.uol.swp.common.player.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
@@ -62,8 +65,6 @@ import java.util.function.Supplier;
  * Manages the game board window
  */
 public class GamePresenter extends AbstractPresenter {
-    public static final String GAME_FXML_FOLDER_PATH = "game/";
-
     public static final String ANTIDOTE_IMAGE_FOLDER_PATH = "/images/action/AntidoteMarker";
 
     public static final String FILE_EXTENSION_PNG =  ".png";
@@ -173,18 +174,6 @@ public class GamePresenter extends AbstractPresenter {
 
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
-
-    /**
-     * <p>
-     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #GAME_FXML_FOLDER_PATH}
-     * </p>
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public String getFXMLFolderPath() {
-        return DEFAULT_FXML_FOLDER_PATH + GAME_FXML_FOLDER_PATH;
-    }
 
     /**
      * Initializes the game board window

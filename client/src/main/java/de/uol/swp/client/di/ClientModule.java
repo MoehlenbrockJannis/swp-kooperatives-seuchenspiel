@@ -1,5 +1,11 @@
 package de.uol.swp.client.di;
 
+import de.uol.swp.client.*;
+import de.uol.swp.client.communication.ClientConnection;
+import de.uol.swp.client.communication.ClientConnectionFactory;
+import de.uol.swp.client.user.LoggedInUserProvider;
+import lombok.RequiredArgsConstructor;
+import org.greenrobot.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uol.swp.client.*;

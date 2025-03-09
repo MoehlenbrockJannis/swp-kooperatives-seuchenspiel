@@ -35,7 +35,7 @@
         <RowConstraints percentHeight="100"/>
     </rowConstraints>
     <!-- Column 0 -->
-    <fx:include source="GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
+    <fx:include source="../map/GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
     <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
         <ImageView fx:id="settingsIcon" preserveRatio="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Image url="@/images/setting-line-icon.png"/>
@@ -137,7 +137,7 @@
 
     <StackPane fx:id="chatStackPane" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="4">
         <AnchorPane fx:id="chatAnchorPane">
-            <fx:include source="../component/ChatComponent.fxml" fx:id="chatComponent"
+            <fx:include source="../chat/ChatView.fxml" fx:id="chatComponent"
                         AnchorPane.topAnchor="0.0"
                         AnchorPane.bottomAnchor="0.0"
                         AnchorPane.leftAnchor="0.0"

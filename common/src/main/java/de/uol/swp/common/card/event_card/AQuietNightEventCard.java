@@ -1,6 +1,6 @@
 package de.uol.swp.common.card.event_card;
 
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 
 /**
  * Represents the "A quiet night" event card.

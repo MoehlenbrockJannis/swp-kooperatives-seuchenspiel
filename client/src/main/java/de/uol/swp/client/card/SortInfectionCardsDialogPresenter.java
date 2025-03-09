@@ -206,9 +206,4 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
     public List<InfectionCard> getUpdatedList() {
         return new ArrayList<>(items);
     }
-
-    @Override
-    public String getFXMLFilePath() {
-        return "/fxml/card/SortInfectionCardsDialog.fxml";
-    }
 }

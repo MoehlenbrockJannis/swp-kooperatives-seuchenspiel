@@ -8,12 +8,9 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -27,18 +24,6 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
 
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
-
-    /**
-     * <p>
-     *     Return {@value #DEFAULT_FXML_FOLDER_PATH}+{@value #COMPONENT_FXML_FOLDER_PATH}
-     * </p>
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public String getFXMLFolderPath() {
-        return DEFAULT_FXML_FOLDER_PATH + COMPONENT_FXML_FOLDER_PATH;
-    }
 
     @FXML
     private void initialize() {

@@ -1,7 +1,7 @@
 package de.uol.swp.client.player;
 
 import de.uol.swp.client.action.ActionService;
-import de.uol.swp.client.game.CityMarker;
+import de.uol.swp.client.map.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
