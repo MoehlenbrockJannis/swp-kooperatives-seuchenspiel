@@ -489,7 +489,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @param clickListener {@link Runnable} that is executed when given {@link PlayerCard} in {@link PlayerCardHBox} is clicked
      */
     public void highlightHandCardAndAssignClickListener(final PlayerCard playerCard, final Runnable clickListener) {
-        if (isPresenterOfLobbyPlayer && !game.isGameLost()) {
+        if (isPresenterOfLobbyPlayer && !game.isGameLost() && !game.isGameWon()) {
             this.handCardToClickListenerAssociation.put(playerCard, createRunnableForEventCard(playerCard, clickListener));
             highlightAndAssignClickListenerToPlayerCardHBoxOfPlayerCard(playerCard);
         }
@@ -504,7 +504,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @return potentially modified {@link Runnable} click listener for given {@link PlayerCard}
      */
     private Runnable createRunnableForEventCard(final PlayerCard playerCard, final Runnable clickListener) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
         if (playerCard instanceof AirBridgeEventCard airBridgeEventCard) {
@@ -527,7 +527,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @return {@link Runnable} as action listener to play given {@link AirBridgeEventCard}
      */
     private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard, final Runnable approve) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
         return () -> {
@@ -547,7 +547,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @return {@link BiConsumer} invoked with the target {@link Player} and {@link Field} of an {@link AirBridgeEventCard}
      */
     private BiConsumer<Field, Player> createAirBridgeEventCardPlayerAndFieldClickConsumer(final AirBridgeEventCard airBridgeEventCard) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
         return (field, movedPlayer) -> {
@@ -599,7 +599,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      */
     private Runnable prepareToughPopulationEventCard(final ToughPopulationEventCard toughPopulationEventCard, final Runnable approve) {
         return () -> {
-            if (!game.isGameLost()) {
+            if (!game.isGameLost() && !game.isGameWon()) {
                 CardStack<InfectionCard> infectionDiscardStack = gameSupplier.get().getInfectionDiscardStack();
                 if (infectionDiscardStack.isEmpty()) {
                     return;
@@ -625,7 +625,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @since 2025-02-17
      */
     private Runnable prepareForecastEventCard(final ForecastEventCard forecastEventCard, final Runnable approve) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
         return () -> {
@@ -646,7 +646,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @since 2025-02-17
      */
     private List<InfectionCard> openSortInfectionCardsDialog() {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
 
@@ -738,7 +738,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @return {@link Runnable} as action listener to play given {@link GovernmentSubsidiesEventCard}
      */
     private Runnable prepareGovernmentSubsidiesEventCard(final GovernmentSubsidiesEventCard governmentSubsidiesEventCard, final Runnable approve) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
         return () -> {

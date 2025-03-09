@@ -121,7 +121,7 @@ public class AIPlayerService extends AbstractService {
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse message) {
         final Game game = message.getGame();
 
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
 
@@ -223,7 +223,7 @@ public class AIPlayerService extends AbstractService {
      * @param game The current game
      */
     public void handleAIPlayerTurnProcess(Game game) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
 
@@ -231,19 +231,19 @@ public class AIPlayerService extends AbstractService {
         final Player currentPlayer = currentTurn.getPlayer();
 
         scheduler.schedule(() -> {
-            if (!game.isGameLost() && currentTurn.isInInfectionCardDrawPhase()) {
+            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInInfectionCardDrawPhase()) {
                 handleAIInfectionCardDrawPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
 
         scheduler.schedule(() -> {
-            if (!game.isGameLost() && currentTurn.isInPlayerCardDrawPhase()) {
+            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInPlayerCardDrawPhase()) {
                 handleAIPlayerCardDrawPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
 
         scheduler.schedule(() -> {
-            if (!game.isGameLost() && currentTurn.isInActionPhase()) {
+            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInActionPhase()) {
                 handleAIPlayerActionPhase(game, currentPlayer);
             }
         }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
@@ -256,7 +256,7 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIPlayerActionPhase(Game game, Player currentPlayer) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
 
@@ -295,7 +295,7 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIPlayerCardDrawPhase(Game game, Player currentPlayer) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
 
@@ -312,7 +312,7 @@ public class AIPlayerService extends AbstractService {
      * @param currentPlayer The current player
      */
     protected void handleAIInfectionCardDrawPhase(Game game, Player currentPlayer) {
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
 

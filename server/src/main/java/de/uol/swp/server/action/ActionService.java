@@ -21,6 +21,7 @@ import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.card.CardService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.game.GameManagement;
+import de.uol.swp.server.game.message.GameStateChangedInternalMessage;
 import de.uol.swp.server.player.PlayerManagement;
 import de.uol.swp.server.triggerable.TriggerableService;
 import org.greenrobot.eventbus.EventBus;
@@ -68,7 +69,7 @@ public class ActionService extends AbstractService {
             return;
         }
 
-        if (request.getGame().isGameLost()) {
+        if (request.getGame().isGameLost() || request.getGame().isGameWon()) {
             return;
         }
 
@@ -101,6 +102,7 @@ public class ActionService extends AbstractService {
         sendChatMessageIfPlagueCubeCure(request);
         sendDiscoveredAntidoteChatMessage(request);
         evaluateDiscardingOfHandCardsFromReceiverOfShareKnowledgeActionNeedTo(request);
+        checkIfAllPlaguesHaveAntidotes(request);
     }
 
     /**
@@ -153,13 +155,14 @@ public class ActionService extends AbstractService {
     private void sendDiscoveredAntidoteChatMessage(ActionRequest actionRequest) {
         if (actionRequest.getAction() instanceof DiscoverAntidoteAction antidoteAction) {
             Player currentPlayer = actionRequest.getGame().getCurrentPlayer();
+            Game game = actionRequest.getGame();
 
             Plague plague = antidoteAction.getPlague();
             String plagueName = plague.getName();
 
             String text = currentPlayer + " hat das Heilmittel " + plagueName + " erforscht!";
 
-            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, actionRequest.getGame().getLobby());
+            SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage = new SystemLobbyMessageServerInternalMessage(text, game.getLobby());
             post(systemLobbyMessageServerInternalMessage);
         }
     }
@@ -193,5 +196,35 @@ public class ActionService extends AbstractService {
             message.setMessageContext(null);
             cardService.allowDrawingOrDiscarding(game, message, ReleaseToDiscardPlayerCardResponse.class);
         }
+    }
+
+    /**
+     * Checks if all plagues in the game have antidotes and sets the game state to won if true.
+     *
+     * @param actionRequest The action request containing the game context to check for antidotes
+     */
+    private void checkIfAllPlaguesHaveAntidotes(final ActionRequest actionRequest) {
+        if (actionRequest.getAction() instanceof DiscoverAntidoteAction antidoteAction) {
+            Game game =  antidoteAction.getGame();
+            Game currentGame = gameManagement.getGame(game).get();
+
+            boolean allPlaguesHaveAntidotes = currentGame.getPlagues().stream()
+                    .allMatch(currentGame::hasAntidoteMarkerForPlague);
+
+            if (allPlaguesHaveAntidotes) {
+                setGameWonIfAllPlaguesHaveAntidotes(currentGame);
+            }
+        }
+    }
+
+    /**
+     * Sets the game state to won and ends the current turn.
+     *
+     * @param game The game to be marked as won
+     */
+    private void setGameWonIfAllPlaguesHaveAntidotes(Game game) {
+        game.setGameWon(true);
+        game.getCurrentTurn().setNumberOfActionsToDo(0);
+        post(new GameStateChangedInternalMessage(game, gameManagement.determineGameEndReason(game)));
     }
 }

@@ -679,5 +679,4 @@ public class Game implements Serializable {
     public boolean requiresResearchLaboratoryMove() {
         return researchLaboratories.size() >= Game.DEFAULT_NUMBER_OF_RESEARCH_LABORATORIES;
     }
-
 }

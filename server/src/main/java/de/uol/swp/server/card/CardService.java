@@ -179,7 +179,7 @@ public class CardService extends AbstractService {
     public void onDrawInfectionCardRequest(DrawInfectionCardRequest drawInfectionCardRequest) {
         getGameAndPlayer(drawInfectionCardRequest,(game, player) -> {
             final PlayerTurn playerTurn = game.getCurrentTurn();
-            if (game.isGameLost() || !playerTurn.isInInfectionCardDrawPhase()) {
+            if (game.isGameWon() || game.isGameLost() || !playerTurn.isInInfectionCardDrawPhase()) {
                 determineFollowingStepAndSendUpdate(game, player, drawInfectionCardRequest);
                 return;
             }
@@ -196,6 +196,14 @@ public class CardService extends AbstractService {
 
             if(!game.hasAntidoteMarkerForPlague(plague)) {
                 handleInfectionProcess(game, infectionCard, infectedFields);
+            }
+
+            playerTurn.setAreInteractionsBlocked(false);
+
+            if (playerTurn.getNumberOfInfectionCardsToDraw() > 0) {
+                allowDrawingOrDiscarding(game, drawInfectionCardRequest, ReleaseToDrawInfectionCardResponse.class);
+            } else {
+                endPlayerTurn(game, drawInfectionCardRequest);
             }
 
             sendGameUpdateMessage(game);
@@ -376,7 +384,7 @@ public class CardService extends AbstractService {
         final PlayerTurn playerTurn = game.getCurrentTurn();
         playerTurn.setAreInteractionsBlocked(false);
 
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             sendGameUpdateMessage(game);
             return;
         }
