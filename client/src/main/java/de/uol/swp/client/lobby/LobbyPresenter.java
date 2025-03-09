@@ -105,8 +105,7 @@ public class LobbyPresenter extends AbstractPresenter {
         userContainerEntityListController.setTitle("Mitspieler");
         userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
-        disableAddAIButtonForNonOwners();
-        disableDifficultyMenuForNonOwners();
+        disableControlsForNonOwners();
         lobbyService.getOriginalGameMapType();
         lobbyService.getPlagues();
     }
@@ -247,7 +246,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles the event when the add AI button is clicked in the lobby.
-     *
+     * <p>
      * This method adds an AI player (bot) to the lobby if the current number of players
      * has not reached the lobby's maximum player limit. It checks whether the lobby is full,
      * and if so, displays an information alert indicating that no more players can be added.
@@ -268,22 +267,25 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Disables the "Add AI" button for users who are not the lobby owner.
-     *
+     * Disables controls for users who are not the lobby owner.
+     * <p>
+     * This method checks if the currently logged-in user is the owner of the lobby.
+     * If the user is not the owner, it disables the "Add AI" button and the difficulty combo box.
+     * </p>
      * @since 2024-09-23
      */
-    private void disableAddAIButtonForNonOwners() {
+    private void disableControlsForNonOwners() {
         User currentUser = loggedInUserProvider.get();
         User lobbyOwner = this.lobby.getOwner();
+        boolean isOwner = currentUser.equals(lobbyOwner);
 
-        if(!currentUser.equals(lobbyOwner)) {
-            addAIButton.setDisable(true);
-        }
+        addAIButton.setDisable(!isOwner);
+        difficultyComboBox.setDisable(!isOwner);
     }
 
     /**
      * Checks whether the lobby has reached its maximum player limit.
-     *
+     * <p>
      * This method compares the current number of players in the lobby to the maximum allowed
      * number of players.
      *
@@ -296,7 +298,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Displays an information alert indicating that the lobby has reached the maximum number of players.
-     *
+     * <p>
      * This method is called when a player attempts to join a lobby that is already full.
      * It triggers an alert dialog with a message informing the user that the maximum number
      * of players has been reached and no additional players can be added to the lobby.
@@ -309,7 +311,7 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Creates a new AI player (bot) for the lobby.
-     *
+     * <p>
      * It is used to add non-human players (bots) to the lobby. The bot's name
      * is generated using the {@link #generateBotName()} method to ensure uniqueness.
      *
@@ -368,6 +370,7 @@ public class LobbyPresenter extends AbstractPresenter {
             executable.run();
             updateStartGameButton();
             updatePlayerList();
+            disableControlsForNonOwners();
         }
     }
 
@@ -706,26 +709,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private boolean shouldUpdateDifficulty(GameDifficulty newDifficulty) {
         return newDifficulty != null && !newDifficulty.equals(selectedDifficulty);
-    }
-
-    /**
-     * Disables the difficulty selection menu for users who are not the lobby owner.
-     *
-     * This method compares the currently logged-in user with the lobby owner and
-     * disables the difficulty combo box if the current user is not the owner of
-     * the lobby. This ensures that only the lobby owner can modify the game's
-     * difficulty settings.
-     *
-     * @since 2025-01-22
-     * @see #difficultyComboBox
-     */
-    private void disableDifficultyMenuForNonOwners() {
-        User currentUser = loggedInUserProvider.get();
-        User lobbyOwner = this.lobby.getOwner();
-
-        if(!currentUser.equals(lobbyOwner)) {
-            difficultyComboBox.setDisable(true);
-        }
     }
 
     /**
