@@ -21,6 +21,7 @@ import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
+import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import de.uol.swp.common.triggerable.server_message.TriggerableServerMessage;
 import de.uol.swp.common.user.User;
@@ -156,9 +157,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger the triggerable")
     void onTriggerableRequest() throws InterruptedException {
-        final ManualTriggerable triggerable = mock(ManualTriggerable.class);
-        when(triggerable.getGame())
-                .thenReturn(game);
+        final ManualTriggerable triggerable = createTriggerableMock(ManualTriggerable.class);
         final Message cause = null;
         final Player returningPlayer = null;
 
@@ -182,9 +181,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger and discard the EventCard")
     void onTriggerableRequest_EventCard() throws InterruptedException {
-        final EventCard eventCard = mock(EventCard.class);
-        when(eventCard.getGame())
-                .thenReturn(game);
+        final EventCard eventCard = createTriggerableMock(EventCard.class);
         when(eventCard.getPlayer())
                 .thenReturn(player1);
         player1.addHandCard(eventCard);
@@ -203,9 +200,7 @@ public class TriggerableServiceTest extends EventBusBasedTest {
     @Test
     @DisplayName("Should trigger AutoTriggerable")
     void autoTriggerableTriggeredIfConditionsMet() throws InterruptedException {
-        final AutoTriggerable triggerable = mock(AutoTriggerable.class);
-        when(triggerable.getGame())
-                .thenReturn(game);
+        final AutoTriggerable triggerable = createTriggerableMock(AutoTriggerable.class);
         final Message cause = null;
         final Player returningPlayer = null;
 
@@ -216,6 +211,17 @@ public class TriggerableServiceTest extends EventBusBasedTest {
 
         verify(triggerable, times(1))
                 .trigger();
+    }
+
+    private <T extends Triggerable> T createTriggerableMock(final Class<T> typeOfMock) {
+        final T mock = mock(typeOfMock);
+        doAnswer(invocationOnMock -> {
+            mock.trigger();
+            return null;
+        }).when(mock).execute();
+        when(mock.getGame())
+                .thenReturn(game);
+        return mock;
     }
 
     @Subscribe
