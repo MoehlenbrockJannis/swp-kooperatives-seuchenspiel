@@ -6,9 +6,9 @@ import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.AutoTriggerable;
 import de.uol.swp.common.triggerable.ManualTriggerable;
 import de.uol.swp.common.triggerable.Triggerable;
@@ -143,7 +143,8 @@ public class TriggerableService extends AbstractService {
         final Game game = gameOptional.get();
         triggerable.initWithGame(game);
 
-        triggerable.trigger();
+        PlayerTurn playerTurn = game.getCurrentTurn();
+        playerTurn.executeCommand(triggerable);
 
         gameService.sendGameUpdate(game);
 
