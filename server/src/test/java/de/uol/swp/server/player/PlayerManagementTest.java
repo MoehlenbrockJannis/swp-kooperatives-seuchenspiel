@@ -8,7 +8,7 @@ import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.communication.AISession;
 import de.uol.swp.server.communication.UUIDSession;
-import de.uol.swp.server.usermanagement.AuthenticationService;
+import de.uol.swp.server.user.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

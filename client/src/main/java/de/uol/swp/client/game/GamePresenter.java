@@ -566,7 +566,9 @@ public class GamePresenter extends AbstractPresenter {
                             game,
                             game.getLobby().getPlayerForUser(loggedInUserProvider.get())
                     );
-                    eventBus.post(leaveGameRequest);
+                    if (!game.isGameLost() && !game.isGameWon()) {
+                        eventBus.post(leaveGameRequest);
+                    }
                     stage.close();
                 },
                 () -> {}
@@ -786,7 +788,11 @@ public class GamePresenter extends AbstractPresenter {
      * Otherwise, the button is disabled.
      */
     private void updateWaiveButtonPressed() {
-        waiveActionButton.setDisable(!isCurrentPlayerInGame() || !isWaiveActionAvailable() || !hasActionToDo());
+        waiveActionButton.setDisable(!isCurrentPlayerInGame() ||
+                !isWaiveActionAvailable() ||
+                !hasActionToDo() ||
+                game.isGameWon() ||
+                game.isGameLost());
     }
 
     /**
@@ -1109,7 +1115,11 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void updateAntidoteMarkerButtons() {
         Optional<DiscoverAntidoteAction> optionalDiscoverAntidoteAction = getCurrentDiscoverAntidoteAction();
-        if(optionalDiscoverAntidoteAction.isEmpty()) {
+
+        if(optionalDiscoverAntidoteAction.isEmpty() ||
+                !hasActionToDo() ||
+                game.isGameWon() ||
+                game.isGameLost()) {
             disableAntidoteMarkerButtons();
             return;
         }

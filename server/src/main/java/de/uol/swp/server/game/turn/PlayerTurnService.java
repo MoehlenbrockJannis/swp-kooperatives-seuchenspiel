@@ -60,7 +60,7 @@ public class PlayerTurnService extends AbstractService {
         try {
             Game currentGame = request.getGame();
 
-            if (currentGame.isGameLost()) {
+            if (currentGame.isGameLost() || currentGame.isGameWon()) {
                 return;
             }
 

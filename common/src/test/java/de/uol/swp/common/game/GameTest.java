@@ -13,7 +13,7 @@ import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.player.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.triggerable.Triggerable;

@@ -748,9 +748,10 @@ public class GameMapPresenter extends AbstractPresenter {
                                                            final List<Field> availableFields,
                                                            final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
         Game game = gameSupplier.get();
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
+
         final List<PlayerMarkerPresenter> playerMarkerPresentersList = findPlayerMarkerPresentersByPlayers(players);
 
         final Runnable unhighlightAllPlayerMarkers = () -> playerMarkerPresentersList.forEach(PlayerMarkerPresenter::unhighlight);
@@ -777,9 +778,10 @@ public class GameMapPresenter extends AbstractPresenter {
                                                            final List<Field> availableFields,
                                                            final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
         Game game = gameSupplier.get();
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
+
         playerMarkerPresenter.highlight();
         playerMarkerPresenter.setClickListenerForPlayerMarkerAndFields(
                 availableFields,
@@ -813,7 +815,7 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     public void setClickListenersForGovernmentSubsidiesFields(GovernmentSubsidiesEventCard governmentSubsidiesEventCard, Runnable approve) {
         Game game = gameSupplier.get();
-        if (game.isGameLost()) {
+        if (game.isGameLost() || game.isGameWon()) {
             return;
         }
         highlightCityMarkers();
