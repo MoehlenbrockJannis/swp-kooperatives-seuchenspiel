@@ -10,8 +10,6 @@ import org.greenrobot.eventbus.EventBus;
 /**
  * The ActionService class handles sending action requests within the game.
  * It utilizes an EventBus to post actions that need to be executed.
- *
- * @author: Jannis Moehlenbrock
  */
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class ActionService {

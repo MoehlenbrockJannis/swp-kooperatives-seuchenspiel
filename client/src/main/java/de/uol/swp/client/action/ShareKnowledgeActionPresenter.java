@@ -26,8 +26,6 @@ import java.util.function.Consumer;
 
 /**
  * Presenter for the ShareKnowledgeActionView with which the Player can select a card to trade with another Player
- *
- * @author Tom Weelborg
  */
 public class ShareKnowledgeActionPresenter extends AbstractPresenter {
     @Setter(onMethod_ = @Inject)
