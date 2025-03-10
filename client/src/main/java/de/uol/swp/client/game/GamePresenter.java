@@ -19,12 +19,17 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerPanePresenter;
 import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.client.util.ColorService;
+import de.uol.swp.client.util.NodeBindingUtils;
+import de.uol.swp.client.util.ScalableSVGStackPane;
+import de.uol.swp.client.util.TooltipsUtil;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
 import de.uol.swp.common.action.advanced.discover_antidote.DiscoverAntidoteAction;
 import de.uol.swp.common.action.advanced.transfer_card.ReceiveCardAction;
 import de.uol.swp.common.action.advanced.transfer_card.SendCardAction;
+import de.uol.swp.common.action.advanced.transfer_card.ShareKnowledgeAction;
 import de.uol.swp.common.action.simple.WaiveAction;
 import de.uol.swp.common.answerable.server_message.AnswerableServerMessage;
 import de.uol.swp.common.approvable.Approvable;
@@ -48,15 +53,16 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -65,10 +71,6 @@ import java.util.function.Supplier;
  * Manages the game board window
  */
 public class GamePresenter extends AbstractPresenter {
-    public static final String ANTIDOTE_IMAGE_FOLDER_PATH = "/images/action/AntidoteMarker";
-
-    public static final String FILE_EXTENSION_PNG =  ".png";
-
     @Getter
     private Game game;
 
@@ -161,9 +163,10 @@ public class GamePresenter extends AbstractPresenter {
     private Button curePlagueActionButton;
 
     @FXML
-    private HBox buttonContainer;
+    private GridPane buttonContainer;
 
-    private List<Button> antidoteButtons;
+    private Map<Plague, Button> antidoteButtons;
+    private Map<Plague, ScalableSVGStackPane> antidoteButtonCheckMarks;
 
     @FXML
     private GridPane remainingComponentsPane;
@@ -174,6 +177,15 @@ public class GamePresenter extends AbstractPresenter {
 
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
+
+    private static final String SVG_PATH_PREFIX = "client/src/main/resources/images/action/";
+    private static final String RESEARCH_LAB_SVG = SVG_PATH_PREFIX + "addResearchLaboratory.svg";
+    private static final String CURE_PLAGUE_SVG = SVG_PATH_PREFIX + "curePlague.svg";
+    private static final String SHARE_KNOWLEDGE_SVG = SVG_PATH_PREFIX + "cards.svg";
+    private static final String WAIVE_SVG = SVG_PATH_PREFIX + "close.svg";
+    private static final Color DEFAULT_ACTION_COLOR = Color.BLACK;
+    private static final Color WAIVE_ACTION_COLOR = Color.DARKRED;
+
 
     /**
      * Initializes the game board window
@@ -230,6 +242,7 @@ public class GamePresenter extends AbstractPresenter {
         initializeMenuItems();
         chatComponentController.setLobby(game.getLobby());
         initializeChat();
+        initializeActionButtons();
         updateShareKnowledgeActionButton();
         updateResearchLaboratoryButtonState();
         updateCurePlagueButtonState();
@@ -342,7 +355,7 @@ public class GamePresenter extends AbstractPresenter {
      * @return True if the turn is over, false otherwise
      */
     private boolean isTurnOver(Game game) {
-       return this.game.getCurrentTurn().isOver();
+        return this.game.getCurrentTurn().isOver();
     }
 
     /**
@@ -765,6 +778,89 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
+     * Initializes all action buttons by configuring SVG images, dynamic scaling and tooltips.
+     */
+    private void initializeActionButtons() {
+        configureActionButton(
+                researchLaboratoryButton,
+                RESEARCH_LAB_SVG,
+                DEFAULT_ACTION_COLOR,
+                new BuildResearchLaboratoryAction().toString()
+        );
+
+        configureActionButton(
+                curePlagueActionButton,
+                CURE_PLAGUE_SVG,
+                DEFAULT_ACTION_COLOR,
+                new CurePlagueAction().toString()
+        );
+
+        configureActionButton(
+                shareKnowledgeActionButton,
+                SHARE_KNOWLEDGE_SVG,
+                DEFAULT_ACTION_COLOR,
+                ShareKnowledgeAction.NAME
+        );
+
+        configureActionButton(
+                waiveActionButton,
+                WAIVE_SVG,
+                WAIVE_ACTION_COLOR,
+                new WaiveAction().toString()
+        );
+    }
+
+    /**
+     * Adds a tooltip to a button.
+     *
+     * @param button The button to add the tooltip to
+     * @param tooltipText The text for the tooltip
+     */
+    private void addTooltipToButton(Button button, String tooltipText) {
+        Tooltip tooltip = TooltipsUtil.createConsistentTooltip(tooltipText);
+        Tooltip.install(button, tooltip);
+    }
+
+    /**
+     * Adds the given SVG image to the given {@link Button} using {@link ScalableSVGStackPane}.
+     *
+     * @param button    The {@link Button} to which the SVG will be added to.
+     * @param svgFile   The SVG image.
+     * @param fillColor The {@link Color} used as fill color for the SVG.
+     */
+    private void addSvgToButton(Button button, File svgFile, Color fillColor) {
+        ScalableSVGStackPane svgStackPane = new ScalableSVGStackPane(svgFile, 0.2, fillColor);
+        button.setGraphic(svgStackPane);
+    }
+
+    /**
+     * Bind the size of a given {@link Button} to its parent {@link StackPane}.
+     *
+     * @param button The {@link Button} whose size will be bound to its parent {@link StackPane}.
+     */
+    private void bindButtonToParentStackPane(Button button) {
+        Parent parent = button.getParent();
+        if (parent instanceof StackPane stackPane) {
+            stackPane.setMinSize(0, 0);
+            NodeBindingUtils.bindRegionSizeToButton(stackPane, button);
+        }
+    }
+
+    /**
+     * Configures an action button completely including SVG, size binding and tooltip.
+     *
+     * @param button The button to configure
+     * @param svgPath The path to the SVG file
+     * @param color The color for the SVG
+     * @param tooltipText The text for the tooltip
+     */
+    private void configureActionButton(Button button, String svgPath, Color color, String tooltipText) {
+        addSvgToButton(button, new File(svgPath), color);
+        bindButtonToParentStackPane(button);
+        addTooltipToButton(button, tooltipText);
+    }
+
+    /**
      * Handles the event when the waive button is pressed.
      * This method checks if the current player is in the game and if they have actions to perform.
      * If both conditions are met, it sends a waive action and updates the state of the waive button.
@@ -772,9 +868,9 @@ public class GamePresenter extends AbstractPresenter {
     @FXML
     private void addWaiveButtonPressed() {
         if (isCurrentPlayerInGame() && hasActionToDo()) {
-                gameMapController.sendWaiveAction();
-                updateWaiveButtonPressed();
-            }
+            gameMapController.sendWaiveAction();
+            updateWaiveButtonPressed();
+        }
 
     }
 
@@ -1036,41 +1132,62 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Clears the button container and initializes antidote marker buttons
-     * for each plague in the game. These buttons are initially disabled
-     * and display an antidote marker image.
+     * Initializes antidote marker buttons for each plague in the game.
+     * These buttons are initially disabled and display an antidote marker image.
      *
      * @author Marvin Tischer
      * @since 2025-02-05
      */
     private void addAntidoteMarkerButtons(){
+        antidoteButtons = new HashMap<>();
+        antidoteButtonCheckMarks = new HashMap<>();
 
-        buttonContainer.getChildren().clear();
-
-        antidoteButtons = new ArrayList<>();
-        List<Plague> plagues = game.getPlagues();
-
-        int antidoteImageViewWidth = 50;
-        int antidoteImageViewHeight = 50;
+        List<Plague> plagues = new ArrayList<>(game.getPlagueCubes().keySet());
 
         for (int plagueCounter = 0; plagueCounter < plagues.size(); plagueCounter++) {
+            Plague plague = plagues.get(plagueCounter);
+
+            ColumnConstraints columnConstraints = new ColumnConstraints();
+            columnConstraints.setPercentWidth(100.0 / plagues.size());
+            buttonContainer.getColumnConstraints().add(columnConstraints);
+
             Button button = new Button();
-            button.setMaxWidth(Double.MAX_VALUE);
             button.setDisable(true);
 
-            String antidoteImagePath = ANTIDOTE_IMAGE_FOLDER_PATH + plagueCounter + FILE_EXTENSION_PNG;
-            Image antidoteImage = new Image(antidoteImagePath);
-            ImageView antidoteImageView = new ImageView(antidoteImage);
-            antidoteImageView.setFitWidth(antidoteImageViewWidth);
-            antidoteImageView.setFitHeight(antidoteImageViewHeight);
+            Tooltip tooltip = TooltipsUtil.createConsistentTooltip(new DiscoverAntidoteAction().toString());
+            Tooltip.install(button, tooltip);
 
-            button.setGraphic(antidoteImageView);
+            Color fillColor = ColorService.convertColorToJavaFXColor(plague.getColor());
+            File svgFile = new File("client/src/main/resources/images/action/flask.svg");
+            addSvgToButton(button, svgFile, fillColor);
 
-            buttonContainer.getChildren().add(button);
-            antidoteButtons.add(button);
+            StackPane stackPane = new StackPane();
+
+            stackPane.getChildren().add(button);
+            bindButtonToParentStackPane(button);
+
+            if (button.getGraphic() instanceof ScalableSVGStackPane scalableSVGStackPane) {
+                addCheckMarkToScalableSVG(scalableSVGStackPane, plague);
+            }
+            buttonContainer.add(stackPane, plagueCounter, 0);
+            antidoteButtons.put(plague, button);
         }
     }
 
+    /**
+     * Adds a green check mark SVG to the given {@link ScalableSVGStackPane}.
+     * The check mark is not visible by default.
+     *
+     * @param svgStackPane The {@link ScalableSVGStackPane} to which a check mark SVG will be added to.
+     * @param plague       The {@link Plague} associated with the given {@link ScalableSVGStackPane}.
+     */
+    private void addCheckMarkToScalableSVG(ScalableSVGStackPane svgStackPane, Plague plague) {
+        File svgFile = new File("client/src/main/resources/images/action/check.svg");
+        ScalableSVGStackPane checkMarkSvgStackPane = new ScalableSVGStackPane(svgFile, 0, Color.GREEN);
+        svgStackPane.getChildren().add(checkMarkSvgStackPane);
+        checkMarkSvgStackPane.setVisible(false);
+        antidoteButtonCheckMarks.put(plague, checkMarkSvgStackPane);
+    }
 
     /**
      * Retrieves the current {@code DiscoverAntidoteAction} for the ongoing turn, if available.
@@ -1105,6 +1222,7 @@ public class GamePresenter extends AbstractPresenter {
             button.setDisable(true);
         }
     }
+
     /**
      * Updates the antidote marker buttons by configuring them based on the current
      * {@code DiscoverAntidoteAction} and the available plagues in the game.
@@ -1114,6 +1232,14 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2025-02-07
      */
     private void updateAntidoteMarkerButtons() {
+        List<Plague> plagues = game.getPlagues();
+
+        for (Plague plague : plagues) {
+            if (checkIfAntidoteIsDiscovered(plague)) {
+                antidoteButtonCheckMarks.get(plague).setVisible(true);
+            }
+        }
+
         Optional<DiscoverAntidoteAction> optionalDiscoverAntidoteAction = getCurrentDiscoverAntidoteAction();
 
         if(optionalDiscoverAntidoteAction.isEmpty() ||
@@ -1125,10 +1251,9 @@ public class GamePresenter extends AbstractPresenter {
         }
 
         DiscoverAntidoteAction discoverAntidoteAction = optionalDiscoverAntidoteAction.get();
-        List<Plague> plagues = game.getPlagues();
 
         for (Plague plague : plagues) {
-            Button button = antidoteButtons.get(getAntidoteMarkerButtonIndexByPlague(plague));
+            Button button = antidoteButtons.get(plague);
 
             if (checkIfAntidoteIsDiscovered(plague)) {
                 button.setDisable(true);
@@ -1164,29 +1289,9 @@ public class GamePresenter extends AbstractPresenter {
      * @since 2025-02-13
      */
     private void disableAntidoteMarkerButtons(){
-        for (Button button : antidoteButtons) {
-            button.setDisable(true);
+        for (Map.Entry<Plague, Button> entry : antidoteButtons.entrySet()) {
+            entry.getValue().setDisable(true);
         }
-    }
-
-    /**
-     * Returns the index of the antidote marker button corresponding to the given plague.
-     * The index is determined based on the plague's name.
-     *
-     * @param plague The plague for which the button index is needed.
-     * @return The index of the antidote marker button, or -1 if the plague name is not recognized.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
-     */
-    private int getAntidoteMarkerButtonIndexByPlague(Plague plague) {
-        return switch (plague.getName()) {
-            case "Blau" -> 0;
-            case "Gelb" -> 1;
-            case "Schwarz" -> 2;
-            case "Rot" -> 3;
-            default -> -1;
-        };
     }
 
     /**

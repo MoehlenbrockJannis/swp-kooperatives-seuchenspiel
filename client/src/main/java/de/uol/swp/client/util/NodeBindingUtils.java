@@ -2,6 +2,7 @@ package de.uol.swp.client.util;
 
 import javafx.beans.binding.Bindings;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -92,5 +93,21 @@ public class NodeBindingUtils {
     public static void bindRegionSizeToNode(Region sourceRegion, Node targetNode, double scalingFactor) {
         targetNode.scaleXProperty().bind(Bindings.min(sourceRegion.widthProperty(), sourceRegion.heightProperty()).multiply(scalingFactor));
         targetNode.scaleYProperty().bind(Bindings.min(sourceRegion.widthProperty(), sourceRegion.heightProperty()).multiply(scalingFactor));
+    }
+
+    /**
+     * Binds the width and height properties of the target {@link Button} to the size of the source {@link Region}.
+     * The {@link Button} will resize to match the width and height of the {@link Region}.
+     *
+     * @param sourceRegion The {@link Region} whose size will be bound to the targetButton.
+     * @param targetButton The {@link Button} whose width and height properties will be bound to the size of the sourceRegion.
+     */
+    public static void bindRegionSizeToButton(Region sourceRegion, Button targetButton) {
+        targetButton.prefWidthProperty().bind(sourceRegion.widthProperty());
+        targetButton.prefHeightProperty().bind(sourceRegion.heightProperty());
+        targetButton.maxWidthProperty().bind(sourceRegion.widthProperty());
+        targetButton.maxHeightProperty().bind(sourceRegion.heightProperty());
+        targetButton.minWidthProperty().bind(sourceRegion.widthProperty());
+        targetButton.minHeightProperty().bind(sourceRegion.heightProperty());
     }
 }

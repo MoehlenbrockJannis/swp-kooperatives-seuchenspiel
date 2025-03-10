@@ -29,6 +29,8 @@ import java.util.Map;
 @Setter
 public abstract class ShareKnowledgeAction extends AdvancedAction implements Approvable {
 
+    public static final String NAME = "Wissen teilen";
+
     /**
      * The player involved in the knowledge-sharing action.
      */
@@ -44,7 +46,7 @@ public abstract class ShareKnowledgeAction extends AdvancedAction implements App
 
     @Override
     public String toString() {
-        return "Wissen teilen";
+        return NAME;
     }
 
     /**

@@ -4,20 +4,24 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.svg.SVGDocument;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 
 /**
  * A {@link StackPane} extension that displays a scalable SVG image.
@@ -28,6 +32,7 @@ public class ScalableSVGStackPane extends StackPane {
     private final ImageView imageView = new ImageView();
     private final String svgPath;
     private final double imagePaddingPercentage;
+    private Color fillColor;
 
     /**
      * Constructor
@@ -41,6 +46,22 @@ public class ScalableSVGStackPane extends StackPane {
      */
     public ScalableSVGStackPane(File svgFile, double imagePaddingPercentage) {
         this(svgFile.toURI().toString(), imagePaddingPercentage);
+    }
+
+    /**
+     * Constructor
+     * <p>
+     * Creates a ScalableSVGPane from the given SVG file.
+     *
+     * @param svgFile                The SVG file to be loaded.
+     * @param imagePaddingPercentage The padding to be applied to the created image, expressed as a percentage of the
+     *                               {@link ScalableSVGStackPane}'s size. The value must be greater than or equal to
+     *                               0 and less than 1. If a value outside this range is provided, a value of 0 is used.
+     * @param color                  The {@link Color} used to replace the fill attribute within the SVG.
+     */
+    public ScalableSVGStackPane(File svgFile, double imagePaddingPercentage, Color color) {
+        this(svgFile.toURI().toString(), imagePaddingPercentage);
+        this.fillColor = color;
     }
 
     /**
@@ -98,22 +119,60 @@ public class ScalableSVGStackPane extends StackPane {
      */
     private Image loadSVGAsImage(String svgPath, float width, float height) {
         try {
-            PNGTranscoder transcoder = new PNGTranscoder();
-            transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, width);
-            transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, height);
+            SVGDocument document = loadSVGDocument(svgPath);
 
-            TranscoderInput input = new TranscoderInput(svgPath);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            TranscoderOutput output = new TranscoderOutput(outputStream);
-            transcoder.transcode(input, output);
+            if (document != null) {
+                changeFillColor(document);
 
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-            BufferedImage bufferedImage = ImageIO.read(inputStream);
+                PNGTranscoder transcoder = new PNGTranscoder();
+                transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, width);
+                transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, height);
 
-            return SwingFXUtils.toFXImage(bufferedImage, null);
-        } catch (TranscoderException | IOException e) {
-            LOG.error(e);
-            return null;
+                TranscoderInput input = new TranscoderInput(document);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                TranscoderOutput output = new TranscoderOutput(outputStream);
+                transcoder.transcode(input, output);
+
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+                BufferedImage bufferedImage = ImageIO.read(inputStream);
+                return SwingFXUtils.toFXImage(bufferedImage, null);
+            }
+        } catch (IOException | TranscoderException e) {
+            LOG.error("Error loading or transcoding SVG: ", e);
+        }
+        return null;
+    }
+
+    /**
+     * Loads an SVG document from the specified file path.
+     *
+     * @param svgPath The path to the SVG file as a string.
+     * @return The parsed {@link SVGDocument} representing the SVG file.
+     */
+    private SVGDocument loadSVGDocument(String svgPath) throws IOException {
+        URI uri = URI.create(svgPath);
+        InputStream inputStream = uri.toURL().openStream();
+        return (SVGDocument) (new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName())).createDocument(null, inputStream);
+    }
+
+    /**
+     * Changes the fill color of a given SVG to {@link #fillColor}.
+     * Only works if the given SVG has a fill attribute.
+     *
+     * @param document The SVG whose fill color will be set to {@link #fillColor}.
+     */
+    private void changeFillColor(SVGDocument document) {
+        if (fillColor != null) {
+            String hexColor = ColorService.toHexString(fillColor);
+
+            NodeList elements = document.getElementsByTagName("*");
+            for (int i = 0; i < elements.getLength(); i++) {
+                Element element = (Element) elements.item(i);
+
+                if (element.hasAttribute("fill")) {
+                    element.setAttribute("fill", hexColor);
+                }
+            }
         }
     }
 }
