@@ -398,8 +398,10 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * Stops and nullifies the auto-refresh timer for the lobby list
      */
     private void resetExistingTimer() {
-        autoRefreshTimer.stop();
-        autoRefreshTimer = null;
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+            autoRefreshTimer = null;
+        }
     }
 
     /**
