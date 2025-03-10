@@ -19,10 +19,7 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerPanePresenter;
 import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.client.util.ColorService;
-import de.uol.swp.client.util.NodeBindingUtils;
-import de.uol.swp.client.util.ScalableSVGStackPane;
-import de.uol.swp.client.util.TooltipsUtil;
+import de.uol.swp.client.util.*;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
@@ -178,11 +175,11 @@ public class GamePresenter extends AbstractPresenter {
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
 
-    private static final String SVG_PATH_PREFIX = "client/src/main/resources/images/action/";
-    private static final String RESEARCH_LAB_SVG = SVG_PATH_PREFIX + "addResearchLaboratory.svg";
-    private static final String CURE_PLAGUE_SVG = SVG_PATH_PREFIX + "curePlague.svg";
-    private static final String SHARE_KNOWLEDGE_SVG = SVG_PATH_PREFIX + "cards.svg";
-    private static final String WAIVE_SVG = SVG_PATH_PREFIX + "close.svg";
+    public static final String SVG_PATH_PREFIX_ACTION = "action/";
+    private static final String RESEARCH_LAB_SVG = SVG_PATH_PREFIX_ACTION + "addResearchLaboratory.svg";
+    private static final String CURE_PLAGUE_SVG = SVG_PATH_PREFIX_ACTION + "curePlague.svg";
+    private static final String SHARE_KNOWLEDGE_SVG = SVG_PATH_PREFIX_ACTION + "cards.svg";
+    private static final String WAIVE_SVG = SVG_PATH_PREFIX_ACTION + "close.svg";
     private static final Color DEFAULT_ACTION_COLOR = Color.BLACK;
     private static final Color WAIVE_ACTION_COLOR = Color.DARKRED;
 
@@ -855,7 +852,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param tooltipText The text for the tooltip
      */
     private void configureActionButton(Button button, String svgPath, Color color, String tooltipText) {
-        addSvgToButton(button, new File(svgPath), color);
+        addSvgToButton(button, FileLoader.readImageFile(svgPath), color);
         bindButtonToParentStackPane(button);
         addTooltipToButton(button, tooltipText);
     }
@@ -1158,7 +1155,7 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip.install(button, tooltip);
 
             Color fillColor = ColorService.convertColorToJavaFXColor(plague.getColor());
-            File svgFile = new File("client/src/main/resources/images/action/flask.svg");
+            File svgFile = FileLoader.readImageFile(SVG_PATH_PREFIX_ACTION + "flask.svg");
             addSvgToButton(button, svgFile, fillColor);
 
             StackPane stackPane = new StackPane();
@@ -1182,7 +1179,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param plague       The {@link Plague} associated with the given {@link ScalableSVGStackPane}.
      */
     private void addCheckMarkToScalableSVG(ScalableSVGStackPane svgStackPane, Plague plague) {
-        File svgFile = new File("client/src/main/resources/images/action/check.svg");
+        File svgFile = FileLoader.readImageFile(SVG_PATH_PREFIX_ACTION + "check.svg");
         ScalableSVGStackPane checkMarkSvgStackPane = new ScalableSVGStackPane(svgFile, 0, Color.GREEN);
         svgStackPane.getChildren().add(checkMarkSvgStackPane);
         checkMarkSvgStackPane.setVisible(false);

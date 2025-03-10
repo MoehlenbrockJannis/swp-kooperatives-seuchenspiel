@@ -1,5 +1,6 @@
 package de.uol.swp.client.marker;
 
+import de.uol.swp.client.util.FileLoader;
 import de.uol.swp.client.util.ScalableSVGStackPane;
 import de.uol.swp.client.util.exception.NodeNotFoundException;
 import de.uol.swp.common.marker.OutbreakMarker;
@@ -50,7 +51,7 @@ public class OutbreakMarkerPresenter extends LevelableMarkerPresenter {
 
         targetCell.getChildren().removeIf(StackPane.class::isInstance);
 
-        File svgFile = new File("client/src/main/resources/images/skull.svg");
+        File svgFile = FileLoader.readImageFile("skull.svg");
         ScalableSVGStackPane svgStackPane = new ScalableSVGStackPane(svgFile, 0.2);
         gridPane.add(svgStackPane, columnIndex, rowIndex);
     }
