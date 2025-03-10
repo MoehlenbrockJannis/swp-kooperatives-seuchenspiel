@@ -12,6 +12,7 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerMarkerPresenter;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.util.ColorService;
+import de.uol.swp.client.util.FileLoader;
 import de.uol.swp.client.util.NodeBindingUtils;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
@@ -41,9 +42,6 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -528,19 +526,15 @@ public class GameMapPresenter extends AbstractPresenter {
      */
     private void loadSvgIntoWebView() {
         WebEngine webEngine = webView.getEngine();
-        try {
-            String svgContent = new String(Files.readAllBytes(Paths.get("client/src/main/resources/images/gameboard-world-map.svg")));
-            String htmlContent = "<html><head><style>"
-                    + "html, body { background-color: #a6d1f1; margin: 0; padding: 0; width: 100%; height: 100%; "
-                    + "overflow: hidden; display: flex; align-items: center; justify-content: center; }"
-                    + "svg { width: 100%; height: 100%; object-fit: contain; }"
-                    + "</style></head><body>"
-                    + svgContent
-                    + "</body></html>";
-            webEngine.loadContent(htmlContent, "text/html");
-        } catch (IOException e) {
-            LOG.error(e);
-        }
+        final String svgContent = FileLoader.readFileAsString(FileLoader.IMAGES_PATH_PREFIX + "gameboard-world-map.svg");
+        final String htmlContent = "<html><head><style>"
+                + "html, body { background-color: #a6d1f1; margin: 0; padding: 0; width: 100%; height: 100%; "
+                + "overflow: hidden; display: flex; align-items: center; justify-content: center; }"
+                + "svg { width: 100%; height: 100%; object-fit: contain; }"
+                + "</style></head><body>"
+                + svgContent
+                + "</body></html>";
+        webEngine.loadContent(htmlContent, "text/html");
     }
 
     /**
