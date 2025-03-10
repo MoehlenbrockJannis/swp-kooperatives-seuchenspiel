@@ -2,7 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
@@ -68,55 +69,44 @@
     <!-- Column 4 -->
 
     <!-- Column 5 -->
-    <Pane style="-fx-background-color: slateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
-          GridPane.rowIndex="7">
-        <GridPane hgap="20">
-            <columnConstraints>
-                <ColumnConstraints percentWidth="100" />
-                <ColumnConstraints percentWidth="100" />
-                <ColumnConstraints percentWidth="100" />
-                <ColumnConstraints percentWidth="100" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints percentHeight="100" />
-            </rowConstraints>
-            <Button fx:id="researchLaboratoryButton" onAction="#addResearchLaboratoryButtonPressed" GridPane.columnIndex="0">
-                <graphic>
-                    <ImageView>
-                        <Image url="@/images/action/BuildResearchLaboratoryAction.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
+    <GridPane style="-fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;"
+              GridPane.columnIndex="5" GridPane.columnSpan="3"
+              GridPane.rowIndex="7" hgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="100"/>
+        </rowConstraints>
+        <StackPane GridPane.columnIndex="0">
+            <Button fx:id="researchLaboratoryButton" onAction="#addResearchLaboratoryButtonPressed"
+                    GridPane.columnIndex="0"/>
+        </StackPane>
 
-            <Button fx:id="curePlagueActionButton" onAction="#executeCurePlagueActionButtonPressed" GridPane.columnIndex="1">
-                <graphic>
-                    <ImageView>
-                        <Image url="@/images/action/CurePlagueAction.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
+        <StackPane GridPane.columnIndex="1">
+            <Button fx:id="curePlagueActionButton" onAction="#executeCurePlagueActionButtonPressed"
+                    GridPane.columnIndex="1"/>
+        </StackPane>
 
-            <Button fx:id="shareKnowledgeActionButton" GridPane.columnIndex="2">
-                <graphic>
-                    <ImageView>
-                        <Image url="@/images/action/ShareKnowledgeAction.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
+        <StackPane GridPane.columnIndex="2">
+            <Button fx:id="shareKnowledgeActionButton" GridPane.columnIndex="2"/>
+        </StackPane>
 
-            <Button fx:id="waiveActionButton" onAction="#addWaiveButtonPressed" GridPane.columnIndex="3">
-                <graphic>
-                    <ImageView>
-                        <Image url="@/images/action/WaiveAction.png"/>
-                    </ImageView>
-                </graphic>
-            </Button>
-        </GridPane>
-    </Pane>
-    <Pane style="-fx-background-color: darkslateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
-          GridPane.rowIndex="8">
-        <HBox fx:id="buttonContainer" spacing="10" alignment="CENTER" style="-fx-padding: 10;"/>
-    </Pane>
+        <StackPane GridPane.columnIndex="3">
+            <Button fx:id="waiveActionButton" onAction="#addWaiveButtonPressed" GridPane.columnIndex="3"/>
+        </StackPane>
+    </GridPane>
+
+    <GridPane fx:id="buttonContainer"
+              style="-fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;"
+              GridPane.columnIndex="5" GridPane.columnSpan="3" GridPane.rowIndex="8" hgap="10">
+        <rowConstraints>
+            <RowConstraints percentHeight="100"/>
+        </rowConstraints>
+    </GridPane>
 
     <!-- Column 6 -->
     <GridPane fx:id="remainingComponentsPane"

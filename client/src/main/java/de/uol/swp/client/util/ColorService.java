@@ -99,4 +99,16 @@ public class ColorService {
         return new Color(r, g, b, opacity);
     }
 
+    /**
+     * Converts a given {@link Color} to its hexadecimal {@link String} representation.
+     *
+     * @param color the {@link Color} to be converted.
+     * @return the hexadecimal {@link String} representation of the color in the format #RRGGBB.
+     */
+    public static String toHexString(Color color) {
+        int red = (int) (color.getRed() * 255);
+        int green = (int) (color.getGreen() * 255);
+        int blue = (int) (color.getBlue() * 255);
+        return String.format("#%02X%02X%02X", red, green, blue);
+    }
 }
