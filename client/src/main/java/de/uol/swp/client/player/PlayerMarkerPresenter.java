@@ -7,6 +7,7 @@ import de.uol.swp.client.map.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.simple.MoveAction;
 import de.uol.swp.common.action.simple.MoveAllyAction;
+import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
@@ -239,13 +240,19 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
     private void executeMoveActionOnCity(MoveAction moveAction, Field targetField) {
         moveAction.setTargetField(targetField);
 
-        if (moveAction instanceof MoveAllyAction approvable && !approvable.isApproved()) {
-            approvableService.sendApprovableAction(approvable);
-        } else {
-            actionService.sendAction(game, moveAction);
+        unhighlightAllCityMarkers();
+
+        if (moveAction instanceof MoveAllyAction moveAllyAction) {
+            moveAllyAction.setMovedAlly(playerMarker.getPlayer());
+            if (moveAllyAction.getApprovingPlayer().containsUser(loggedInUserProvider.get())) {
+                moveAllyAction.approve();
+            }
+            if (!moveAllyAction.isApproved()) {
+                approvableService.sendApprovableAction(moveAllyAction);
+            }
         }
 
-        unhighlightAllCityMarkers();
+        actionService.sendAction(game, moveAction);
     }
 
     private void unhighlightAllCityMarkers() {

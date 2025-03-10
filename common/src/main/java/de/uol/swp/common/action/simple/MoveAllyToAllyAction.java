@@ -39,7 +39,9 @@ public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
     public void initWithGame(final Game game) {
         super.initWithGame(game);
         this.movedAlly = game.findPlayer(this.movedAlly).orElseThrow();
-        this.targetAlly = game.findPlayer(this.targetAlly).orElseThrow();
+        if (this.targetAlly != null) {
+            this.targetAlly = game.findPlayer(this.targetAlly).orElseThrow();
+        }
     }
 
     @Override
