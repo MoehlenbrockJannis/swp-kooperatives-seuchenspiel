@@ -9,8 +9,6 @@ import javafx.scene.layout.GridPane;
 /**
  * The GameInstructionsPresenter class manages the display and hiding of a popup
  * containing game instructions in the user interface.
- *
- * @since 2024-08-27
  */
 public class GameInstructionsPresenter extends AbstractPresenter {
 
@@ -19,8 +17,6 @@ public class GameInstructionsPresenter extends AbstractPresenter {
 
     /**
      * Closes the popup by setting its visibility to false.
-     *
-     * @since 2024-08-27
      */
     public void closePopup() {
         popupGridPane.setVisible(false);
@@ -28,8 +24,6 @@ public class GameInstructionsPresenter extends AbstractPresenter {
 
     /**
      * Opens the popup by setting its visibility to true.
-     *
-     * @since 2024-08-27
      */
     public void openPopup() {
         popupGridPane.setVisible(true);
@@ -39,7 +33,6 @@ public class GameInstructionsPresenter extends AbstractPresenter {
      * Handles the key press event to close the popup when the Escape key is pressed.
      *
      * @param event the KeyEvent triggered by pressing a key
-     * @since 2024-08-28
      */
     @FXML
     void handleEscKeyPressed(KeyEvent event) {
