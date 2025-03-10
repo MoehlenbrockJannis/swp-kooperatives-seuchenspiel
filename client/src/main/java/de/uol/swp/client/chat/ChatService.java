@@ -11,13 +11,11 @@ import org.greenrobot.eventbus.EventBus;
 import java.time.LocalTime;
 
 /**
- * Classes that manages chat
- *
- * @author Silas van Thiel
- * @since 2024-08-25
- *
+ * This service class manages the chat functionality within the client application.
+ * <p>
+ * It is responsible for sending and retrieving chat messages, both in general and specific to lobbies.
+ * The class interacts with the EventBus to dispatch requests and handle responses regarding chat actions.
  */
-
 public class ChatService {
 
     private final EventBus eventBus;
@@ -27,7 +25,6 @@ public class ChatService {
      *
      * @param eventBus The EventBus set in ClientModule
      * @see de.uol.swp.client.di.ClientModule
-     * @since 2024-08-25
      */
     @Inject
     public ChatService(EventBus eventBus) {
@@ -35,12 +32,11 @@ public class ChatService {
     }
 
     /**
-     * Sends a chat message
+     * Sends a general chat message to all users.
      *
-     * @param user The user who sends the message
-     * @param chatMessage The message to be sent
-     * @param timestamp The time the message was sent
-     * @since 2024-08-26
+     * @param user The user who sends the message.
+     * @param chatMessage The message to be sent.
+     * @param timestamp The time the message was sent.
      */
     public void sendChatRequest(User user, String chatMessage, LocalTime timestamp) {
         SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(user, chatMessage, timestamp);
@@ -48,11 +44,12 @@ public class ChatService {
     }
 
     /**
-     * Sends a chat message
+     * Sends a chat message to a specific lobby.
      *
-     * @param chatMessage The message to be sent
-     * @param timestamp The time the message was sent
-     * @since 2024-08-26
+     * @param user The user who sends the message.
+     * @param chatMessage The message to be sent.
+     * @param timestamp The time the message was sent.
+     * @param lobby The lobby to which the message is sent.
      */
     public void sendLobbyChatRequest(User user, String chatMessage, LocalTime timestamp, Lobby lobby) {
         SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendUserLobbyChatMessageRequest(lobby, user, chatMessage, timestamp);
@@ -60,8 +57,7 @@ public class ChatService {
     }
 
     /**
-     * Retrieves the chat
-     *
+     * Retrieves all general chat messages from the server.
      */
     public void retrieveChat() {
         RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest();
@@ -69,12 +65,9 @@ public class ChatService {
     }
 
     /**
-     * Retrieves the chat messages for a specific lobby.
+     * Retrieves all chat messages specific to a given lobby from the server.
      *
-     * This method creates a RetrieveAllChatMessagesRequest with the lobby name and posts it to the EventBus.
-     *
-     * @param lobby The lobby for which to retrieve chat messages
-     * @since 2024-09-09
+     * @param lobby The lobby for which to retrieve chat messages.
      */
     public void retrieveChat(Lobby lobby) {
         RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest(lobby);
