@@ -16,6 +16,7 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
@@ -30,7 +31,6 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.Session;
@@ -40,8 +40,8 @@ import de.uol.swp.common.util.Color;
 import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.game.GameManagement;
-import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.game.turn.PlayerTurnManagement;
+import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.triggerable.TriggerableService;
 import de.uol.swp.server.util.TestUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -391,6 +391,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.getCurrentTurn()).thenReturn(mockTurn);
         when(gameManagement.drawPlayerCard(any())).thenReturn(epidemicCard);
         when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
         DrawPlayerCardRequest request = new DrawPlayerCardRequest(mockGame, mockPlayer);
         request.initWithMessage(message);
@@ -444,6 +445,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
         when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
         CardStack<PlayerCard> playerDrawStack = new CardStack<>();
         playerDrawStack.push(epidemicCard);
@@ -481,6 +483,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
         when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
         CardStack<PlayerCard> playerDrawStack = new CardStack<>();
         playerDrawStack.push(epidemicCard);
@@ -519,6 +522,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
         when(mockField.isInfectable(mockPlague)).thenReturn(true);
         when(mockField.getPlague()).thenReturn(mockPlague);
+        when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
@@ -555,6 +559,7 @@ public class CardServiceTest extends EventBusBasedTest {
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
         when(triggerableService.checkForSendingManualTriggerables(any(), any(), any())).thenReturn(false);
+        when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
         InfectionCard card1 = mock(InfectionCard.class);
         InfectionCard card2 = mock(InfectionCard.class);
