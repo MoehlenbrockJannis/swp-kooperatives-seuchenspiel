@@ -148,6 +148,9 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      */
     protected abstract boolean isGameInCorrectDrawPhase();
 
+    /**
+     * Abstract method to update the tool tips.
+     */
     protected abstract void updateToolTips();
 
     /**

@@ -38,7 +38,6 @@ public class CardService {
      *
      * @param game   The game from which to draw the player card
      * @param player The player who is drawing the card
-     * @since 2024-09-20
      */
     public void sendDrawPlayerCardRequest(Game game, Player player) {
         DrawPlayerCardRequest drawPlayerCardRequest = new DrawPlayerCardRequest(game, player);
@@ -55,7 +54,6 @@ public class CardService {
      * @param game       The game from which to discard the player card
      * @param player     The player who is discarding the card
      * @param playerCard The player card to be discarded
-     * @since 2024-09-20
      */
     public void sendDiscardPlayerCardRequest(Game game, Player player, PlayerCard playerCard) {
         RequestMessage discardPlayerCardRequest = new DiscardPlayerCardRequest<>(game, player, playerCard);
