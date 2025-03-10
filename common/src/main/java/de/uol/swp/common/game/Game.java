@@ -7,6 +7,7 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.event_card.EventCardFactory;
 import de.uol.swp.common.card.stack.CardStack;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.City;
 import de.uol.swp.common.map.Field;
@@ -20,9 +21,9 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.common.util.Color;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,7 +41,7 @@ import java.util.stream.Stream;
  * and various game markers. It provides methods to initialize the game,
  * handle turns, and determine the game's outcome.
  */
-
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Game implements Serializable {
 
     public static final int MIN_NUMBER_OF_PLAYERS = 2;
@@ -63,6 +64,7 @@ public class Game implements Serializable {
 
     @Getter
     @Setter
+    @EqualsAndHashCode.Include
     private int id;
     @Getter
     private Lobby lobby;
@@ -224,19 +226,6 @@ public class Game implements Serializable {
 
         assignPlayersToStartingField();
         initializeStartResearchLaboratory();
-    }
-
-
-    @Override
-    public boolean equals (Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Game game = (Game) obj;
-        return this.id == game.id;
     }
 
     /**

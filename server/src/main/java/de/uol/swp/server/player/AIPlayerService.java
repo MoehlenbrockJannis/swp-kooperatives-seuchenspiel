@@ -30,7 +30,9 @@ import de.uol.swp.server.game.GameService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,6 +54,7 @@ public class AIPlayerService extends AbstractService {
 
     private final GameService gameService;
     private final ScheduledExecutorService scheduler;
+    private final Map<Game, Player> scheduledPlayerExecutions;
 
     /**
      * Constructor of the AIPlayerService
@@ -64,6 +67,7 @@ public class AIPlayerService extends AbstractService {
         super(bus);
         this.gameService = gameService;
         this.scheduler = Executors.newScheduledThreadPool(SCHEDULER_CORE_POOL_SIZE);
+        this.scheduledPlayerExecutions = new HashMap<>();
     }
 
     /**
@@ -77,7 +81,7 @@ public class AIPlayerService extends AbstractService {
         final PlayerTurn playerTurn = game.getCurrentTurn();
 
         if (isAIPlayerTurn(playerTurn)) {
-            handleAIPlayerTurnProcess(game);
+            scheduleAIPlayerTurnProcess(game);
         }
     }
 
@@ -95,7 +99,7 @@ public class AIPlayerService extends AbstractService {
 
             endTurnIfOver(playerTurn, game);
 
-            handleAIPlayerTurnProcess(game);
+            scheduleAIPlayerTurnProcess(game);
         }
     }
 
@@ -218,11 +222,11 @@ public class AIPlayerService extends AbstractService {
     }
 
     /**
-     * Handles the AI player turn process
+     * Schedules the AI player turn process
      *
      * @param game The current game
      */
-    public void handleAIPlayerTurnProcess(Game game) {
+    public void scheduleAIPlayerTurnProcess(Game game) {
         if (game.isGameLost() || game.isGameWon()) {
             return;
         }
@@ -230,23 +234,40 @@ public class AIPlayerService extends AbstractService {
         final PlayerTurn currentTurn = game.getCurrentTurn();
         final Player currentPlayer = currentTurn.getPlayer();
 
-        scheduler.schedule(() -> {
-            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInInfectionCardDrawPhase()) {
-                handleAIInfectionCardDrawPhase(game, currentPlayer);
-            }
-        }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
+        if (this.scheduledPlayerExecutions.containsKey(game) && this.scheduledPlayerExecutions.get(game).equals(currentPlayer)) {
+            return;
+        } else {
+            this.scheduledPlayerExecutions.put(game, currentPlayer);
+        }
 
-        scheduler.schedule(() -> {
-            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInPlayerCardDrawPhase()) {
-                handleAIPlayerCardDrawPhase(game, currentPlayer);
-            }
-        }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
+        scheduler.schedule(
+                () -> handleAIPlayerTurnProcess(game, currentTurn, currentPlayer),
+                AI_PLAYER_SCHEDULER_DELAY,
+                TimeUnit.SECONDS
+        );
+    }
 
-        scheduler.schedule(() -> {
-            if (!game.isGameWon() && !game.isGameLost() && currentTurn.isInActionPhase()) {
-                handleAIPlayerActionPhase(game, currentPlayer);
-            }
-        }, AI_PLAYER_SCHEDULER_DELAY, TimeUnit.SECONDS);
+    /**
+     * Handles the AI player turn process
+     *
+     * @param game the affected {@link Game}
+     * @param currentTurn the current {@link PlayerTurn} in game
+     * @param currentPlayer the current {@link Player} in game
+     */
+    private void handleAIPlayerTurnProcess(final Game game, final PlayerTurn currentTurn, final Player currentPlayer) {
+        if (game.isGameLost() || game.isGameWon()) {
+            return;
+        }
+
+        this.scheduledPlayerExecutions.remove(game, currentPlayer);
+
+        if (currentTurn.isInInfectionCardDrawPhase()) {
+            handleAIInfectionCardDrawPhase(game, currentPlayer);
+        } else if (currentTurn.isInPlayerCardDrawPhase()) {
+            handleAIPlayerCardDrawPhase(game, currentPlayer);
+        } else if (currentTurn.isInActionPhase()) {
+            handleAIPlayerActionPhase(game, currentPlayer);
+        }
     }
 
     /**
