@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
@@ -39,7 +37,7 @@
     <!-- Column 0 -->
     <fx:include source="../map/GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
     <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <FontIcon fx:id="settingsIcon" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <FontAwesomeIconView fx:id="settingsIcon" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <fx:define>
             <ContextMenu fx:id="settingsContextMenu">
                 <items>

@@ -1,6 +1,7 @@
 package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.action.ActionService;
@@ -51,7 +52,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -59,13 +59,13 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
-import org.kordamp.ikonli.javafx.FontIcon;
-
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.COG;
 
 /**
  * Manages the game board window
@@ -78,7 +78,7 @@ public class GamePresenter extends AbstractPresenter {
     private Pane settingsPane;
 
     @FXML
-    private FontIcon settingsIcon;
+    private FontAwesomeIconView settingsIcon;
 
     @FXML
     private ContextMenu settingsContextMenu;
@@ -254,9 +254,9 @@ public class GamePresenter extends AbstractPresenter {
      * Initializes the settings icon with default properties and event listeners.
      */
     private void initializeSettingsIcon() {
-        settingsIcon.setIconLiteral("fas-cog");
-        settingsIcon.setIconSize(24);
-        settingsIcon.setIconColor(Color.GRAY);
+        settingsIcon.setIcon(COG);
+        settingsIcon.setFill(Color.GRAY);
+        settingsIcon.setSize("24");
         settingsIcon.getStyleClass().add("settings-icon");
 
         addResizeListeners();
@@ -281,7 +281,7 @@ public class GamePresenter extends AbstractPresenter {
         double newHeight = settingsPane.getHeight();
         double iconSize = Math.max(1, Math.min(newWidth, newHeight));
 
-        settingsIcon.setIconSize((int) iconSize);
+        settingsIcon.setSize(String.valueOf(iconSize));
         settingsIcon.setTranslateY(newHeight * 0.9);
     }
 
@@ -306,7 +306,7 @@ public class GamePresenter extends AbstractPresenter {
     private boolean isClickOnIcon(double clickX, double clickY) {
         double iconX = settingsIcon.getLayoutX();
         double iconY = settingsIcon.getLayoutY();
-        double iconSize = settingsIcon.getIconSize();
+        double iconSize = Double.parseDouble(settingsIcon.getSize());
 
         return clickX >= iconX && clickX <= iconX + iconSize && clickY >= iconY && clickY <= iconY + iconSize;
     }
