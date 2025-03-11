@@ -92,11 +92,11 @@ public class RoleService extends AbstractService {
 
             message = new RoleAvailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true, lobby);
         } else {
             message = new RoleUnavailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false, lobby);
         }
 
         roleAssignedMessage.initWithMessage(roleAssignmentRequest);
