@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -292,5 +293,28 @@ class GameMapTest {
         assertThat(map.getFields())
                 .usingRecursiveComparison()
                 .isEqualTo(fields);
+    }
+
+    @Test
+    @DisplayName("Should add given PlagueCube back to game")
+    void addPlagueCube() {
+        final PlagueCube plagueCube = new PlagueCube(plague);
+
+        final Map<Plague, List<PlagueCube>> plagueCubes = Map.ofEntries(Map.entry(plague, new ArrayList<>()));
+        when(game.getPlagueCubes())
+                .thenReturn(plagueCubes);
+        doAnswer(invocationOnMock -> {
+            final PlagueCube argument = invocationOnMock.getArgument(0);
+            plagueCubes.get(argument.getPlague()).add(argument);
+            return null;
+        }).when(game).addPlagueCube(any(PlagueCube.class));
+
+        final List<PlagueCube> plagueCubesOnGame = game.getPlagueCubes().get(plague);
+        final int numberOfPlagueCubesOfPlagueOnGame = plagueCubesOnGame.size();
+
+        map.addPlagueCube(plagueCube);
+
+        assertThat(plagueCubesOnGame)
+                .hasSize(numberOfPlagueCubesOfPlagueOnGame + 1);
     }
 }

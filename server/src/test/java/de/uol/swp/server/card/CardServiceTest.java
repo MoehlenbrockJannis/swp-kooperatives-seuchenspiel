@@ -478,7 +478,6 @@ public class CardServiceTest extends EventBusBasedTest {
         setupEpidemicTestState();
 
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
-        when(mockField.isInfectable(mockPlague)).thenReturn(false);
 
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
@@ -504,11 +503,10 @@ public class CardServiceTest extends EventBusBasedTest {
 
         InOrder inOrder = inOrder(mockGame, mockMap, cardManagement);
         inOrder.verify(mockGame).increaseInfectionLevel();
-        verify(mockMap, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).startOutbreak(eq(mockField), eq(mockPlague), any());
         inOrder.verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
 
         verify(mockGame, atLeast(1)).hasAntidoteMarkerForPlague(mockPlague);
-        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
+        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).infectField(any(), any());
     }
 
     @Test
@@ -520,7 +518,6 @@ public class CardServiceTest extends EventBusBasedTest {
         when(mockTurn.getInfectedFieldsInTurn()).thenReturn(infectedFieldsList);
 
         when(mockGame.hasAntidoteMarkerForPlague(mockPlague)).thenReturn(false);
-        when(mockField.isInfectable(mockPlague)).thenReturn(true);
         when(mockField.getPlague()).thenReturn(mockPlague);
         when(mockGame.getCurrentPlayer()).thenReturn(mockPlayer);
 
@@ -542,10 +539,9 @@ public class CardServiceTest extends EventBusBasedTest {
         request.initWithMessage(message);
         post(request);
 
-        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).isInfectable(mockPlague);
+        verify(mockField, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).infectField(any(), any());
         verify(mockGame).increaseInfectionLevel();
         verify(cardManagement).discardInfectionCard(mockGame, mockBottomCard);
-        verify(mockMap, never()).startOutbreak(any(), any(), any());
         verify(mockTurn, times(Game.EPIDEMIC_CARD_DRAW_NUMBER_OF_INFECTIONS)).getInfectedFieldsInTurn();
     }
 
@@ -554,7 +550,6 @@ public class CardServiceTest extends EventBusBasedTest {
     void triggerEpidemic_completeProcess() {
         setupEpidemicTestState();
 
-        when(mockField.isInfectable(any(Plague.class))).thenReturn(false);
         when(mockGame.hasAntidoteMarkerForPlague(any(Plague.class))).thenReturn(false);
         when(gameManagement.getGame(any(Game.class))).thenReturn(Optional.of(mockGame));
         when(mockGame.findPlayer(any(Player.class))).thenReturn(Optional.of(mockPlayer));
@@ -574,10 +569,10 @@ public class CardServiceTest extends EventBusBasedTest {
         request.initWithMessage(message);
         post(request);
 
-        InOrder inOrder = inOrder(mockGame, cardManagement, discardStack, mockMap);
+        InOrder inOrder = inOrder(mockGame, cardManagement, discardStack, mockField);
         inOrder.verify(mockGame).increaseInfectionLevel();
         inOrder.verify(cardManagement).drawInfectionCardFromTheBottom(mockGame);
-        inOrder.verify(mockMap).startOutbreak(eq(mockField), any(Plague.class), any());
+        inOrder.verify(mockField, atLeast(1)).infectField(any(), any());
         inOrder.verify(discardStack).shuffle();
 
         verify(mockGame, atLeast(1)).getInfectionDrawStack();

@@ -139,6 +139,7 @@ public class Field implements Serializable {
             plagueCubeList.add(plagueCube);
             infectedFields.add(this);
         } else {
+            map.addPlagueCube(plagueCube);
             map.startOutbreak(this, plague, infectedFields);
         }
     }
