@@ -2,6 +2,7 @@ package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.client.action.SelectCityCardsForAntidoteResearchPresenter;
 import de.uol.swp.client.action.ShareKnowledgeActionPresenter;
@@ -50,7 +51,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
+
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -58,6 +59,8 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import lombok.Getter;
 import org.greenrobot.eventbus.Subscribe;
+import org.kordamp.ikonli.javafx.FontIcon;
+
 
 import java.io.File;
 import java.util.*;
@@ -75,7 +78,7 @@ public class GamePresenter extends AbstractPresenter {
     private Pane settingsPane;
 
     @FXML
-    private ImageView settingsIcon;
+    private FontIcon settingsIcon;
 
     @FXML
     private ContextMenu settingsContextMenu;
@@ -84,7 +87,7 @@ public class GamePresenter extends AbstractPresenter {
     private MenuItem instructionsMenuItem;
 
     @FXML
-    private MenuItem settingsMenuItem;
+    private GridPane gameInstructionsGridPane;
 
     @FXML
     private MenuItem leaveGameMenuItem;
@@ -225,15 +228,10 @@ public class GamePresenter extends AbstractPresenter {
         );
         this.infectionCardsOverviewPresenter.setWindow(stage);
         this.associatedPresenters.add(this.infectionCardsOverviewPresenter);
+        this.scene.getStylesheets().add(SceneManager.GAME_INSTRUCTIONS_STYLE_SHEET);
 
-        settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
-        settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());
+        initializeSettingsIcon();
 
-        settingsPane.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                settingsContextMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
-            }
-        });
         playerPanePresenterList = new ArrayList<>();
         addAllPlayers();
         initializeMenuItems();
@@ -250,6 +248,67 @@ public class GamePresenter extends AbstractPresenter {
         initializeInfectionMarkerPane();
         this.remainingComponentsPresenters = new ArrayList<>();
         setRemainingComponentsComponent();
+    }
+
+    /**
+     * Initializes the settings icon with default properties and event listeners.
+     */
+    private void initializeSettingsIcon() {
+        settingsIcon.setIconLiteral("fas-cog");
+        settingsIcon.setIconSize(24);
+        settingsIcon.setIconColor(Color.GRAY);
+        settingsIcon.getStyleClass().add("settings-icon");
+
+        addResizeListeners();
+        setupClickListener();
+
+        gameInstructionsGridPane.setVisible(false);
+    }
+
+    /**
+     * Adds listeners to update the icon size when the settings pane is resized.
+     */
+    private void addResizeListeners() {
+        settingsPane.widthProperty().addListener((obs, oldVal, newVal) -> updateIconSize());
+        settingsPane.heightProperty().addListener((obs, oldVal, newVal) -> updateIconSize());
+    }
+
+    /**
+     * Updates the settings icon size and adjusts its vertical position.
+     */
+    private void updateIconSize() {
+        double newWidth = settingsPane.getWidth();
+        double newHeight = settingsPane.getHeight();
+        double iconSize = Math.max(1, Math.min(newWidth, newHeight));
+
+        settingsIcon.setIconSize((int) iconSize);
+        settingsIcon.setTranslateY(newHeight * 0.9);
+    }
+
+    /**
+     * Sets up the click listener to open the settings menu when clicking on the icon.
+     */
+    private void setupClickListener() {
+        settingsPane.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && isClickOnIcon(event.getX(), event.getY())) {
+                settingsContextMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
+            }
+        });
+    }
+
+    /**
+     * Checks if a given click position is within the settings icon area.
+     *
+     * @param clickX The X-coordinate of the click.
+     * @param clickY The Y-coordinate of the click.
+     * @return True if the click was on the icon, false otherwise.
+     */
+    private boolean isClickOnIcon(double clickX, double clickY) {
+        double iconX = settingsIcon.getLayoutX();
+        double iconY = settingsIcon.getLayoutY();
+        double iconSize = settingsIcon.getIconSize();
+
+        return clickX >= iconX && clickX <= iconX + iconSize && clickY >= iconY && clickY <= iconY + iconSize;
     }
 
     /**
@@ -533,7 +592,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void initializeMenuItems() {
         instructionsMenuItem.setOnAction(event -> showGameInstructions());
-        settingsMenuItem.setOnAction(event -> showSettings());
         leaveGameMenuItem.setOnAction(event -> confirmAndLeaveGame());
     }
 
@@ -542,7 +600,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method is called when the user selects the "Spielanleitung" option.
      */
     private void showGameInstructions() {
-        // TODO: Implement game instructions display logic
+        gameInstructionsGridPane.setVisible(true);
     }
 
     /**
