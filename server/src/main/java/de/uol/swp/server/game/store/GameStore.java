@@ -3,6 +3,7 @@ package de.uol.swp.server.game.store;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.server.store.ContentStore;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -39,4 +40,11 @@ public interface GameStore extends ContentStore {
      * @param game The game to be removed
      */
     void removeGame(Game game);
+
+    /**
+     * Returns all stored games.
+     * 
+     * @return {@link List} of all games
+     */
+    List<Game> getAllGames();
 }

@@ -86,7 +86,7 @@ public class AuthenticationServiceTest extends EventBusBasedTest {
         Optional<Session> session = authService.getSession(user);
 
         assertTrue(session.isPresent());
-        final LogoutRequest logoutRequest = new LogoutRequest();
+        final LogoutRequest logoutRequest = new LogoutRequest(user);
         logoutRequest.setSession(session.get());
 
         postAndWait(logoutRequest);

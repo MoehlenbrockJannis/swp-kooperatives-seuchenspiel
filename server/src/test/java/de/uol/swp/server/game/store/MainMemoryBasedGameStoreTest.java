@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
@@ -29,7 +29,6 @@ class MainMemoryBasedGameStoreTest {
 
     @BeforeEach
     void setUp() {
-
         this.gameStore = new MainMemoryBasedGameStore();
         User user = new UserDTO("Test", "Test", "Test@test.de");
         User user2 = new UserDTO("Test2", "Test", "Test@test.de");
@@ -88,5 +87,16 @@ class MainMemoryBasedGameStoreTest {
 
         assertThatThrownBy(() -> gameStore.updateGame(game))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void getAllGames() {
+        assertThat(gameStore.getAllGames())
+                .isEmpty();
+
+        gameStore.addGame(game);
+
+        assertThat(gameStore.getAllGames())
+                .contains(game);
     }
 }

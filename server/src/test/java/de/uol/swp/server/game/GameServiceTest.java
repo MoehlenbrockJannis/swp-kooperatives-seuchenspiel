@@ -12,6 +12,7 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.EventBusBasedTest;
 import de.uol.swp.server.communication.AISession;
 import de.uol.swp.server.lobby.LobbyService;
@@ -40,6 +41,7 @@ public class GameServiceTest extends EventBusBasedTest {
     private Lobby lobby;
     private MapType mapType;
     private List<Plague> plagues;
+    private User user;
     private AIPlayer aiPlayer;
     private GameDifficulty difficulty;
 
@@ -53,7 +55,7 @@ public class GameServiceTest extends EventBusBasedTest {
 
         gameService = new GameService(eventBus, gameManagement, lobbyService, playerManagement);
 
-        final User user = new UserDTO("user", "pass", "");
+        user = new UserDTO("user", "pass", "");
         lobby = new LobbyDTO("lobby", user);
 
         final User user2 = new UserDTO("user2", "pass2", "user2");
@@ -140,5 +142,21 @@ public class GameServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         handleEvent(retrieveUpdatedGameServerMessage);
+    }
+
+    @Test
+    @DisplayName("Should make user leave game and lose it on logout")
+    void onLogoutRequest() {
+        assertThat(game.isGameLost())
+                .isFalse();
+
+        when(gameManagement.findAllGames())
+                .thenReturn(List.of(game));
+
+        final LogoutRequest logoutRequest = new LogoutRequest(user);
+        post(logoutRequest);
+
+        assertThat(game.isGameLost())
+                .isTrue();
     }
 }

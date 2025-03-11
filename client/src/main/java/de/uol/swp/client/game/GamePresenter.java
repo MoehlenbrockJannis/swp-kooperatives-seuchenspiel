@@ -620,18 +620,24 @@ public class GamePresenter extends AbstractPresenter {
                 "Spiel verlassen",
                 "Möchten Sie das Spiel wirklich verlassen?",
                 "Wenn Sie das Spiel verlassen, wird das Spiel-Fenster geschlossen.",
-                () -> {
-                    LeaveGameRequest leaveGameRequest = new LeaveGameRequest(
-                            game,
-                            game.getLobby().getPlayerForUser(loggedInUserProvider.get())
-                    );
-                    if (!game.isGameLost() && !game.isGameWon()) {
-                        eventBus.post(leaveGameRequest);
-                    }
-                    stage.close();
-                },
+                this::closeStageAndLeaveGame,
                 () -> {}
         );
+    }
+
+    /**
+     * Closes the {@link #stage} and leaves the {@link #game}.
+     */
+    private void closeStageAndLeaveGame() {
+        if (!game.isGameLost() && !game.isGameWon()) {
+            LeaveGameRequest leaveGameRequest = new LeaveGameRequest(
+                    game,
+                    game.getLobby().getPlayerForUser(loggedInUserProvider.get())
+            );
+            eventBus.post(leaveGameRequest);
+        }
+        stage.setOnCloseRequest(null);
+        stage.close();
     }
 
     /**

@@ -163,4 +163,13 @@ public class GameManagement {
     private Optional<GameEndReason> checkForNoPlagueCubes() {
         return Optional.of(GameEndReason.NO_PLAGUE_CUBES_LEFT);
     }
+
+    /**
+     * Returns all stored games in {@link #gameStore}.
+     *
+     * @return {@link List} of all games
+     */
+    public List<Game> findAllGames() {
+        return gameStore.getAllGames();
+    }
 }

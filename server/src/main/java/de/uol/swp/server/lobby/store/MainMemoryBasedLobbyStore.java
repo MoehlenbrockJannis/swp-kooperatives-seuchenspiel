@@ -27,7 +27,6 @@ public class MainMemoryBasedLobbyStore extends AbstractStore implements LobbySto
 
     @Override
     public void removeLobby(Lobby lobby) {
-        throwLobbyNotFoundException(lobby);
         lobbies.remove(lobby.getId());
     }
 

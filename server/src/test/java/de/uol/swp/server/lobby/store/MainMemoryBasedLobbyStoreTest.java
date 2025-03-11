@@ -59,13 +59,6 @@ class MainMemoryBasedLobbyStoreTest {
     }
 
     @Test
-    @DisplayName("Throw exception when removing a non-existing lobby")
-    void removeNonExistingLobby() {
-
-        assertThatThrownBy(() -> lobbyStore.removeLobby(defaultLobby)).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
     @DisplayName("Get an existing lobby successfully")
     void getLobby() {
 

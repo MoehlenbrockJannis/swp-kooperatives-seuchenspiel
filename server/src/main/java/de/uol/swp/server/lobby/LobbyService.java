@@ -12,6 +12,7 @@ import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
@@ -19,6 +20,7 @@ import de.uol.swp.server.user.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -177,6 +179,24 @@ public class LobbyService extends AbstractService {
 
         final JoinPlayerLobbyServerMessage userJoinedLobbyMessage = new JoinPlayerLobbyServerMessage(lobby, player);
         sendToAllInLobby(lobby, userJoinedLobbyMessage);
+    }
+
+    /**
+     * Leaves all lobbies when a user logs out.
+     *
+     * @param logoutRequest {@link LogoutRequest} by a user
+     */
+    @Subscribe
+    public void onLogoutRequest(final LogoutRequest logoutRequest) {
+        final List<Lobby> lobbies = lobbyManagement.getAllLobbies();
+        for (final Lobby lobby : lobbies) {
+            final Player userPlayer = lobby.getPlayerForUser(logoutRequest.getUser());
+            if (userPlayer != null) {
+                final LeavePlayerLobbyRequest leavePlayerLobbyRequest = new LeavePlayerLobbyRequest(lobby, userPlayer);
+                leavePlayerLobbyRequest.initWithMessage(logoutRequest);
+                onLobbyLeaveUserRequest(leavePlayerLobbyRequest);
+            }
+        }
     }
 
     /**

@@ -35,6 +35,7 @@ public class GameManagementTest {
     private LobbyManagement lobbyManagement;
     private PlayerTurnManagement playerTurnManagement;
     private RoleManagement roleManagement;
+    private GameStore gameStore;
     private Lobby mockLobby;
     private MapType mapType;
     private List<Plague> mockPlagues;
@@ -50,7 +51,7 @@ public class GameManagementTest {
         lobbyManagement = mock(LobbyManagement.class);
         playerTurnManagement = mock(PlayerTurnManagement.class);
         roleManagement = mock(RoleManagement.class);
-        GameStore gameStore = mock(MainMemoryBasedGameStore.class);
+        gameStore = mock(MainMemoryBasedGameStore.class);
 
         gameManagement = new GameManagement(gameStore);
         gameManagement.setLobbyManagement(lobbyManagement);
@@ -149,5 +150,19 @@ public class GameManagementTest {
         gameManagement.updateGame(game);
         Game updatedGame = gameManagement.getGame(game).orElseThrow();
         assertThat(gameManagement.getGame(updatedGame)).contains(updatedGame);
+    }
+
+    @Test
+    @DisplayName("Should return all games in gameStore")
+    void findAllGames() {
+        final List<Game> expected = new ArrayList<>();
+
+        when(gameStore.getAllGames())
+                .thenReturn(expected);
+
+        final List<Game> actual = this.gameManagement.findAllGames();
+
+        assertThat(expected)
+                .containsExactlyInAnyOrderElementsOf(actual);
     }
 }
