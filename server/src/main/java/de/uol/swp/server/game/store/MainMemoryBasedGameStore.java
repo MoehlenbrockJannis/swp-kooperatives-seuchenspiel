@@ -4,10 +4,7 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.server.store.AbstractStore;
 import de.uol.swp.server.store.MainMemoryBasedStore;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A game store that stores games in the main memory.
@@ -39,6 +36,11 @@ public class MainMemoryBasedGameStore extends AbstractStore implements GameStore
     public void removeGame(Game game) {
         throwGameNotFoundException(game);
         games.remove(game.getId());
+    }
+
+    @Override
+    public List<Game> getAllGames() {
+        return new ArrayList<>(games.values());
     }
 
     @Override

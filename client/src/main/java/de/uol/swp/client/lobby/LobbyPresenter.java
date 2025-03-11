@@ -279,7 +279,7 @@ public class LobbyPresenter extends AbstractPresenter {
     private void disableControlsForNonOwners() {
         User currentUser = loggedInUserProvider.get();
         User lobbyOwner = this.lobby.getOwner();
-        boolean isOwner = currentUser.equals(lobbyOwner);
+        boolean isOwner = lobbyOwner.equals(currentUser);
 
         addAIButton.setDisable(!isOwner);
         difficultyComboBox.setDisable(!isOwner);

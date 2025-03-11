@@ -15,6 +15,7 @@ import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.Session;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.communication.AISession;
@@ -24,6 +25,7 @@ import de.uol.swp.server.player.PlayerManagement;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,6 +118,20 @@ public class GameService extends AbstractService {
      */
     public Optional<Session> getSession(AIPlayer aiPlayer) {
         return playerManagement.findSession(aiPlayer);
+    }
+
+    @Subscribe
+    public void onLogoutRequest(final LogoutRequest logoutRequest) {
+        final List<Game> games = gameManagement.findAllGames();
+        for (final Game game : games) {
+            final Lobby lobby = game.getLobby();
+            final Player userPlayer = lobby.getPlayerForUser(logoutRequest.getUser());
+            if (userPlayer != null) {
+                final LeaveGameRequest leaveGameRequest = new LeaveGameRequest(game, userPlayer);
+                leaveGameRequest.initWithMessage(logoutRequest);
+                onLeaveGameRequest(leaveGameRequest);
+            }
+        }
     }
 
     /**

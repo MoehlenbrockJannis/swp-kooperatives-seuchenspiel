@@ -47,8 +47,8 @@ public class UserService implements ClientUserService {
 
 
 	@Override
-	public void logout(User username){
-		LogoutRequest msg = new LogoutRequest();
+	public void logout(User user){
+		LogoutRequest msg = new LogoutRequest(user);
 		bus.post(msg);
 	}
 

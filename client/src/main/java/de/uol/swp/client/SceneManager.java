@@ -155,7 +155,7 @@ public class SceneManager {
      */
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event){
-        showScene(lastScene, lastTitle);
+        showScene(loginPresenter, lastTitle);
     }
 
     /**
@@ -270,17 +270,18 @@ public class SceneManager {
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     * @param scene New scene to show
+     * @param presenter Presenter of the new scene to show
      * @param title New window title
      * @since 2019-09-03
      */
-    private void showScene(final Scene scene, final String title) {
+    private void showScene(final AbstractPresenter presenter, final String title) {
         this.lastScene = currentScene;
         this.lastTitle = primaryStage.getTitle();
-        this.currentScene = scene;
+        this.currentScene = presenter.getScene();
         Platform.runLater(() -> {
             primaryStage.setTitle(title);
-            primaryStage.setScene(scene);
+            primaryStage.setScene(presenter.getScene());
+            presenter.setStage(primaryStage);
             primaryStage.show();
         });
     }
@@ -294,7 +295,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
-        showScene(mainMenuPresenter.getScene(), "Welcome " + currentUser.getUsername());
+        showScene(mainMenuPresenter, "Welcome " + currentUser.getUsername());
     }
 
     /**
@@ -306,7 +307,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showLoginScreen() {
-        showScene(loginPresenter.getScene(),"Login");
+        showScene(loginPresenter,"Login");
     }
 
     /**
@@ -318,7 +319,7 @@ public class SceneManager {
      * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationPresenter.getScene(),"Registrierung");
+        showScene(registrationPresenter,"Registrierung");
     }
 
     /**
@@ -330,7 +331,7 @@ public class SceneManager {
      * @since 2024-08-28
      */
     public void showLobbyCreateScreen() {
-        showScene(lobbyCreatePresenter.getScene(),"Lobby erstellen");
+        showScene(lobbyCreatePresenter,"Lobby erstellen");
     }
 
     /**
@@ -343,7 +344,7 @@ public class SceneManager {
      * @since 2024-08-23
      */
     public void showLobbyOverviewScreen() {
-        showScene(lobbyOverviewPresenter.getScene(), "Lobby-Übersicht");
+        showScene(lobbyOverviewPresenter, "Lobby-Übersicht");
     }
 
     /**
