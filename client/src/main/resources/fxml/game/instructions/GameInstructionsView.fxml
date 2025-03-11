@@ -7,18 +7,18 @@
 <GridPane fx:id="popupGridPane" onKeyPressed="#handleEscKeyPressed" xmlns="http://javafx.com/javafx/22"
           xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="de.uol.swp.client.game.instructions.GameInstructionsPresenter">
-    <Pane onMouseClicked="#closePopup" styleClass="background-pane" GridPane.columnIndex="0" GridPane.columnSpan="1"
-          GridPane.rowIndex="0" GridPane.rowSpan="1"/>
-    <VBox alignment="CENTER" styleClass="main-vbox" GridPane.columnIndex="0" GridPane.rowIndex="0">
+    <Pane onMouseClicked="#closePopup" style="-fx-background-color: black;-fx-opacity: 60%;" GridPane.columnIndex="0" GridPane.columnSpan="1"
+          GridPane.rowIndex="0" GridPane.rowSpan="1" />
+    <VBox alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20;" GridPane.columnIndex="0" GridPane.rowIndex="0">
         <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS">
-            <fx:include source="IntroductionTab.fxml"/>
-            <fx:include source="GameComponentsTab.fxml"/>
-            <fx:include source="RolesTab.fxml"/>
-            <fx:include source="ActionsTab.fxml"/>
+            <fx:include source="IntroductionTab.fxml" />
+            <fx:include source="GameComponentsTab.fxml" />
+            <fx:include source="RolesTab.fxml" />
+            <fx:include source="ActionsTab.fxml" />
             <fx:include source="PlayerCardsTab.fxml"/>
-            <fx:include source="GameStartTab.fxml"/>
-            <fx:include source="GameplayTab.fxml"/>
-            <fx:include source="GameEndTab.fxml"/>
+            <fx:include source="GameStartTab.fxml" />
+            <fx:include source="GameplayTab.fxml" />
+            <fx:include source="GameEndTab.fxml" />
         </TabPane>
         <Button onAction="#closePopup" text="Schließen">
             <VBox.margin>

@@ -10,6 +10,7 @@
     <properties>
         <javafx.version>21</javafx.version>
         <batik.version>1.18</batik.version>
+        <ikonli.version>12.3.1</ikonli.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -150,5 +151,29 @@
             <version>${batik.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-core</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>kordamp-repo</id>
+            <url>https://repo.kordamp.org</url>
+        </repository>
+    </repositories>
+
 </project>
