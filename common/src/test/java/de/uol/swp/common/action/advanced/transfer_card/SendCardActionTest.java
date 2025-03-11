@@ -95,7 +95,7 @@ class SendCardActionTest extends ShareKnowledgeActionTest {
 
     @Test
     @DisplayName("Should return a list of sendable cards with same field of the players")
-    protected void getSendableCards() {
+    void getSendableCards() {
         action.getSender().addHandCard(transferredCard);
         executingPlayer.setCurrentField(transferredCardField);
         targetPlayer.setCurrentField(transferredCardField);

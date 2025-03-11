@@ -5,6 +5,7 @@ import de.uol.swp.common.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class RetrieveAllOnlineUsersServerMessage extends AbstractServerMessage {
+	@Serial
 	private static final long serialVersionUID = -7968574381977330152L;
 
 	private final List<User> users;

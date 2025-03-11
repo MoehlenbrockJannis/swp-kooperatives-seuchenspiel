@@ -43,7 +43,7 @@ public class PlagueCubeMarkerPresenter extends AbstractPresenter {
         stopAnimation();
 
         Scale animationScale = new Scale(1.0, 1.0);
-        plagueCubeMarker.getTransforms().removeIf(transform -> transform instanceof Scale);
+        plagueCubeMarker.getTransforms().removeIf(Scale.class::isInstance);
         plagueCubeMarker.getTransforms().add(animationScale);
 
         animationTimeline = new Timeline(
@@ -72,7 +72,7 @@ public class PlagueCubeMarkerPresenter extends AbstractPresenter {
         if (animationTimeline != null) {
             animationTimeline.stop();
             animationTimeline = null;
-            plagueCubeMarker.getTransforms().removeIf(transform -> transform instanceof Scale);
+            plagueCubeMarker.getTransforms().removeIf(Scale.class::isInstance);
             plagueCubeMarker.getTransforms().add(new Scale(1.0, 1.0));
         }
 

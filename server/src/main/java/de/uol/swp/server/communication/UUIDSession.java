@@ -37,7 +37,7 @@ public class UUIDSession implements Session {
 
 	/**
 	 * Builder for the UUIDSession
-	 *
+	 * <p>
 	 * Builder exposed to every class in the server, used since the constructor is private
 	 *
 	 * @param user the user connected to the session

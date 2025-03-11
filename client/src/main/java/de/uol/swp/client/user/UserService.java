@@ -1,9 +1,9 @@
 package de.uol.swp.client.user;
 
-import org.greenrobot.eventbus.EventBus;
 import com.google.inject.Inject;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.request.*;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * This class is used to hide the communication details
@@ -57,18 +57,6 @@ public class UserService implements ClientUserService {
 		RegisterUserRequest request = new RegisterUserRequest(user);
 		bus.post(request);
 	}
-
-	/**
-	 * Method to delete an users account
-	 *
-	 * This method should send a request to delete an users account, but being not
-	 * implemented, it currently does nothing.
-	 *
-	 * @param user The user to remove
-	 */
-    public void dropUser(User user) {
-        //TODO: Implement me
-    }
 
 	@Override
 	public void updateUser(User user) {

@@ -100,8 +100,8 @@ public class GameService extends AbstractService {
      */
     private Set<AIPlayer> getAIPlayersForGame(Set<Player> players) {
         return players.stream()
-                .filter(player -> player instanceof AIPlayer)
-                .map(player -> (AIPlayer) player)
+                .filter(AIPlayer.class::isInstance)
+                .map(AIPlayer.class::cast)
                 .collect(Collectors.toSet());
     }
 

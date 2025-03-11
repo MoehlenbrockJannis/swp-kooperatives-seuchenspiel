@@ -67,8 +67,8 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     }
 
     /**
-     * Discards an infection card.
-     * Currently not implemented.
+     * Empty implementation required for inheritance.
+     * This functionality is only used in sibling classes.
      */
     @Override
     void discardCard() {

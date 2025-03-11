@@ -2,6 +2,8 @@ package de.uol.swp.common.user.request;
 
 import de.uol.swp.common.message.request.AbstractRequestMessage;
 
+import java.io.Serial;
+
 /**
  * A request send from client to server to log out
  *
@@ -9,5 +11,6 @@ import de.uol.swp.common.message.request.AbstractRequestMessage;
  * @since 2019-08-07
  */
 public class LogoutRequest extends AbstractRequestMessage {
+	@Serial
 	private static final long serialVersionUID = -5912075449879112061L;
 }

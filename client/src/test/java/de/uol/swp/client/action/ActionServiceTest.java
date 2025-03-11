@@ -25,7 +25,7 @@ class ActionServiceTest {
     private Game game;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         actionService = new ActionService(eventBus);
     }

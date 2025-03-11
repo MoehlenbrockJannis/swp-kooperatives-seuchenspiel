@@ -1,7 +1,6 @@
 package de.uol.swp.client.player;
 
 import de.uol.swp.client.action.ActionService;
-import de.uol.swp.client.map.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,14 +36,12 @@ class PlayerMarkerTest {
     private EventBus eventBus;
 
     private PlayerMarker playerMarker;
-    private List<CityMarker> cityMarkers;
     private static final double PLAYER_SIZE = 1.0;
     private static final Color PLAYER_COLOR = Color.RED;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        cityMarkers = new ArrayList<>();
         actionService = new ActionService(eventBus);
         playerMarker = new PlayerMarker(
                 PLAYER_COLOR,
@@ -74,11 +70,11 @@ class PlayerMarkerTest {
         List<Node> children = playerMarker.getChildren();
         assertThat(children)
                 .as("All nodes should be of type Shape")
-                .allMatch(node -> node instanceof Shape);
+                .allMatch(Shape.class::isInstance);
 
         List<Shape> shapes = playerMarker.getChildren()
                 .stream()
-                .map(node -> (Shape) node)
+                .map(Shape.class::cast)
                 .collect(Collectors.toList());
 
         assertThat(shapes)

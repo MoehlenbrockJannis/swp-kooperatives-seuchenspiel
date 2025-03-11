@@ -89,10 +89,8 @@ class UserManagementTest {
 
         management.createUser(userNotInStore);
 
-        // Creation leads not to log in
         assertFalse(management.isLoggedIn(userNotInStore));
 
-        // Only way to test, if user is stored
         management.login(userNotInStore.getUsername(), userNotInStore.getPassword());
 
         assertTrue(management.isLoggedIn(userNotInStore));
@@ -186,8 +184,6 @@ class UserManagementTest {
         Collections.sort(allUsers);
         assertEquals(allUsers, getDefaultUsers());
 
-        // check, if there are no passwords
-        // TODO: typically, there should be no logic in tests
         allUsers.forEach(u -> assertEquals("",u.getPassword() ));
     }
 

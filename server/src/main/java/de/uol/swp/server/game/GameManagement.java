@@ -10,8 +10,8 @@ import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.server.game.store.GameStore;
-import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.game.turn.PlayerTurnManagement;
+import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.role.RoleManagement;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -111,7 +111,7 @@ public class GameManagement {
                         this.checkForWin(game),
                         this.checkForEmptyDrawStack(game),
                         this.checkForMaxOutbreaks(game),
-                        this.checkForNoPlagueCubes(game)
+                        this.checkForNoPlagueCubes()
                 )
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -158,10 +158,9 @@ public class GameManagement {
     /**
      * Checks if there are no plague cubes left, which is a loss condition.
      *
-     * @param game The game to check
      * @return An Optional containing the no plague cubes reason
      */
-    private Optional<GameEndReason> checkForNoPlagueCubes(Game game) {
+    private Optional<GameEndReason> checkForNoPlagueCubes() {
         return Optional.of(GameEndReason.NO_PLAGUE_CUBES_LEFT);
     }
 }

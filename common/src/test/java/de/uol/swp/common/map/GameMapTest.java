@@ -180,8 +180,7 @@ class GameMapTest {
         assertThat(field3.isCurable(plague))
                 .isFalse();
 
-        assertThat(infectedFields.contains(field2))
-                .isTrue();
+        assertThat(infectedFields).contains(field2);
 
         map.startOutbreak(field1, plague, infectedFields);
 
@@ -190,8 +189,7 @@ class GameMapTest {
         assertThat(field3.isCurable(plague))
                 .isTrue();
 
-        assertThat(infectedFields.contains(field1))
-                .isTrue();
+        assertThat(infectedFields).contains(field1);
 
     }
 

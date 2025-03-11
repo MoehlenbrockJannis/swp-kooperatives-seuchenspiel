@@ -155,7 +155,7 @@ public class GameMapPresenter extends AbstractPresenter {
         Game game = gameSupplier.get();
         Platform.runLater(() -> {
             removeResearchLaboratoryMarkers();
-            movePlayerMarker(game);
+            movePlayerMarker();
             addResearchLaboratoryMarkers(game);
             updatePlagueCubeMarkers();
             addNewPlagueCubeMarker(game);
@@ -362,10 +362,8 @@ public class GameMapPresenter extends AbstractPresenter {
 
     /**
      * Removes all existing player markers and create alle existing player markers after that
-     *
-     * @param game the current game state
      */
-    private void movePlayerMarker(Game game) {
+    private void movePlayerMarker() {
         playerMarkerPane.getChildren().removeIf(PlayerMarker.class::isInstance);
         addAllPlayerMarkers();
     }

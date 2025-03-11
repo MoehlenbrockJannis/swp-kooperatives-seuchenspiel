@@ -13,11 +13,11 @@ import de.uol.swp.server.communication.netty.NettyServerHandler;
 import de.uol.swp.server.communication.netty.Server;
 import de.uol.swp.server.di.ServerModule;
 import de.uol.swp.server.game.GameService;
+import de.uol.swp.server.game.turn.PlayerTurnService;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.map.MapTypeService;
 import de.uol.swp.server.plague.PlagueService;
 import de.uol.swp.server.player.AIPlayerService;
-import de.uol.swp.server.game.turn.PlayerTurnService;
 import de.uol.swp.server.role.RoleManagement;
 import de.uol.swp.server.role.RoleService;
 import de.uol.swp.server.user.AuthenticationService;
@@ -53,7 +53,7 @@ class ServerApp {
 		if (args.length == 1){
 			try{
 				port = Integer.parseInt(args[0]);
-			}catch(Exception e){
+			}catch(Exception e) {
 				//Ignore and use default value
 			}
 		}
@@ -62,7 +62,6 @@ class ServerApp {
 		}
 		LOG.info("Starting Server on port {}",port);
 
-		// create components
 		Injector injector = Guice.createInjector(new ServerModule());
 		createServices(injector);
         ServerHandler serverHandler = injector.getInstance(ServerHandler.class);
@@ -79,10 +78,6 @@ class ServerApp {
 	 * @since 2019-09-18
 	 */
 	private static void createServices(Injector injector) {
-
-
-		// Remark: As these services are not referenced by any other class
-		// we will need to create instances here (and inject dependencies)
 		injector.getInstance(UserService.class);
 		injector.getInstance(AuthenticationService.class);
         injector.getInstance(LobbyService.class);

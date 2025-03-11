@@ -25,7 +25,7 @@ public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
     /**
      * <p>
      *     Sets the given {@link Player} as {@link #targetAlly}.
-     *     Also sets the {@link #targetField} as the given {@link Player}'s current {@link Field}.
+     *     Also sets the targetField as the given {@link Player}'s current {@link Field}.
      * </p>
      *
      * @param targetAlly The target {@link Player} to set

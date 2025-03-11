@@ -95,7 +95,7 @@ public class ServerHandler implements ServerHandlerDelegate {
     private void checkIfMessageNeedsAuthorization(MessageContext ctx, RequestMessage msg) {
         if (msg.authorizationNeeded()) {
             final Optional<Session> session = getSession(ctx);
-            if (!session.isPresent()) {
+            if (session.isEmpty()) {
                 throw new SecurityException("Authorization required. Client not logged in!");
             }
             msg.setSession(session.get());
@@ -104,7 +104,7 @@ public class ServerHandler implements ServerHandlerDelegate {
 
     /**
      * Handles exceptions on the Server
-     *
+     * <p>
      * If an ServerExceptionMessage is detected on the EventBus, this method is called.
      * It sends the ServerExceptionMessage to the affiliated client if a client is
      * affiliated.
@@ -119,9 +119,6 @@ public class ServerHandler implements ServerHandlerDelegate {
         ctx.ifPresent(channelHandlerContext -> sendToClient(channelHandlerContext, new ExceptionResponseMessage(msg.getException().getMessage())));
     }
 
-    // -------------------------------------------------------------------------------
-    // Handling of connected clients
-    // -------------------------------------------------------------------------------
     @Override
     public void newClientConnected(MessageContext ctx) {
         LOG.debug("New client {} connected", ctx );
@@ -141,12 +138,10 @@ public class ServerHandler implements ServerHandlerDelegate {
         connectedClients.remove(ctx);
     }
 
-    // -------------------------------------------------------------------------------
-    // User Management Events (from event bus)
-    // -------------------------------------------------------------------------------
+
     /**
      * Handles ClientAuthorizedMessages found on the EventBus
-     *
+     * <p>
      * If a ClientAuthorizedMessage is detected on the EventBus, this method is called.
      * It gets the MessageContext and then gives it and a new LoginSuccessfulResponse to
      * sendToClient for sending as well as giving a new UserLoggedInMessage to sendMessage
@@ -172,7 +167,7 @@ public class ServerHandler implements ServerHandlerDelegate {
 
     /**
      * Handles UserLoggedOutMessages found on the EventBus
-     *
+     * <p>
      * If an UserLoggedOutMessage is detected on the EventBus, this method is called.
      * It gets the MessageContext and then gives the message to sendMessage in order
      * to send it to the connected client.
@@ -187,13 +182,9 @@ public class ServerHandler implements ServerHandlerDelegate {
         ctx.ifPresent(this::removeSession);
     }
 
-    // -------------------------------------------------------------------------------
-    // ResponseEvents
-    // -------------------------------------------------------------------------------
-
     /**
      * Handles ResponseMessages found on the EventBus
-     *
+     * <p>
      * If an ResponseMessage is detected on the EventBus, this method is called.
      * It gets the MessageContext and then gives it and the ResponseMessage to
      * sendToClient for sending.
@@ -215,13 +206,9 @@ public class ServerHandler implements ServerHandlerDelegate {
         }
     }
 
-    // -------------------------------------------------------------------------------
-    // ServerMessages
-    // -------------------------------------------------------------------------------
-
     /**
      * Handles ServerMessages found on the EventBus
-     *
+     * <p>
      * If an ServerMessage is detected on the EventBus, this method is called.
      * It sets the Session and MessageContext to null and then gives the message
      * to sendMessage in order to send it to all connected clients.
@@ -240,11 +227,6 @@ public class ServerHandler implements ServerHandlerDelegate {
         sendMessage(msg);
     }
 
-
-    // -------------------------------------------------------------------------------
-    // Session Management (helper methods)
-    // -------------------------------------------------------------------------------
-
     /**
      * Adds a new Session to the activeSessions
      *
@@ -253,8 +235,6 @@ public class ServerHandler implements ServerHandlerDelegate {
      * @since 2019-11-20
      */
     private void putSession(MessageContext ctx, Session newSession) {
-
-        // TODO: check if session is already bound to connection
         activeSessions.put(ctx, newSession);
     }
 
@@ -338,11 +318,6 @@ public class ServerHandler implements ServerHandlerDelegate {
         return ctxs;
     }
 
-
-    // -------------------------------------------------------------------------------
-    // Help methods: Send only objects of type Message
-    // -------------------------------------------------------------------------------
-
     /**
      * Sends a ResponseMessage to a client specified by a MessageContext
      *
@@ -386,7 +361,6 @@ public class ServerHandler implements ServerHandlerDelegate {
             try {
                 client.writeAndFlush(msg);
             } catch (Exception e) {
-                // TODO: Handle exception for unreachable clients
                 LOG.warn(e);
             }
         }

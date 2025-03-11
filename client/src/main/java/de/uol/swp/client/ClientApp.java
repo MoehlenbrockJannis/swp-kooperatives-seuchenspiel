@@ -25,11 +25,9 @@ import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.net.ConnectException;
-
 /**
  * The application class of the client
- *
+ * <p>
  * This class handles the startup of the application, as well as, incoming login
  * and registration responses and error messages
  *
@@ -60,16 +58,8 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	private SceneManager sceneManager;
 
-	// -----------------------------------------------------
-	// Java FX Methods
-	// ----------------------------------------------------
-
-
 	@Override
 	public void start(Stage primaryStage) {
-
-        // Client app is created by java, so injection must
-        // be handled here manually
 		Injector injector = Guice.createInjector(new ClientModule(this));
 
 		AbstractPresenter.setFxmlLoaderProvider(new FXMLLoaderProvider() {
@@ -79,12 +69,9 @@ public class ClientApp extends Application implements ConnectionListener {
 			}
 		});
 
-        // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);
 
-        // get event bus from guice
 		eventBus = injector.getInstance(EventBus.class);
-		// Register this class for de.uol.swp.client.events (e.g. for exceptions)
 		eventBus.register(this);
 
 		envReader = injector.getInstance(EnvReader.class);
@@ -92,19 +79,16 @@ public class ClientApp extends Application implements ConnectionListener {
 		port = envReader.readInt("PORT");
 		LOG.info("Using default port {} {}", port, host);
 
-		// Client app is created by java, so injection must
-		// be handled here manually
 		SceneManagerFactory sceneManagerFactory = injector.getInstance(SceneManagerFactory.class);
 		this.sceneManager = sceneManagerFactory.create(primaryStage);
 
 		ClientConnectionFactory connectionFactory = injector.getInstance(ClientConnectionFactory.class);
 		clientConnection = connectionFactory.create(host, port);
 		clientConnection.addConnectionListener(this);
-		// JavaFX Thread should not be blocked to long!
 		Thread t = new Thread(() -> {
 			try {
 				clientConnection.start();
-			} catch (InterruptedException | ConnectException e) {
+			} catch (InterruptedException e) {
 				exceptionOccurred(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
@@ -125,8 +109,6 @@ public class ClientApp extends Application implements ConnectionListener {
 			user = null;
 		}
 		eventBus.unregister(this);
-		// Important: Close connection so connection thread can terminate
-		// else client application will not stop
 		LOG.trace("Trying to shutting down client ...");
 		if (clientConnection != null) {
 			clientConnection.close();
@@ -136,7 +118,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful login
-	 *
+	 * <p>
 	 * If an LoginSuccessfulResponse object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the main menu and sets
 	 * this clients user to the user found in the object. If the loglevel is set
@@ -156,7 +138,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful logout
-	 *
+	 * <p>
 	 * If an UserLoggedOutMessage object is detected on the EventBus this
 	 * method is called. If the loglevel is set to DEBUG or higher "user
      * logged out successfully " and the username of the logged out user
@@ -174,7 +156,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles unsuccessful registrations
-	 *
+	 * <p>
 	 * If an RegistrationExceptionMessage object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the sever error alert.
 	 * If the loglevel is set to Error or higher "Registration error " and the
@@ -192,7 +174,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful registrations
-	 *
+	 * <p>
 	 * If an RegistrationSuccessfulResponse object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the login window. If
 	 * the loglevel is set to INFO or higher "Registration Successful." is written
@@ -212,11 +194,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	public void exceptionOccurred(String e) {
 		sceneManager.showServerError(e);
 	}
-
-	// -----------------------------------------------------
-	// JavFX Help method
-	// -----------------------------------------------------
-
 	/**
 	 * Default startup method for javafx applications
 	 *

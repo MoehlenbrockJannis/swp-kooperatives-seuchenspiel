@@ -61,9 +61,7 @@ public class DiscardCardDialog<T extends Card> extends Dialog<T> {
         Button discardButton = (Button) getDialogPane().lookupButton(button);
         discardButton.setDisable(true);
 
-        cardListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            discardButton.setDisable(newValue == null);
-        });
+        cardListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> discardButton.setDisable(newValue == null));
         setResult();
         getDialogPane().getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, Event::consume);
     }

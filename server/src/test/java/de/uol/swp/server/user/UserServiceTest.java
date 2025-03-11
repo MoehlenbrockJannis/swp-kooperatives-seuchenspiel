@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-
 public class UserServiceTest extends EventBusBasedTest {
 
     static final User userToRegister = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
@@ -20,13 +18,11 @@ public class UserServiceTest extends EventBusBasedTest {
     final UserService userService = new UserService(getBus(), userManagement);
 
     @Test
-    void registerUserTest() throws InterruptedException {
+    void registerUserTest() {
         final RegisterUserRequest request = new RegisterUserRequest(userToRegister);
 
-        // The post will lead to a call of a UserService function
         post(request);
 
-        // can only test, if something in the state has changed
         final User loggedInUser = userManagement.login(userToRegister.getUsername(), userToRegister.getPassword());
 
         assertNotNull(loggedInUser);
@@ -43,11 +39,9 @@ public class UserServiceTest extends EventBusBasedTest {
 
         final User loggedInUser = userManagement.login(userToRegister.getUsername(), userToRegister.getPassword());
 
-        // old user should be still in the store
         assertNotNull(loggedInUser);
         assertEquals(userToRegister, loggedInUser);
 
-        // old user should not be overwritten!
         assertNotEquals(loggedInUser.getEMail(), userWithSameName.getEMail());
 
     }

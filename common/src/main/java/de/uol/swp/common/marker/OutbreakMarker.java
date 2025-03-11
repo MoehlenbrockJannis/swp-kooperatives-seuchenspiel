@@ -16,7 +16,7 @@ public class OutbreakMarker extends LevelableMarker{
 
     /**
      * Constructor for the OutbreakMarker.
-     *
+     * <p>
      * Initializes the OutbreakMarker with a list of level values, representing
      * different stages or levels of outbreaks.
      *

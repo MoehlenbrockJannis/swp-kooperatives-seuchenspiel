@@ -45,8 +45,6 @@ class MainMemoryBasedChatStoreTest {
         chatStore.addLobbyChatMessage(mockLobby, "Test");
 
         assertThat(chatStore.getLobbyChatMessages(mockLobby)).contains("Test");
-
-
     }
 
     @Test

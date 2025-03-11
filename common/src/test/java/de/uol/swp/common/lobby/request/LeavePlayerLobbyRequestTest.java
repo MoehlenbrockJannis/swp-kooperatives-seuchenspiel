@@ -10,12 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Test for the lobby leave user request
- *
- * @see LeavePlayerLobbyRequest
- * @since 2023-05-14
- */
 @DisplayName("LobbyLeaveUserRequest Test")
 class LeavePlayerLobbyRequestTest {
 
@@ -30,14 +24,6 @@ class LeavePlayerLobbyRequestTest {
         this.lobby = new LobbyDTO("TestLobby", this.user);
     }
 
-    /**
-     * Test for creation of the LobbyLeaveUserRequests
-     *
-     * This test checks if the lobbyName and the user of the LobbyLeaveUserRequest gets
-     * set correctly during the creation of the request
-     *
-     * @since 2023-05-14
-     */
     @Test
     @DisplayName("Create LobbyLeaveUserRequest")
     void createLobbyLeaveUserRequest() {

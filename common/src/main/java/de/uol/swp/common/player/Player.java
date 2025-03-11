@@ -4,7 +4,6 @@ import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.GeneralAction;
 import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.card.CityCard;
-import de.uol.swp.common.card.OverviewCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.role.RoleCard;
@@ -27,8 +26,6 @@ public abstract class Player implements Serializable, UserContainerEntity {
     @Setter
     private Field currentField;
     private List<PlayerCard> handCards;
-    private Date lastSick;
-    private OverviewCard overviewCard;
 
     /**
      * Constructor for creating a Player instance with the lastSick date.

@@ -50,7 +50,7 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
 
     /**
      * Sets the {@link #researchLaboratoryOriginField} to move a {@link ResearchLaboratory} from if needed.
-     *
+     * <p>
      * The given {@code researchLaboratoryOriginField} must have a {@link ResearchLaboratory} on it.
      *
      * @param researchLaboratoryOriginField {@link Field} a {@link ResearchLaboratory} is moved from if needed
@@ -66,7 +66,7 @@ public class BuildResearchLaboratoryAction extends AdvancedAction implements Dis
     /**
      * Returns {@code true} if the current {@link Field} does not have a {@link ResearchLaboratory} and
      * the executing {@link Player} has the card of the current {@link Field} on hand.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @return {@code true} if the current {@link Field} does not have a {@link ResearchLaboratory} and

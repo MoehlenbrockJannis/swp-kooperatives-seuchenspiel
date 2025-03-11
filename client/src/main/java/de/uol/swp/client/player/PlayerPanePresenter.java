@@ -44,10 +44,7 @@ import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -286,9 +283,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @param playerCard the card to check for tooltip installation
      */
     private void setupTooltipForEventCard(PlayerCardHBox playerCardHBox, PlayerCard playerCard) {
-        if (playerCard instanceof EventCard) {
-            EventCard eventCard = (EventCard) playerCard;
-
+        if (playerCard instanceof EventCard eventCard) {
             Tooltip tooltip = TooltipsUtil.createConsistentTooltip(eventCard.getDescription(), TOOLTIP_WIDTH);
             Tooltip.install(playerCardHBox, tooltip);
 
@@ -508,7 +503,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
             return null;
         }
         if (playerCard instanceof AirBridgeEventCard airBridgeEventCard) {
-            return prepareAirBridgeEventCard(airBridgeEventCard, clickListener);
+            return prepareAirBridgeEventCard(airBridgeEventCard);
         } else if (playerCard instanceof ForecastEventCard forecastEventCard) {
             return prepareForecastEventCard(forecastEventCard, clickListener);
         } else if (playerCard instanceof GovernmentSubsidiesEventCard governmentSubsidiesEventCard) {
@@ -523,10 +518,9 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Prepares a given {@link AirBridgeEventCard} for use.
      *
      * @param airBridgeEventCard {@link AirBridgeEventCard} to prepare an action listener for
-     * @param approve            {@link Runnable} executing the given {@link AirBridgeEventCard}
      * @return {@link Runnable} as action listener to play given {@link AirBridgeEventCard}
      */
-    private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard, final Runnable approve) {
+    private Runnable prepareAirBridgeEventCard(final AirBridgeEventCard airBridgeEventCard) {
         if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
@@ -647,7 +641,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
      */
     private List<InfectionCard> openSortInfectionCardsDialog() {
         if (game.isGameLost() || game.isGameWon()) {
-            return null;
+            return Collections.emptyList();
         }
 
         SortInfectionCardsDialogPresenter listDialogPresenter = createListDialogPresenter();
@@ -656,7 +650,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         sortInfectionCardsDialogStage.showAndWait();
 
         if (!listDialogPresenter.wasConfirmed()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return listDialogPresenter.getUpdatedList();
@@ -741,9 +735,7 @@ public class PlayerPanePresenter extends AbstractPresenter {
         if (game.isGameLost() || game.isGameWon()) {
             return null;
         }
-        return () -> {
-            gameMapPresenter.setClickListenersForGovernmentSubsidiesFields(governmentSubsidiesEventCard, approve);
-        };
+        return () -> gameMapPresenter.setClickListenersForGovernmentSubsidiesFields(governmentSubsidiesEventCard, approve);
     }
 
     /**

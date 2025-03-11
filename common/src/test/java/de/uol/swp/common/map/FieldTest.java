@@ -108,8 +108,8 @@ class FieldTest {
     @Test
     @DisplayName("Should infect field with a plague cube of associated plague from map and add infected field to list")
     void infect_Field_and_add_to_list() {
-        assertThat(infectedFields.isEmpty())
-                .isTrue();
+        assertThat(infectedFields)
+                .isEmpty();
 
         PlagueCube plagueCube = new PlagueCube(plague);
         field.infectField(plagueCube, infectedFields);
@@ -139,8 +139,8 @@ class FieldTest {
         assertThat(field.isCurable(plague))
                 .isFalse();
 
-        assertThat(infectedFields.isEmpty()).
-                isTrue();
+        assertThat(infectedFields).
+                isEmpty();
 
         field.infectField(new PlagueCube(plague), infectedFields);
 
