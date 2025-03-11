@@ -3,6 +3,7 @@ package de.uol.swp.client.card;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import lombok.Getter;
 
 /**
  * The CardIcon class represents a rectangular icon with rounded corners,
@@ -12,7 +13,9 @@ import javafx.scene.shape.Rectangle;
 public class CardIcon extends Rectangle {
 
     private static final int ARC_SIZE = 10;
+    @Getter
     private static final double WIDTH_MULTIPLIER = 0.33;
+    @Getter
     private static final double HEIGHT_MULTIPLIER = 0.55;
     private static final Color STOKED_COLOR = Color.BLACK;
 
