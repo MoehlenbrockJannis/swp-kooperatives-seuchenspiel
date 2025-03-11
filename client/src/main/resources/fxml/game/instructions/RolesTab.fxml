@@ -3,65 +3,85 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<Tab closable="false" text="Rollen">
+<Tab closable="false" text="Rollen" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="de.uol.swp.client.game.instructions.RolesTabPresenter">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" styleClass="tab-vbox">
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/question-mark-line-icon.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text styleClass="tab-h2" text="Arzt"/>
-                    <Text text="&#10;"/>
-                    <Text text="Der Arzt entfernt alle Würfel einer Farbe (also nicht nur 1), wenn er die Aktion Seuche behandeln ausführt. Befindet sich der Arzt in einer Stadt mit Würfeln einer Seuche, für die bereits ein Gegenmittel entdeckt wurde, entfernt er umgehend alle Würfel dieser Farbe, ohne eine Aktion dafür ausgeben zu müssen. Diese einzigartige Fähigkeit funktioniert immer und zu jeder beliebigen Zeit, auch während der Züge der anderen Spieler."/>
-                </TextFlow>
-            </HBox>
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/question-mark-line-icon.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text styleClass="tab-h2" text="Betriebsexperte"/>
-                    <Text text="&#10;"/>
-                    <Text text="Der Betriebsexperte muss keine passende Karte ausspielen, um in der Stadt, in der er sich gerade befindet, ein Forschungslabor zu errichten. Er gibt einfach 1 Aktion aus und stellt ein Labor in seiner Stadt auf."/>
-                </TextFlow>
-            </HBox>
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/question-mark-line-icon.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text styleClass="tab-h2" text="Forscherin"/>
-                    <Text text="&#10;"/>
-                    <Text text="Die Forscherin kann einem Mitspieler im Rahmen der Aktion Wissen teilen die Karte einer beliebigen Stadt weitergeben. Im Gegensatz zu den anderen Spielern ist sie nicht auf die Karte der Stadt beschränkt, in der sich die beiden Spielfiguren gerade befinden. Dies gilt aber nur, wenn die Forscherin eine Karte weitergibt – wenn sie eine Karte von einem Mitspieler erhält, ist sie an die gleichen Regeln gebunden wie alle anderen Spieler auch. Die Forscherin kann ihre Sonderfähigkeit auch während der Spielzüge der anderen Spieler einsetzen. Eine Ereigniskarte kann sie nicht weitergeben."/>
-                </TextFlow>
-            </HBox>
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/question-mark-line-icon.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text styleClass="tab-h2" text="Logistiker"/>
-                    <Text text="&#10;"/>
-                    <Text text="Der Logistiker kann während seines Zugs die Spielfiguren der anderen Spieler bewegen (d.h. mit ihnen eine der hier beschriebenen einfachen Aktionen durchführen), als ob es seine eigene Figur wäre. Er kann zudem eine Aktion ausgeben, um eine beliebige Spielfigur zu einer beliebigen Stadt zu bewegen, in der sich bereits eine andere Spielfigur befindet. Er kann die Spielfiguren anderer Spieler aber nur bewegen, wenn diese ihm dies gestatten. Anmerkung: Wählt der Logistiker die Aktion Charterflug, muss er die Karte ausspielen, die dem derzeitigen Standort der Spielfigur entspricht, die er bewegen möchte."/>
-                </TextFlow>
-            </HBox>
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/question-mark-line-icon.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text styleClass="tab-h2" text="Wissenschaftler"/>
-                    <Text text="&#10;"/>
-                    <Text text="Der Wissenschaftler benötigt nur 4 Karten einer Farbe, um das Gegenmittel für die entsprechende Seuche zu entdecken."/>
-                </TextFlow>
-            </HBox>
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
+        <VBox spacing="10">
+            <TextFlow>
+                <Text styleClass="tab-h1" text="Rollen"/>
+            </TextFlow>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <StackPane fx:id="arztPlayerMarkerPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Arzt"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Der Arzt hat die orange Spielfigur und kann alle Seuchenwürfel einer Farbe mit der Aktion "Seuche behandeln" entfernen. Sind am aktuellen Standort des Arztes Seuchenwürfel einer Farbe, für die bereits ein Gegenmittel entdeckt wurde, werden umgehend alle Seuchenwürfel dieser Farbe entfernt, ohne eine Aktion dafür ausgeben zu müssen. Diese einzigartige Fähigkeit funktioniert immer und zu jeder beliebigen Zeit, auch während der Spielzüge anderer Spieler.'/>
+                    </TextFlow>
+                </VBox>
+
+                <StackPane fx:id="betriebsexpertePlayerMarkerPane" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Betriebsexperte"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Der Betriebsexperte hat eine grüne Spielfigur und muss keine Karte abwerfen, um an seinem aktuellen Standort ein Forschungslabor mit der Aktion "Forschungslabor errichten" zu errichten.'/>
+                    </TextFlow>
+                </VBox>
+
+                <StackPane fx:id="forscherinPlayerMarkerPane" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="2" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Forscherin"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Die Forscherin hat eine braune Spielfigur und ist bei der Aktion "Wissen teilen" nicht auf den Transfer der Handkarte des aktuellen Standorts beschränkt. Stattdessen kann sie eine beliebige Handkarte, die keine Ereigniskarte ist, an einen anderen Spieler mit dem gleichen Standort wie sie weitergeben. Das funktioniert sowohl, wenn die Forscherin eine Karte weitergeben will, als auch, wenn ein anderer Spieler eine Karte von der Forscherin erhalten will. Es funktioniert nicht, wenn die Forscherin eine Karte erhalten will oder ein anderer Spieler der Forscherin eine Karte weitergeben will.'/>
+                    </TextFlow>
+                </VBox>
+
+                <StackPane fx:id="logistikerPlayerMarkerPane" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="3" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Logistiker"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Der Logistiker hat eine pinke Spielfigur und kann während seines Spielzugs die Spielfiguren anderer Spieler bewegen, also eine Bewegungsaktion mit anderen Spielfiguren ausführen. Außerdem kann er eine Aktion dafür verwenden, eine beliebige Spielfigur zu einer beliebigen Stadt zu bewegen, in der bereits eine andere Spielfigur ist. Er kann die Spielfiguren anderer Spieler aber nur bewegen, wenn diese ihm dies gestatten. Wählt der Logistiker die Aktion "Charterflug", muss er die Karte abwerfen, die dem derzeitigen Standort der Spielfigur entspricht, die er bewegen möchte.'/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Die Auswahl anderer Spielfiguren für eine Bewegung funktioniert wie die Auswahl der eigenen Spielfigur über ein Kontextmenü. Wenn er eine hervorgehobene Stadt auswählt, um eine andere Spielfigur zu verschieben, wird für den Spieler, dessen Spielfigur verschoben werden soll, ein Dialog geöffnet.'/>
+                    </TextFlow>
+                </VBox>
+
+                <StackPane fx:id="wissenschaftlerPlayerMarkerPane" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Wissenschaftler"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Der Wissenschaftler hat die weiße Spielfigur und muss nur 4 statt 5 Karten abwerfen, um ein Gegenmittel zu entdecken."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
         </VBox>
+
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
     </ScrollPane>
 </Tab>
