@@ -66,14 +66,6 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
         cardService.sendDrawInfectionCardRequest(gameSupplier.get(), currentPlayer);
     }
 
-    /**
-     * Empty implementation required for inheritance.
-     * This functionality is only used in sibling classes.
-     */
-    @Override
-    void discardCard() {
-    }
-
     @Override
     protected boolean isGameInCorrectDrawPhase() {
         return gameSupplier.get().getCurrentTurn().isInfectionCardDrawExecutable();
@@ -151,7 +143,7 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawInfectionCardResponse(ReleaseToDrawInfectionCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackNumberOfCardsLabel.setDisable(false);
+            this.drawCardButton.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfInfectionCardsToDraw();
         }
     }
