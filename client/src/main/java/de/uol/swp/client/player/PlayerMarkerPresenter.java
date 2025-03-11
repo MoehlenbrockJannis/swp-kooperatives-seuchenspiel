@@ -7,11 +7,10 @@ import de.uol.swp.client.map.CityMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.action.simple.MoveAction;
 import de.uol.swp.common.action.simple.MoveAllyAction;
-import de.uol.swp.common.action.simple.MoveAllyToAllyAction;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.user.User;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -291,9 +290,7 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * @param fieldAndPlayerSelectionConsumer {@link BiConsumer} invoked when {@link #playerMarker} and a {@link Field} are clicked
      */
     public void setClickListenerForPlayerMarkerAndFields(final List<Field> availableFields, final BiConsumer<Field, Player> fieldAndPlayerSelectionConsumer) {
-        playerMarker.setOnMouseClicked(event -> {
-            prepareMap(availableFields, field -> fieldAndPlayerSelectionConsumer.accept(field, playerMarker.getPlayer()));
-        });
+        playerMarker.setOnMouseClicked(event -> prepareMap(availableFields, field -> fieldAndPlayerSelectionConsumer.accept(field, playerMarker.getPlayer())));
     }
 
     /**

@@ -4,7 +4,6 @@ import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
-import de.uol.swp.common.action.advanced.build_research_laboratory.ReducedCostBuildResearchLaboratoryAction;
 import de.uol.swp.common.card.event_card.GovernmentSubsidiesEventCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
@@ -68,9 +67,6 @@ public class ResearchLaboratoryMarkerPresenter extends AbstractPresenter {
         for (Action action : possibleActions) {
             if (action instanceof BuildResearchLaboratoryAction buildAction) {
                 processBuildResearchLaboratoryAction(buildAction);
-                return;
-            } else if (action instanceof ReducedCostBuildResearchLaboratoryAction reducedAction) {
-                processBuildResearchLaboratoryAction(reducedAction);
                 return;
             }
         }

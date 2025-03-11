@@ -2,11 +2,10 @@ package de.uol.swp.client.user;
 
 
 import de.uol.swp.client.EventBusBasedTest;
-import org.greenrobot.eventbus.Subscribe;
-
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.common.user.request.*;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +39,6 @@ public class UserServiceTest extends EventBusBasedTest {
         waitForLock();
     }
 
-    // handlers for events
     @Subscribe
     public void onEvent(LoginRequest e) {
         handleEvent(e);
@@ -82,7 +80,7 @@ public class UserServiceTest extends EventBusBasedTest {
     void loginTest() throws InterruptedException {
         loginUser();
 
-        assertTrue(event instanceof LoginRequest);
+        assertInstanceOf(LoginRequest.class, event);
 
         LoginRequest loginRequest = (LoginRequest) event;
         assertEquals(loginRequest.getUsername(), defaultUser.getUsername());
@@ -113,7 +111,7 @@ public class UserServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof LogoutRequest);
+        assertInstanceOf(LogoutRequest.class, event);
 
         LogoutRequest request = (LogoutRequest) event;
 
@@ -142,7 +140,7 @@ public class UserServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof RegisterUserRequest);
+        assertInstanceOf(RegisterUserRequest.class, event);
 
         RegisterUserRequest request = (RegisterUserRequest) event;
 
@@ -175,7 +173,7 @@ public class UserServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof UpdateUserRequest);
+        assertInstanceOf(UpdateUserRequest.class, event);
 
         UpdateUserRequest request = (UpdateUserRequest) event;
 
@@ -183,22 +181,6 @@ public class UserServiceTest extends EventBusBasedTest {
         assertEquals(request.getUser().getPassword(), defaultUser.getPassword());
         assertEquals(request.getUser().getEMail(), defaultUser.getEMail());
         assertTrue(request.authorizationNeeded());
-    }
-
-    /**
-     * Test for the dropUser routine
-     * <p>
-     * This test case has to be implemented after the respective dropUser method
-     * has been implemented
-     *
-     * @since 2019-10-10
-     */
-    @Test
-    void dropUserTest() {
-        UserService userService = new UserService(getBus());
-        userService.dropUser(defaultUser);
-
-        // TODO: Add when method is implemented
     }
 
     /**
@@ -219,7 +201,7 @@ public class UserServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof RetrieveAllOnlineUsersRequest);
+        assertInstanceOf(RetrieveAllOnlineUsersRequest.class, event);
     }
 
 

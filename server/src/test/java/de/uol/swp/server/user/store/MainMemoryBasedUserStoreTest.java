@@ -37,14 +37,11 @@ class MainMemoryBasedUserStoreTest {
 
     @Test
     void findUserByName() {
-        // arrange
         UserStore store = getDefaultStore();
         User userToCreate = getDefaultUsers().get(0);
 
-        // act
         Optional<User> userFound = store.findUser(userToCreate.getUsername());
 
-        // assert
         assertTrue(userFound.isPresent());
         assertEquals(userToCreate, userFound.get());
         assertEquals("",userFound.get().getPassword());

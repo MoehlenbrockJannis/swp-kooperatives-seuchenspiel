@@ -193,7 +193,7 @@ public class GamePresenter extends AbstractPresenter {
     public void initialize(final Stage stage, final Game game)  {
         setStage(stage, false);
         this.game = game;
-        final Supplier<Game> gameSupplier = () -> getGame();
+        final Supplier<Game> gameSupplier = this::getGame;
 
         stage.setTitle("Game: " + game.getLobby().getName());
 
@@ -344,15 +344,6 @@ public class GamePresenter extends AbstractPresenter {
 
         outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
         infectionMarkerPresenter.updateLevelIndicator(game.getInfectionMarker().getLevel());
-    }
-
-    /**
-     * Checks if the current turn is over
-     * @param game The game to check
-     * @return True if the turn is over, false otherwise
-     */
-    private boolean isTurnOver(Game game) {
-        return this.game.getCurrentTurn().isOver();
     }
 
     /**
@@ -598,7 +589,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void showConfirmationAlert(final String title, final String headerText, final String contentText, final Runnable acceptFunction, final Runnable rejectFunction) {
         Platform.runLater(() -> {
-            final Alert alert = createAlert(Alert.AlertType.CONFIRMATION, title, headerText, contentText);
+            final Alert alert = createAlert(title, headerText, contentText);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isEmpty()) {
@@ -616,14 +607,13 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Creates an alert with given parameters for {@link Alert.AlertType}, {@code title}, {@code headerText} and {@code contentText}.
      *
-     * @param alertType the type of the {@link Alert}
-     * @param title the title of the {@link Alert}
-     * @param headerText the header text of the {@link Alert}
+     * @param title       the title of the {@link Alert}
+     * @param headerText  the header text of the {@link Alert}
      * @param contentText the content text of the {@link Alert}
      * @return a new {@link Alert} with given parameters
      */
-    private Alert createAlert(final Alert.AlertType alertType, final String title, final String headerText, final String contentText) {
-        final Alert alert = new Alert(alertType);
+    private Alert createAlert(final String title, final String headerText, final String contentText) {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
@@ -663,7 +653,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the labels of all {@}.
+     * Updates the labels of all Components.
      * This method iterates through the list of remaining components presenters
      * and calls the updateLabel method on each presenter.
      */

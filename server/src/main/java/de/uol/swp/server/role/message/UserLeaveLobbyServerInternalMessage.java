@@ -1,7 +1,6 @@
 package de.uol.swp.server.role.message;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.user.User;
 import de.uol.swp.server.message.AbstractServerInternalMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

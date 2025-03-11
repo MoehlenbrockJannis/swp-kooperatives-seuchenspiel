@@ -81,7 +81,6 @@ class ReceiveCardActionTestNoLimitsTest extends ReceiveCardActionTest {
     void setUp() {
         super.setUp();
 
-        @SuppressWarnings("unchecked")
         final RoleAbility ability = new RoleAbility(
                 Map.of(
                         SendCardAction.class, NoLimitsSendCardAction.class

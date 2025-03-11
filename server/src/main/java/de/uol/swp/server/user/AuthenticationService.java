@@ -1,19 +1,16 @@
 package de.uol.swp.server.user;
 
-import de.uol.swp.common.message.Message;
-import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
-import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uol.swp.common.message.Message;
 import de.uol.swp.common.user.Session;
 import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.server_message.LogoutServerMessage;
 import de.uol.swp.common.user.request.LoginRequest;
 import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest;
+import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
+import de.uol.swp.common.user.server_message.LogoutServerMessage;
+import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.communication.UUIDSession;
 import de.uol.swp.server.message.ClientAuthorizedMessage;
@@ -21,6 +18,8 @@ import de.uol.swp.server.message.ServerExceptionMessage;
 import de.uol.swp.server.message.ServerInternalMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.security.auth.login.LoginException;
 import java.util.*;
@@ -93,7 +92,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles LoginRequests found on the EventBus
-     *
+     * <p>
      * If a LoginRequest is detected on the EventBus, this method is called. It
      * tries to login a user via the UserManagement. If this succeeds the user and
      * his Session are stored in the userSessions Map and a ClientAuthorizedMessage
@@ -128,7 +127,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles LogoutRequests found on the EventBus
-     *
+     * <p>
      * If a LogoutRequest is detected on the EventBus, this method is called. It
      * tries to logout a user via the UserManagement. If this succeeds the user and
      * his Session are removed from the userSessions Map and a UserLoggedOutMessage
@@ -169,7 +168,7 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Handles RetrieveAllOnlineUsersRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllOnlineUsersRequest is detected on the EventBus, this method
      * is called. It posts a AllOnlineUsersResponse containing user objects for
      * every logged in user on the EvenBus.

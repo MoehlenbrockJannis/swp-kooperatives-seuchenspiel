@@ -70,7 +70,7 @@ public class ChatService {
 
     /**
      * Retrieves the chat messages for a specific lobby.
-     *
+     * <p>
      * This method creates a RetrieveAllChatMessagesRequest with the lobby name and posts it to the EventBus.
      *
      * @param lobby The lobby for which to retrieve chat messages

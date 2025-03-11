@@ -3,17 +3,17 @@ package de.uol.swp.client.main_menu;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.SceneManager;
-import de.uol.swp.client.user.event.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyService;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
+import de.uol.swp.client.user.event.ShowLoginViewEvent;
 import de.uol.swp.common.user.UserContainerEntity;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
 import de.uol.swp.common.user.server_message.LoginServerMessage;
 import de.uol.swp.common.user.server_message.RetrieveAllOnlineUsersServerMessage;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -54,7 +54,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Returns 1000
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -89,7 +89,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Initializes the MainMenuPresenter
-     *
+     * <p>
      * This method initializes the MainMenuPresenter
      *
      */
@@ -101,7 +101,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles successful login
-     *
+     * <p>
      * If a LoginSuccessfulResponse is posted to the EventBus the loggedInUser
      * of this client is set to the one in the message received and the full
      * list of users currently logged in is requested.
@@ -117,7 +117,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles new logged in users
-     *
+     * <p>
      * If a new UserLoggedInMessage object is posted to the EventBus, the full
      * list of users currently logged in is requested.
      * Furthermore if the LOG-Level is set to DEBUG the message "New user {@literal
@@ -137,7 +137,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles new list of users
-     *
+     * <p>
      * If a new AllOnlineUsersResponse object is posted to the EventBus the names
      * of currently logged in users are put onto the user list in the main menu.
      * Furthermore if the LOG-Level is set to DEBUG the message "Update of user
@@ -192,7 +192,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Method called when the logout button is pressed
-     *
+     * <p>
      * This Method is called when the logout button is pressed. It calls the logout
      * function from the user service to log out the currently logged in user from the server.
      * After logging out the scence is changed to the login menu.
@@ -210,7 +210,7 @@ public class MainMenuPresenter extends AbstractPresenter {
 
     /**
      * Handles the event when the game instructions button is pressed.
-     *
+     * <p>
      * This method makes the game instructions panel visible in the UI, allowing
      * the user to view the game instructions.
      *

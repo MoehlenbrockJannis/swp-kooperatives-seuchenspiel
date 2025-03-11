@@ -17,8 +17,8 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
 import de.uol.swp.common.role.RoleColors;
+import de.uol.swp.common.triggerable.CurePlagueAutoTriggerable;
 import lombok.Getter;
 
 import java.util.*;
@@ -103,7 +103,7 @@ public class RoleManagement {
 
     /**
      * Assigns roles to players in a lobby.
-     *
+     * <p>
      * This method iterates through all players in the given lobby and assigns
      * a random, available role to each player who doesn't already have a role.
      *
@@ -122,7 +122,7 @@ public class RoleManagement {
 
     /**
      * Determines the available roles for a group of players.
-     *
+     * <p>
      * This method first identifies all roles that are already in use,
      * filters these out from the total set of all roles, and
      * returns a randomly shuffled list of the remaining roles.

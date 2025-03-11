@@ -280,6 +280,6 @@ class LobbyServiceTest {
         bus.post(request);
 
         verify(lobbyManagement, times(1)).getLobby(lobby);
-        verify(authService, times(1)).getSessions(eq(lobby.getUsers()));
+        verify(authService, times(1)).getSessions((lobby.getUsers()));
     }
 }

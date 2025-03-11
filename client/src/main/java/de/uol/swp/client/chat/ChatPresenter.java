@@ -150,7 +150,6 @@ public class ChatPresenter extends AbstractPresenter {
      * @since 2024-08-26
      */
     private void updateChat(List<String> chatMessages) {
-        // Attention: This must be done on the FX Thread!
         Platform.runLater(() -> {
             if (this.chatMessages == null) {
                 this.chatMessages = FXCollections.observableArrayList();
@@ -166,7 +165,7 @@ public class ChatPresenter extends AbstractPresenter {
     /**
      * Configures the chat view to wrap text
      * <p>
-     * Quelle: https://stackoverflow.com/questions/53493111/javafx-wrapping-text-in-listview
+     * Quelle: <a href="https://stackoverflow.com/questions/53493111/javafx-wrapping-text-in-listview">...</a>
      */
     private void configureChatViewTextWrapping(){
         chatView.setCellFactory(param -> new ListCell<>(){

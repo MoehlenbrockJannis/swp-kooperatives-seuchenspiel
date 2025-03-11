@@ -63,10 +63,9 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public User updateUser(User userToUpdate){
         Optional<User> user = userStore.findUser(userToUpdate.getUsername());
-        if (!user.isPresent()){
+        if (user.isEmpty()){
             throw new UserManagementException("Nutzername unbekannt!");
         }
-        // Only update if there are new values
         String newPassword = firstNotNull(userToUpdate.getPassword(), user.get().getPassword());
         String newEMail = firstNotNull(userToUpdate.getEMail(), user.get().getEMail());
         return userStore.updateUser(userToUpdate.getUsername(), HashUtil.hash(newPassword), newEMail);
@@ -76,7 +75,7 @@ public class UserManagement extends AbstractUserManagement {
     @Override
     public void dropUser(User userToDrop) {
         Optional<User> user = userStore.findUser(userToDrop.getUsername());
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new UserManagementException("Nutzername unbekannt!");
         }
         userStore.removeUser(userToDrop.getUsername());
@@ -85,7 +84,7 @@ public class UserManagement extends AbstractUserManagement {
 
     /**
      * Sub-function of update user
-     *
+     * <p>
      * This method is used to set the new user values to the old ones if the values
      * in the update request were empty.
      *

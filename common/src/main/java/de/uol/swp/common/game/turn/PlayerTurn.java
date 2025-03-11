@@ -406,7 +406,6 @@ public class PlayerTurn implements Serializable {
         if (this.playedCarrier) {
             throw new IllegalStateException("Carrier action has already been played.");
         }
-        // TODO: Actions müssen hier implementiert werden
         playedCarrier = true;
     }
 

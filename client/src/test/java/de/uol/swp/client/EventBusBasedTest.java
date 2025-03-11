@@ -14,7 +14,6 @@ public class EventBusBasedTest {
     private static final Logger LOG = LogManager.getLogger(EventBusBasedTest.class);
     private final CountDownLatch lock = new CountDownLatch(1);
 
-    // Special version of event bus for testing
     private final EventBus bus = EventBus.builder()
             .logNoSubscriberMessages(false)
             .sendNoSubscriberEvent(false)

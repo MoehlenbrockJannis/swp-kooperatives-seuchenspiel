@@ -1,5 +1,6 @@
 package de.uol.swp.common.game;
 
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.Field;
@@ -13,7 +14,6 @@ import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.role.RoleAbility;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.triggerable.Triggerable;
@@ -262,7 +262,7 @@ public class GameTest {
     @Test
     @DisplayName("Should increase infection level")
     void increaseInfectionLevelTest() {
-        assertThat(game.getInfectionMarker().getLevel()).isEqualTo(0);
+        assertThat(game.getInfectionMarker().getLevel()).isZero();
         game.increaseInfectionLevel();
         assertThat(game.getInfectionMarker().getLevel()).isEqualTo(1);
     }
