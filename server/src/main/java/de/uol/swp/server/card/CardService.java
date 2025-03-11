@@ -244,11 +244,7 @@ public class CardService extends AbstractService {
     private void processInfection(Game game, Field field, PlagueCube plagueCube, List<Field> infectedFields) {
         game.getMap().setOutbreakCallback((currentGame, outbreakField) -> sendOutbreakMessage(outbreakField, currentGame));
 
-        if (field.isInfectable(field.getPlague())) {
-            field.infectField(plagueCube, infectedFields);
-        } else {
-            game.getMap().startOutbreak(field, field.getPlague(), infectedFields);
-        }
+        field.infectField(plagueCube, infectedFields);
     }
 
     /**
