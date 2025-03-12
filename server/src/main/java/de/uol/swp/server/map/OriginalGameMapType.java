@@ -348,15 +348,4 @@ public final class OriginalGameMapType {
         return mapSlotList;
     }
 
-    /**
-     * Returns a set of all available MapSlots.
-     *
-     * @return a set containing all {@link MapSlot} objects
-     * @see MapSlot
-     * @author David Scheffler
-     * @since 2024-09-22
-     */
-    public Set<MapSlot> getAllMapSlots() {
-        return Set.copyOf(createMapSlotList());
-    }
 }

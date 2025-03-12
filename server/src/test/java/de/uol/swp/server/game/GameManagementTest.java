@@ -4,25 +4,28 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
+import de.uol.swp.common.game.GameEndReason;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
 import de.uol.swp.server.game.store.GameStore;
 import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
-import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.game.turn.PlayerTurnManagement;
+import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.role.RoleManagement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,6 +153,83 @@ public class GameManagementTest {
         gameManagement.updateGame(game);
         Game updatedGame = gameManagement.getGame(game).orElseThrow();
         assertThat(gameManagement.getGame(updatedGame)).contains(updatedGame);
+    }
+
+    @Test
+    @DisplayName("Draw a player card from the player draw stack")
+    void drawPlayerCardTest() {
+        Game game = createGame();
+        PlayerCard testPlayerCard = gameManagement.drawPlayerCard(game);
+
+        assertThat(testPlayerCard).isNotNull().isInstanceOf(PlayerCard.class);
+    }
+
+    @Test
+    @DisplayName("Remove a game from the list of managed games")
+    void removeGameTest() {
+        Game game = createGame();
+        gameManagement.removeGame(game);
+
+        assertThat(gameManagement.getGame(game)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Determines that the game is won")
+    void determineGameEndReasonWonTest() {
+        Game game = createGame();
+        game.setGameWon(true);
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.ALL_ANTIDOTES_DISCOVERED);
+    }
+
+    @Test
+    @DisplayName("Determines that the game has empty draw stack")
+    void determineGameEndReasonEmptyStackTest() {
+        Game game = createGame();
+        game.getPlayerDrawStack().clear();
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.NO_PLAYER_CARDS_LEFT);
+    }
+
+    @Test
+    @DisplayName("Determines that the game has max outbreaks")
+    void determineGameEndReasonMaxOutbreaksTest() {
+        Game game = createGame();
+        while (!game.getOutbreakMarker().isAtMaximumLevel()) {
+            game.startOutbreak();
+        }
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.MAX_OUTBREAKS_REACHED);
+    }
+
+    @Test
+    @DisplayName("Determines that the game has no plague cubes")
+    void determineGameEndReasonNoPlagueCubesTest() {
+        Game game = createGame();
+        game.getPlagueCubes().clear();
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.NO_PLAGUE_CUBES_LEFT);
+    }
+
+    private Game createGame() {
+        final PlayerTurn playerTurn = mock(PlayerTurn.class);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
+
+        Lobby lobby = new LobbyDTO("lobby", user1);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
+        when(playerTurnManagement.createPlayerTurn(any()))
+                .thenReturn(playerTurn);
+
+        return gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
     }
 
     @Test
