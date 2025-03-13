@@ -19,8 +19,6 @@ import org.greenrobot.eventbus.EventBus;
  * @since 2019-11-20
  *
  */
-
-
 public class LobbyService {
 
     private final EventBus eventBus;
@@ -35,8 +33,6 @@ public class LobbyService {
     @Inject
     public LobbyService(EventBus eventBus) {
         this.eventBus = eventBus;
-        // No @Subscribe, no need to register
-        // this.eventBus.register(this);
     }
 
     /**
@@ -68,7 +64,7 @@ public class LobbyService {
 
     /**
      * Sends a request to add a player to a lobby.
-     *
+     * <p>
      * This method creates a new {@link JoinPlayerLobbyRequest} with the provided lobby and player.
      * It then posts this request to the event bus, initiating the process of adding the player to
      * the specified lobby. The request will be handled by the relevant subscribers listening for

@@ -143,7 +143,6 @@ public class LobbyPresenter extends AbstractPresenter {
         Player player = lobby.getPlayerForUser(loggedInUserProvider.get());
         if (player != null && player.getRole() != null) {
             roleComboBox.setPromptText(player.getRole().getName());
-            roleComboBox.getSelectionModel().clearSelection();
         }
         roleService.sendRetrieveAllRolesRequest(lobby);
     }
@@ -176,7 +175,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllRolesResponse(RetrieveAllRolesResponse message) {
-        if (lobby.getId() == message.getLobby().getId()) {
+        if (lobby.equals(message.getLobby())) {
             Platform.runLater(() -> {
                 Set<RoleCard> roles = message.getRoleCardSet();
                 availableRoles = FXCollections.observableArrayList(roles);
@@ -192,14 +191,16 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllAvailableRolesServerMessage(RetrieveAllAvailableRolesServerMessage message) {
-        Platform.runLater(() -> {
-            Set<RoleCard> roles = message.getRoleCards();
-            availableRoles = FXCollections.observableArrayList(roles);
-            roleComboBox.setItems(availableRoles);
+        if(lobby.equals(message.getLobby())) {
+            Platform.runLater(() -> {
+                Set<RoleCard> roles = message.getRoleCards();
+                availableRoles.removeIf(roleCard -> !roleCard.equals(selectedRole));
+                availableRoles.addAll(roles);
 
-            final Runnable executable = () -> this.lobby = message.getLobby();
-            executeOnlyIfMessageIsForThisLobby(message, executable);
-        });
+                final Runnable executable = () -> this.lobby = message.getLobby();
+                executeOnlyIfMessageIsForThisLobby(message, executable);
+            });
+        }
     }
 
     /**
@@ -222,12 +223,13 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRoleAssignedResponse(RoleAssignmentResponse roleAssignedMessage) {
-        Platform.runLater(() -> {
-            if (roleAssignedMessage.isRoleAssigned()) {
-                roleComboBox.getSelectionModel().clearSelection();
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
-            }
-        });
+        if(lobby.equals(roleAssignedMessage.getLobby())) {
+            Platform.runLater(() -> {
+                if (roleAssignedMessage.isRoleAssigned()) {
+                    roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
+                }
+            });
+        }
     }
 
 
@@ -277,7 +279,7 @@ public class LobbyPresenter extends AbstractPresenter {
     private void disableControlsForNonOwners() {
         User currentUser = loggedInUserProvider.get();
         User lobbyOwner = this.lobby.getOwner();
-        boolean isOwner = currentUser.equals(lobbyOwner);
+        boolean isOwner = lobbyOwner.equals(currentUser);
 
         addAIButton.setDisable(!isOwner);
         difficultyComboBox.setDisable(!isOwner);

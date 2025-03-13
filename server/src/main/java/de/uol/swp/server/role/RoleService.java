@@ -92,11 +92,11 @@ public class RoleService extends AbstractService {
 
             message = new RoleAvailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true, lobby);
         } else {
             message = new RoleUnavailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false, lobby);
         }
 
         roleAssignedMessage.initWithMessage(roleAssignmentRequest);
@@ -111,7 +111,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Checks if a specific role card is available for assignment in a given lobby.
-     *
+     * <p>
      * This method iterates through all players in the lobby to determine if the
      * specified role card is already assigned to any player. The role is considered
      * available if no player currently holds it.
@@ -160,7 +160,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Retrieves the set of available role cards in a given lobby.
-     *
+     * <p>
      * This method determines which role cards are still available for assignment
      * by comparing all existing roles with those already assigned to players in the lobby.
      *
@@ -182,7 +182,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Handles the event when a user leaves a lobby, updating available roles.
-     *
+     * <p>
      * This method is triggered by a UserLeaveLobbyServerInternalMessage event.
      * It responds by sending updated available roles information to all clients in the affected lobby.
      *

@@ -1,7 +1,9 @@
 package de.uol.swp.client.game;
 
 import com.google.inject.Inject;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.uol.swp.client.AbstractPresenter;
+import de.uol.swp.client.SceneManager;
 import de.uol.swp.client.action.ActionService;
 import de.uol.swp.client.action.SelectCityCardsForAntidoteResearchPresenter;
 import de.uol.swp.client.action.ShareKnowledgeActionPresenter;
@@ -19,10 +21,7 @@ import de.uol.swp.client.player.PlayerMarker;
 import de.uol.swp.client.player.PlayerPanePresenter;
 import de.uol.swp.client.triggerable.TriggerableService;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.client.util.ColorService;
-import de.uol.swp.client.util.NodeBindingUtils;
-import de.uol.swp.client.util.ScalableSVGStackPane;
-import de.uol.swp.client.util.TooltipsUtil;
+import de.uol.swp.client.util.*;
 import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.advanced.build_research_laboratory.BuildResearchLaboratoryAction;
 import de.uol.swp.common.action.advanced.cure_plague.CurePlagueAction;
@@ -53,7 +52,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -67,6 +65,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon.COG;
+
 /**
  * Manages the game board window
  */
@@ -78,7 +78,7 @@ public class GamePresenter extends AbstractPresenter {
     private Pane settingsPane;
 
     @FXML
-    private ImageView settingsIcon;
+    private FontAwesomeIconView settingsIcon;
 
     @FXML
     private ContextMenu settingsContextMenu;
@@ -87,7 +87,7 @@ public class GamePresenter extends AbstractPresenter {
     private MenuItem instructionsMenuItem;
 
     @FXML
-    private MenuItem settingsMenuItem;
+    private GridPane gameInstructionsGridPane;
 
     @FXML
     private MenuItem leaveGameMenuItem;
@@ -178,11 +178,11 @@ public class GamePresenter extends AbstractPresenter {
     private static final double RESEARCH_LABORATORY_MARKER_SIZE = 0.7;
     private static final double PLAGUE_CUBE_MARKER_SIZE = 20.0;
 
-    private static final String SVG_PATH_PREFIX = "client/src/main/resources/images/action/";
-    private static final String RESEARCH_LAB_SVG = SVG_PATH_PREFIX + "addResearchLaboratory.svg";
-    private static final String CURE_PLAGUE_SVG = SVG_PATH_PREFIX + "curePlague.svg";
-    private static final String SHARE_KNOWLEDGE_SVG = SVG_PATH_PREFIX + "cards.svg";
-    private static final String WAIVE_SVG = SVG_PATH_PREFIX + "close.svg";
+    public static final String SVG_PATH_PREFIX_ACTION = "action/";
+    private static final String RESEARCH_LAB_SVG = SVG_PATH_PREFIX_ACTION + "addResearchLaboratory.svg";
+    private static final String CURE_PLAGUE_SVG = SVG_PATH_PREFIX_ACTION + "curePlague.svg";
+    private static final String SHARE_KNOWLEDGE_SVG = SVG_PATH_PREFIX_ACTION + "cards.svg";
+    private static final String WAIVE_SVG = SVG_PATH_PREFIX_ACTION + "close.svg";
     private static final Color DEFAULT_ACTION_COLOR = Color.BLACK;
     private static final Color WAIVE_ACTION_COLOR = Color.DARKRED;
 
@@ -196,7 +196,7 @@ public class GamePresenter extends AbstractPresenter {
     public void initialize(final Stage stage, final Game game)  {
         setStage(stage, false);
         this.game = game;
-        final Supplier<Game> gameSupplier = () -> getGame();
+        final Supplier<Game> gameSupplier = this::getGame;
 
         stage.setTitle("Game: " + game.getLobby().getName());
 
@@ -228,15 +228,10 @@ public class GamePresenter extends AbstractPresenter {
         );
         this.infectionCardsOverviewPresenter.setWindow(stage);
         this.associatedPresenters.add(this.infectionCardsOverviewPresenter);
+        this.scene.getStylesheets().add(SceneManager.GAME_INSTRUCTIONS_STYLE_SHEET);
 
-        settingsIcon.fitWidthProperty().bind(settingsPane.widthProperty());
-        settingsIcon.fitHeightProperty().bind(settingsPane.heightProperty());
+        initializeSettingsIcon();
 
-        settingsPane.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                settingsContextMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
-            }
-        });
         playerPanePresenterList = new ArrayList<>();
         addAllPlayers();
         initializeMenuItems();
@@ -253,6 +248,67 @@ public class GamePresenter extends AbstractPresenter {
         initializeInfectionMarkerPane();
         this.remainingComponentsPresenters = new ArrayList<>();
         setRemainingComponentsComponent();
+    }
+
+    /**
+     * Initializes the settings icon with default properties and event listeners.
+     */
+    private void initializeSettingsIcon() {
+        settingsIcon.setIcon(COG);
+        settingsIcon.setFill(Color.GRAY);
+        settingsIcon.setSize("24");
+        settingsIcon.getStyleClass().add("settings-icon");
+
+        addResizeListeners();
+        setupClickListener();
+
+        gameInstructionsGridPane.setVisible(false);
+    }
+
+    /**
+     * Adds listeners to update the icon size when the settings pane is resized.
+     */
+    private void addResizeListeners() {
+        settingsPane.widthProperty().addListener((obs, oldVal, newVal) -> updateIconSize());
+        settingsPane.heightProperty().addListener((obs, oldVal, newVal) -> updateIconSize());
+    }
+
+    /**
+     * Updates the settings icon size and adjusts its vertical position.
+     */
+    private void updateIconSize() {
+        double newWidth = settingsPane.getWidth();
+        double newHeight = settingsPane.getHeight();
+        double iconSize = Math.max(1, Math.min(newWidth, newHeight));
+
+        settingsIcon.setSize(String.valueOf(iconSize));
+        settingsIcon.setTranslateY(newHeight * 0.9);
+    }
+
+    /**
+     * Sets up the click listener to open the settings menu when clicking on the icon.
+     */
+    private void setupClickListener() {
+        settingsPane.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && isClickOnIcon(event.getX(), event.getY())) {
+                settingsContextMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
+            }
+        });
+    }
+
+    /**
+     * Checks if a given click position is within the settings icon area.
+     *
+     * @param clickX The X-coordinate of the click.
+     * @param clickY The Y-coordinate of the click.
+     * @return True if the click was on the icon, false otherwise.
+     */
+    private boolean isClickOnIcon(double clickX, double clickY) {
+        double iconX = settingsIcon.getLayoutX();
+        double iconY = settingsIcon.getLayoutY();
+        double iconSize = Double.parseDouble(settingsIcon.getSize());
+
+        return clickX >= iconX && clickX <= iconX + iconSize && clickY >= iconY && clickY <= iconY + iconSize;
     }
 
     /**
@@ -347,15 +403,6 @@ public class GamePresenter extends AbstractPresenter {
 
         outbreakMarkerPresenter.updateLevelIndicator(game.getOutbreakMarker().getLevel());
         infectionMarkerPresenter.updateLevelIndicator(game.getInfectionMarker().getLevel());
-    }
-
-    /**
-     * Checks if the current turn is over
-     * @param game The game to check
-     * @return True if the turn is over, false otherwise
-     */
-    private boolean isTurnOver(Game game) {
-        return this.game.getCurrentTurn().isOver();
     }
 
     /**
@@ -545,7 +592,6 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void initializeMenuItems() {
         instructionsMenuItem.setOnAction(event -> showGameInstructions());
-        settingsMenuItem.setOnAction(event -> showSettings());
         leaveGameMenuItem.setOnAction(event -> confirmAndLeaveGame());
     }
 
@@ -554,7 +600,7 @@ public class GamePresenter extends AbstractPresenter {
      * This method is called when the user selects the "Spielanleitung" option.
      */
     private void showGameInstructions() {
-        // TODO: Implement game instructions display logic
+        gameInstructionsGridPane.setVisible(true);
     }
 
     /**
@@ -574,18 +620,24 @@ public class GamePresenter extends AbstractPresenter {
                 "Spiel verlassen",
                 "Möchten Sie das Spiel wirklich verlassen?",
                 "Wenn Sie das Spiel verlassen, wird das Spiel-Fenster geschlossen.",
-                () -> {
-                    LeaveGameRequest leaveGameRequest = new LeaveGameRequest(
-                            game,
-                            game.getLobby().getPlayerForUser(loggedInUserProvider.get())
-                    );
-                    if (!game.isGameLost() && !game.isGameWon()) {
-                        eventBus.post(leaveGameRequest);
-                    }
-                    stage.close();
-                },
+                this::closeStageAndLeaveGame,
                 () -> {}
         );
+    }
+
+    /**
+     * Closes the {@link #stage} and leaves the {@link #game}.
+     */
+    private void closeStageAndLeaveGame() {
+        if (!game.isGameLost() && !game.isGameWon()) {
+            LeaveGameRequest leaveGameRequest = new LeaveGameRequest(
+                    game,
+                    game.getLobby().getPlayerForUser(loggedInUserProvider.get())
+            );
+            eventBus.post(leaveGameRequest);
+        }
+        stage.setOnCloseRequest(null);
+        stage.close();
     }
 
     /**
@@ -601,7 +653,7 @@ public class GamePresenter extends AbstractPresenter {
      */
     private void showConfirmationAlert(final String title, final String headerText, final String contentText, final Runnable acceptFunction, final Runnable rejectFunction) {
         Platform.runLater(() -> {
-            final Alert alert = createAlert(Alert.AlertType.CONFIRMATION, title, headerText, contentText);
+            final Alert alert = createAlert(title, headerText, contentText);
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isEmpty()) {
@@ -619,14 +671,13 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Creates an alert with given parameters for {@link Alert.AlertType}, {@code title}, {@code headerText} and {@code contentText}.
      *
-     * @param alertType the type of the {@link Alert}
-     * @param title the title of the {@link Alert}
-     * @param headerText the header text of the {@link Alert}
+     * @param title       the title of the {@link Alert}
+     * @param headerText  the header text of the {@link Alert}
      * @param contentText the content text of the {@link Alert}
      * @return a new {@link Alert} with given parameters
      */
-    private Alert createAlert(final Alert.AlertType alertType, final String title, final String headerText, final String contentText) {
-        final Alert alert = new Alert(alertType);
+    private Alert createAlert(final String title, final String headerText, final String contentText) {
+        final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
@@ -666,7 +717,7 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Updates the labels of all {@}.
+     * Updates the labels of all Components.
      * This method iterates through the list of remaining components presenters
      * and calls the updateLabel method on each presenter.
      */
@@ -855,7 +906,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param tooltipText The text for the tooltip
      */
     private void configureActionButton(Button button, String svgPath, Color color, String tooltipText) {
-        addSvgToButton(button, new File(svgPath), color);
+        addSvgToButton(button, FileLoader.readImageFile(svgPath), color);
         bindButtonToParentStackPane(button);
         addTooltipToButton(button, tooltipText);
     }
@@ -1158,7 +1209,7 @@ public class GamePresenter extends AbstractPresenter {
             Tooltip.install(button, tooltip);
 
             Color fillColor = ColorService.convertColorToJavaFXColor(plague.getColor());
-            File svgFile = new File("client/src/main/resources/images/action/flask.svg");
+            File svgFile = FileLoader.readImageFile(SVG_PATH_PREFIX_ACTION + "flask.svg");
             addSvgToButton(button, svgFile, fillColor);
 
             StackPane stackPane = new StackPane();
@@ -1182,7 +1233,7 @@ public class GamePresenter extends AbstractPresenter {
      * @param plague       The {@link Plague} associated with the given {@link ScalableSVGStackPane}.
      */
     private void addCheckMarkToScalableSVG(ScalableSVGStackPane svgStackPane, Plague plague) {
-        File svgFile = new File("client/src/main/resources/images/action/check.svg");
+        File svgFile = FileLoader.readImageFile(SVG_PATH_PREFIX_ACTION + "check.svg");
         ScalableSVGStackPane checkMarkSvgStackPane = new ScalableSVGStackPane(svgFile, 0, Color.GREEN);
         svgStackPane.getChildren().add(checkMarkSvgStackPane);
         checkMarkSvgStackPane.setVisible(false);

@@ -16,6 +16,7 @@ import java.time.LocalTime;
  * It is responsible for sending and retrieving chat messages, both in general and specific to lobbies.
  * The class interacts with the EventBus to dispatch requests and handle responses regarding chat actions.
  */
+
 public class ChatService {
 
     private final EventBus eventBus;

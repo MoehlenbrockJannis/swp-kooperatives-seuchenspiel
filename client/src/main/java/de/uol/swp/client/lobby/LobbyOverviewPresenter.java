@@ -369,9 +369,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onLobbyIsFullResponse(LobbyIsFullResponse response) {
-        Platform.runLater(() -> {
-            showLobbyJoinAlert(LobbyStatus.FULL);
-        });
+        Platform.runLater(() -> showLobbyJoinAlert(LobbyStatus.FULL));
     }
 
     /**
@@ -389,9 +387,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onLobbyNotJoinableResponse(LobbyNotJoinableResponse response) {
-        Platform.runLater(() -> {
-            showLobbyJoinAlert(response.getStatus());
-        });
+        Platform.runLater(() -> showLobbyJoinAlert(response.getStatus()));
     }
 
     /**

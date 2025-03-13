@@ -43,20 +43,8 @@ public interface ClientUserService {
     void createUser(User user);
 
     /**
-     * Removes a user from the sore
-     *
-     * Remove the User specified by the User object.
-     *
-     * @implNote the User Object has to contain a unique identifier in order to
-     * 			 remove the correct user
-     * @param user The user to remove
-     * @since 2019-10-10
-     */
-    void dropUser(User user);
-
-    /**
      * Update a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
      * @implNote the User Object has to contain a unique identifier in order to

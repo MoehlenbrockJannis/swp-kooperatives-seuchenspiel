@@ -52,7 +52,7 @@ public class UserDTO implements User {
 
     /**
      * Copy constructor leaving password variable empty
-     *
+     * <p>
      * This constructor is used for the user list, because it would be a major security
      * flaw to send all user data including passwords to everyone connected.
      *

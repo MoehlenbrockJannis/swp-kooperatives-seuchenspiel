@@ -7,7 +7,6 @@ import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
-import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
@@ -39,25 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-/**
- * This class contains unit tests for the PlayerTurn class.
- * It sets up a testing environment by initializing instances and mocks required for the tests.
- * The setup includes:
- * - defaultUser with the name "Joerg", ID "333", and email "Joerg@mail.com"
- * - defaultPlayer as a UserPlayer instance based on the defaultUser
- * - defaultGame as a mocked Game instance
- * - numberOfActionsToDo set to 4
- * - numberOfPlayerCardsToDraw set to 2
- * - defaultPlayerTurn as a PlayerTurn instance using the defaultGame, defaultPlayer,
- *   numberOfActionsToDo, and numberOfPlayerCardsToDraw
- * - command as a mocked Command instance
- *
- * The class tests various methods of the PlayerTurn class to ensure correct behavior.
- * Each test case ensures that the methods in PlayerTurn work as expected under different conditions.
- *
- * @see PlayerTurn
- * @since 2024-09-18
- */
 class PlayerTurnTest {
     private User defaultUser;
     private User defaultUser2;
@@ -74,24 +54,7 @@ class PlayerTurnTest {
     private Command command;
     private GameDifficulty difficulty;
 
-    /**
-     * This method is executed before each test case.
-     * It initializes the test environment by setting up instances and mocks required for the tests.
-     * Specifically, it sets up:
-     * - defaultUser with the name "Joerg", ID "333", and email "Joerg@mail.com"
-     * - defaultPlayer as a UserPlayer instance based on the defaultUser
-     * - defaultGame as a mocked Game instance
-     * - numberOfActionsToDo set to 4
-     * - numberOfPlayerCardsToDraw set to 2
-     * - defaultPlayerTurn as a PlayerTurn instance using the defaultGame, defaultPlayer,
-     *   numberOfActionsToDo, and numberOfPlayerCardsToDraw
-     * - command as a mocked Command instance
-     *
-     * This setup ensures that each test starts with a consistent and predefined state,
-     * and provides the necessary mocks and objects for testing.
-     *
-     * @since 2024-09-18
-     */
+
     @BeforeEach
     public void setUp() {
         this.defaultUser = new UserDTO("Joerg", "333", "Joerg@mail.com");
@@ -152,12 +115,6 @@ class PlayerTurnTest {
                 .isEqualTo(numberOfInfectionCardsToDraw - 1);
     }
 
-    @Test
-    @DisplayName("")
-    void getNextAutoTriggerable() {
-        // TODO: 17.09.2024
-    }
-
     
     @Test
     @DisplayName("Should return false if there is no next auto triggerable to check, true otherwise")
@@ -166,12 +123,6 @@ class PlayerTurnTest {
                 .anyMatch(AutoTriggerable.class::isInstance);
 
         assertThat(this.defaultPlayerTurn.hasNextAutoTriggerable()).isEqualTo(isAutoTriggerableInGame);
-    }
-
-    @Test
-    @DisplayName("")
-    void getNextManualTriggerable() {
-        // TODO: 17.09.2024
     }
 
     @Test
@@ -275,20 +226,6 @@ class PlayerTurnTest {
         }
     }
 
-    @Test
-    @DisplayName("")
-    void testDrawPlayerCards() {
-        // TODO: 18.09.2024  
-    }
-
-    /**
-     * This test verifies that the playCarrier method correctly handles the case
-     * when the carrier action has already been played.
-     * It first calls playCarrier on the defaultPlayerTurn, then verifies that calling
-     * playCarrier again throws an IllegalStateException with the expected message.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Should throw exception if carrier has already been played")
     void playCarrier() {

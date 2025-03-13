@@ -5,6 +5,8 @@ import de.uol.swp.common.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.io.Serial;
+
 /**
  * A message to indicate a newly logged in user
  *
@@ -17,6 +19,7 @@ import lombok.Getter;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class LoginServerMessage extends AbstractServerMessage {
+	@Serial
 	private static final long serialVersionUID = -2071886836547126480L;
 
 	private final User user;

@@ -17,7 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @DisplayName("LobbyService Test")
 public class LobbyServiceTest extends EventBusBasedTest {
@@ -108,7 +109,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof KickPlayerLobbyRequest);
+        assertInstanceOf(KickPlayerLobbyRequest.class, event);
 
         final KickPlayerLobbyRequest kickUserRequest = (KickPlayerLobbyRequest) event;
         assertEquals(kickUserRequest.getLobby(), lobby);
@@ -159,7 +160,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         final DifficultyUpdateRequest difficultyUpdateRequest = (DifficultyUpdateRequest) event;
         assertEquals(difficultyUpdateRequest.getLobby(), lobby);
-        assertEquals(difficultyUpdateRequest.getDifficulty(), GameDifficulty.HARD);
+        assertEquals(GameDifficulty.HARD, difficultyUpdateRequest.getDifficulty());
     }
 
     @Subscribe

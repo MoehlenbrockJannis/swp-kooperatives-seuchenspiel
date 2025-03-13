@@ -8,7 +8,9 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.server_message.JoinUserLobbyServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.lobby.store.LobbyStore;
 import de.uol.swp.server.lobby.store.MainMemoryBasedLobbyStore;
 import de.uol.swp.server.user.AuthenticationService;
@@ -21,8 +23,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -280,6 +284,34 @@ class LobbyServiceTest {
         bus.post(request);
 
         verify(lobbyManagement, times(1)).getLobby(lobby);
-        verify(authService, times(1)).getSessions(eq(lobby.getUsers()));
+        verify(authService, times(1)).getSessions((lobby.getUsers()));
+    }
+
+    @Test
+    @DisplayName("Should leave lobbies with the user")
+    void onLogoutRequest() {
+        assertThat(lobby.getUsers())
+                .contains(firstOwner);
+
+        final User tempUser = new UserDTO("user", "", "");
+
+        lobby.setId(1);
+        lobby.joinUser(tempUser);
+
+        final Lobby secondLobby = new LobbyDTO("second", secondOwner);
+        secondLobby.setId(2);
+        secondLobby.joinUser(tempUser);
+
+        final List<Lobby> lobbies = List.of(lobby, secondLobby);
+        when(lobbyStore.getAllLobbies())
+                .thenReturn(lobbies);
+        when(lobbyStore.getLobby(anyInt()))
+                .thenAnswer(invocationOnMock -> lobbies.stream().filter(l -> invocationOnMock.getArgument(0).equals(l.getId())).findFirst());
+
+        final LogoutRequest logoutRequest = new LogoutRequest(firstOwner);
+        bus.post(logoutRequest);
+
+        assertThat(lobby.getUsers())
+                .doesNotContain(firstOwner);
     }
 }

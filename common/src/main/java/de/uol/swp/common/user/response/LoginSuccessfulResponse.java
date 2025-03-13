@@ -5,6 +5,8 @@ import de.uol.swp.common.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.io.Serial;
+
 /**
  * A message containing the session (typically for a new logged in user)
  *
@@ -18,6 +20,7 @@ import lombok.Getter;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class LoginSuccessfulResponse extends AbstractResponseMessage {
+    @Serial
     private static final long serialVersionUID = -9107206137706636541L;
 
     private final User user;

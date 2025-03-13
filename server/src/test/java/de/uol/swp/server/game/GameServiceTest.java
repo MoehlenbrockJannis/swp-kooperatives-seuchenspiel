@@ -2,7 +2,9 @@ package de.uol.swp.server.game;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.GameDifficulty;
+import de.uol.swp.common.game.GameEndReason;
 import de.uol.swp.common.game.request.CreateGameRequest;
+import de.uol.swp.common.game.request.LeaveGameRequest;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
@@ -12,8 +14,11 @@ import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.EventBusBasedTest;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.communication.AISession;
+import de.uol.swp.server.game.message.GameStateChangedInternalMessage;
 import de.uol.swp.server.lobby.LobbyService;
 import de.uol.swp.server.player.PlayerManagement;
 import org.greenrobot.eventbus.EventBus;
@@ -28,6 +33,8 @@ import java.util.Optional;
 
 import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class GameServiceTest extends EventBusBasedTest {
@@ -40,6 +47,7 @@ public class GameServiceTest extends EventBusBasedTest {
     private Lobby lobby;
     private MapType mapType;
     private List<Plague> plagues;
+    private User user;
     private AIPlayer aiPlayer;
     private GameDifficulty difficulty;
 
@@ -53,7 +61,7 @@ public class GameServiceTest extends EventBusBasedTest {
 
         gameService = new GameService(eventBus, gameManagement, lobbyService, playerManagement);
 
-        final User user = new UserDTO("user", "pass", "");
+        user = new UserDTO("user", "pass", "");
         lobby = new LobbyDTO("lobby", user);
 
         final User user2 = new UserDTO("user2", "pass2", "user2");
@@ -132,6 +140,30 @@ public class GameServiceTest extends EventBusBasedTest {
                 .isEmpty();
     }
 
+    @Test
+    @DisplayName("Should react to a leave game request and post a GameStateChangedInternalMessage")
+    void onLeaveGameRequestTest() throws InterruptedException {
+        assertFalse(game.isGameLost());
+
+        LeaveGameRequest request = new LeaveGameRequest(game, aiPlayer);
+        postAndWait(request);
+
+        assertThat(this.event)
+                .isInstanceOf(SystemLobbyMessageServerInternalMessage.class);
+
+        assertTrue(game.isGameLost());
+    }
+
+    @Test
+    @DisplayName("Should react to a game state change and post a GameStateChangedInternalMessage")
+    void onGameStateChangedTest() throws InterruptedException {
+        GameStateChangedInternalMessage gameStateChangedInternalMessage = new GameStateChangedInternalMessage(game, GameEndReason.PLAYER_LEFT_GAME);
+        postAndWait(gameStateChangedInternalMessage);
+
+        assertThat(this.event)
+                .isInstanceOf(GameStateChangedInternalMessage.class);
+    }
+
     @Subscribe
     public void onEvent(final CreateGameServerMessage createGameServerMessage) {
         handleEvent(createGameServerMessage);
@@ -140,5 +172,31 @@ public class GameServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         handleEvent(retrieveUpdatedGameServerMessage);
+    }
+
+    @Subscribe
+    public void onEvent(final GameStateChangedInternalMessage gameStateChangedInternalMessage) {
+        handleEvent(gameStateChangedInternalMessage);
+    }
+
+    @Subscribe
+    public void onEvent(final SystemLobbyMessageServerInternalMessage systemLobbyMessageServerInternalMessage) {
+        handleEvent(systemLobbyMessageServerInternalMessage);
+    }
+
+    @Test
+    @DisplayName("Should make user leave game and lose it on logout")
+    void onLogoutRequest() {
+        assertThat(game.isGameLost())
+                .isFalse();
+
+        when(gameManagement.findAllGames())
+                .thenReturn(List.of(game));
+
+        final LogoutRequest logoutRequest = new LogoutRequest(user);
+        post(logoutRequest);
+
+        assertThat(game.isGameLost())
+                .isTrue();
     }
 }

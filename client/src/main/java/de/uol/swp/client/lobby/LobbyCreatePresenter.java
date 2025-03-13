@@ -35,13 +35,11 @@ public class LobbyCreatePresenter extends AbstractPresenter {
         final String lobbyName = lobbyNameField.getText();
 
         if (lobbyName.isEmpty()) {
-            // TODO: throw exception and show error message
             return;
         }
 
         final User loggedInUser = loggedInUserProvider.get();
         if (loggedInUser == null) {
-            // TODO: throw exception and show error message
             return;
         }
 
@@ -51,7 +49,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
 
     /**
      * Clears the input fields
-     *
+     * <p>
      * Clears the input fields of the lobby name and password fields.
      *
      */
@@ -72,7 +70,7 @@ public class LobbyCreatePresenter extends AbstractPresenter {
 
     /**
      * Handles LobbyCreatedResponse detected on the EventBus
-     *
+     * <p>
      * If a {@link CreateLobbyResponse} is detected on the EventBus, this method gets
      * called. It posts a {@link ShowLobbyViewEvent} to the EventBus.
      *

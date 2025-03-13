@@ -10,12 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Test for the user left lobby message
- *
- * @see LeavePlayerLobbyServerMessage
- * @since 2023-05-14
- */
 @DisplayName("UserLeftLobbyMessage Test")
 class LeavePlayerLobbyServerMessageTest {
 
@@ -30,14 +24,6 @@ class LeavePlayerLobbyServerMessageTest {
         this.player = new UserPlayer(this.user);
     }
 
-    /**
-     * Test for creation of the UserLeftLobbyMessages
-     *
-     * This test checks if the lobbyName and the user of the UserLeftLobbyServerMessage gets
-     * set correctly during the creation of the message
-     *
-     * @since 2023-05-14
-     */
     @Test
     @DisplayName("Create UserLeftLobbyServerMessage")
     void createUserLeftLobbyMessage() {

@@ -111,6 +111,15 @@ public class GameMap implements Serializable {
     }
 
     /**
+     * Adds given {@link PlagueCube} back to {@link #game}
+     *
+     * @param plagueCube {@link PlagueCube} to add to {@link #game}
+     */
+    public void addPlagueCube(final PlagueCube plagueCube) {
+        game.addPlagueCube(plagueCube);
+    }
+
+    /**
      * Starts an outbreak chain on the given field with the specified plague.
      * This is the entry point for outbreak handling.
      *

@@ -16,7 +16,7 @@ public class InfectionMarker extends LevelableMarker{
 
     /**
      * Constructor for the InfectionMarker.
-     *
+     * <p>
      * Initializes the InfectionMarker with a list of level values, representing
      * different stages or levels of infection.
      *

@@ -2,12 +2,6 @@ package de.uol.swp.common;
 
 import java.io.*;
 
-/**
- * Helper class to test if an object is serializable
- * <p>
- * https://stackoverflow.com/questions/3840356/how-to-test-in-java-that-a-class-implements-serializable-correctly-not-just-is
- */
-
 public class SerializationTestHelper {
 
     public static <T extends Serializable> byte[] pickle(T obj)

@@ -19,17 +19,15 @@ import de.uol.swp.common.card.stack.CardStack;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.game.request.AbstractGameRequest;
 import de.uol.swp.common.game.server_message.RetrieveUpdatedGameServerMessage;
+import de.uol.swp.common.game.turn.PlayerTurn;
+import de.uol.swp.common.game.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.message.Message;
 import de.uol.swp.common.message.response.AbstractGameResponse;
-import de.uol.swp.common.plague.PlagueCube;
-import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.game.turn.PlayerTurn;
-import de.uol.swp.common.game.turn.request.EndPlayerTurnRequest;
 import de.uol.swp.common.triggerable.Triggerable;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
@@ -246,11 +244,7 @@ public class CardService extends AbstractService {
     private void processInfection(Game game, Field field, PlagueCube plagueCube, List<Field> infectedFields) {
         game.getMap().setOutbreakCallback((currentGame, outbreakField) -> sendOutbreakMessage(outbreakField, currentGame));
 
-        if (field.isInfectable(field.getPlague())) {
-            field.infectField(plagueCube, infectedFields);
-        } else {
-            game.getMap().startOutbreak(field, field.getPlague(), infectedFields);
-        }
+        field.infectField(plagueCube, infectedFields);
     }
 
     /**
@@ -385,6 +379,11 @@ public class CardService extends AbstractService {
         playerTurn.setAreInteractionsBlocked(false);
 
         if (game.isGameLost() || game.isGameWon()) {
+            sendGameUpdateMessage(game);
+            return;
+        }
+
+        if (!game.getCurrentPlayer().equals(player)) {
             sendGameUpdateMessage(game);
             return;
         }

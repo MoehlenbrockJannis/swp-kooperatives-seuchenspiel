@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+
 /**
  * A request send from client to server, trying to log in with
  * username and password
@@ -18,6 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LoginRequest extends AbstractRequestMessage {
+	@Serial
 	private static final long serialVersionUID = 7793454958390539421L;
 
 	private String username;

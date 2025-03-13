@@ -12,6 +12,7 @@ import de.uol.swp.common.message.server_message.ServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.request.LogoutRequest;
 import de.uol.swp.server.AbstractService;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import de.uol.swp.server.role.message.UserLeaveLobbyServerInternalMessage;
@@ -19,6 +20,7 @@ import de.uol.swp.server.user.AuthenticationService;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -54,7 +56,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles CreateLobbyRequests found on the EventBus
-     *
+     * <p>
      * If a CreateLobbyRequest is detected on the EventBus, this method is called.
      * It creates a new Lobby via the LobbyManagement using the parameters from the
      * request and sends a LobbyCreatedServerMessage to every connected user
@@ -75,7 +77,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles LobbyJoinUserRequests found on the EventBus
-     *
+     * <p>
      * If a LobbyJoinUserRequest is detected on the EventBus, this method is called.
      * It adds a user to a Lobby stored in the LobbyManagement and sends a UserJoinedLobbyServerMessage
      * to every user in the lobby.
@@ -90,7 +92,6 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinUserRequest.getLobby());
 
         if (lobbyOptional.isEmpty()) {
-            // TODO: error handling not existing lobby
             return;
         }
 
@@ -98,7 +99,6 @@ public class LobbyService extends AbstractService {
         final User user = lobbyJoinUserRequest.getUser();
 
         if (user == null) {
-            // TODO: error handling not existing user
             return;
         }
 
@@ -151,7 +151,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles JoinPlayerLobbyRequests found on the EventBus.
-     *
+     * <p>
      * When a JoinPlayerLobbyRequest is detected on the EventBus, this method is called.
      * It attempts to retrieve the lobby associated with the request. If the lobby does not exist,
      * appropriate error handling should be implemented. If the lobby exists, the specified player
@@ -169,7 +169,6 @@ public class LobbyService extends AbstractService {
         Optional<Lobby> lobbyOptional = lobbyManagement.getLobby(lobbyJoinPlayerRequest.getLobby());
 
         if (lobbyOptional.isEmpty()) {
-            // TODO: error handling not existing lobby
             return;
         }
 
@@ -183,12 +182,30 @@ public class LobbyService extends AbstractService {
     }
 
     /**
-     * Handles LobbyLeaveUserRequests found on the EventBus.
+     * Leaves all lobbies when a user logs out.
      *
+     * @param logoutRequest {@link LogoutRequest} by a user
+     */
+    @Subscribe
+    public void onLogoutRequest(final LogoutRequest logoutRequest) {
+        final List<Lobby> lobbies = lobbyManagement.getAllLobbies();
+        for (final Lobby lobby : lobbies) {
+            final Player userPlayer = lobby.getPlayerForUser(logoutRequest.getUser());
+            if (userPlayer != null) {
+                final LeavePlayerLobbyRequest leavePlayerLobbyRequest = new LeavePlayerLobbyRequest(lobby, userPlayer);
+                leavePlayerLobbyRequest.initWithMessage(logoutRequest);
+                onLobbyLeaveUserRequest(leavePlayerLobbyRequest);
+            }
+        }
+    }
+
+    /**
+     * Handles LobbyLeaveUserRequests found on the EventBus.
+     * <p>
      * When a LobbyLeaveUserRequest is detected on the EventBus, this method is triggered.
      * It removes a user from the specified Lobby stored in the LobbyManagement and sends a
      * LobbyLeaveUserServerMessage to notify all users in the lobby that someone has left.
-     *
+     * <p>
      * The method checks if the lobby exists and processes the user leaving if the lobby is found.
      * If the lobby does not exist, error handling is required.
      *
@@ -204,17 +221,16 @@ public class LobbyService extends AbstractService {
             final AbstractPlayerLobbyServerMessage message = new LeavePlayerLobbyServerMessage(lobby, lobbyLeaveUserRequest.getPlayer());
             sendToAllInLobby(lobby, message);
         });
-        // TODO: error handling not existing lobby
     }
 
     /**
      * Handles LobbyKickUserRequests found on the EventBus.
-     *
+     * <p>
      * When a LobbyKickUserRequest is detected on the EventBus, this method is triggered.
      * It removes the specified user from the Lobby stored in the LobbyManagement and
      * sends a LobbyKickUserServerMessage to notify all users in the lobby that the user
      * has been kicked.
-     *
+     * <p>
      * The method verifies that the lobby exists and, if found, processes the user kick
      * and performs further handling such as notifying all users in the lobby. If the
      * lobby does not exist, error handling is needed.
@@ -231,17 +247,16 @@ public class LobbyService extends AbstractService {
             final AbstractPlayerLobbyServerMessage message = new KickPlayerLobbyServerMessage(lobby, lobbyKickPlayerRequest.getPlayer());
             sendToAllInLobby(lobbyKickPlayerRequest.getLobby(), message);
         });
-        // TODO: error handling not existing lobby
     }
 
     /**
      * Handles the process of a player leaving or being removed from a lobby.
-     *
+     * <p>
      * This method checks if the lobby exists and contains only one user. If so, it triggers the lobby
      * to be dropped by the LobbyManagement and sends a LobbyDroppedServerInternalMessage
      * to notify the system that the lobby has been closed. If there are more users, the method
      * removes the specified user from the lobby.
-     *
+     * <p>
      * Additionally, a callback function is invoked with the updated lobby after processing.
      * This method is used in both user-leave and user-kick scenarios.
      *
@@ -278,7 +293,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Checks if a player is not in the specified lobby.
-     *
+     * <p>
      * This method verifies whether the given player is absent from the specified
      * lobby's list of players.
      *
@@ -293,7 +308,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Determines if the specified lobby can be dropped.
-     *
+     * <p>
      * This method checks whether the lobby can be removed based on the number of players
      * currently in the lobby.
      *
@@ -308,7 +323,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Checks if the specified lobby contains exactly one UserPlayer.
-     *
+     * <p>
      * This method iterates through the players in the given lobby and counts how many of them
      * are instances of UserPlayer. It returns true if there is exactly one UserPlayer in the lobby,
      * and false otherwise.
@@ -341,8 +356,6 @@ public class LobbyService extends AbstractService {
             message.setReceiver(authenticationService.getSessions(lobby.getUsers()));
             post(message);
         }
-
-        // TODO: error handling not existing lobby
     }
 
     /**
@@ -395,7 +408,7 @@ public class LobbyService extends AbstractService {
 
     /**
      * Handles DifficultyUpdateRequests found on the EventBus
-     *
+     * <p>
      * When a DifficultyUpdateRequest is detected on the EventBus, this method updates
      * the difficulty setting in the specified lobby and broadcasts the change to all
      * users in that lobby.

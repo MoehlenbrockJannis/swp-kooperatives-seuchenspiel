@@ -79,8 +79,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
      * </p>
      *
      */
-    @Override
-    void discardCard() {
+    private void discardCard() {
         Player currentPlayer = this.gameSupplier.get().getLobby().getPlayerForUser(loggedInUserProvider.get());
         Card selectedCard = createDiscardDialog(currentPlayer);
         if (selectedCard != null) {
@@ -130,7 +129,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawPlayerCardResponse(ReleaseToDrawPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackNumberOfCardsLabel.setDisable(false);
+            this.drawCardButton.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfPlayerCardsToDraw();
         }
     }
@@ -148,7 +147,7 @@ public class PlayerCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDiscardPlayerCardResponse(ReleaseToDiscardPlayerCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackNumberOfCardsLabel.setDisable(true);
+            this.drawCardButton.setDisable(true);
             this.numberOfCardsToDiscard = response.getNumberOfCardsToDiscard();
 
             Platform.runLater(this::discardCard);

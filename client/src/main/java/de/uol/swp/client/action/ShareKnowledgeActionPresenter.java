@@ -203,16 +203,14 @@ public class ShareKnowledgeActionPresenter extends AbstractPresenter {
      * @param <T> type of the given {@code listView}
      */
     private <T> void setClickListenerToListViewWithItemSelectionCheck(final ListView<T> listView, final Consumer<T> selected, final Runnable unselected) {
-        Platform.runLater(() -> {
-            listView.setOnMouseClicked(event -> {
-                final T t = listView.getSelectionModel().getSelectedItem();
-                if (t != null) {
-                    selected.accept(t);
-                } else {
-                    unselected.run();
-                }
-            });
-        });
+        Platform.runLater(() -> listView.setOnMouseClicked(event -> {
+            final T t = listView.getSelectionModel().getSelectedItem();
+            if (t != null) {
+                selected.accept(t);
+            } else {
+                unselected.run();
+            }
+        }));
     }
 
     /**

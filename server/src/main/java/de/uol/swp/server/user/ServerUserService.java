@@ -55,7 +55,7 @@ public interface ServerUserService {
 
     /**
      * Removes a user from the sore
-     *
+     * <p>
      * Remove the User specified by the User object.
      *
      * @implNote the User Object has to contain a unique identifier in order to
@@ -67,7 +67,7 @@ public interface ServerUserService {
 
     /**
      * Update a user
-     *
+     * <p>
      * Updates the User specified by the User object.
      *
      * @implNote the User Object has to contain a unique identifier in order to

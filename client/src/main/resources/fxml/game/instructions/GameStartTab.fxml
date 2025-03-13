@@ -3,41 +3,80 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<Tab closable="false" text="Spielstart">
+<Tab closable="false" text="Spielstart" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="de.uol.swp.client.game.instructions.GameStartTabPresenter">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" styleClass="tab-vbox">
+        <VBox spacing="10">
             <TextFlow>
-                <Text text="1. Zunächst erhält jeder Spieler eine Rolle, wobei die Rolle zufällig zugeteilt oder selbst ausgewählt werden kann."/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="2. Beim Start des Spiels ist bereits ein Forschungslabor in Atlanta vorhanden und alle Spieler befinden sich beim Start in Atlanta."/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="3. Der Ausbruchsmarker befindet sich auf der Position 0 und die Infektionsmarke ist auf dem ersten Feld welches den Wert 2 hat."/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="4. Je nach Spieleranzahl erhält jeder Spieler folgende Anzahl an Karten:"/>
-                <Text text="&#10;"/>
-                <Text text="    4 Mitspieler: je 2 Karten"/>
-                <Text text="&#10;"/>
-                <Text text="    3 Mitspieler: je 3 Karten"/>
-                <Text text="&#10;"/>
-                <Text text="    2 Mitspieler: je 4 Karten"/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="5. Je nach gewähltem Schwierigkeitsgrad befinden sich 4 bis 6 Epidemiekarten im Spieler-Zugstapel."/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="6. Zuletzt zieht das Spiel 9 Infektionskarten vom Infektions-Zugstapel und plaziert in den dazugehörigen Städten Seuchenwürfel. Dabei werden für die ersten 3 Karten 3 Würfel pro Stadt platziert, für die nächsten 3 Karten werden jeweils 2 Würfel platziert und für die letzen 3 Karten wird jeweils 1 Würfel platziert."/>
-                <Text text="&#10;"/>
-                <Text text="&#10;"/>
-                <Text text="Nachdem diese Schritte durchgeführt wurden, kann das Spiel beginnen und der erste Spieler fängt mit seinem Spielzug an."/>
+                <Text styleClass="tab-h1" text="Spielstart"/>
             </TextFlow>
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <StackPane fx:id="playerCardStackPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Am Anfang des Spiels sind alle Spielfiguren in Atlanta. Dort existiert ein Forschungslabor. Jeder Spieler steuert die Spielfigur mit der Farbe seiner Rolle. Falls er in der Lobby keine Rolle gewählt hat, wird ihm zufällig eine zugewiesen. Der Ausbruchszähler startet bei 0 Ausbrüchen. Der Infektionszähler startet bei einer Infektionsrate von 2."/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Der Spieler-Zugstapel wird ohne die Epidemiekarten gemischt. In Abhängigkeit von der Anzahl der Spieler erhält jeder Spieler die gleiche Anzahl an Handkarten:"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text" text="-  2 Spieler: 4 Karten pro Spieler"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text" text="-  3 Spieler: 3 Karten pro Spieler"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text" text="-  4 Spieler: 2 Karten pro Spieler"/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <StackPane fx:id="infectionCardStackPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Danach werden Seuchenwürfel nach folgendem Schema auf dem Spielbrett verteilt:"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text"
+                              text="(1)  3 Karten vom Infektionskartenzugstapel ziehen, pro gezogener Karte 3 Seuchenwürfel der zugehörigen Farbe in abgebildete Stadt"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text"
+                              text="(2)  3 Karten vom Infektionskartenzugstapel ziehen, pro gezogener Karte 2 Seuchenwürfel der zugehörigen Farbe in abgebildete Stadt"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-padding: 0 0 0 20;">
+                        <Text styleClass="tab-text"
+                              text="(3)  3 Karten vom Infektionskartenzugstapel ziehen, pro gezogener Karte 1 Seuchenwürfel der zugehörigen Farbe in abgebildete Stadt"/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Alle gezogenen Infektionskarten werden dann in der Reihenfolge, in gezogen wurden, auf den Infektionskartenablagestapel gelegt."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
         </VBox>
+
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
     </ScrollPane>
 </Tab>

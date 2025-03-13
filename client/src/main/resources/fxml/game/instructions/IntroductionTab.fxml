@@ -3,29 +3,37 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-<Tab closable="false" text="Einleitung">
+<Tab closable="false" text="Einleitung" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="de.uol.swp.client.game.instructions.IntroductionTabPresenter">
     <ScrollPane fitToWidth="true">
-        <VBox spacing="10.0" styleClass="tab-vbox">
-            <HBox spacing="10.0" VBox.vgrow="ALWAYS">
-                <ImageView fitHeight="100.0" fitWidth="100.0">
-                    <Image url="@/images/PandemieLogo.png"/>
-                </ImageView>
-                <TextFlow>
-                    <Text text="Pandemie ist ein kooperatives Spiel für 2 bis 4 Spieler. Sie und Ihre Mitspieler sind Angehörige eines Seuchenbekämpfungsteams, das zusammenarbeiten muss, um Gegenmittel zu erforschen und weitere Ausbrüche von Seuchen zu verhindern. Jedem Spieler kommt innerhalb des Teams eine besondere Rolle zu, deren einzigartige Fähigkeiten bei durchdachtem Einsatz die Chancen des Teams deutlich verbessern. Ziel des Spiels ist es, die Menschheit zu retten, indem Sie die Gegenmittel gegen vier tödliche Seuchen (Blau, Gelb, Schwarz und Rot) entdecken, die die Erde in den Abgrund zu reißen drohen."/>
-                </TextFlow>
-            </HBox>
+        <VBox spacing="10">
             <TextFlow>
-                <Text text="Ist Ihr Team nicht in der Lage, die Seuchen so lange einzudämmen, bis Sie die benötigten Gegenmittel entdeckt haben, kann die Erde ihrer Ausbreitung nicht standhalten, und Sie verlieren alle zusammen. Können Sie die Menschheit retten?"/>
+                <Text styleClass="tab-h1" text="Einleitung"/>
             </TextFlow>
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
+
+            <GridPane fx:id="gridPane" hgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <VBox GridPane.columnIndex="1" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Pandemie ist ein kooperatives Spiel für 2 bis 4 Spieler. Sie und Ihre Mitspieler sind Angehörige eines Seuchenbekämpfungsteams, das zusammenarbeiten muss, um Gegenmittel zu erforschen und weitere Ausbrüche von Seuchen zu verhindern. Jedem Spieler kommt innerhalb des Teams eine besondere Rolle zu, deren einzigartige Fähigkeiten bei durchdachtem Einsatz die Chancen des Teams deutlich verbessern. Ziel des Spiels ist es, die Menschheit zu retten, indem Sie die Gegenmittel gegen vier tödliche Seuchen (Blau, Gelb, Schwarz und Rot) entdecken, die die Erde in den Abgrund zu reißen drohen."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Ist Ihr Team nicht in der Lage, die Seuchen so lange einzudämmen, bis Sie die benötigten Gegenmittel entdeckt haben, kann die Erde ihrer Ausbreitung nicht standhalten, und Sie verlieren alle zusammen. Können Sie die Menschheit retten?"/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
         </VBox>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
     </ScrollPane>
 </Tab>

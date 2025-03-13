@@ -52,7 +52,7 @@ public class RegistrationPresenter extends AbstractPresenter {
 
     /**
      * Method called when the cancel button is pressed
-     *
+     * <p>
      * This Method is called when the cancel button is pressed. It posts an instance
      * of the RegistrationCanceledEvent to the EventBus the SceneManager is subscribed
      * to.
@@ -69,7 +69,7 @@ public class RegistrationPresenter extends AbstractPresenter {
 
     /**
      * Method called when the exit button is pressed
-     *
+     * <p>
      * This method is called when the exit button is pressed. It terminates the application
      * by calling System.exit(0), which indicates a normal termination.
      *
@@ -83,7 +83,7 @@ public class RegistrationPresenter extends AbstractPresenter {
 
     /**
      * Method called when the register button is pressed
-     *
+     * <p>
      * This Method is called when the register button is pressed. It posts an instance
      * of the RegistrationErrorEvent to the EventBus the SceneManager is subscribed
      * to, if one of the fields is empty or the password fields are not equal.

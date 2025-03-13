@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * This message is used if something went wrong
- *
+ * <p>
  * This ServerMessage is used if something went wrong e.g. in the login process
  *
  * @see de.uol.swp.server.message.AbstractServerInternalMessage

@@ -444,7 +444,6 @@ public abstract class AbstractPresenter {
         try {
             eventBus.register(this);
         }catch(Exception e){
-            // register looks for @Subscribe that is not available in all classes
             LOG.warn("This class does not provide @Subscribe methods ..."+this.getClass());
         }
     }

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
@@ -38,14 +37,11 @@
     <!-- Column 0 -->
     <fx:include source="../map/GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
     <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <ImageView fx:id="settingsIcon" preserveRatio="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Image url="@/images/setting-line-icon.png"/>
-        </ImageView>
+        <FontAwesomeIconView fx:id="settingsIcon" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <fx:define>
             <ContextMenu fx:id="settingsContextMenu">
                 <items>
                     <MenuItem fx:id="instructionsMenuItem" text="Spielanleitung" />
-                    <MenuItem fx:id="settingsMenuItem" text="Einstellungen" />
                     <MenuItem fx:id="leaveGameMenuItem" text="Spiel verlassen" />
                 </items>
             </ContextMenu>
@@ -168,5 +164,7 @@
         </rowConstraints>
     </GridPane>
     <!-- Column 11 -->
+
+    <fx:include source="../game/instructions/GameInstructionsView.fxml" fx:id="gameInstructionsGridPane" GridPane.columnSpan="12" GridPane.rowSpan="9" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
 
 </GridPane>

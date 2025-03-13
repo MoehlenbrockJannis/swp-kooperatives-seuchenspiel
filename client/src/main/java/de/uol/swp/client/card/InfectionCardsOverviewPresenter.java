@@ -66,14 +66,6 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
         cardService.sendDrawInfectionCardRequest(gameSupplier.get(), currentPlayer);
     }
 
-    /**
-     * Discards an infection card.
-     * Currently not implemented.
-     */
-    @Override
-    void discardCard() {
-    }
-
     @Override
     protected boolean isGameInCorrectDrawPhase() {
         return gameSupplier.get().getCurrentTurn().isInfectionCardDrawExecutable();
@@ -151,7 +143,7 @@ public class InfectionCardsOverviewPresenter extends CardsOverviewPresenter {
     @Subscribe
     public void onReceiveReleaseToDrawInfectionCardResponse(ReleaseToDrawInfectionCardResponse response) {
         if (response.getGame().getId() == this.gameSupplier.get().getId()) {
-            this.drawStackNumberOfCardsLabel.setDisable(false);
+            this.drawCardButton.setDisable(false);
             this.numberOfCardsToDraw = response.getNumberOfInfectionCardsToDraw();
         }
     }

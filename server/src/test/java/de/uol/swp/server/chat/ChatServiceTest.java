@@ -50,10 +50,9 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     /**
      * Tests the onChatRequest method
-     * @throws InterruptedException
      */
     @Test
-    void onChatRequestTest() throws InterruptedException {
+    void onChatRequestTest() {
         SendChatMessageRequest sendChatMessageRequest = new SendChatMessageRequest(defaultUser, "Test", LocalTime.now());
         post(sendChatMessageRequest);
 
@@ -71,10 +70,9 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     /**
      * Tests the onChatRequest method
-     * @throws InterruptedException
      */
     @Test
-    void onLobbyChatRequestTest() throws InterruptedException {
+    void onLobbyChatRequestTest() {
         SendUserLobbyChatMessageRequest sendLobbyChatMessageRequest = new SendUserLobbyChatMessageRequest(defaultLobby, defaultUser, "Test", LocalTime.now());
         post(sendLobbyChatMessageRequest);
 
@@ -93,10 +91,9 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     /**
      * Tests the LobbyDroppedServerInternalMessage method
-     * @throws InterruptedException
      */
     @Test
-    void onLobbyDroppedServerInternalMessage() throws InterruptedException {
+    void onLobbyDroppedServerInternalMessage() {
         chatManagement.addLobbyChatMessage(defaultLobby, "Test");
         LobbyDroppedServerInternalMessage lobbyDroppedServerInternalMessage = new LobbyDroppedServerInternalMessage(defaultLobby);
         post(lobbyDroppedServerInternalMessage);
@@ -108,10 +105,9 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     /**
      * Tests the onRetrieveChatRequest method
-     * @throws InterruptedException
      */
     @Test
-    void onRetrieveChatRequestTest() throws InterruptedException {
+    void onRetrieveChatRequestTest() {
         RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest();
         post(retrieveChatRequest);
 
@@ -120,10 +116,9 @@ public class ChatServiceTest extends EventBusBasedTest {
 
     /**
      * Tests the onRetrieveChatRequest method
-     * @throws InterruptedException
      */
     @Test
-    void onRetrieveLobbyRequestTest() throws InterruptedException {
+    void onRetrieveLobbyRequestTest() {
         chatManagement.addLobbyChatMessage(defaultLobby, "Test");
         RetrieveAllChatMessagesRequest retrieveChatRequest = new RetrieveAllChatMessagesRequest(this.defaultLobby);
         post(retrieveChatRequest);

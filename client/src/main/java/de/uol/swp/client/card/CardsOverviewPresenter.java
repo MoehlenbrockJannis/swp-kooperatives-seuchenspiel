@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
@@ -45,6 +46,8 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         initializePresenter(presenter,true);
     }
 
+    @FXML
+    protected Button drawCardButton;
     @FXML
     protected Label drawStackNumberOfCardsLabel;
     @FXML
@@ -109,6 +112,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.drawCardStackFunction = drawStackFunction;
         this.discardCardStackFunction = discardStackFunction;
         this.parent = parent;
+        this.drawCardButton.setDisable(true);
         setMouseEvents();
         updateLabels();
         setupDesign();
@@ -125,8 +129,8 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * </p>
      */
     private void setMouseEvents() {
-        this.drawStackNumberOfCardsLabel.setOnMouseClicked(mouseEvent -> drawCard());
-        this.drawStackNumberOfCardsLabel.setOnMouseEntered(mouseEvent -> updateToolTips());
+        this.drawCardButton.setOnMouseClicked(mouseEvent -> drawCard());
+        this.drawCardButton.setOnMouseEntered(mouseEvent -> updateToolTips());
         this.discardStackNumberOfCardsLabel.setOnMouseEntered(mouseEvent -> showCardStack());
         this.discardStackNumberOfCardsLabel.setOnMouseExited(mouseEvent -> hideCardStack());
     }
@@ -135,11 +139,6 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
      * Abstract method to draw a card.
      */
     abstract void drawCard();
-
-    /**
-     * Abstract method to discard a card.
-     */
-    abstract void discardCard();
 
     /**
      * Returns whether the {@link Game} is in the correct phase to draw a {@link Card}
@@ -226,7 +225,6 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.discardStackTooltip = TooltipsUtil.createConsistentTooltip("");
         Tooltip.install(this.drawStackNumberOfCardsLabel, this.drawStackTooltip);
         Tooltip.install(this.discardStackNumberOfCardsLabel, this.discardStackTooltip);
-        this.drawStackNumberOfCardsLabel.setDisable(true);
     }
 
     /**
@@ -267,8 +265,8 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
         this.cardIcon.prefWidthProperty().bind(stackHBoxWidth.divide(stackHBoxChildrenSize));
         this.cardIcon.prefHeightProperty().bind(stackHBoxHeight);
 
-        this.drawStackNumberOfCardsLabel.prefWidthProperty().bind(stackHBoxWidth.divide(stackHBoxChildrenSize));
-        this.drawStackNumberOfCardsLabel.prefHeightProperty().bind(stackHBoxHeight.divide(stackHBoxChildrenSize));
+        this.drawCardButton.prefWidthProperty().bind(stackHBoxWidth.divide(stackHBoxChildrenSize));
+        this.drawCardButton.prefHeightProperty().bind(stackHBoxHeight.divide(stackHBoxChildrenSize));
 
         this.discardStackNumberOfCardsLabel.prefWidthProperty().bind(stackHBoxWidth.divide(labelVBoxChildrenSize));
         this.discardStackNumberOfCardsLabel.prefHeightProperty().bind(stackHBoxHeight.divide(labelVBoxChildrenSize));
@@ -336,7 +334,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     protected void reduceNumberOfCardsToDraw() {
         this.numberOfCardsToDraw--;
         if (this.numberOfCardsToDraw == 0) {
-            this.drawStackNumberOfCardsLabel.setDisable(true);
+            this.drawCardButton.setDisable(true);
         }
     }
 
@@ -361,7 +359,7 @@ public abstract class CardsOverviewPresenter extends AbstractPresenter {
     @Subscribe
     public void onRetrieveUpdatedGameServerMessage(final RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage) {
         if (!isGameInCorrectDrawPhase()) {
-            this.drawStackNumberOfCardsLabel.setDisable(true);
+            this.drawCardButton.setDisable(true);
         }
     }
 }

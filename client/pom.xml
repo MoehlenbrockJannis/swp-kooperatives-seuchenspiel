@@ -10,6 +10,7 @@
     <properties>
         <javafx.version>21</javafx.version>
         <batik.version>1.18</batik.version>
+        <ikonli.version>12.3.1</ikonli.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -149,6 +150,18 @@
             <artifactId>batik-codec</artifactId>
             <version>${batik.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>kordamp-repo</id>
+            <url>https://repo.kordamp.org</url>
+        </repository>
+    </repositories>
+
 </project>
