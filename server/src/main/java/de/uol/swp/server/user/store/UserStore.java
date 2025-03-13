@@ -9,9 +9,6 @@ import java.util.Optional;
 /**
  * Interface to unify different kinds of UserStores in order to able to exchange
  * them easily.
- *
- * @author Marco Grawunder
- * @since 2019-08-13
  */
 public interface UserStore extends ContentStore {
 
@@ -21,7 +18,6 @@ public interface UserStore extends ContentStore {
      * @param username username of the user to find
      * @param password password of the user to find
      * @return The User without password information, if found
-     * @since 2019-08-13
      */
     Optional<User> findUser(String username, String password);
 
@@ -30,7 +26,6 @@ public interface UserStore extends ContentStore {
      *
      * @param username username of the user to find
      * @return The User without password information, if found
-     * @since 2019-08-13
      */
     Optional<User> findUser(String username);
 
@@ -41,7 +36,6 @@ public interface UserStore extends ContentStore {
      * @param password password the user wants to use
      * @param eMail email address of the new user
      * @return The User without password information
-     * @since 2019-08-13
      */
     User createUser(String username, String password, String eMail);
 
@@ -52,7 +46,6 @@ public interface UserStore extends ContentStore {
      * @param password new password
      * @param eMail new email address
      * @return The User without password information
-     * @since 2019-08-13
      */
     User updateUser(String username, String password, String eMail);
 
@@ -60,7 +53,6 @@ public interface UserStore extends ContentStore {
      * Remove user from store
      *
      * @param username the username of the user to remove
-     * @since 2019-10-10
      */
     void removeUser(String username);
 
@@ -68,7 +60,6 @@ public interface UserStore extends ContentStore {
     /**
      * Retrieves the list of all users.
      * @return A list of all users without password information
-     * @since 2019-08-13
      */
     List<User> getAllUsers();
 

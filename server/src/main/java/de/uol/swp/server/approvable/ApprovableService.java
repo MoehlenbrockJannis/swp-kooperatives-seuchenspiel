@@ -16,8 +16,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 /**
  * The {@link ApprovableService} class handles the receiving and sending of messages regarding approvables.
- *
- * @author Tom Weelborg
  */
 @Singleton
 public class ApprovableService extends AbstractService {
@@ -28,7 +26,6 @@ public class ApprovableService extends AbstractService {
      *
      * @param bus the EvenBus used throughout the server
      * @param lobbyService {@link LobbyService} to send messages to lobby members
-     * @since 2019-10-08
      */
     @Inject
     public ApprovableService(final EventBus bus, final LobbyService lobbyService) {

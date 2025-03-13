@@ -13,12 +13,7 @@ import java.util.Collections;
  * <p>
  * This class prepares the child classes to have the EventBus set and methods post
  * and sendToAll implemented in order to reduce unnecessary code repetition.
- *
- * @author Marco Grawunder
- * @since 2019-10-08
  */
-
-
 public class AbstractService {
 
     private static final Logger LOG = LogManager.getLogger(AbstractService.class);
@@ -29,7 +24,6 @@ public class AbstractService {
      * Constructor
      *
      * @param bus the EvenBus used throughout the server
-     * @since 2019-10-08
      */
     public AbstractService(EventBus bus) {
         this.bus = bus;
@@ -41,7 +35,6 @@ public class AbstractService {
      *
      * @param message the message to post
      * @see de.uol.swp.common.message.Message
-     * @since 2019-10-08
      */
     protected void post(Message message) {
         bus.post(message);
@@ -53,7 +46,6 @@ public class AbstractService {
      *
      * @param message the message to be send to every user
      * @see ServerMessage
-     * @since 2019-10-08
      */
     public void sendToAll(ServerMessage message) {
         message.setReceiver(Collections.emptyList());

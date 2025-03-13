@@ -12,8 +12,6 @@ import org.greenrobot.eventbus.Subscribe;
  * Handles the plague requests sent by the client
  *
  * @see de.uol.swp.common.plague.Plague
- * @author David Scheffler
- * @since 2024-09-23
  */
 @Singleton
 public class PlagueService extends AbstractService {
@@ -22,8 +20,6 @@ public class PlagueService extends AbstractService {
      * Constructor
      *
      * @param bus the EvenBus used throughout the server
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     @Inject
     public PlagueService(EventBus bus) {
@@ -35,8 +31,6 @@ public class PlagueService extends AbstractService {
      * This sends back all {@link de.uol.swp.common.plague.Plague} objects from {@link Plagues} to the client.
      *
      * @param request the request to get the plague objects
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     @Subscribe
     public void onRetrieveAllPlaguesRequest(RetrieveAllPlaguesRequest request) {

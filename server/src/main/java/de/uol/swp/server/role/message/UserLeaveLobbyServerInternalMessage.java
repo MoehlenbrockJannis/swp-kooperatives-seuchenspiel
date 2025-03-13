@@ -7,9 +7,6 @@ import lombok.Getter;
 
 /**
  * Represents an internal server message to update for example all available roles when a player leaves the lobby.
- *
- * @author Jannis Moehlenbrock
- * @since 2024-10-02
  */
 @Getter
 @AllArgsConstructor

@@ -19,10 +19,7 @@ import java.util.*;
  * @implNote This store will never return the password of a user!
  * @see de.uol.swp.server.store.AbstractStore
  * @see de.uol.swp.server.user.store.UserStore
- * @author Marco Grawunder
- * @since 2019-08-05
  */
-
 public class MainMemoryBasedUserStore extends AbstractStore implements UserStore, MainMemoryBasedStore {
 
     private final Map<String, User> users = new HashMap<>();

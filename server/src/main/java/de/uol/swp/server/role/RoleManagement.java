@@ -28,9 +28,6 @@ import java.util.stream.Collectors;
  * The {@code RoleManagement} class manages and tracks the assignment of roles to users in a specific lobby.
  * It provides methods to retrieve available roles, assign roles to users, and manage user-role associations
  * within the context of a lobby.
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-06
  */
 @Getter
 public class RoleManagement {

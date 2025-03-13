@@ -6,11 +6,7 @@ import java.util.List;
 
 /**
  * An interface for all methods of the server user service
- *
- * @author Marco Grawunder
- * @since 2017-03-17
  */
-
 public interface ServerUserService {
 
     /**
@@ -19,7 +15,6 @@ public interface ServerUserService {
      * @param username the name of the user
      * @param password the password of the user
      * @return a new user object
-     * @since 2017-03-17
      */
     User login(String username, String password);
 
@@ -29,7 +24,6 @@ public interface ServerUserService {
      *
      * @param user the user to check for
      * @return true if the User is logged in
-     * @since 2019-09-04
      */
     boolean isLoggedIn(User user);
 
@@ -38,7 +32,6 @@ public interface ServerUserService {
      *
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 remove the correct user
-     * @since 2017-03-17
      */
     void logout(User user);
 
@@ -49,7 +42,6 @@ public interface ServerUserService {
      * 			 remove the correct user
      * @param user The user to create
      * @return the new created user
-     * @since 2019-09-02
      */
     User createUser(User user);
 
@@ -61,7 +53,6 @@ public interface ServerUserService {
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 remove the correct user
      * @param user The user to remove
-     * @since 2019-10-10
      */
     void dropUser(User user);
 
@@ -76,7 +67,6 @@ public interface ServerUserService {
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
      * @return the updated user object
-     * @since 2019-09-02
      */
     User updateUser(User user);
 
@@ -84,7 +74,6 @@ public interface ServerUserService {
      * Retrieve the list of all current logged in users
      *
      * @return a list of users
-     * @since 2017-03-17
      */
     List<User> retrieveAllUsers();
 

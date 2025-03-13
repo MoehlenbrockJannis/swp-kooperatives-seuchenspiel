@@ -12,8 +12,17 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
 import java.time.LocalTime;
 
+/**
+ * Service class responsible for managing chat-related functionality.
+ * <p>
+ * The {@code ChatService} listens to chat-related messages on the {@link EventBus}, processes them,
+ * and interacts with the {@link ChatManagement} class to store or retrieve chat messages. It also handles
+ * lobby-specific chat operations and keeps track of system messages in lobbies.
+ * </p>
+ */
 @Singleton
 public class ChatService extends AbstractService {
 

@@ -29,10 +29,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * This class handles the startup of the server, as well as, the creation of default
  * users while the MainMemoryBasedUserStore is still in use.
- *
- * @author Marco Grawunder
  * @see de.uol.swp.server.user.store.MainMemoryBasedUserStore
- * @since 2017-03-17
  */
 class ServerApp {
 
@@ -46,7 +43,6 @@ class ServerApp {
 	 *
 	 * @param args Any arguments given when starting the application e.g. a port
 	 *             number
-	 * @since 2017-03-17
 	 */
 	public static void main(String[] args) throws Exception {
 		int port = - 1;
@@ -75,7 +71,6 @@ class ServerApp {
 	 * the test users
 	 *
 	 * @param injector the Google guice injector used for dependency injection
-	 * @since 2019-09-18
 	 */
 	private static void createServices(Injector injector) {
 		injector.getInstance(UserService.class);

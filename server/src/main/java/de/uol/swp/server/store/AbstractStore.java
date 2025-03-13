@@ -8,6 +8,14 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Base class for managing and creating different types of stores.
+ * <p>
+ * The {@code AbstractStore} provides utility methods for creating and managing stores, both main memory-based
+ * and database-based, based on the application context. It uses reflection to dynamically locate and instantiate
+ * the appropriate store implementations.
+ * </p>
+ */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractStore {
     private final Random random = new Random();

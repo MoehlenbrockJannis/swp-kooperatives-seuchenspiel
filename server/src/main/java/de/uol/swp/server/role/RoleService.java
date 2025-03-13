@@ -36,9 +36,6 @@ import java.util.stream.Collectors;
  * - Checking role availability
  * - Updating the lobby about available roles when a user leaves
  * - Rendering roles in a ComboBox on the client-side
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-06
  */
 @Singleton
 public class RoleService extends AbstractService {
@@ -54,7 +51,6 @@ public class RoleService extends AbstractService {
      * @param lobbyManagement the {@link LobbyManagement} for managing lobbies
      * @param lobbyService    the {@link LobbyService} for managing lobby-related communications
      * @param roleManagement  the {@link RoleManagement} for handling role-related logic
-     * @since 2019-10-08
      */
     @Inject
     public RoleService(EventBus bus, LobbyManagement lobbyManagement, LobbyService lobbyService, RoleManagement roleManagement) {

@@ -10,8 +10,6 @@ import java.util.Set;
  * A utility class that defines all plague types.
  *
  * @see Plague
- * @author David Scheffler
- * @since 2024-09-22
  */
 @Getter
 public final class Plagues {
@@ -22,9 +20,6 @@ public final class Plagues {
 
     /**
      * Private constructor to prevent instantiation
-     *
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     private Plagues() {
     }
@@ -34,8 +29,6 @@ public final class Plagues {
      *
      * @return a set containing all {@link Plague} objects
      * @see Plague
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     public static Set<Plague> getAllPlagues() {
         return Set.of(

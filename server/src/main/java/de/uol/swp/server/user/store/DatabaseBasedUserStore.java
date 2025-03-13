@@ -13,7 +13,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
+/**
+ * A database-based implementation of the {@link UserStore} interface for managing user data.
+ * <p>
+ * This class interacts with a relational database to perform operations such as creating, updating, deleting,
+ * and retrieving user information. It uses the {@link DataSource} for database interactions and
+ * translates database rows into user objects.
+ * </p>
+ */
 public class DatabaseBasedUserStore extends AbstractStore implements UserStore, DatabaseStore {
 
     public static final String USERNAME = "username";

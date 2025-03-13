@@ -42,9 +42,6 @@ import java.util.concurrent.TimeUnit;
  * Service for AI Players
  *
  * @see de.uol.swp.common.player.AIPlayer
- *
- * @author Silas van Thiel
- * @since 2025-01-28
  */
 @Singleton
 public class AIPlayerService extends AbstractService {

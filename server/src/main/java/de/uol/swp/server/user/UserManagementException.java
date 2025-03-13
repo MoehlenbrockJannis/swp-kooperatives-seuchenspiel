@@ -8,8 +8,6 @@ package de.uol.swp.server.user;
  * exist within the UserStore.
  *
  * @see de.uol.swp.server.user.UserManagement
- * @author Marco Grawunder
- * @since 2019-07-08
  */
 class UserManagementException extends RuntimeException {
 
@@ -17,7 +15,6 @@ class UserManagementException extends RuntimeException {
      * Constructor
      *
      * @param s String containing the cause for the exception.
-     * @since 2019-07-08
      */
     UserManagementException(String s) {
         super(s);

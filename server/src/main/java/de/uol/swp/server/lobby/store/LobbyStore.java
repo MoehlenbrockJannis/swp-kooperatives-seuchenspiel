@@ -6,6 +6,13 @@ import de.uol.swp.server.store.ContentStore;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Interface for managing and storing lobby data.
+ * <p>
+ * The {@code LobbyStore} interface provides methods to add, remove, retrieve, update,
+ * and list lobbies, enabling persistent management of lobby-related data.
+ * </p>
+ */
 public interface LobbyStore extends ContentStore {
 
     /**

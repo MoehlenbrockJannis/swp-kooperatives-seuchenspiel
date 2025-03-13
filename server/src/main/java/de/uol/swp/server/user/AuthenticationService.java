@@ -28,11 +28,7 @@ import java.util.*;
  * Mapping authentication event bus calls to user management calls
  *
  * @see de.uol.swp.server.AbstractService
- * @author Marco Grawunder
- * @since 2019-08-30
  */
-
-
 @Singleton
 public class AuthenticationService extends AbstractService {
     private static final Logger LOG = LogManager.getLogger(AuthenticationService.class);
@@ -50,7 +46,6 @@ public class AuthenticationService extends AbstractService {
      * @param bus The EventBus used throughout the entire server
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.user.UserManagement
-     * @since 2019-08-30
      */
     @Inject
     public AuthenticationService(EventBus bus, UserManagement userManagement) {
@@ -65,7 +60,6 @@ public class AuthenticationService extends AbstractService {
      * @return either empty Optional or Optional containing the Session
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.user.User
-     * @since 2019-09-04
      */
     public Optional<Session> getSession(User user) {
         Optional<Map.Entry<Session, User>> entry = userSessions.entrySet().stream().filter(e -> e.getValue().equals(user)).findFirst();
@@ -79,7 +73,6 @@ public class AuthenticationService extends AbstractService {
      * @return List containing the Sessions that where found
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.user.User
-     * @since 2019-10-08
      */
     public List<Session> getSessions(Set<User> users) {
         List<Session> sessions = new ArrayList<>();
@@ -103,7 +96,6 @@ public class AuthenticationService extends AbstractService {
      * @see de.uol.swp.common.user.request.LoginRequest
      * @see de.uol.swp.server.message.ClientAuthorizedMessage
      * @see de.uol.swp.server.message.ServerExceptionMessage
-     * @since 2019-08-30
      */
     @Subscribe
     public void onLoginRequest(LoginRequest msg) {
@@ -136,7 +128,6 @@ public class AuthenticationService extends AbstractService {
      * @param msg the LogoutRequest
      * @see de.uol.swp.common.user.request.LogoutRequest
      * @see LogoutServerMessage
-     * @since 2019-08-30
      */
     @Subscribe
     public void onLogoutRequest(LogoutRequest msg) {
@@ -145,8 +136,6 @@ public class AuthenticationService extends AbstractService {
             Session userSession = session.get();
             User userToLogOut = userSessions.get(userSession);
 
-
-            // Could be already logged out
             if (userToLogOut != null) {
 
                 if (LOG.isDebugEnabled()) {
@@ -176,7 +165,6 @@ public class AuthenticationService extends AbstractService {
      * @param msg RetrieveAllOnlineUsersRequest found on the EventBus
      * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
      * @see RetrieveAllOnlineUsersResponse
-     * @since 2019-08-30
      */
     @Subscribe
     public void onRetrieveAllOnlineUsersRequest(RetrieveAllOnlineUsersRequest msg) {
@@ -185,8 +173,6 @@ public class AuthenticationService extends AbstractService {
 
     /**
      * Sends a message to all clients
-     *
-     * @since 2019-08-30
      */
     private void sendAllOnlineUsersToAllClients() {
         List<User> users = userSessions.values().stream()

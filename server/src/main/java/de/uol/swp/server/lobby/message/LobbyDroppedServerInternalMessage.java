@@ -9,8 +9,6 @@ import lombok.Getter;
  * Message indicating that a lobby has been dropped.
  *
  * <p>This message is used internally by the server to notify that a lobby has been removed.</p>
- *
- * @since 2024-09-10
  */
 @Getter
 @AllArgsConstructor

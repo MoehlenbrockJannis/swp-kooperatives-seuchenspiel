@@ -12,8 +12,6 @@ import org.greenrobot.eventbus.Subscribe;
  * Handles the mapType requests sent by the client
  *
  * @see de.uol.swp.common.map.MapType
- * @author David Scheffler
- * @since 2024-09-23
  */
 @Singleton
 public class MapTypeService extends AbstractService {
@@ -22,7 +20,6 @@ public class MapTypeService extends AbstractService {
      * Constructor
      *
      * @param bus the EvenBus used throughout the server
-     * @since 2024-09-22
      */
     @Inject
     public MapTypeService(EventBus bus) {

@@ -15,8 +15,6 @@ import java.util.Optional;
  *
  * @see de.uol.swp.common.lobby.Lobby
  * @see LobbyDTO
- * @author Marco Grawunder
- * @since 2019-10-08
  */
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class LobbyManagement {
@@ -31,7 +29,6 @@ public class LobbyManagement {
      * @param lobby the lobby to create
      * @see de.uol.swp.common.user.User
      * @throws IllegalArgumentException name already taken
-     * @since 2019-10-08
      */
     public Lobby createLobby(Lobby lobby) {
        return this.lobbyStore.addLobby(lobby);
@@ -43,7 +40,6 @@ public class LobbyManagement {
      * @param lobby lobby to delete
      * @throws IllegalArgumentException there exists no lobby with the  requested
      *                                  name
-     * @since 2019-10-08
      */
     public void dropLobby(Lobby lobby) {
         this.lobbyStore.removeLobby(lobby);
@@ -55,7 +51,6 @@ public class LobbyManagement {
      * @param lobby the lobby to search for
      * @return either empty Optional or Optional containing the lobby
      * @see Optional
-     * @since 2019-10-08
      */
     public Optional<Lobby> getLobby(Lobby lobby) {
         return this.lobbyStore.getLobby(lobby.getId());
@@ -65,7 +60,6 @@ public class LobbyManagement {
      * Returns a list of all lobbies
      *
      * @return List of all lobbies
-     * @since 2024-08-24
      */
     public List<Lobby> getAllLobbies() {
         return this.lobbyStore.getAllLobbies();
@@ -75,7 +69,6 @@ public class LobbyManagement {
      * Updates a lobby
      *
      * @param lobby The lobby to update
-     * @since 2024-09-13
      */
     public void updateLobby(final Lobby lobby) {
         this.lobbyStore.updateLobby(lobby);
@@ -86,7 +79,6 @@ public class LobbyManagement {
      *
      * @param lobby The lobby to update
      * @param status The new status of the lobby
-     * @since 2024-08-29
      */
     public void updateLobbyStatus(Lobby lobby, LobbyStatus status) {
         this.lobbyStore.getLobby(lobby.getId()).ifPresentOrElse(

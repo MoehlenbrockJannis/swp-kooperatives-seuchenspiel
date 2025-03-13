@@ -4,6 +4,13 @@ import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
 
+/**
+ * Handles card-related operations in the game.
+ * <p>
+ * The {@code CardManagement} class provides utility methods to manage player cards and infection cards,
+ * including discarding, drawing, and managing stacks associated with the cards in a game.
+ * </p>
+ */
 public class CardManagement {
 
     /**

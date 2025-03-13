@@ -23,19 +23,28 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Optional;
 
+/**
+ * Service class for managing triggerable items in the game.
+ * <p>
+ * The {@code TriggerableService} listens to events related to triggerables on the {@link EventBus},
+ * handles automatic and manual triggers, manages triggerable execution within games, and interacts with
+ * other services such as {@link GameService} and {@link LobbyService}.
+ * </p>
+ */
 @Singleton
 public class TriggerableService extends AbstractService {
+
     private final GameManagement gameManagement;
     private final GameService gameService;
     private final LobbyService lobbyService;
 
     /**
-     * Constructor
+     * Constructs a new {@code TriggerableService}.
      *
-     * @param bus the EvenBus used throughout the server
-     * @param gameManagement {@link GameManagement} to get updated {@link Game}
-     * @param gameService {@link GameService} to send game updates
-     * @param lobbyService {@link LobbyService} to send messages to a lobby
+     * @param bus            The {@link EventBus} used to listen for and post events.
+     * @param gameManagement The {@link GameManagement} instance for accessing game states.
+     * @param gameService    The {@link GameService} instance for sending game updates.
+     * @param lobbyService   The {@link LobbyService} instance for sending messages within lobbies.
      * @since 2025-01-28
      */
     @Inject
@@ -46,32 +55,41 @@ public class TriggerableService extends AbstractService {
         this.lobbyService = lobbyService;
     }
 
-
+    /**
+     * Executes all automatic triggerable in the game until none remain.
+     *
+     * @param game The {@link Game} in which to execute automatic triggerables.
+     */
     public void executeAutoTriggerables(final Game game) {
         PlayerTurn playerTurn = game.getCurrentTurn();
-        while(playerTurn.hasNextAutoTriggerable()) {
+        while (playerTurn.hasNextAutoTriggerable()) {
             triggerAutoTriggerables(playerTurn, game);
         }
         playerTurn.resetAutoTriggerables();
     }
 
+    /**
+     * Triggers the next automatic triggerable in the player's turn.
+     *
+     * @param playerTurn The current {@link PlayerTurn}.
+     * @param game       The {@link Game} instance.
+     */
     private void triggerAutoTriggerables(PlayerTurn playerTurn, final Game game) {
         AutoTriggerable autoTriggerable = playerTurn.getNextAutoTriggerable();
         autoTriggerable.initWithGame(game);
-        if(autoTriggerable.isTriggered()) {
+        if (autoTriggerable.isTriggered()) {
             autoTriggerable.trigger();
             gameService.sendGameUpdate(game);
         }
     }
 
     /**
-     * Checks if the given {@link Game} has a {@link ManualTriggerable} that needs sending and does so if necessary.
-     * Returns {@code true} if given {@link Game} has a {@link ManualTriggerable} to be sent, {@code false} otherwise.
+     * Checks if a manual triggerable is available in the game and handles sending it.
      *
-     * @param game {@link Game} to check the availability of {@link ManualTriggerable} for
-     * @param cause {@link Message} that caused this check, to be executed after
-     * @param player {@link Player} that caused this check
-     * @return {@code true} if given {@link Game} has a {@link ManualTriggerable} to be sent, {@code false} otherwise
+     * @param game   The {@link Game} to check for manual triggerable.
+     * @param cause  The {@link Message} that caused the check, to be executed later.
+     * @param player The {@link Player} initiating the check.
+     * @return {@code true} if a manual triggerable is available and sent, {@code false} otherwise.
      */
     public boolean checkForSendingManualTriggerables(final Game game, final Message cause, final Player player) {
         if (isSendingOfManualTriggerableRequired(game)) {
@@ -84,23 +102,21 @@ public class TriggerableService extends AbstractService {
     }
 
     /**
-     * Checks whether there is a {@link ManualTriggerable} in given {@link Game}.
+     * Checks whether there is a manual triggerable available in the current game turn.
      *
-     * @param game {@link Game} to check the availability of {@link ManualTriggerable} for
-     * @return {@code true} if there is a {@link ManualTriggerable} in {@link Game}, {@code false} otherwise
+     * @param game The {@link Game} instance.
+     * @return {@code true} if a manual triggerable is available, {@code false} otherwise.
      */
     private boolean isSendingOfManualTriggerableRequired(final Game game) {
         return game.getCurrentTurn().hasNextManualTriggerable();
     }
 
     /**
-     * Sends a {@link TriggerableServerMessage} with the next available {@link ManualTriggerable}
-     * from the given {@link Game} to all players in the lobby.
+     * Sends the next available manual triggerable in the current game turn.
      *
-     * @param game {@link Game} of the {@link ManualTriggerable}
-     * @param cause {@link Message} to be sent after approving or rejecting the {@link ManualTriggerable}
-     * @param player {@link Player} that is to send the {@link Message} {@code cause}
-     * @see TriggerableServerMessage
+     * @param game   The {@link Game} instance.
+     * @param cause  The {@link Message} to execute after the triggerable is processed.
+     * @param player The {@link Player} initiating the triggerable.
      */
     private void sendNextManualTriggerable(final Game game, final Message cause, final Player player) {
         final ManualTriggerable manualTriggerable = game.getCurrentTurn().getNextManualTriggerable();
@@ -116,28 +132,29 @@ public class TriggerableService extends AbstractService {
     }
 
     /**
-     * Resets the {@link ManualTriggerable} count in the given {@link Game}'s current {@link PlayerTurn}.
+     * Resets the manual triggerable in the current game turn.
      *
-     * @param game the {@link Game} to reset {@link ManualTriggerable} count in
-     * @see PlayerTurn#resetManualTriggerables()
+     * @param game The {@link Game} instance.
      */
     private void resetManualTriggerables(final Game game) {
         game.getCurrentTurn().resetManualTriggerables();
     }
 
     /**
-     * Handles a {@link TriggerableRequest} detected on the {@link EventBus} by triggering the contained {@link Triggerable}.
-     * If the {@link Triggerable} is an {@link EventCard}, it is discarded.
-     * After all the necessary measures, the {@link Game} is updated and a {@link AnswerableServerMessage} is sent back.
+     * Handles {@link TriggerableRequest} events found on the {@link EventBus}.
+     * <p>
+     * Processes the triggerable contained in the request, updates the game state, and sends appropriate
+     * responses. If the triggerable is associated with an {@link EventCard}, the card is discarded.
+     * </p>
      *
-     * @param triggerableRequest {@link TriggerableRequest} with {@link Triggerable} to trigger
+     * @param triggerableRequest The {@link TriggerableRequest} received on the EventBus.
      */
     @Subscribe
     public void onTriggerableRequest(final TriggerableRequest triggerableRequest) {
         final Triggerable triggerable = triggerableRequest.getTriggerable();
 
         final Optional<Game> gameOptional = gameManagement.getGame(triggerable.getGame());
-        if(gameOptional.isEmpty()) {
+        if (gameOptional.isEmpty()) {
             return;
         }
         final Game game = gameOptional.get();
@@ -158,7 +175,8 @@ public class TriggerableService extends AbstractService {
     /**
      * Discards the given {@link EventCard}.
      *
-     * @param eventCard {@link EventCard} to discard
+     * @param eventCard                The {@link EventCard} to discard.
+     * @param originOfDiscardingPlayer The {@link Message} responsible for initiating the discard.
      */
     private void discardEventCard(final EventCard eventCard, final Message originOfDiscardingPlayer) {
         final DiscardPlayerCardRequest<EventCard> discardPlayerCardRequest = new DiscardPlayerCardRequest<>(
@@ -171,9 +189,9 @@ public class TriggerableService extends AbstractService {
     }
 
     /**
-     * Sends an {@link AnswerableServerMessage} for given {@link TriggerableRequest}.
+     * Sends an {@link AnswerableServerMessage} for the provided {@link TriggerableRequest}.
      *
-     * @param triggerableRequest {@link TriggerableRequest} to send an {@link AnswerableServerMessage} for
+     * @param triggerableRequest The {@link TriggerableRequest} to respond to.
      */
     private void sendAnswerableServerMessage(final TriggerableRequest triggerableRequest) {
         final Triggerable triggerable = triggerableRequest.getTriggerable();

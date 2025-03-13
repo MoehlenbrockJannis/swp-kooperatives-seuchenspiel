@@ -16,8 +16,6 @@ import java.net.SocketException;
  * is established or data is received
  *
  * @see io.netty.channel.ChannelInboundHandler
- * @author Marco Grawunder
- * @since 2019-11-20
  */
 
 @Sharable
@@ -32,7 +30,6 @@ class NettyServerHandler extends SimpleChannelInboundHandler<RequestMessage> {
      *
      * @param delegate handler who handles all communication
      * @see de.uol.swp.server.communication.ServerHandler
-     * @since 2019-11-20
      */
     @Inject
     public NettyServerHandler(ServerHandler delegate) {

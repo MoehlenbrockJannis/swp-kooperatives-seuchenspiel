@@ -10,8 +10,6 @@ package de.uol.swp.server.message;
  * @see de.uol.swp.server.message.AbstractServerInternalMessage
  * @see de.uol.swp.server.communication.ServerHandler#clientDisconnected
  * @see de.uol.swp.server.user.AuthenticationService
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 public class ClientDisconnectedMessage extends AbstractServerInternalMessage {
 }

@@ -15,8 +15,6 @@ import java.util.TreeMap;
  * Handles most user related issues e.g. login/logout
  *
  * @see de.uol.swp.server.user.AbstractUserManagement
- * @author Marco Grawunder
- * @since 2019-08-05
  */
 public class UserManagement extends AbstractUserManagement {
 
@@ -28,7 +26,6 @@ public class UserManagement extends AbstractUserManagement {
      *
      * @param userStore object of the UserStore to be used
      * @see de.uol.swp.server.user.store.UserStore
-     * @since 2019-08-05
      */
     @Inject
     public UserManagement(UserStore userStore){
@@ -91,7 +88,6 @@ public class UserManagement extends AbstractUserManagement {
      * @param firstValue value to update to, empty String or null
      * @param secondValue the old value
      * @return String containing the value to be used in the update command
-     * @since 2019-08-05
      */
     private String firstNotNull(String firstValue, String secondValue) {
         return Strings.isNullOrEmpty(firstValue)?secondValue:firstValue;
