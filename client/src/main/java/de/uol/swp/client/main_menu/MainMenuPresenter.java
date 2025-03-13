@@ -79,6 +79,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      *
      * Creates the scene
+     *
      * @param root Root node of {@link #scene}
      */
     @Override
@@ -90,6 +91,7 @@ public class MainMenuPresenter extends AbstractPresenter {
     /**
      *
      * Closed the stage
+     *
      * @param event The {@link WindowEvent} closing the {@link #stage}
      */
     @Override
