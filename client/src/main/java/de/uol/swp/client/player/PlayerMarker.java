@@ -1,7 +1,7 @@
 package de.uol.swp.client.player;
 
-import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.marker.HighlightableMarker;
+import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import javafx.scene.paint.Color;
@@ -13,9 +13,7 @@ import lombok.Getter;
 /**
  * Represents the player marker
  *
- * @author Silas van Thiel & Jannis Moehlenbrock
  * @see PlayerMarkerPresenter
- * @since 2024-09-28
  */
 @Getter
 public class PlayerMarker extends HighlightableMarker {

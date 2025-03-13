@@ -27,9 +27,6 @@ import java.util.List;
  * This class prepares the child classes to have the UserService and EventBus set
  * in order to reduce unnecessary code repetition.
  * </p>
- *
- * @author Marco Grawunder
- * @since 2019-08-29
  */
 public abstract class AbstractPresenter {
     private static final Logger LOG = LogManager.getLogger(AbstractPresenter.class);
@@ -50,7 +47,6 @@ public abstract class AbstractPresenter {
      * @param provider The provider to set
      * @see FXMLLoaderProvider
      * @see ClientApp#start(Stage)
-     * @since 2024-09-17
      */
     public static void setFxmlLoaderProvider(final FXMLLoaderProvider provider) {
         if (fxmlLoaderProvider == null && provider != null) {
@@ -76,7 +72,6 @@ public abstract class AbstractPresenter {
      * @see FXMLLoader
      * @see Platform#runLater(Runnable)
      * @implNote Must be called on FX application thread for {@link javafx.scene.web.WebView}
-     * @since 2024-09-17
      */
     public static <T extends AbstractPresenter> T loadFXMLPresenter(final Class<T> presenterClass) throws RuntimeException {
         try {
@@ -105,7 +100,6 @@ public abstract class AbstractPresenter {
      * @throws Exception if there is no default constructor or it is not accessible or there is some other error
      * @see Class#getDeclaredConstructor(Class[])
      * @see java.lang.reflect.Constructor#newInstance(Object...)
-     * @since 2024-09-17
      */
     private static <T extends AbstractPresenter> T createPresenter(final Class<T> presenterClass) throws Exception {
         return presenterClass.getDeclaredConstructor().newInstance();
@@ -126,7 +120,6 @@ public abstract class AbstractPresenter {
      * @throws RuntimeException if an error occurs during loading the FXML file
      * @see FXMLLoader
      * @see Parent
-     * @since 2024-11-05
      */
     protected static <T extends AbstractPresenter> T initializePresenter(T presenter, final boolean setGivenPresenter) {
         String filePath="";
@@ -162,7 +155,6 @@ public abstract class AbstractPresenter {
      * @return the FXMLLoader for the given presenter
      * @see FXMLLoader
      * @see URL
-     * @since 2024-11-05
      */
     private static FXMLLoader createFXMLLoaderForPresenter(final AbstractPresenter presenter) {
         String filepath = presenter.getFXMLFilePath();
@@ -191,7 +183,6 @@ public abstract class AbstractPresenter {
      *
      * @return Path to associated FXML file
      * @see #getFXMLFolderPath()
-     * @since 2024-09-17
      */
     public String getFXMLFilePath() {
         return getFXMLFolderPath() + getFXMLFileName() + DEFAULT_FXML_FILE_SUFFIX;
@@ -206,7 +197,6 @@ public abstract class AbstractPresenter {
      * </p>
      *
      * @return Path to the folder of the associated FXML file
-     * @since 2024-09-17
      */
     public String getFXMLFolderPath() {
         return DEFAULT_FXML_FOLDER_PATH + getPackagePathUnderProjectRoot() + "/";
@@ -257,7 +247,6 @@ public abstract class AbstractPresenter {
      *
      * @return Width of the {@link #scene} set in {@link #createScene(Parent)}
      * @see Scene#Scene(Parent, double, double)
-     * @since 2024-09-17
      */
     public double getWidth() {
         return -1;
@@ -274,7 +263,6 @@ public abstract class AbstractPresenter {
      *
      * @return Height of the {@link #scene} set in {@link #createScene(Parent)}
      * @see Scene#Scene(Parent, double, double)
-     * @since 2024-09-17
      */
     public double getHeight() {
         return -1;
@@ -297,7 +285,6 @@ public abstract class AbstractPresenter {
      * @see #getHeight()
      * @see Scene
      * @see SceneManager#STYLE_SHEET
-     * @since 2024-09-17
      */
     protected void createScene(final Parent root) {
         final double width = getWidth();
@@ -317,7 +304,6 @@ public abstract class AbstractPresenter {
      * @see #openInNewWindow()
      * @see Stage
      * @see Stage#getIcons()
-     * @since 2024-09-17
      */
     public void openInNewWindow(final Image icon) {
         openInNewWindow();
@@ -329,7 +315,6 @@ public abstract class AbstractPresenter {
      *
      * @see #openInNewWindow()
      * @see Stage
-     * @since 2024-09-17
      */
     public void openInNewWindow() {
         createStage();
@@ -341,7 +326,6 @@ public abstract class AbstractPresenter {
      * 
      * @see Stage
      * @see #setStage(Stage)
-     * @since 2024-09-17
      */
     public void createStage() {
         Platform.runLater(() -> {
@@ -360,7 +344,6 @@ public abstract class AbstractPresenter {
      *
      * @param stage Stage to set
      * @see #setStage(Stage, boolean)
-     * @since 2024-09-26
      */
     public void setStage(final Stage stage) {
         setStage(stage, true);
@@ -379,7 +362,6 @@ public abstract class AbstractPresenter {
      * @see Stage#setScene(Scene)
      * @see Stage#setOnCloseRequest(EventHandler)
      * @see #onCloseStageEvent(WindowEvent)
-     * @since 2024-09-26
      */
     public void setStage(final Stage stage, final boolean assignOnCloseStageEvent) {
         this.stage = stage;
@@ -402,7 +384,6 @@ public abstract class AbstractPresenter {
      * @see Stage#setOnCloseRequest(EventHandler)
      * @see #stage
      * @see #clearEventBus()
-     * @since 2024-09-17
      */
     protected void onCloseStageEvent(final WindowEvent event) {
         clearEventBus();
@@ -419,7 +400,6 @@ public abstract class AbstractPresenter {
      * @see Stage#close()
      * @see Stage#setOnCloseRequest(EventHandler)
      * @see WindowEvent
-     * @since 2024-09-13
      */
     protected void closeStage() {
         Platform.runLater(() -> stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST)));
@@ -436,7 +416,6 @@ public abstract class AbstractPresenter {
      * @implNote This method does not unregister this class from any EventBus it
      *           may already be registered to.
      * @param eventBus The EventBus this class should use.
-     * @since 2019-08-29
      */
     @Inject
     public void setEventBus(EventBus eventBus) {
@@ -459,7 +438,6 @@ public abstract class AbstractPresenter {
      * @implNote This method does not check whether the field eventBus is null.
      *           The field is cleared by setting it to null.
      * @see org.greenrobot.eventbus.EventBus#unregister(Object)
-     * @since 2024-09-15
      */
     public void clearEventBus(){
         if (this.eventBus != null) {

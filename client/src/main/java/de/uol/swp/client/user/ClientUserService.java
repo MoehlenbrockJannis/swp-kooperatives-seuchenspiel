@@ -7,9 +7,6 @@ import de.uol.swp.common.user.User;
  *
  * As the communication with the server is based on events, the
  * returns of the call must be handled by events
- *
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 
 public interface ClientUserService {
@@ -19,7 +16,6 @@ public interface ClientUserService {
      *
      * @param username the name of the user
      * @param password the password of the user
-     * @since 2017-03-17
      */
     void login(String username, String password);
 
@@ -28,7 +24,6 @@ public interface ClientUserService {
      *
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 remove the correct user
-     * @since 2017-03-17
      */
     void logout(User user);
 
@@ -38,7 +33,6 @@ public interface ClientUserService {
      * @implNote the User Object has to contain a unique identifier in order to
      * 			 remove the correct user
      * @param user The user to create
-     * @since 2019-09-02
      */
     void createUser(User user);
 
@@ -52,14 +46,11 @@ public interface ClientUserService {
      * @param user the user object containing all infos to
      *             update, if some values are not set, (e.g. password is "")
      *             these fields are not updated
-     * @since 2019-09-02
      */
     void updateUser(User user);
 
     /**
      * Retrieve the list of all current logged in users
-     *
-     * @since 2017-03-17
      */
     void retrieveAllUsers();
 

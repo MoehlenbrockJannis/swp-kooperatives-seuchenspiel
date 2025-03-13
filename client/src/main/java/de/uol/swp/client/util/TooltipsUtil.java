@@ -6,6 +6,9 @@ import javafx.util.Duration;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
+/**
+ * Utility class for creating styled tooltips consistently.
+ */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TooltipsUtil {
 

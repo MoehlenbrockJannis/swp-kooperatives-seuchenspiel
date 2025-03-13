@@ -11,8 +11,6 @@ import org.greenrobot.eventbus.EventBus;
 /**
  * The {@link TriggerableService} handles sending of {@link TriggerableRequest}.
  * It utilizes an {@link EventBus} to post requests with a {@link Triggerable}.
- *
- * @author Tom Weelborg
  */
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class TriggerableService {

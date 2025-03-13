@@ -10,17 +10,11 @@ import javafx.scene.web.WebView;
 
 /**
  * Utility class that provides methods to bind the properties of one Node to another Node.
- *
- * @author David Scheffler
- * @since 2025-01-15
  */
 public class NodeBindingUtils {
 
     /**
      * Private constructor to prevent instantiation
-     *
-     * @author David Scheffler
-     * @since 2025-01-16
      */
     private NodeBindingUtils() {
     }
@@ -35,8 +29,6 @@ public class NodeBindingUtils {
      * @param yCoordinate   The factor by which the targetNode's layoutY position is scaled relative to the sourceWebView's height.
      * @param xScaleFactor  The factor by which the targetNode's horizontal scaling (scaleX) is determined relative to the sourceWebView's width.
      * @param yScaleFactor  The factor by which the targetNode's vertical scaling (scaleY) is determined relative to the sourceWebView's height.
-     * @author David Scheffler
-     * @since 2025-01-15
      */
     public static void bindWebViewSizeAndPositionToNode(WebView sourceWebView, Node targetNode, double xCoordinate, double yCoordinate, double xScaleFactor, double yScaleFactor) {
         targetNode.layoutXProperty().bind(sourceWebView.widthProperty().multiply(xCoordinate));
@@ -51,8 +43,6 @@ public class NodeBindingUtils {
      *
      * @param sourceRegion    The {@link Region} whose size will be used to set the preferred width and height of the targetStackPane.
      * @param targetStackPane The {@link StackPane} whose preferred width and height will be bound to the sourceRegion.
-     * @author David Scheffler
-     * @since 2025-02-21
      */
     public static void bindRegionSizeToStackPanePrefSize(Region sourceRegion, StackPane targetStackPane) {
         targetStackPane.prefWidthProperty().bind(sourceRegion.widthProperty());
@@ -67,8 +57,6 @@ public class NodeBindingUtils {
      * @param sourceRegion The {@link Region} whose width and height will determine the font size of the targetText.
      * @param targetText   The {@link Text} whose font size will be bound to the size of the sourceRegion.
      * @param scaleFactor  A scaling factor to control the size of the font relative to the sourceRegion's dimensions.
-     * @author David Scheffler
-     * @since 2025-02-21
      */
     public static void bindRegionSizeToTextFont(Region sourceRegion, Text targetText, double scaleFactor) {
         targetText.styleProperty().bind(Bindings.concat(
@@ -87,8 +75,6 @@ public class NodeBindingUtils {
      * @param sourceRegion  The {@link Region} whose size will be bound to the scaling of the targetNode.
      * @param targetNode    The {@link Node} whose scaleX and scaleY properties will be bound to the size of the sourceRegion.
      * @param scalingFactor A factor to control the scaling of the targetNode based on the sourceRegion's size.
-     * @author David Scheffler
-     * @since 2025-02-21
      */
     public static void bindRegionSizeToNode(Region sourceRegion, Node targetNode, double scalingFactor) {
         targetNode.scaleXProperty().bind(Bindings.min(sourceRegion.widthProperty(), sourceRegion.heightProperty()).multiply(scalingFactor));
