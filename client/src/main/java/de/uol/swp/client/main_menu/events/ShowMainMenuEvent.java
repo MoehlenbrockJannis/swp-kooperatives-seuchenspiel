@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
  * The main menu will be opened with the name of the {@link #user} in its title.
  * </p>
  *
- * @author Tom Weelborg
  * @see de.uol.swp.client.SceneManager
- * @since 2024-08-24
  */
 @Getter
 @RequiredArgsConstructor
