@@ -9,8 +9,6 @@ import java.util.Optional;
  * Base interface of all messages
  *
  * @see java.io.Serializable
- * @author Marco Grawunder
- * @since 2019-08-13
  */
 
 public interface Message extends Serializable{
@@ -20,7 +18,6 @@ public interface Message extends Serializable{
 	 *
 	 * @param messageContext the MessageContext to be set
 	 * @see de.uol.swp.common.message.MessageContext
-	 * @since 2019-08-13
 	 */
 	void setMessageContext(MessageContext messageContext);
 
@@ -31,7 +28,6 @@ public interface Message extends Serializable{
 	 * @implNote .get() to get the MessageContext object
 	 * @return Empty optional object or MessageContext
 	 * @see de.uol.swp.common.message.MessageContext
-	 * @since 2019-09-09
 	 */
 	Optional<MessageContext> getMessageContext();
 
@@ -40,7 +36,6 @@ public interface Message extends Serializable{
 	 *
 	 * @param session the current session
 	 * @see de.uol.swp.common.user.Session
-	 * @since 2019-08-13
 	 */
 	void setSession(Session session);
 
@@ -50,7 +45,6 @@ public interface Message extends Serializable{
 	 * @implNote .isPresent() to check if the Session got set
 	 * @implNote .get() to get the Session object
 	 * @return Empty optional object or MessageContext
-	 * @since 2019-09-09
 	 */
 	Optional<Session> getSession();
 
@@ -59,7 +53,6 @@ public interface Message extends Serializable{
 	 * the given one (copy)
 	 *
 	 * @param otherMessage original Message
-	 * @since 2019-08-13
 	 */
 	void initWithMessage(Message otherMessage);
 }

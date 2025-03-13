@@ -5,8 +5,6 @@ package de.uol.swp.common.lobby.request;
  *
  * @see AbstractUserLobbyRequest
  * @see de.uol.swp.common.lobby.Lobby
- * @author Tom Weelborg
- * @since 2024-08-24
  */
 public class RetrieveAllLobbiesRequest extends AbstractLobbyRequest {
 }

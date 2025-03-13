@@ -8,9 +8,6 @@ import lombok.Getter;
 
 /**
  * A request to end the turn of a player
- *
- * @author Silas van Thiel
- * @since 2025-01-20
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

@@ -13,7 +13,6 @@ import de.uol.swp.common.player.Player;
  *
  * @see AbstractPlayerLobbyRequest
  * @see de.uol.swp.common.lobby.Lobby
- * @since 2024-10-06
  */
 public class JoinPlayerLobbyRequest extends AbstractPlayerLobbyRequest {
 
@@ -22,7 +21,6 @@ public class JoinPlayerLobbyRequest extends AbstractPlayerLobbyRequest {
      *
      * @param lobby  The lobby that the player is attempting to join.
      * @param player The player who is joining the lobby.
-     * @since 2024-10-06
      */
     public JoinPlayerLobbyRequest(Lobby lobby, Player player) {
         super(lobby, player);

@@ -14,8 +14,6 @@ import java.io.Serial;
  *
  * @see de.uol.swp.common.user.request.LoginRequest
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -29,7 +27,6 @@ public class LoginSuccessfulResponse extends AbstractResponseMessage {
      * Constructor
      *
      * @param user the user who successfully logged in
-     * @since 2019-08-07
      */
     public LoginSuccessfulResponse(final User user) {
         this.user = user.getWithoutPassword();

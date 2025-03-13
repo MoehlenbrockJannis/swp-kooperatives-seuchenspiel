@@ -16,7 +16,6 @@ import lombok.*;
  *
  * @see AbstractServerMessage
  * @see de.uol.swp.common.lobby.Lobby
- * @since 2024-10-06
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter

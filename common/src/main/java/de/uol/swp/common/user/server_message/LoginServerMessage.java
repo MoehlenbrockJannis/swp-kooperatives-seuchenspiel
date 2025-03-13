@@ -12,9 +12,6 @@ import java.io.Serial;
  *
  * This message is used to automatically update the user lists of every connected
  * client as soon as a user successfully logs in
- *
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -28,7 +25,6 @@ public class LoginServerMessage extends AbstractServerMessage {
 	 * Constructor
 	 *
 	 * @param user the newly logged in user
-	 * @since 2017-03-17
 	 */
 	public LoginServerMessage(final User user){
 		this.user = user.getWithoutPassword();

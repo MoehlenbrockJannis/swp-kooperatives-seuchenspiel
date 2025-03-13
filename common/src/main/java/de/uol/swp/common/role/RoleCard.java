@@ -14,9 +14,6 @@ import java.util.Set;
 
 /**
  * This class represent a RoleCard
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-06
  */
 @Getter
 @Setter

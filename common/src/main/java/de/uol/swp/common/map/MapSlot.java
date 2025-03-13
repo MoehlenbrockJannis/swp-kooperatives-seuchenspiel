@@ -19,8 +19,6 @@ import java.util.List;
  * @see City
  * @see MapType
  * @see Plague
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 @AllArgsConstructor
 @EqualsAndHashCode

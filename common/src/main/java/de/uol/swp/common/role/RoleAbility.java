@@ -10,7 +10,14 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.*;
 
-
+/**
+ * Represents the abilities of a specific role in the game.
+ * <p>
+ * A {@code RoleAbility} defines unique actions, replacements for general actions, and triggerable effects
+ * that are specific to a particular role. It encapsulates the modifications of standard gameplay mechanics
+ * for role-play purposes.
+ * </p>
+ */
 @Getter
 @AllArgsConstructor
 public class RoleAbility implements Serializable {

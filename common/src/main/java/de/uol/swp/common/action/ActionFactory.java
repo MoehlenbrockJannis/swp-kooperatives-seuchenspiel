@@ -7,6 +7,13 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Factory class responsible for creating, copying, and managing {@link Action} instances.
+ * <p>
+ * The {@code ActionFactory} provides utility methods to dynamically retrieve, instantiate,
+ * and manipulate subclasses of {@link Action}, including filtering and handling exceptions during creation.
+ * </p>
+ */
 public class ActionFactory {
     /**
      * {@link Reflections} object for the package {@link Action} is in

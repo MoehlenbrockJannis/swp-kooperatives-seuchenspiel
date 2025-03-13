@@ -12,9 +12,6 @@ import lombok.Setter;
  * <p>
  * Subclasses should extend this class to define specific actions.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter

@@ -10,8 +10,6 @@ import de.uol.swp.common.user.response.RetrieveAllOnlineUsersResponse;
  * respond with a AllOnlineUsersResponse.
  *
  * @see RetrieveAllOnlineUsersResponse
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 public class RetrieveAllOnlineUsersRequest extends AbstractRequestMessage {
 

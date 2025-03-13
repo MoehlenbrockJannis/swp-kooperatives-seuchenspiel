@@ -10,8 +10,6 @@ import java.util.List;
  * is not necessary a response to a request (aka server push)
  *
  * @see de.uol.swp.common.message.Message
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 public interface ServerMessage extends Message {
 
@@ -19,7 +17,6 @@ public interface ServerMessage extends Message {
      * Getter for the receiver list
      *
      * @return List of Session objects defining the receivers
-     * @since 2019-10-08
      */
     List<Session> getReceiver();
 
@@ -27,7 +24,6 @@ public interface ServerMessage extends Message {
      * Sets the receivers of this message
      *
      * @param receiver List of Session objects defining the receivers
-     * @since 2019-10-08
      */
     void setReceiver(List<Session> receiver);
 }

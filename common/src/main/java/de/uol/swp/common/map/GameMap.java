@@ -28,8 +28,6 @@ import java.util.function.BiConsumer;
  * @see Field
  * @see Game
  * @see MapType
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 @EqualsAndHashCode
 public class GameMap implements Serializable {
@@ -167,6 +165,19 @@ public class GameMap implements Serializable {
         processNeighborFieldsForOutbreak(neighborFields, plague, infectedFields, fieldsWithOutbreak);
     }
 
+    /**
+     * Processes the neighboring fields of a field during an outbreak, infecting them if possible or handling recursive outbreaks.
+     * <p>
+     * For each neighboring field, this method checks if the field can be infected with the given plague. If infectable,
+     * the field is infected with a plague cube. If the field cannot be infected and is not already in the list of
+     * ongoing outbreaks, a recursive outbreak is started. If there are no plague cubes available, the processing stops.
+     * </p>
+     *
+     * @param neighborFields    The list of neighboring fields to process.
+     * @param plague            The plague spreading during the outbreak.
+     * @param infectedFields    The list of fields that have already been infected.
+     * @param fieldsWithOutbreak The list of fields where outbreaks are already occurring.
+     */
     private void processNeighborFieldsForOutbreak(List<Field> neighborFields, Plague plague, List<Field> infectedFields, List<Field> fieldsWithOutbreak) {
         for (Field neighborField : neighborFields) {
             try {

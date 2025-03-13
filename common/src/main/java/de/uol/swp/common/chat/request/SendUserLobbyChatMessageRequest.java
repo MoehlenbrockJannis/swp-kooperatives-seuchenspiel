@@ -7,6 +7,13 @@ import lombok.Getter;
 
 import java.time.LocalTime;
 
+/**
+ * Request message to send a user-specific chat message within a lobby.
+ * <p>
+ * This request includes the lobby, user information, the chat message content, and the timestamp
+ * representing when the message was sent.
+ * </p>
+ */
 @Getter
 public class SendUserLobbyChatMessageRequest extends AbstractUserLobbyRequest {
     private final String chatMessage;

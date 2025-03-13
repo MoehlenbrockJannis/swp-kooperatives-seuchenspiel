@@ -12,9 +12,6 @@ import java.io.Serializable;
  * Class used to encode Objects into ByteBuffers to send.
  *
  * An Object of this class is used in the start method of de.uol.swp.server.communication.Server
- *
- * @author Marco Grawunder
- * @since 2019-08-13
  */
 public class MyObjectEncoder extends ObjectEncoder {
 

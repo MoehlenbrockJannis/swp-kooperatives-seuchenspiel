@@ -5,6 +5,14 @@ import de.uol.swp.common.game.GameInitializable;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.util.Command;
 
+
+/**
+ * Represents a triggerable effect or event in the game.
+ * <p>
+ * A {@code Triggerable} defines an effect or event that can be activated during gameplay.
+ * These could be automatic or manual and are associated with a specific {@link Game} and possibly a {@link Player}.
+ * </p>
+ */
 public interface Triggerable extends Command, GameInitializable {
     /**
      * Returns the {@link Game} this {@link Triggerable} is part of

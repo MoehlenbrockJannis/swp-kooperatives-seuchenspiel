@@ -3,7 +3,6 @@ package de.uol.swp.common.lobby.response;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.message.response.AbstractResponseMessage;
-import de.uol.swp.common.user.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +16,6 @@ import java.util.List;
  *
  * @see AbstractResponseMessage
  * @see de.uol.swp.common.lobby.Lobby
- * @author Tom Weelborg
- * @since 2024-08-24
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -35,7 +32,6 @@ public class RetrieveAllLobbiesResponse extends AbstractResponseMessage {
      * </p>
      *
      * @param lobbies Collection of all existing lobbies
-     * @since 2024-08-24
      */
     public RetrieveAllLobbiesResponse(final Collection<Lobby> lobbies) {
         for (final Lobby lobby : lobbies) {

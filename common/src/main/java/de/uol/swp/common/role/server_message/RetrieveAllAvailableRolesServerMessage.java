@@ -20,9 +20,6 @@ import java.util.Set;
  * @see AbstractUserLobbyServerMessage
  * @see RoleCard
  * @see Lobby
- *
-* @author Jannis Möhlenbrock
-* @since 2024-10-02
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

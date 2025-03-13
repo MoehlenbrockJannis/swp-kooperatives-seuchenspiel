@@ -11,6 +11,13 @@ import lombok.Getter;
 
 import java.util.List;
 
+/**
+ * Represents a request to create a new game.
+ * <p>
+ * This request includes all necessary details for initializing a game, such as the lobby, map type, plagues,
+ * game difficulty, and other game-specific configurations.
+ * </p>
+ */
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode(callSuper = true)

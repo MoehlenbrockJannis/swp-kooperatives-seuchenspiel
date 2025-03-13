@@ -8,9 +8,6 @@ import lombok.Setter;
 
 /**
  * This class represent and realized the shuttle flight action for ally.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 public class ShuttleFlightActionForAlly extends ShuttleFlightAction implements MoveAllyAction {

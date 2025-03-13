@@ -30,8 +30,6 @@ import java.util.Map;
  * @see Plague
  * @see PlagueCube
  * @see ResearchLaboratory
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Field implements Serializable {

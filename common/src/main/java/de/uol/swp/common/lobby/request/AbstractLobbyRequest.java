@@ -13,8 +13,6 @@ import lombok.*;
  * joining, leaving, or kicking users from a lobby.
  *
  * The class uses Lombok annotations for boilerplate code reduction
- *
- * @since 2024-10-06
  */
 @EqualsAndHashCode(callSuper = true)
 @Getter

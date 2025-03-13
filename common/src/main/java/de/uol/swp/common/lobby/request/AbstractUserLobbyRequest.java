@@ -3,7 +3,9 @@ package de.uol.swp.common.lobby.request;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.request.AbstractRequestMessage;
 import de.uol.swp.common.user.User;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a base class for all lobby request messages that involve a user.
@@ -15,7 +17,6 @@ import lombok.*;
  *
  * @see de.uol.swp.common.user.User
  * @see AbstractRequestMessage
- * @since 2024-10-06
  */
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -28,7 +29,6 @@ public class AbstractUserLobbyRequest extends AbstractLobbyRequest {
      *
      * @param lobby The lobby that this request relates to.
      * @param user  The user involved in this lobby request.
-     * @since 2024-10-06
      */
     public AbstractUserLobbyRequest(Lobby lobby, User user) {
         super(lobby);

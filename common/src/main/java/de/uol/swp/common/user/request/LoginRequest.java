@@ -11,9 +11,6 @@ import java.io.Serial;
 /**
  * A request send from client to server, trying to log in with
  * username and password
- * 
- * @author Marco Grawunder
- * @since  2017-03-17
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

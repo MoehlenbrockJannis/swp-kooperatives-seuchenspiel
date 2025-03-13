@@ -21,9 +21,6 @@ import java.util.Map;
  * <p>
  * This class handles the sharing of knowledge, typically in the form of a city card, between players.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter

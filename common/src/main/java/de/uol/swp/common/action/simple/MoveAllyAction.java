@@ -12,9 +12,6 @@ import de.uol.swp.common.player.Player;
  * <p>
  * It provides methods to get and set the ally being moved.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public interface MoveAllyAction extends RoleAction, Approvable {
 

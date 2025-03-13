@@ -13,7 +13,6 @@ import lombok.Getter;
  * This class is used to track or indicate the progress of curing a specific plague.
  *
  * @see Marker
- * @since 2024-10-01
  */
 @AllArgsConstructor
 @Getter

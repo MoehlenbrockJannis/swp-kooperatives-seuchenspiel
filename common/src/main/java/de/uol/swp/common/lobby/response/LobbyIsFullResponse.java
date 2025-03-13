@@ -8,6 +8,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Response message indicating that a lobby is full.
+ * <p>
+ * This response is sent by the server to notify that a {@link User} attempted to join a {@link Lobby}
+ * which has already reached its maximum capacity.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter

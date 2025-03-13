@@ -7,6 +7,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Response message representing the result of a lobby creation request.
+ * <p>
+ * This response is sent by the server to notify clients about the successful creation of a {@link Lobby}.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter

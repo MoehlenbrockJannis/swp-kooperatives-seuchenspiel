@@ -9,6 +9,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Response message indicating that a lobby is not joinable.
+ * <p>
+ * This response is sent by the server to notify that a {@link User} attempted to join a {@link Lobby}
+ * which cannot be joined due to its current {@link LobbyStatus}.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter

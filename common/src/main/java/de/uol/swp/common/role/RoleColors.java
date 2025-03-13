@@ -4,9 +4,6 @@ import de.uol.swp.common.util.Color;
 
 /**
  * The {@code RoleColors} class provides a set of predefined colors that are used to represent the different roles
- *
- * @author Silas van Thiel
- * @since 2024-10-07
  */
 public class RoleColors {
 

@@ -15,8 +15,6 @@ import java.util.List;
  *
  * @see de.uol.swp.common.message.AbstractMessage
  * @see ServerMessage
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 @EqualsAndHashCode(callSuper = true)
 @Getter

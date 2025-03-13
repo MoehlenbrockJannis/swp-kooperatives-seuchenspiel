@@ -11,9 +11,6 @@ import java.util.List;
 /**
  * The {@code MoveAction} class serves as a base class for actions that involve moving to a target field.
  * It extends {@link SimpleAction} and provides methods to manage the target field and available movement options.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter

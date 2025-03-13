@@ -8,8 +8,6 @@ import de.uol.swp.common.message.AbstractMessage;
  *
  * @see de.uol.swp.common.message.AbstractMessage
  * @see ResponseMessage
- * @author Marco Grawunder
- * @since 2019-08-07
  */
 public abstract class AbstractResponseMessage extends AbstractMessage implements ResponseMessage {
 }

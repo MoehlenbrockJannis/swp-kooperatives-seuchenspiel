@@ -10,9 +10,6 @@ import java.util.List;
 
 /**
  * This class represent and realized the shuttle flight action.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class ShuttleFlightAction extends MoveAction {
 

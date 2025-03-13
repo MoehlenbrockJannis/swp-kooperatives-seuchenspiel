@@ -9,6 +9,13 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Action representing the movement of one ally to another ally in the game.
+ * <p>
+ * This action primarily deals with manipulating players' positions based on
+ * defined rules and conditions provided in the game.
+ * </p>
+ */
 @Getter
 @Setter
 public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {

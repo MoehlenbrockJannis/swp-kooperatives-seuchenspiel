@@ -8,6 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * Request to assign a role to a specific user within a lobby.
+ * <p>
+ * This request is sent by the client to assign a {@link RoleCard} to a {@link User} in a specific {@link Lobby}.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Getter

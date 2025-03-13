@@ -34,9 +34,6 @@ public class CardStack<C extends Card> extends Stack<C> {
      * @param numberOfCards The number of cards to retrieve from the top of the list.
      * @return A list containing up to {@code numberOfCards} cards from the top.
      * @throws IllegalArgumentException If {@code numberOfCards} is negative.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     public List<C> getTopCards(int numberOfCards) {
         if (numberOfCards < 0) {

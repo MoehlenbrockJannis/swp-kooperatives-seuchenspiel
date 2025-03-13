@@ -9,9 +9,6 @@ import lombok.Getter;
 
 /**
  * This class receives the mapType based on the original game from the backend when a {@link de.uol.swp.common.plague.request.RetrieveAllPlaguesRequest} request is executed.
- *
- * @author David Scheffler
- * @since 2024-09-22
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)

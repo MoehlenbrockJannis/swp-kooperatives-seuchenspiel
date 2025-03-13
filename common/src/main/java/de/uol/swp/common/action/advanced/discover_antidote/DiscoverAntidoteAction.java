@@ -21,9 +21,6 @@ import java.util.List;
  * <p>
  * The action requires a certain number of cards to be discarded, which is tracked and managed through the methods in this class.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCardsAction {
@@ -118,8 +115,6 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
      * discardable cards required to activate a plague.
      *
      * @return A list of plagues that are available.
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public List<Plague> getAvailablePlagues() {
         List<Plague> plaguesFromGame = getGame().getPlagues();
@@ -133,9 +128,6 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
      *
      * @param plague The plague for which the discardable cards are being retrieved.
      * @return A list of CityCards that can be discarded for the given plague.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public List<CityCard> getDiscardableCardsForPlague(final Plague plague) {
         List<PlayerCard> handCardsFromExecutingPlayer = getExecutingPlayer().getHandCards();
@@ -195,6 +187,11 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
         this.discardedCards = getUpdatedDiscardedCards();
     }
 
+    /**
+     * Retrieves the updated list of discarded cards by mapping them to the corresponding hand cards of the executing player.
+     *
+     * @return A list of updated CityCards representing the discarded cards in the executing player's hand.
+     */
     private List<CityCard> getUpdatedDiscardedCards() {
         return discardedCards.stream()
                 .map(card -> getExecutingPlayer().getHandCardForGivenPlayerCard(card))

@@ -11,8 +11,6 @@ import lombok.Getter;
  * The ActionRequest class represents a request message sent by a client
  * to perform a specific action in the game. It includes the game state
  * and the action to be executed.
- *
- * @author: Jannis Moehlenbrock
  */
 
 @AllArgsConstructor

@@ -8,8 +8,6 @@ import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
  *
  * @see Field
  * @see ResearchLaboratory
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 public class ResearchLaboratoryAlreadyBuiltOnFieldException extends RuntimeException {
     public ResearchLaboratoryAlreadyBuiltOnFieldException(final String fieldName) {

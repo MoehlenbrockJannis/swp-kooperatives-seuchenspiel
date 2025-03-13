@@ -11,7 +11,6 @@ import lombok.Getter;
  * (number of epidemic cards) has been changed by the lobby owner.
  *
  * @see AbstractLobbyServerMessage
- * @since 2025-01-25
  */
 @Getter
 public class DifficultyUpdateServerMessage extends AbstractLobbyServerMessage {
