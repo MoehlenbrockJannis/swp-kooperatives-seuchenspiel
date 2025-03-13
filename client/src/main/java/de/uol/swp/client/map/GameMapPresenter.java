@@ -327,6 +327,7 @@ public class GameMapPresenter extends AbstractPresenter {
     }
 
     /**
+     *
      * Processes a field by handling plague cubes and possibly ending the player's turn.
      * @param field The field to process.
      * @param game The game instance.

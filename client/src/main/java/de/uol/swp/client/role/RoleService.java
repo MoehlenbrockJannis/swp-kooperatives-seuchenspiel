@@ -21,6 +21,7 @@ public class RoleService {
     }
 
     /**
+     *
      * Sends a request to retrieve all roles associated with a specified lobby.
      * @param lobby The lobby for which to retrieve roles.
      */
@@ -30,6 +31,7 @@ public class RoleService {
     }
 
     /**
+     *
      * Sends a request to assign a specific role to a user within the specified lobby.
      * @param lobby The lobby in which the role assignment is made.
      * @param user The user to whom the role is being assigned.

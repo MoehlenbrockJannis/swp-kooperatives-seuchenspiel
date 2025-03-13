@@ -708,6 +708,7 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
+     *
      * Determines whether the difficulty should be updated based on the new difficulty.
      * @param newDifficulty The new difficulty setting.
      * @return true if the new difficulty is valid and different from the current selection; false otherwise.
