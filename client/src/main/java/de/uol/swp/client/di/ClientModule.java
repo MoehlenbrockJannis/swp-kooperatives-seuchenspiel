@@ -18,10 +18,6 @@ import org.greenrobot.eventbus.EventBus;
 
 /**
  * Module that provides classes needed by the client.
- *
- * @author Marco Grawunder
- * @since 2019-09-18
- *
  */
 
 @RequiredArgsConstructor

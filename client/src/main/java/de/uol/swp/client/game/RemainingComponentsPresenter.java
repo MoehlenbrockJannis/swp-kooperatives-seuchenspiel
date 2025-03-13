@@ -13,9 +13,6 @@ import java.util.function.Supplier;
 
 /**
  * Presenter for the remaining components component
- *
- * @author Silas van Thiel
- * @since 2025-02-07
  */
 public class RemainingComponentsPresenter extends AbstractPresenter {
     private static final double REMAINING_SYMBOL_SCALE_FACTOR = 0.027;

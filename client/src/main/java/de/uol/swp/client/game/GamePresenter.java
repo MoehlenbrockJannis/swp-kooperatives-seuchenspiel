@@ -604,14 +604,6 @@ public class GamePresenter extends AbstractPresenter {
     }
 
     /**
-     * Displays the game settings.
-     * This method is called when the user selects the "Einstellungen" option.
-     */
-    private void showSettings() {
-        // TODO: Implement settings display logic
-    }
-
-    /**
      * Displays a confirmation dialog for leaving the game.
      * If confirmed, calls the leaveGame method.
      */
@@ -684,6 +676,13 @@ public class GamePresenter extends AbstractPresenter {
         return alert;
     }
 
+    /**
+     * Executes the given runnable if the provided message contains an update for the current game.
+     * Updates all UI components to reflect the current game state after execution.
+     *
+     * @param retrieveUpdatedGameServerMessage The server message containing game update information
+     * @param executable The runnable to execute if message matches current game
+     */
     private void executeIfTheUpdatedGameMessageRetrieves(RetrieveUpdatedGameServerMessage retrieveUpdatedGameServerMessage,final Runnable executable) {
         if(retrieveUpdatedGameServerMessage.getGame().getId() == this.game.getId()) {
             executable.run();
@@ -701,9 +700,6 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * Updates the player information for all players in the game.
-     *
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private void updatePlayerInfo() {
         for (Player player : this.game.getPlayersInTurnOrder()) {
@@ -727,9 +723,6 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * Adds all players to the player container in the correct order.
-     *
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private void addAllPlayers() {
         resetPlayerContainer();
@@ -749,9 +742,6 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * Clears the player container and resets the list of player pane presenters.
-     *
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private void resetPlayerContainer() {
         playerContainer.getChildren().clear();
@@ -763,8 +753,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param player the player to check
      * @return true if the player is the lobby player for the logged-in user, false otherwise
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private boolean isLobbyPlayer(Player player) {
         return player.equals(this.game.getLobby().getPlayerForUser(loggedInUserProvider.get()));
@@ -775,8 +763,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param player the player for whom the pane should be created
      * @param index the index at which to place the player in the container
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private void addPlayerPane(Player player, int index, boolean isLoggedInPlayer) {
         PlayerPanePresenter playerPanePresenter = createAndInitializePlayerPanePresenter(player);
@@ -794,8 +780,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param playerGridPane the playerGridPane of the player pane presenter
      * @param index the index at which to place the player in the container
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private void addPlayerToContainer(GridPane playerGridPane, int index, boolean isLoggedInPlayer) {
         if (isLoggedInPlayer) {
@@ -811,8 +795,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param player the player to create the presenter for
      * @return the created and initialized `PlayerPanePresenter` object
-     * @since 2025-01-16
-     * @author Marvin Tischer
      */
     private PlayerPanePresenter createAndInitializePlayerPanePresenter(Player player) {
         PlayerPanePresenter playerPanePresenter = AbstractPresenter.loadFXMLPresenter(PlayerPanePresenter.class);
@@ -925,6 +907,11 @@ public class GamePresenter extends AbstractPresenter {
 
     }
 
+    /**
+     * Checks if the current player has actions left to perform in their turn.
+     *
+     * @return true if actions remain to be done, false otherwise
+     */
     private boolean hasActionToDo() {
         return game.getCurrentTurn().hasActionsToDo();
     }
@@ -1090,6 +1077,11 @@ public class GamePresenter extends AbstractPresenter {
         return this.game.getCurrentPlayer().containsUser(loggedInUserProvider.get());
     }
 
+    /**
+     * Updates the share knowledge action button state based on the current game situation.
+     * Enables the button only if the associated player is active, it's the action phase,
+     * and valid share knowledge actions are available.
+     */
     private void updateShareKnowledgeActionButton() {
         Platform.runLater(() -> shareKnowledgeActionButton.setDisable(true));
 
@@ -1108,6 +1100,12 @@ public class GamePresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Retrieves possible card sharing actions from the current player's turn.
+     *
+     * @return A Pair containing SendCardAction and ReceiveCardAction, either of which may be null
+     *         if that type of action is not available
+     */
     private Pair<SendCardAction, ReceiveCardAction> getShareKnowledgeActionsFromGame() {
         final PlayerTurn playerTurn = game.getCurrentTurn();
 
@@ -1125,6 +1123,12 @@ public class GamePresenter extends AbstractPresenter {
         return new Pair<>(sendCardAction, receiveCardAction);
     }
 
+    /**
+     * Binds a click event handler to the share knowledge button that opens a new dialog.
+     * The dialog allows players to choose between sending or receiving cards.
+     *
+     * @param shareKnowledgeActions Pair of possible send/receive card actions to display in the dialog
+     */
     private void bindShareKnowledgeActionButtonClickEvent(final Pair<SendCardAction, ReceiveCardAction> shareKnowledgeActions) {
         shareKnowledgeActionButton.setOnMouseClicked(event -> {
             final ShareKnowledgeActionPresenter shareKnowledgeActionPresenter =
@@ -1185,9 +1189,6 @@ public class GamePresenter extends AbstractPresenter {
     /**
      * Initializes antidote marker buttons for each plague in the game.
      * These buttons are initially disabled and display an antidote marker image.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     private void addAntidoteMarkerButtons(){
         antidoteButtons = new HashMap<>();
@@ -1245,8 +1246,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @return An {@code Optional} containing the current {@code DiscoverAntidoteAction} if present,
      *         otherwise an empty {@code Optional}.
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private Optional<DiscoverAntidoteAction> getCurrentDiscoverAntidoteAction() {
         return game.getCurrentTurn().findActionOfType(DiscoverAntidoteAction.class);
@@ -1259,8 +1258,6 @@ public class GamePresenter extends AbstractPresenter {
      * @param button The button to configure.
      * @param plague The plague associated with the antidote action.
      * @param action The {@code DiscoverAntidoteAction} that determines if the plague can be targeted.
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private void configureAntidoteButton(Button button, Plague plague, DiscoverAntidoteAction action) {
 
@@ -1278,9 +1275,6 @@ public class GamePresenter extends AbstractPresenter {
      * Updates the antidote marker buttons by configuring them based on the current
      * {@code DiscoverAntidoteAction} and the available plagues in the game.
      * If no {@code DiscoverAntidoteAction} is present, the method exits early.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private void updateAntidoteMarkerButtons() {
         List<Plague> plagues = game.getPlagues();
@@ -1319,8 +1313,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param plague The plague to check.
      * @return {@code true} if an antidote has been discovered for the given plague, otherwise {@code false}.
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private boolean checkIfAntidoteIsDiscovered(Plague plague) {
         List<AntidoteMarker> antidoteMarkers = game.getAntidoteMarkers();
@@ -1335,9 +1327,6 @@ public class GamePresenter extends AbstractPresenter {
 
     /**
      * Disables all antidote marker buttons, preventing further interactions.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-13
      */
     private void disableAntidoteMarkerButtons(){
         for (Map.Entry<Plague, Button> entry : antidoteButtons.entrySet()) {
@@ -1352,9 +1341,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param plague The plague for which the antidote is being researched.
      * @param action The {@link DiscoverAntidoteAction} associated with the current turn.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     private void handleAntidoteMarkerButtonAction(Plague plague, DiscoverAntidoteAction action) {
         SelectCityCardsForAntidoteResearchPresenter selectionPopupPresenter = AbstractPresenter.loadFXMLPresenter(SelectCityCardsForAntidoteResearchPresenter.class);
@@ -1372,9 +1358,6 @@ public class GamePresenter extends AbstractPresenter {
      *
      * @param presenter The presenter responsible for providing the scene for selection.
      * @return A configured {@code Stage} instance for the selection process.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-13
      */
     private Stage createSelectionStage(SelectCityCardsForAntidoteResearchPresenter presenter) {
         Stage stage = new Stage();

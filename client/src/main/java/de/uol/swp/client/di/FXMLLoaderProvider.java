@@ -8,9 +8,6 @@ import javafx.fxml.FXMLLoader;
 /**
  * Class that provides Instances of the FXMLLoader
  *
- * @author Marco Grawunder
- * @since 2019-09-18
- *
  */
 public class FXMLLoaderProvider implements Provider<FXMLLoader> {
     @Inject

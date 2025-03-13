@@ -16,9 +16,7 @@ import org.greenrobot.eventbus.Subscribe;
 /**
  * Manages the lobby create window
  *
- * @author Niklas Wrobel
  * @see de.uol.swp.client.AbstractPresenter
- * @since 2024-08-28
  */
 @NoArgsConstructor
 public class LobbyCreatePresenter extends AbstractPresenter {
@@ -30,6 +28,13 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
+    /**
+     * Handles the create lobby button click event.
+     * Creates a new game lobby with the specified name if fields are valid
+     * and the user is logged in.
+     *
+     * @param event The ActionEvent triggered by the button click
+     */
     @FXML
     private void onCreateLobbyButtonClicked(final ActionEvent event) {
         final String lobbyName = lobbyNameField.getText();
@@ -57,12 +62,21 @@ public class LobbyCreatePresenter extends AbstractPresenter {
         lobbyNameField.clear();
     }
 
+    /**
+     * Handles the cancel button click event by clearing input fields and returning to the main menu.
+     *
+     * @param event The ActionEvent triggered by the button click
+     */
     @FXML
     private void onCancelButtonClicked(final ActionEvent event) {
         clearInputFields();
         backToMainMenu();
     }
 
+    /**
+     * Navigates back to the main menu for the currently logged in user.
+     * Posts a ShowMainMenuEvent to the event bus.
+     */
     private void backToMainMenu() {
         final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
         eventBus.post(showMainMenuEvent);
@@ -76,7 +90,6 @@ public class LobbyCreatePresenter extends AbstractPresenter {
      *
      * @param event The LobbyCreatedResponse detected on the EventBus
      * @see CreateLobbyResponse
-     * @since 2024-08-28
      */
     @Subscribe
     public void onLobbyCreatedResponse(final CreateLobbyResponse event) {

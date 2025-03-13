@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Marco Grawunder
  * @see io.netty.channel.ChannelInboundHandlerAdapter
- * @since 2017-03-17
  */
 class ClientHandler extends SimpleChannelInboundHandler<Message> {
 
