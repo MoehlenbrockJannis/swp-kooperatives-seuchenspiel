@@ -8,6 +8,13 @@ import lombok.Getter;
 
 import java.util.Objects;
 
+/**
+ * Represents an Infection card in the game.
+ * <p>
+ * Infection cards are tied to specific cities and fields on the map. Each Infection card has a color and is associated
+ * with a field, which in turn points to a city. The card's title is the name of its associated city.
+ * </p>
+ */
 @AllArgsConstructor
 public class InfectionCard extends Card{
 

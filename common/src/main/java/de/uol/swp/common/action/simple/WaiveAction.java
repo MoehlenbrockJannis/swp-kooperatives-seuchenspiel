@@ -3,9 +3,6 @@ package de.uol.swp.common.action.simple;
 /**
  * The {@code WaiveAction} class represents an action that a player chooses to waive or forgo.
  * It extends {@link SimpleAction}.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class WaiveAction extends SimpleAction {
 

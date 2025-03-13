@@ -7,9 +7,6 @@ import java.util.List;
 /**
  * The {@code DiscardCardsAction} interface represents an action where a player discards cards.
  * It extends the {@link Action} interface and provides a method to retrieve the cards being discarded.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public interface DiscardCardsAction extends Action {
 

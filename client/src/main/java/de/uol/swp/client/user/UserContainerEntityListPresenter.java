@@ -15,7 +15,11 @@ import javafx.scene.control.ListView;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+/**
+ * Presenter for managing a list view of UserContainerEntities with highlighting and custom interactions.
+ */
 public class UserContainerEntityListPresenter extends AbstractPresenter {
+
     @FXML
     private Label title;
     @FXML
@@ -25,34 +29,37 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
+    /**
+     * Initializes the presenter and sets up the list view and highlighting configurations.
+     */
     @FXML
     private void initialize() {
         highlightUserCellFactory = new HighlightUserCellFactory();
         resetHighlighting();
         listView.setCellFactory(highlightUserCellFactory);
-
     }
 
+    /**
+     * Resets the highlighting configurations to default.
+     */
     private void resetHighlighting() {
         highlightUserCellFactory.reset();
         highlightUserCellFactory.addHighlightingConfiguration(loggedInUserProvider, listCell -> listCell.getStyleClass().add("logged-in-user-highlighting"));
     }
 
     /**
-     * Sets the title above the list to the given String
+     * Sets the title above the list to the given string.
      *
-     * @param title Title to be set
-     * @since 2024-09-11
+     * @param title The title to be set.
      */
     public void setTitle(final String title) {
         this.title.setText(title);
     }
 
     /**
-     * Updates the {@link #listView} according to the list given
+     * Updates the list view with the given list of UserContainerEntities.
      *
-     * @param list A list of {@link UserContainerEntity} to put into {@link #listView}
-     * @since 2024-09-11
+     * @param list The list of UserContainerEntities to display.
      */
     public void setList(final Collection<UserContainerEntity> list) {
         Platform.runLater(() -> {
@@ -62,15 +69,20 @@ public class UserContainerEntityListPresenter extends AbstractPresenter {
     }
 
     /**
-     * Highlights the cell the given user is in
+     * Highlights the cell containing the specified user.
      *
-     * @param user The user to highlight
+     * @param user The user to highlight.
      */
     public void highlightUser(final User user) {
         resetHighlighting();
         highlightUserCellFactory.addHighlightingConfiguration(() -> user, listCell -> listCell.getStyleClass().add("lobby-owner-highlighting"));
     }
 
+    /**
+     * Sets the right-click function on the list cells.
+     *
+     * @param rightClickFunction The function to be executed on right-click.
+     */
     public void setRightClickFunctionToListCells(Consumer<ListCell<UserContainerEntity>> rightClickFunction) {
         this.highlightUserCellFactory.setRightClickFunction(rightClickFunction);
     }

@@ -13,7 +13,6 @@ import de.uol.swp.common.player.Player;
  * @see AbstractPlayerLobbyServerMessage
  * @see Player
  * @see Lobby
- * @since 2024-10-06
  */
 public class JoinPlayerLobbyServerMessage extends AbstractPlayerLobbyServerMessage {
 
@@ -22,7 +21,6 @@ public class JoinPlayerLobbyServerMessage extends AbstractPlayerLobbyServerMessa
      *
      * @param lobby The lobby that the player has joined.
      * @param player The player who has joined the lobby.
-     * @since 2024-10-06
      */
     public JoinPlayerLobbyServerMessage(Lobby lobby, Player player) {
         super(lobby, player);

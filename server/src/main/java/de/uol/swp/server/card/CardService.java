@@ -69,7 +69,6 @@ public class CardService extends AbstractService {
      * @param gameManagement the GameManagement used to manage games
      * @param lobbyService the LobbyService used to communicate with the lobby
      * @param triggerableService the {@link TriggerableService} to check if a {@link Triggerable} can be triggered
-     * @since 2019-10-08
      */
     @Inject
     public CardService(EventBus eventBus, CardManagement cardManagement, GameManagement gameManagement, LobbyService lobbyService, TriggerableService triggerableService) {
@@ -89,8 +88,6 @@ public class CardService extends AbstractService {
      *
      * @see DrawPlayerCardRequest
      * @param drawPlayerCardRequest the DrawPlayerCardRequest containing the game and player information
-     * @since 2024-09-20
-     * @author Dominik Horn
      */
     @Subscribe
     public void onDrawPlayerCardRequest(DrawPlayerCardRequest drawPlayerCardRequest) {
@@ -132,7 +129,6 @@ public class CardService extends AbstractService {
      * </p>
      *
      * @param discardPlayerCardRequest the DiscardPlayerCardRequest containing the game and player card information
-     * @since 2024-09-27
      */
     @Subscribe
     public void onDiscardPlayerCardRequest(DiscardPlayerCardRequest<PlayerCard> discardPlayerCardRequest) {

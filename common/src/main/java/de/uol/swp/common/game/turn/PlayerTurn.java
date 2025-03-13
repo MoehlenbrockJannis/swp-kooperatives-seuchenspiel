@@ -233,9 +233,6 @@ public class PlayerTurn implements Serializable {
      * @param <T> The type of action to search for, extending the {@code Action} class.
      * @param type The class object of the action type to find.
      * @return An {@code Optional} containing the first matching action if found, otherwise an empty {@code Optional}.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public <T extends Action> Optional<T> findActionOfType(final Class<T> type) {
         return possibleActions.stream()

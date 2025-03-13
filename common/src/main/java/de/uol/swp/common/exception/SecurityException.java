@@ -4,9 +4,6 @@ import java.io.Serial;
 
 /**
  * Exception to state e.g. that a authorization is required
- *
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 public class SecurityException extends RuntimeException {
 
@@ -17,7 +14,6 @@ public class SecurityException extends RuntimeException {
 	 * Constructor
 	 *
 	 * @param message Text the Exception should contain
-	 * @since 2017-03-17
 	 */
 	public SecurityException(String message){
 		super(message);

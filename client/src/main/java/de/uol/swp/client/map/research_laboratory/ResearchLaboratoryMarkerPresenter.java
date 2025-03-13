@@ -16,9 +16,6 @@ import java.util.List;
 /**
  * Presenter class responsible for managing the behavior of the research laboratory marker
  * in the game client. It handles mouse events and actions for moving a research laboratory.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2025-01-19
  */
 
 @AllArgsConstructor

@@ -9,8 +9,6 @@ import de.uol.swp.common.player.Player;
  * of the kick action, including the lobby from which the user is being removed
  * and the user to be kicked. It serves as a data transfer object for the
  * event bus to process the kick action appropriately.
- *
- * @since 2024-09-23
  */
 public class KickPlayerLobbyRequest extends AbstractPlayerLobbyRequest {
 
@@ -21,7 +19,6 @@ public class KickPlayerLobbyRequest extends AbstractPlayerLobbyRequest {
      *
      * @param lobby The lobby from which the user will be kicked.
      * @param player The player to be kicked from the lobby.
-     * @since 2024-09-23
      */
     public KickPlayerLobbyRequest(Lobby lobby, Player player) {
         super(lobby, player);

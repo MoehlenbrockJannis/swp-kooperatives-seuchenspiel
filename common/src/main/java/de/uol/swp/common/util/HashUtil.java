@@ -17,7 +17,6 @@ public class HashUtil {
      * @implSpec the hash method used is sha256
      * @param toHash the String to calculate the hash for
      * @return String containing the calculated hash
-     * @since 2019-09-04
      */
     public static String hash(String toHash){
         return Hashing.sha256()

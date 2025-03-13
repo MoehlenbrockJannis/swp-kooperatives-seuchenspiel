@@ -16,9 +16,6 @@ import java.net.InetSocketAddress;
 
 /**
  * This class handles opening a port clients can connect to.
- *
- * @author Marco Grawunder
- * @since 2019-11-20
  */
 public class Server {
 
@@ -26,11 +23,9 @@ public class Server {
 
     /**
      * Constructor
-     *
      * Creates a new Server Object
      * @see io.netty.channel.ChannelHandler
      * @see de.uol.swp.server.communication.ServerHandler
-     * @since 2019-11-20
      */
     public Server(ChannelHandler serverHandler) {
         this.serverHandler = serverHandler;
@@ -42,7 +37,6 @@ public class Server {
      * @param port port number the server shall be reachable on
      * @throws Exception server failed to start e.g. because the port is already in use
      * @see InetSocketAddress
-     * @since 2019-11-20
      */
     public void start(int port) throws InterruptedException {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -54,17 +48,12 @@ public class Server {
 
                 @Override
                 protected void initChannel(SocketChannel ch) {
-                    // Encoder and decoder are both needed! Send and
-                    // receive serializable objects
                     ch.pipeline().addLast(new MyObjectEncoder());
                     ch.pipeline().addLast(new MyObjectDecoder(ClassResolvers.cacheDisabled(null)));
-                    // must be last in the pipeline else they will not
-                    // get encoded/decoded objects but ByteBuf
                     ch.pipeline().addLast(serverHandler);
                 }
 
             });
-            // Just wait for server shutdown
             ChannelFuture f = b.bind().sync();
             f.channel().closeFuture().sync();
         } finally {

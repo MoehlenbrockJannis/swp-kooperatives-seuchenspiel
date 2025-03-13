@@ -6,6 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+/**
+ * Request to retrieve all roles associated with a specific lobby.
+ * <p>
+ * This request is sent by the client to fetch all roles currently assigned within a given {@link Lobby}.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Getter

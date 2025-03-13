@@ -55,8 +55,6 @@ import java.util.function.Supplier;
  * and managing the visual representation of the player marker.
  * </p>
  *
- * @author Marvin Tischer
- * @since 2025-01-16
  */
 public class PlayerPanePresenter extends AbstractPresenter {
     private static final int PLAYER_NUMBER_OF_ACTIONS_CIRCLE_RADIUS = 1;
@@ -425,8 +423,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Updates the player's information in the UI, including name, role, and hand cards.
      *
      * @param player the player whose information is to be displayed
-     * @author Marvin Tischer
-     * @since 2025-01-16
      */
     public void setPlayerInfo(Player player) {
         playerNameText.setText(player.getName());
@@ -442,8 +438,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Sets the visual marker for the player.
      *
      * @param playerMarker the marker to be displayed in the symbol pane
-     * @author Marvin Tischer
-     * @since 2025-01-16
      */
     public void setPlayerMarker(PlayerMarker playerMarker) {
         symbolPane.getChildren().clear();
@@ -614,9 +608,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * @param forecastEventCard The {@link ForecastEventCard} to update with the reordered infection cards.
      * @param approve A {@link Runnable} that will be executed after the forecast event card is updated.
      * @return A {@link Runnable} that performs the above actions when executed.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private Runnable prepareForecastEventCard(final ForecastEventCard forecastEventCard, final Runnable approve) {
         if (game.isGameLost() || game.isGameWon()) {
@@ -635,9 +626,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Opens a dialog for sorting infection cards and returns the reordered list of cards.
      *
      * @return A reordered list of {@link InfectionCard} if confirmed, or {@code null} if the operation was canceled.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private List<InfectionCard> openSortInfectionCardsDialog() {
         if (game.isGameLost() || game.isGameWon()) {
@@ -660,9 +648,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      * Creates and initializes a {@link SortInfectionCardsDialogPresenter} for sorting infection cards.
      *
      * @return A fully initialized {@link SortInfectionCardsDialogPresenter}.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private SortInfectionCardsDialogPresenter createListDialogPresenter() {
         SortInfectionCardsDialogPresenter listDialogPresenter =
@@ -681,9 +666,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      *
      * @param sortInfectionCardsDialogPresenter The presenter responsible for handling the infection card sorting dialog.
      * @return A {@link Stage} representing the modal dialog for sorting infection cards.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private Stage createDialogStage(SortInfectionCardsDialogPresenter sortInfectionCardsDialogPresenter) {
         Stage dialogStage = new Stage();
@@ -705,9 +687,6 @@ public class PlayerPanePresenter extends AbstractPresenter {
      *
      * @param stage The stage to be moved.
      * @param scene The scene used for tracking mouse events.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-25
      */
     private void enableDragging(Stage stage, Scene scene) {
         final DoubleProperty mouseX = new SimpleDoubleProperty();

@@ -39,9 +39,6 @@ import java.util.Objects;
 
 /**
  * Class that manages which window/scene is currently shown
- *
- * @author Marco Grawunder
- * @since 2019-09-03
  */
 public class SceneManager {
 
@@ -90,7 +87,6 @@ public class SceneManager {
      *
      * @param event The ShowMainMenuEvent detected on the EventBus
      * @see de.uol.swp.client.main_menu.events.ShowMainMenuEvent
-     * @since 2024-08-24
      */
     @Subscribe
     public void onShowMainMenuEvent(final ShowMainMenuEvent event){
@@ -106,7 +102,6 @@ public class SceneManager {
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
      * @see ShowRegistrationViewEvent
-     * @since 2019-09-03
      */
     @Subscribe
     public void onShowRegistrationViewEvent(ShowRegistrationViewEvent event){
@@ -121,7 +116,6 @@ public class SceneManager {
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
      * @see ShowLoginViewEvent
-     * @since 2019-09-03
      */
     @Subscribe
     public void onShowLoginViewEvent(ShowLoginViewEvent event){
@@ -136,7 +130,6 @@ public class SceneManager {
      *
      * @param event The ShowLobbyCreateViewEvent detected on the EventBus
      * @see ShowLobbyCreateViewEvent
-     * @since 2024-08-28
      */
     @Subscribe
     public void onShowLobbyCreateViewEvent(final ShowLobbyCreateViewEvent event) {
@@ -151,7 +144,6 @@ public class SceneManager {
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
      * @see RegistrationCanceledEvent
-     * @since 2019-09-03
      */
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event){
@@ -166,7 +158,6 @@ public class SceneManager {
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
      * @see RegistrationErrorEvent
-     * @since 2019-09-03
      */
     @Subscribe
     public void onRegistrationErrorEvent(RegistrationErrorEvent event) {
@@ -183,7 +174,6 @@ public class SceneManager {
      *
      * @param event The ShowLobbyOverviewViewEvent detected on the EventBus
      * @see de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent
-     * @since 2024-08-23
      */
     @Subscribe
     public void onShowLobbyOverviewEvent(final ShowLobbyOverviewViewEvent event) {
@@ -200,7 +190,6 @@ public class SceneManager {
      *
      * @param event The JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
      * @see JoinUserUserAlreadyInLobbyLobbyResponse
-     * @since 2024-08-29
      */
     @Subscribe
     public void onLobbyJoinUserUserAlreadyInLobbyResponse(final JoinUserUserAlreadyInLobbyLobbyResponse event) {
@@ -215,7 +204,6 @@ public class SceneManager {
      *
      * @param event The ShowLobbyViewEvent detected on the EventBus
      * @see ShowLobbyViewEvent
-     * @since 2024-08-28
      */
     @Subscribe
     public void onShowLobbyViewEvent(final ShowLobbyViewEvent event) {
@@ -227,7 +215,6 @@ public class SceneManager {
      *
      * @param message The type of error to be shown
      * @param e       The error message
-     * @since 2019-09-03
      */
     public void showError(String message, String e) {
         Platform.runLater(() -> {
@@ -248,7 +235,6 @@ public class SceneManager {
      * Shows a server error message inside an error alert
      *
      * @param e The error message
-     * @since 2019-09-03
      */
     public void showServerError(String e) {
         showError("" , e);
@@ -258,7 +244,6 @@ public class SceneManager {
      * Shows an error message inside an error alert
      *
      * @param e The error message
-     * @since 2019-09-03
      */
     public void showError(String e) {
         showError("" , e);
@@ -272,7 +257,6 @@ public class SceneManager {
      *
      * @param presenter Presenter of the new scene to show
      * @param title New window title
-     * @since 2019-09-03
      */
     private void showScene(final AbstractPresenter presenter, final String title) {
         this.lastScene = currentScene;
@@ -292,7 +276,6 @@ public class SceneManager {
      * Switches the current Scene to the mainScene and sets the title of
      * the window to "Welcome " and the username of the current user
      *
-     * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
         showScene(mainMenuPresenter, "Welcome " + currentUser.getUsername());
@@ -304,7 +287,6 @@ public class SceneManager {
      * Switches the current Scene to the loginScene and sets the title of
      * the window to "Login"
      *
-     * @since 2019-09-03
      */
     public void showLoginScreen() {
         showScene(loginPresenter,"Login");
@@ -316,7 +298,6 @@ public class SceneManager {
      * Switches the current Scene to the registrationScene and sets the title of
      * the window to "Registration"
      *
-     * @since 2019-09-03
      */
     public void showRegistrationScreen() {
         showScene(registrationPresenter,"Registrierung");
@@ -328,7 +309,6 @@ public class SceneManager {
      * Switches the current Scene to the {@link #lobbyCreatePresenter} screen and sets the title of
      * the window to "Lobby erstellen"
      *
-     * @since 2024-08-28
      */
     public void showLobbyCreateScreen() {
         showScene(lobbyCreatePresenter,"Lobby erstellen");
@@ -341,7 +321,6 @@ public class SceneManager {
      * Switches the current Scene to the lobbyOverviewScene and sets the title of the window
      * </p>
      *
-     * @since 2024-08-23
      */
     public void showLobbyOverviewScreen() {
         showScene(lobbyOverviewPresenter, "Lobby-Übersicht");
@@ -355,7 +334,6 @@ public class SceneManager {
      * </p>
      *
      * @param lobby Lobby to show window for
-     * @since 2024-08-28
      */
     public void showLobbyScreen(final Lobby lobby) {
         try {

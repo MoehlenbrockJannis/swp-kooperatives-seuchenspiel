@@ -12,8 +12,6 @@ import de.uol.swp.common.map.MapType;
  * @see Field
  * @see GameMap
  * @see MapType
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 public class StartingFieldNotFoundException extends RuntimeException {
     public StartingFieldNotFoundException(final String startingCityName) {

@@ -9,13 +9,9 @@ import org.greenrobot.eventbus.EventBus;
  * This class is used to hide the communication details
  * implements de.uol.common.user.UserService
  *
- * @author Marco Grawunder
  * @see ClientUserService
- * @since 2017-03-17
  *
  */
-
-
 public class UserService implements ClientUserService {
 
 	private final EventBus bus;
@@ -25,7 +21,6 @@ public class UserService implements ClientUserService {
 	 *
 	 * @param bus The  EventBus set in ClientModule
 	 * @see de.uol.swp.client.di.ClientModule
-	 * @since 2017-03-17
 	 */
 	@Inject
 	public UserService(EventBus bus) {
@@ -37,14 +32,12 @@ public class UserService implements ClientUserService {
 	 *
 	 * @param username the name of the user
 	 * @param password the password of the user
-	 * @since 2017-03-17
 	 */
 	@Override
 	public void login(String username, String password){
 		LoginRequest msg = new LoginRequest(username, password);
 		bus.post(msg);
 	}
-
 
 	@Override
 	public void logout(User user){

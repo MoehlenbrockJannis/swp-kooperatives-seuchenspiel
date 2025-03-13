@@ -9,11 +9,9 @@ import java.util.Objects;
  * Objects of this class are used to transfer user data between the server and the
  * clients.
  *
- * @author Marco Grawunder
  * @see de.uol.swp.common.user.User
  * @see RegisterUserRequest
  * @see RetrieveAllOnlineUsersResponse
- * @since 2019-08-13
  */
 public class UserDTO implements User {
 
@@ -27,7 +25,6 @@ public class UserDTO implements User {
      * @param username username of the user
      * @param password password the user uses
      * @param eMail email address the user is registered to
-     * @since 2019-08-13
      */
     public UserDTO(String username, String password, String eMail) {
         if (Objects.nonNull(username) && Objects.nonNull(password)) {
@@ -44,7 +41,6 @@ public class UserDTO implements User {
      *
      * @param user User object to copy the values of
      * @return UserDTO copy of User object
-     * @since 2019-08-13
      */
     public static UserDTO create(User user) {
         return new UserDTO(user.getUsername(), user.getPassword(), user.getEMail());
@@ -58,7 +54,6 @@ public class UserDTO implements User {
      *
      * @param user User object to copy the values of
      * @return UserDTO copy of User object having the password variable left empty
-     * @since 2019-08-13
      */
     public static UserDTO createWithoutPassword(User user) {
         return new UserDTO(user.getUsername(), "", user.getEMail());

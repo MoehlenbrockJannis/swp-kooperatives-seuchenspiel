@@ -6,9 +6,6 @@ import de.uol.swp.common.player.Player;
 /**
  * The {@code Approvable} interface defines an action that can be approved by a player.
  * It provides methods to get the approving player, check approval status, and approve the action.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public interface Approvable extends Answerable {
 

@@ -1,16 +1,14 @@
 package de.uol.swp.server.game.turn;
 
 import de.uol.swp.common.game.Game;
-import de.uol.swp.common.player.Player;
 import de.uol.swp.common.game.turn.PlayerTurn;
+import de.uol.swp.common.player.Player;
 
 /**
  * Management class for {@link PlayerTurn}.
  * All service logic for it is encapsulated here.
  *
  * @see PlayerTurn
- * @author Tom Weelborg
- * @since 2024-10-18
  */
 public class PlayerTurnManagement {
     /**

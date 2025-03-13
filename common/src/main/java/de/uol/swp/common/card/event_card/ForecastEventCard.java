@@ -26,9 +26,6 @@ public class ForecastEventCard extends EventCard {
 
     /**
      * Triggers the infection card stack update by reordering the cards as specified in {@code reorderedInfectionCards}.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     @Override
     public void trigger() {

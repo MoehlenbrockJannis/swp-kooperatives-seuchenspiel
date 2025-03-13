@@ -10,8 +10,6 @@ import java.io.Serializable;
  * objects.
  *
  * @see de.uol.swp.common.user.UserDTO
- * @author Marco Grawunder
- * @since 2019-08-05
  */
 public interface User extends Serializable, Comparable<User>, UserContainerEntity {
 
@@ -19,7 +17,6 @@ public interface User extends Serializable, Comparable<User>, UserContainerEntit
      * Getter for the username variable
      *
      * @return username of the user as String
-     * @since 2019-08-05
      */
     String getUsername();
 
@@ -27,7 +24,6 @@ public interface User extends Serializable, Comparable<User>, UserContainerEntit
      * Getter for the password variable
      *
      * @return password of the user as String
-     * @since 2019-08-05
      */
     String getPassword();
 
@@ -35,7 +31,6 @@ public interface User extends Serializable, Comparable<User>, UserContainerEntit
      * Getter for the email variable
      *
      * @return email address of the user as String
-     * @since 2019-08-05
      */
     String getEMail();
 
@@ -43,7 +38,6 @@ public interface User extends Serializable, Comparable<User>, UserContainerEntit
      * Creates a duplicate of this object leaving its password empty
      *
      * @return Copy of this with empty password field
-     * @since 2019-08-05
      */
     User getWithoutPassword();
 

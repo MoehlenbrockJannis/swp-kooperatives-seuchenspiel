@@ -14,6 +14,9 @@ import lombok.Getter;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Manages plague cube markers in a game field, handling animations and interactions.
+ */
 public class PlagueCubeMarkerPresenter extends AbstractPresenter {
 
     @Getter
@@ -133,6 +136,9 @@ public class PlagueCubeMarkerPresenter extends AbstractPresenter {
         stopAnimation();
     }
 
+    /**
+     * Updates the marker to show associated plague cubes based on their number.
+     */
     private void updateAssociatedPlagueCubes() {
         plagueCubeMarker.deleteAllAssociatedPlagueCubes();
 
@@ -150,6 +156,9 @@ public class PlagueCubeMarkerPresenter extends AbstractPresenter {
         updatePlagueCubeCounter();
     }
 
+    /**
+     * Updates the visibility of the plague cube counter based on the number of cubes.
+     */
     private void updatePlagueCubeCounter() {
         int numberOfAssociatedPlagueCubes = plagueCubeMarker.getNumberOfAssociatedPlagueCubes();
 
@@ -161,6 +170,9 @@ public class PlagueCubeMarkerPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     * Updates the marker to show foreign plague cubes for other diseases.
+     */
     private void updateForeignPlagueCubes() {
         plagueCubeMarker.deleteAllForeignPlagueCubes();
         plagueCubeMarker.addForeignPlagueCubes(field);

@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
  *
  * @see AbstractLobbyServerMessage
  * @see de.uol.swp.common.player
- * @since 2024-10-06
  */
 @NoArgsConstructor
 public abstract class AbstractPlayerLobbyServerMessage extends AbstractLobbyServerMessage {
@@ -29,7 +28,6 @@ public abstract class AbstractPlayerLobbyServerMessage extends AbstractLobbyServ
      *
      * @param lobby  The lobby that this server message is related to.
      * @param player The player involved in the message.
-     * @since 2024-10-06
      */
     protected AbstractPlayerLobbyServerMessage(Lobby lobby, Player player) {
         super(lobby);

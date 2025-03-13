@@ -12,9 +12,6 @@ import java.util.List;
 
 /**
  * This class represent and realized the charter flight action.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class CharterFlightAction extends MoveAction implements DiscardCardsAction {
 

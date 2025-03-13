@@ -52,9 +52,7 @@ import java.util.function.Supplier;
 /**
  * Manages the window representing the game map
  *
- * @author David Scheffler & Jannis Moehlenbrock
  * @see AbstractPresenter
- * @since 2024-09-09
  */
 
 public class GameMapPresenter extends AbstractPresenter {
@@ -328,6 +326,13 @@ public class GameMapPresenter extends AbstractPresenter {
         }
     }
 
+    /**
+     *
+     * Processes a field by handling plague cubes and possibly ending the player's turn.
+     * @param field The field to process.
+     * @param game The game instance.
+     * @param isLastField Flag indicating if this is the last field to process.
+     */
     private void processField(Field field, Game game, boolean isLastField) {
         final List<Plague> plagues = new ArrayList<>(field.getPlagueCubes().keySet());
         final int plaguesSize = plagues.size();
@@ -372,7 +377,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * Adds all players of the game to the pane as PlayerMarkers
      *
      * @see PlayerMarker
-     * @since 2024-09-28
      */
     private void addAllPlayerMarkers() {
         Game game = gameSupplier.get();
@@ -388,7 +392,6 @@ public class GameMapPresenter extends AbstractPresenter {
      *
      * @param player The player for which a playerMarker should be added
      * @see PlayerMarker
-     * @since 2024-10-04
      */
     private void addPlayerMarker(Player player) {
         Game game = gameSupplier.get();
@@ -436,7 +439,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param field The field to which the playerMarker should be bound
      * @param xOffset The x offset of the playerMarker
      * @param yOffset The y offset of the playerMarker
-     * @since 2024-10-04
      */
     private void bindLayoutProperties(PlayerMarker playerMarker, Field field, double xOffset, double yOffset) {
         double xCoordinate = (field.getXCoordinate() + xOffset) / SVG_VIEW_BOX_MAX_X;
@@ -453,7 +455,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * @param playerOnFieldIndex The index of the player on the field
      * @param playerMarkerWidth  The width of the playerMarker
      * @return The x offset of the playerMarker
-     * @since 2024-10-04
      */
     private double calculatePlayerXOffset(int playerOnFieldIndex, int playerAmountOnField, double playerMarkerWidth) {
         return (playerOnFieldIndex - (playerAmountOnField - 1) / 2.0) * playerMarkerWidth * PLAYER_MARKER_SCALE_FACTOR;
@@ -486,9 +487,6 @@ public class GameMapPresenter extends AbstractPresenter {
 
     /**
      * Binds the width and height of the webView to the pane
-     *
-     * @author David Scheffler
-     * @since 2024-09-09
      */
     private void bindSizePropertyOfWebView() {
         webViewPane.widthProperty().addListener((obs, oldVal, newVal) -> {
@@ -518,9 +516,6 @@ public class GameMapPresenter extends AbstractPresenter {
 
     /**
      * Loads svg file of the game map into the webView
-     *
-     * @author David Scheffler
-     * @since 2024-09-09
      */
     private void loadSvgIntoWebView() {
         WebEngine webEngine = webView.getEngine();
@@ -538,9 +533,7 @@ public class GameMapPresenter extends AbstractPresenter {
     /**
      * Creates {@link CityMarker} for each field in the game and adds them to the {@link #cityMarkerPane}.
      *
-     * @author David Scheffler
      * @see CityMarker
-     * @since 2024-09-10
      */
     private void addAllCityMarkers() {
         Game game = gameSupplier.get();
@@ -568,7 +561,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * Creates {@link PlagueCubeMarker} for each field in the game and adds them to the {@link #plagueCubeMarkerPane}.
      *
      * @see PlagueCubeMarker
-     * @since 2024-11-09
      */
     private void addAllPlagueCubeMarkers() {
         Game game = gameSupplier.get();
@@ -582,7 +574,6 @@ public class GameMapPresenter extends AbstractPresenter {
      *
      * @param field field to create PlagueCubeMarker for
      * @see PlagueCubeMarker
-     * @since 2024-11-09
      */
     private void addAnimatedPlagueCubeMarker(Field field, boolean setFinnishListener) {
         PlagueCubeMarker plagueCubeMarker = createPlagueCubeMarker(field);
@@ -594,7 +585,6 @@ public class GameMapPresenter extends AbstractPresenter {
      * Animates the PlagueCubeMarker
      *
      * @param plagueCubeMarker The PlagueCubeMarker to be animated
-     * @since 2025-01-21
      */
     private void animatePlagueCubeMarker(PlagueCubeMarker plagueCubeMarker, boolean setFinnishListener) {
         int animationDuration = 1000;

@@ -10,9 +10,7 @@ import javafx.scene.shape.Shape;
 /**
  * The ResearchLaboratoryMarker class is used to create a marker for the research laboratory on the game map.
  *
- * @author Silas van Thiel
  * @see GameMapPresenter
- * @since 04.11.2024
  */
 public class ResearchLaboratoryMarker extends Group {
 

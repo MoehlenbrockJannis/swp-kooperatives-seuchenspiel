@@ -22,6 +22,10 @@ import org.greenrobot.eventbus.Subscribe;
 import java.time.LocalTime;
 import java.util.List;
 
+/**
+ * This class handles the presentation and interaction of the chat functionality within the client application.
+ * It provides methods for sending, receiving, and displaying chat messages to the users.
+ */
 public class ChatPresenter extends AbstractPresenter {
     private Lobby lobby;
 
@@ -38,6 +42,9 @@ public class ChatPresenter extends AbstractPresenter {
     @Inject
     private LoggedInUserProvider loggedInUserProvider;
 
+    /**
+     * Initializes the chat presenter by setting up key event handling and configuring text wrapping for chat messages.
+     */
     public void initialize() {
         chatMessageInput.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -47,10 +54,22 @@ public class ChatPresenter extends AbstractPresenter {
         configureChatViewTextWrapping();
     }
 
+    /**
+     * Gets the current timestamp up to seconds precision.
+     *
+     * @return The current {@link LocalTime} timestamp with nanoseconds cleared.
+     */
     private LocalTime getCurrentTimeStamp() {
         return LocalTime.now().withNano(0);
     }
 
+    /**
+     * Handles the action of sending a chat request.
+     * <p>
+     * Retrieves the chat message from the input field, gets the current timestamp,
+     * and sends the message via {@link ChatService} either to the general chat or lobby chat.
+     * Clears the input field afterwards.
+     */
     @FXML
     private void onSendChatRequest() {
         String chatMessage = chatMessageInput.getText();
@@ -94,7 +113,6 @@ public class ChatPresenter extends AbstractPresenter {
      *
      * @param message the LoginSuccessfulResponse object seen on the EventBus
      * @see de.uol.swp.common.user.response.LoginSuccessfulResponse
-     * @since 2019-09-05
      */
     @Subscribe
     public void onLoginSuccessfulResponse(LoginSuccessfulResponse message) {
@@ -110,7 +128,6 @@ public class ChatPresenter extends AbstractPresenter {
      *
      * @param chatRetrieveAllMessagesMessage the RetrieveAllChatMessagesServerMessage object seen on the EventBus
      * @see RetrieveAllChatMessagesServerMessage
-     * @since 2024-08-26
      */
     @Subscribe
     public void onChatMessage(RetrieveAllChatMessagesServerMessage chatRetrieveAllMessagesMessage) {
@@ -127,7 +144,6 @@ public class ChatPresenter extends AbstractPresenter {
      *
      * @param lobbyChatRetrieveAllMessagesMessage the RetrieveAllLobbyChatMessagesServerMessage object seen on the EventBus
      * @see RetrieveAllUserLobbyChatMessagesServerMessage
-     * @since 2024-09-09
      */
     @Subscribe
     public void onLobbyChatMessage(RetrieveAllUserLobbyChatMessagesServerMessage lobbyChatRetrieveAllMessagesMessage) {
@@ -147,7 +163,6 @@ public class ChatPresenter extends AbstractPresenter {
      * @implNote The code inside this Method has to run in the JavaFX-application
      * thread. Therefore it is crucial not to remove the {@code Platform.runLater()}
      * @param chatMessages A list of chat messages
-     * @since 2024-08-26
      */
     private void updateChat(List<String> chatMessages) {
         Platform.runLater(() -> {
@@ -184,8 +199,6 @@ public class ChatPresenter extends AbstractPresenter {
                     setWrapText(true);
 
                     setText(item);
-
-
                 }
             }
         });

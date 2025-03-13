@@ -114,7 +114,6 @@ public class GameService extends AbstractService {
      * @return either empty Optional or Optional containing the Session
      * @see de.uol.swp.common.user.Session
      * @see de.uol.swp.common.player.AIPlayer
-     * @since 2025-01-27
      */
     public Optional<Session> getSession(AIPlayer aiPlayer) {
         return playerManagement.findSession(aiPlayer);

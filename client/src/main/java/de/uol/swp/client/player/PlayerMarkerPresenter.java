@@ -24,12 +24,8 @@ import java.util.function.Consumer;
  * Presents the player marker on the game map.
  * Contains all functions for the player marker.
  *
- * @author Jannis Moehlenbrock
  * @see PlayerMarker
- * @since 2024-11-13
  */
-
-
 @RequiredArgsConstructor
 public class PlayerMarkerPresenter extends AbstractPresenter {
 
@@ -153,7 +149,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * Each action is represented as a menu item that, when selected, highlights the fields to which the player can move.
      *
      * @return a ContextMenu containing the possible actions for the current turn
-     * @author Jannis Moehlenbrock
      */
     private ContextMenu createContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
@@ -185,7 +180,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      *
      * @param availableFields {@link List} of {@link Field} to highlight
      * @param fieldConsumer {@link Consumer} invoked when {@link Field} is clicked
-     * @author Jannis Moehlenbrock
      */
     private void prepareMap(final List<Field> availableFields, final Consumer<Field> fieldConsumer) {
         Map<String, CityMarker> cityMarkerMap = createCityMarkerMap();
@@ -200,7 +194,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * @param cityMarkerMap a map of city names to CityMarkers.
      * @param availableFields a list of available fields in the MoveAction.
      * @return a list of CityMarkers corresponding to the available fields.
-     * @author Jannis Moehlenbrock
      */
     private List<CityMarker> getCityMarkers(Map<String, CityMarker> cityMarkerMap, List<Field> availableFields) {
         List<CityMarker> localCityMarkers = new ArrayList<>();
@@ -219,7 +212,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      *
      * @param availableFields a list of available fields in the MoveAction.
      * @param cityMarkerMap a map of city names to CityMarkers.
-     * @author Jannis Moehlenbrock
      */
     private void setupCityMarkerActions(List<Field> availableFields, Map<String, CityMarker> cityMarkerMap, Consumer<Field> fieldConsumer) {
         for (Field field : availableFields) {
@@ -234,7 +226,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * Executes the prepared action for the selected city.
      *
      * @param targetField the target field for the action
-     * @author Jannis Moehlenbrock
      */
     private void executeMoveActionOnCity(MoveAction moveAction, Field targetField) {
         moveAction.setTargetField(targetField);
@@ -254,6 +245,9 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
         actionService.sendAction(game, moveAction);
     }
 
+    /**
+     * Unhighlighted all city markers
+     */
     private void unhighlightAllCityMarkers() {
         unhighlightCityMarkers.run();
     }
@@ -262,7 +256,6 @@ public class PlayerMarkerPresenter extends AbstractPresenter {
      * Creates a map of city markers keyed by the city name for quick lookup.
      *
      * @return a Map where the keys are city names and the values are CityMarker objects
-     * @author Jannis Moehlenbrock
      */
     private Map<String, CityMarker> createCityMarkerMap() {
         Map<String, CityMarker> cityMarkerMap = new HashMap<>();

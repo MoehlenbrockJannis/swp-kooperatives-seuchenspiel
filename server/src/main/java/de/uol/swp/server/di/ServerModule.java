@@ -16,12 +16,7 @@ import java.util.Map;
 /**
  * Module that provides classes needed by the Server.
  *
- * @author Marco Grawunder
- * @since 2019-09-18
- *
  */
-
-
 public class ServerModule extends AbstractModule {
 
     private static final Logger LOG = LogManager.getLogger(ServerModule.class);
@@ -54,6 +49,16 @@ public class ServerModule extends AbstractModule {
         stores.forEach((key, value) -> bind(key).toInstance(value));
     }
 
+    /**
+     * Checks if the database is available by verifying connectivity to the database host and port.
+     * <p>
+     * The method retrieves the database host and port configuration from a {@link DataSourceConfig} instance and uses
+     * a {@link ServerAvailabilityChecker} to determine if the database server is reachable within a specified timeout.
+     * The timeout value is read from the environment configuration.
+     * </p>
+     *
+     * @return {@code true} if the database server is available, {@code false} otherwise.
+     */
     private boolean isDatabaseAvailable() {
         final DataSourceConfig dataSourceConfig = new DataSourceConfig(envReader);
         String dbHost = dataSourceConfig.getDbHost();

@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
  * </p>
- *
- * @author Marco Grawunder
- * @since 2019-10-08
  */
 
 @ToString
@@ -47,7 +44,6 @@ public class LobbyDTO implements Lobby {
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
-     * @since 2019-10-08
      */
     public LobbyDTO(String name, User creator) {
         this.name = name;
@@ -104,6 +100,11 @@ public class LobbyDTO implements Lobby {
         }
     }
 
+    /**
+     * Updates the owner of the lobby if the owner is leaving.
+     *
+     * @param leavingUser The user who is leaving.
+     */
     private void updateOwnerIfLeavingUserIsOwner(UserContainerEntity leavingUser) {
         if (leavingUser.containsUser(this.owner)) {
             updateOwner(getUsers().iterator().next());
@@ -171,6 +172,9 @@ public class LobbyDTO implements Lobby {
         return status;
     }
 
+    /**
+     * Determines the current status of the lobby based on the number of players and existing state.
+     */
     private void determineLobbyStatus() {
         if (status.equals(LobbyStatus.OVER)) {
             return;

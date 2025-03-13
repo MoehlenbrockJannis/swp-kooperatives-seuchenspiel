@@ -1,7 +1,7 @@
 package de.uol.swp.client.map;
 
-import de.uol.swp.client.util.ColorService;
 import de.uol.swp.client.marker.HighlightableMarker;
+import de.uol.swp.client.util.ColorService;
 import de.uol.swp.common.map.Field;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -12,8 +12,6 @@ import lombok.Getter;
  * JavaFX circle element used to render in GameMapPresenter. This element represents a city on the game map.
  *
  * @see GameMapPresenter
- * @author David Scheffler
- * @since 2024-09-10
  */
 public class CityMarker extends HighlightableMarker {
 
@@ -27,8 +25,6 @@ public class CityMarker extends HighlightableMarker {
      * Constructor
      *
      * @param field A field of the gameMap from the current game
-     * @author David Scheffler
-     * @since 2024-09-10
      */
     public CityMarker(Field field) {
         this.field = field;
@@ -55,7 +51,6 @@ public class CityMarker extends HighlightableMarker {
      * @return Color of field's plague
      * @see Field
      * @see de.uol.swp.common.plague.Plague
-     * @since 2024-10-12
      */
     public Color getColor() {
         return ColorService.convertColorToJavaFXColor(field.getPlague().getColor());

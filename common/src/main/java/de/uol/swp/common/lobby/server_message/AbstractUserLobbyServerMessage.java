@@ -20,7 +20,6 @@ import lombok.Setter;
  *
  * @see de.uol.swp.common.user.User
  * @see AbstractServerMessage
- * @since 2024-10-06
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -34,7 +33,6 @@ public class AbstractUserLobbyServerMessage extends AbstractLobbyServerMessage {
      *
      * @param lobby The lobby that this server message is related to.
      * @param user  The user involved in the message.
-     * @since 2024-10-06
      */
     public AbstractUserLobbyServerMessage(Lobby lobby, User user) {
         super(lobby);

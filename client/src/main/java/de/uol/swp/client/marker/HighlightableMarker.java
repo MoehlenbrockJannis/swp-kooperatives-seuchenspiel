@@ -9,6 +9,9 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
+/**
+ * Organize the highlighting for the markers
+ */
 public abstract class HighlightableMarker extends Group {
     protected Timeline colorTimeline;
     protected Timeline scaleTimeline;
@@ -22,8 +25,6 @@ public abstract class HighlightableMarker extends Group {
 
     /**
      * Initializes the highlight animation.
-     *
-     * @since 2024-10-13
      */
     private void initHighlightAnimation() {
         int duration = 800;
@@ -58,8 +59,6 @@ public abstract class HighlightableMarker extends Group {
 
     /**
      * Starts the highlight animation.
-     *
-     * @since 2024-10-12
      */
     public void highlight() {
         colorTimeline.play();
@@ -68,8 +67,6 @@ public abstract class HighlightableMarker extends Group {
 
     /**
      * Stops the highlight animation
-     *
-     * @since 2024-10-12
      */
     public void unhighlight() {
         colorTimeline.stop();

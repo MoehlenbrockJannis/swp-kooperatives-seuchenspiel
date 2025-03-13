@@ -8,9 +8,6 @@ import javafx.scene.paint.Color;
 
 /**
  * Presents the roles tab within the {@link GameInstructionsPresenter}.
- *
- * @author David Scheffler
- * @since 2025-03-10
  */
 public class ActionsTabPresenter extends AbstractPresenter {
 

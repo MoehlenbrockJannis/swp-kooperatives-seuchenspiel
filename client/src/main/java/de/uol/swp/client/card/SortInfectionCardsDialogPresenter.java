@@ -17,6 +17,10 @@ import javafx.stage.Window;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class manages the presentation and interaction of sorting infection cards in a dialog.
+ * It provides a graphical interface for users to drag and drop cards to reorder them.
+ */
 public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
 
     @FXML
@@ -37,9 +41,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      * Creates a {@link ListCell} for infection cards with drag-and-drop functionality.
      *
      * @return A new {@link ListCell} configured for drag-and-drop operations.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private ListCell<InfectionCard> createDragAndDropCell() {
         ListCell<InfectionCard> cell = new ListCell<>();
@@ -60,9 +61,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      *
      * @param cell The list cell to update.
      * @param item The infection card whose title should be displayed in the cell.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void updateCellText(ListCell<InfectionCard> cell, InfectionCard item) {
         cell.setText(item == null ? null : item.getTitle());
@@ -73,9 +71,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      *
      * @param event The mouse event that triggered the drag action.
      * @param cell  The list cell containing the infection card to be dragged.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void startDrag(javafx.scene.input.MouseEvent event, ListCell<InfectionCard> cell) {
         if (cell.getItem() == null) return;
@@ -93,9 +88,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      *
      * @param event The drag event that triggered the acceptance check.
      * @param cell  The list cell where the item may be dropped.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void acceptDrag(javafx.scene.input.DragEvent event, ListCell<InfectionCard> cell) {
         Object gestureSource = event.getGestureSource();
@@ -111,9 +103,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      *
      * @param event The drag event that triggered the drop action.
      * @param cell  The list cell where the item is dropped.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void handleDrop(javafx.scene.input.DragEvent event, ListCell<InfectionCard> cell) {
         Dragboard dragboard = event.getDragboard();
@@ -134,9 +123,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      *
      * @param draggedItem The infection card that was dragged.
      * @param cell        The list cell where the dragged item is dropped.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void swapItems(InfectionCard draggedItem, ListCell<InfectionCard> cell) {
         InfectionCard targetItem = cell.getItem();
@@ -155,9 +141,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      * and assigning it to the list view if available.
      *
      * @param cardStack The initial stack of infection cards to be displayed.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     public void initialize(List<InfectionCard> cardStack) {
         this.items = FXCollections.observableArrayList(cardStack);
@@ -168,9 +151,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
 
     /**
      * Confirms the selection and closes the current stage.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     @FXML
     private void confirmSelectedInfectionCards() {
@@ -187,9 +167,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      * Returns whether the action has been confirmed.
      *
      * @return {@code true} if the action was confirmed, {@code false} otherwise.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     public boolean wasConfirmed() {
         return confirmedSelection;
@@ -199,9 +176,6 @@ public class SortInfectionCardsDialogPresenter extends AbstractPresenter {
      * Returns a copy of the current list of infection cards.
      *
      * @return A new {@link List} containing the infection cards.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     public List<InfectionCard> getUpdatedList() {
         return new ArrayList<>(items);

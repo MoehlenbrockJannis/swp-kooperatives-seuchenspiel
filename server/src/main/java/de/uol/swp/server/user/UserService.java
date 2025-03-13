@@ -17,11 +17,7 @@ import org.greenrobot.eventbus.Subscribe;
  * Mapping vom event bus calls to user management calls
  *
  * @see de.uol.swp.server.AbstractService
- * @author Marco Grawunder
- * @since 2019-08-05
  */
-
-
 @Singleton
 public class UserService extends AbstractService {
 
@@ -35,7 +31,6 @@ public class UserService extends AbstractService {
      * @param eventBus the EventBus used throughout the entire server (injected)
      * @param userManagement object of the UserManagement to use
      * @see de.uol.swp.server.user.UserManagement
-     * @since 2019-08-05
      */
     @Inject
     public UserService(EventBus eventBus, UserManagement userManagement) {
@@ -56,7 +51,6 @@ public class UserService extends AbstractService {
      * @see RegisterUserRequest
      * @see RegisterUserSuccessResponse
      * @see RegisterUserExceptionResponse
-     * @since 2019-09-02
      */
     @Subscribe
     public void onRegisterUserRequest(RegisterUserRequest msg) {

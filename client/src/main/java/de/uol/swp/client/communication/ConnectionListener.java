@@ -9,10 +9,8 @@ import io.netty.channel.Channel;
  * and exceptionOccurred in order to call them through a loop to reduce unnecessary
  * code repetition.
  *
- * @author Marco Grawunder
  * @see de.uol.swp.client.ClientApp
  * @see ClientConnection
- * @since 2017-03-17
  */
 public interface ConnectionListener {
 
@@ -21,7 +19,6 @@ public interface ConnectionListener {
 	 *
 	 * @param channel The netty channel the connection is established on
 	 * @see ClientConnection
-	 * @since 2017-03-17
 	 */
 	void connectionEstablished(Channel channel);
 	
@@ -30,7 +27,6 @@ public interface ConnectionListener {
 	 *
 	 * @param cause The cause which led to sending the exception
 	 * @see ClientConnection
-	 * @since 2017-03-17
 	 */
     void exceptionOccurred(String cause);
 	

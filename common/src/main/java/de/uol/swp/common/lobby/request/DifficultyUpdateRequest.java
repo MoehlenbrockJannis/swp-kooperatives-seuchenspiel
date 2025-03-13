@@ -14,7 +14,6 @@ import lombok.Getter;
  * (number of epidemic cards) in the lobby.
  *
  * @see AbstractRequestMessage
- * @since 2025-01-28
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

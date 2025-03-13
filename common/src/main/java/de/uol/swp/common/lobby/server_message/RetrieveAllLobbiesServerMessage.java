@@ -8,6 +8,12 @@ import lombok.Getter;
 
 import java.util.List;
 
+/**
+ * Server message that contains a list of all existing lobbies.
+ * <p>
+ * This message is sent by the server to provide the client with a list of all available {@link Lobby} instances.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter

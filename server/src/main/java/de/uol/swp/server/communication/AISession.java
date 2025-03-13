@@ -13,8 +13,6 @@ import java.util.UUID;
  *
  * @see de.uol.swp.server.user.AuthenticationService#onLoginRequest(LoginRequest)
  * @see Session
- * @author Silas van Thiel
- * @since 2025-01-27
  */
 public class AISession implements Session {
 

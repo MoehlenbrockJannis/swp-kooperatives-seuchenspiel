@@ -14,8 +14,6 @@ import org.greenrobot.eventbus.EventBus;
 /**
  * The {@link ApprovableService} handles sending of {@link ApprovableRequest} with appropriate {@link ApprovableMessageStatus}.
  * It utilizes an {@link EventBus} to post requests with an {@link Approvable}.
- *
- * @author Tom Weelborg
  */
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class ApprovableService {

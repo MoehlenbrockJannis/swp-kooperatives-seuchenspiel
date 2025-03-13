@@ -32,8 +32,6 @@ import java.util.Optional;
 /**
  * The ActionService class handles the execution of actions requested by clients in the game.
  * It subscribes to action requests and processes them if valid.
- *
- * @author: Jannis Moehlenbrock
  */
 @Singleton
 public class ActionService extends AbstractService {
@@ -123,6 +121,15 @@ public class ActionService extends AbstractService {
         }
     }
 
+    /**
+     * Sends a system chat message if the action processed is a plague cube cure.
+     * <p>
+     * This method checks if the given {@code ActionRequest} contains a {@link CurePlagueAction}.
+     * If so, it constructs a message describing the cured plague cube and posts it to the lobby as a system message.
+     * </p>
+     *
+     * @param request The {@link ActionRequest} containing the action to check.
+     */
     private void sendChatMessageIfPlagueCubeCure(ActionRequest request) {
         if(request.getAction() instanceof CurePlagueAction curePlagueAction) {
             Lobby lobby = request.getGame().getLobby();
@@ -133,6 +140,17 @@ public class ActionService extends AbstractService {
         }
     }
 
+    /**
+     * Constructs a descriptive text message for a {@link CurePlagueAction}.
+     * <p>
+     * The message includes details about the plague being cured, the city where the action took place,
+     * and the specific player involved in the action.
+     * </p>
+     *
+     * @param request           The {@link ActionRequest} containing information about the game and the current player.
+     * @param curePlagueAction  The {@link CurePlagueAction} being processed.
+     * @return A string describing the plague cube cure action.
+     */
     private String getCurePlagueActionText(ActionRequest request, CurePlagueAction curePlagueAction) {
         String plagueName = curePlagueAction.getPlague().getName();
         Player currentPlayer = request.getGame().getCurrentPlayer();
@@ -140,7 +158,7 @@ public class ActionService extends AbstractService {
         String currentCity = currentField.getCity().getName();
 
         String text;
-        text = "Der/Die Seuchenwürfel der Stadt " + currentCity +  " ( " + plagueName + " ) wurde/n entfernt.";
+        text = "Der/Die Seuchenwürfel der Stadt " + currentCity + " ( " + plagueName + " ) wurde/n entfernt.";
         return text;
     }
 
@@ -149,8 +167,6 @@ public class ActionService extends AbstractService {
      * The message includes the player's name and the name of the plague they researched.
      *
      * @param actionRequest The action request containing the game context and action details.
-     * @author Marvin Tischer
-     * @since 2025-02-12
      */
     private void sendDiscoveredAntidoteChatMessage(ActionRequest actionRequest) {
         if (actionRequest.getAction() instanceof DiscoverAntidoteAction antidoteAction) {

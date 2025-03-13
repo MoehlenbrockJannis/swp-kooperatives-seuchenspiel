@@ -14,9 +14,6 @@ import lombok.Setter;
  * This action can either remove one plague cube or all plague cubes from the field,
  * depending on the availability of the option to remove all cubes at once.
  * It extends the {@link AdvancedAction} class and includes methods to execute the curing process.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter

@@ -12,9 +12,6 @@ import java.util.stream.Collectors;
  * The {@code ReceiveCardAction} class represents an action where a player receives a card from another player.
  * It extends {@link ShareKnowledgeAction} and provides a method to retrieve the corresponding {@link SendCardAction}
  * of the opponent who is sending the card.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class ReceiveCardAction extends ShareKnowledgeAction {
 

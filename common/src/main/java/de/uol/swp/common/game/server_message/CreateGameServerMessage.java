@@ -7,6 +7,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Server message representing the creation of a new game.
+ * <p>
+ * This message is sent by the server to notify clients about the creation of a new game,
+ * including the initialized {@link Game} object with all its relevant details.
+ * </p>
+ */
 @AllArgsConstructor
 @Getter
 @NoArgsConstructor

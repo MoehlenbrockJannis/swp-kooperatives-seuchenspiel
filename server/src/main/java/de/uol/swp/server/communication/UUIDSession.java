@@ -13,8 +13,6 @@ import java.util.UUID;
  *
  * @see de.uol.swp.server.user.AuthenticationService#onLoginRequest(LoginRequest)
  * @see de.uol.swp.common.user.Session
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 public class UUIDSession implements Session {
 
@@ -26,7 +24,6 @@ public class UUIDSession implements Session {
 	 * private Constructor
 	 *
 	 * @param user the user connected to the session
-	 * @since 2017-03-17
 	 */
 	private UUIDSession(User user) {
 		synchronized (UUIDSession.class) {
@@ -42,7 +39,6 @@ public class UUIDSession implements Session {
 	 *
 	 * @param user the user connected to the session
 	 * @return a new UUIDSession object for the user
-	 * @since 2019-08-07
 	 */
 	public static Session create(User user) {
 		return new UUIDSession(user);

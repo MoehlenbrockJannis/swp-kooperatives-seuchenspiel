@@ -8,9 +8,6 @@ import java.io.Serializable;
 /**
  * Represents a color defined by its RGB components.
  * This class provides methods to create colors using integer values for red, green, and blue components.
- *
- * @author David Scheffler
- * @since 2024-09-23
  */
 @Getter
 @EqualsAndHashCode
@@ -21,9 +18,6 @@ public class Color implements Serializable {
 
     /**
      * Default constructor that initializes the color to black (RGB: 0, 0, 0).
-     *
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     public Color() {
         this.r = 0;
@@ -38,8 +32,6 @@ public class Color implements Serializable {
      * @param r The red component (0-255)
      * @param g The green component (0-255)
      * @param b The blue component (0-255)
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     public Color(int r, int g, int b) {
         this.r = validateValue(r);
@@ -53,8 +45,6 @@ public class Color implements Serializable {
      *
      * @param rgbValue The RGB value to validate
      * @return The validated RGB value
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     private int validateValue(int rgbValue) {
         if (rgbValue >= 0 && rgbValue <= 255) {
@@ -71,8 +61,6 @@ public class Color implements Serializable {
      * @param r The red component (0-255)
      * @param g The green component (0-255)
      * @param b The blue component (0-255)
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     public void setColor(int r, int g, int b) {
         this.r = validateValue(r);

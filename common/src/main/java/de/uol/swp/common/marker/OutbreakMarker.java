@@ -10,7 +10,6 @@ import java.util.List;
  * This class is primarily used to monitor and manage the outbreak status within a game scenario.
  *
  * @see LevelableMarker
- * @since 2024-10-01
  */
 public class OutbreakMarker extends LevelableMarker{
 
@@ -21,7 +20,6 @@ public class OutbreakMarker extends LevelableMarker{
      * different stages or levels of outbreaks.
      *
      * @param levelValues A list of integers representing the outbreak levels.
-     * @since 2024-10-01
      */
     public OutbreakMarker(List<Integer> levelValues) {
         super(levelValues);

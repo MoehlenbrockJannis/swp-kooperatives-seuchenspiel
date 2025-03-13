@@ -2,6 +2,13 @@ package de.uol.swp.common.card;
 
 import java.util.Objects;
 
+/**
+ * Represents an abstract Player card in the game.
+ * <p>
+ * This class serves as a base for all player cards and provides common functionality,
+ * such as equality and hashing based on the card's title.
+ * </p>
+ */
 public abstract class PlayerCard extends Card{
 
     @Override

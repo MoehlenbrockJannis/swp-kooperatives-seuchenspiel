@@ -13,7 +13,6 @@ import java.util.List;
  * This class provides functionality for increasing the level and retrieving the current level value.
  *
  * @see Marker
- * @since 2024-10-01
  */
 public abstract class LevelableMarker extends Marker{
     @Getter
@@ -30,7 +29,6 @@ public abstract class LevelableMarker extends Marker{
      * and retrieve the current level's corresponding value.
      *
      * @param levelValues A list of integers representing the possible levels.
-     * @since 2024-10-01
      */
     protected LevelableMarker(List<Integer> levelValues) {
         this.levelValues = levelValues;
@@ -43,8 +41,6 @@ public abstract class LevelableMarker extends Marker{
      * This method increments the current level of the marker, progressing it to the next
      * stage based on the predefined levelValues. It also updates the previous level value
      * to the current level value before incrementing.
-     *
-     * @since 2024-10-01
      */
     public void increaseLevel() {
         if (!isAtMaximumLevel()) {
@@ -60,7 +56,6 @@ public abstract class LevelableMarker extends Marker{
      * from the levelValues list.
      *
      * @return The value of the current level.
-     * @since 2024-10-01
      */
     public int getLevelValue() {
         return this.levelValues.get(this.level);
@@ -70,7 +65,6 @@ public abstract class LevelableMarker extends Marker{
      * Returns the level value associated with the given index.
      *
      * @return The level value of the given index.
-     * @since 2025-02-10
      */
     public int getLevelValue(int index) {
         return this.levelValues.get(index);
@@ -80,7 +74,6 @@ public abstract class LevelableMarker extends Marker{
      * Returns the number of levels of the marker.
      *
      * @return number of levels
-     * @since 2025-02-10
      */
     public int getNumberOfLevels() {
         return this.levelValues.size();

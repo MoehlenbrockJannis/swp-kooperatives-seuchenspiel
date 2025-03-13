@@ -19,8 +19,6 @@ import java.util.Set;
  * @see City
  * @see GameMap
  * @see MapSlot
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter

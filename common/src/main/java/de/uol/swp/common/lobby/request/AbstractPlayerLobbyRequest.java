@@ -11,8 +11,6 @@ import lombok.Getter;
  * {@link Player} object, representing the player involved in the request. It is used as a
  * base class for more specific player-related lobby requests, such as adding or removing players
  * from the lobby.
- *
- * @since 2024-10-06
  */
 @Getter
 public abstract class AbstractPlayerLobbyRequest extends AbstractLobbyRequest {

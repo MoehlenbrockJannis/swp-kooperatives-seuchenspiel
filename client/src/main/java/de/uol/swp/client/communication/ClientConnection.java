@@ -31,11 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>
  * This Class manages connecting to a server, disconnecting  from the server and
  * handling of incoming and outgoing messages.
- *
- * @author Marco Grawunder
- * @since 2017-03-17
  */
-
 
 public class ClientConnection {
 
@@ -53,7 +49,6 @@ public class ClientConnection {
 	 *
 	 * @param host The server name or IP to connect to
 	 * @param port The server port to connect to
-	 * @since 2017-03-17
 	 */
 	@Inject
 	public ClientConnection(@Assisted String host, @Assisted int port, EventBus eventBus) {
@@ -69,7 +64,6 @@ public class ClientConnection {
 	 *
 	 * @implNote If the object already has an EventBus it is replaced but not unregistered
 	 * @param eventBus The new EventBus to set
-	 * @since 2019-09-18
 	 */
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
@@ -85,7 +79,6 @@ public class ClientConnection {
 	 * the ChannelHandler.
 	 *
 	 * @implNote If no ChannelHandler is added, communication will not be possible
-	 * @since 2017-03-17
 	 */
 	public void start() throws InterruptedException {
 		group = new NioEventLoopGroup();
@@ -113,8 +106,6 @@ public class ClientConnection {
 	 * <p>
 	 * Disconnects the client from the server and prints the stack trace if an
 	 * InterruptedException is thrown.
-	 *
-	 * @since 2017-03-17
 	 */
 	public void close() throws InterruptedException {
 		group.shutdownGracefully().sync();
@@ -126,7 +117,6 @@ public class ClientConnection {
 	 *
 	 * @param channel The netty channel the new Connection is established on
 	 * @see ConnectionListener
-	 * @since 2017-03-17
 	 */
 	void fireConnectionEstablished(Channel channel) {
 		for (ConnectionListener listener : connectionListener) {
@@ -140,7 +130,6 @@ public class ClientConnection {
 	 *
 	 * @param listener The ConnectionListener to add to the Array
 	 * @see ConnectionListener
-	 * @since 2017-03-17
 	 */
 	public void addConnectionListener(ConnectionListener listener) {
 		this.connectionListener.add(listener);
@@ -159,7 +148,6 @@ public class ClientConnection {
 	 *
 	 * @param in The incoming messages read by the ClientHandler
 	 * @see de.uol.swp.client.communication.ClientHandler
-	 * @since 2017-03-17
 	 */
 	public void receivedMessage(Message in) {
 		LOG.debug("Received message. Post on event bus {}" , in);
@@ -175,7 +163,6 @@ public class ClientConnection {
 	 * written to the LOG if the LOG-Level is set to WARN or higher.
 	 *
 	 * @param message The RequestMessage object to  send to the server
-	 * @since 2019-08-29
 	 */
 	@Subscribe
 	public void onRequestMessage(RequestMessage message){
@@ -194,7 +181,6 @@ public class ClientConnection {
 	 * ConnectionListener array.
 	 *
 	 * @param message The ExceptionMessage object found on the EventBus
-	 * @since 2017-03-17
 	 */
 	@Subscribe
 	public void onExceptionMessage(ExceptionResponseMessage message) {
@@ -212,7 +198,6 @@ public class ClientConnection {
 	 *
 	 * @param message The ExceptionMessage object found on the EventBus
 	 * @see de.uol.swp.client.communication.ClientHandler
-	 * @since 2017-03-17
 	 */
 	public void process(Throwable message) {
 		for (ConnectionListener l : connectionListener) {

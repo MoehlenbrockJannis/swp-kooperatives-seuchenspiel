@@ -25,9 +25,6 @@ import java.util.List;
  * Presenter for selecting city cards required for antidote research.
  * Allows players to choose the required number of city cards matching
  * the plague type for discovering an antidote.
- *
- * @author Marvin Tischer
- * @since 2025-02-05
  */
 public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresenter {
 
@@ -51,9 +48,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Initializes the UI components for the view.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     @FXML
     public void initialize() {
@@ -64,9 +58,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Sets up the ListView for selecting multiple {@link CityCard}s.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void setupListView() {
         MultipleSelectionModel<CityCard> selectionModel = listView.getSelectionModel();
@@ -80,9 +71,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Sets up the action handlers for the confirm and cancel buttons..
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void setupButtons() {
         confirmButton.setOnAction(event -> handleConfirmButton());
@@ -92,9 +80,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Updates the state of the confirm button based on the number of selected city cards.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-17
      */
     private void updateConfirmButtonState() {
         confirmButton.setDisable(listView.getSelectionModel().getSelectedItems().size() != requiredCardsForDiscoveringAntidote);
@@ -102,9 +87,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Handles the confirm button action by validating the number of selected items.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private void handleConfirmButton() {
         selectedItems = listView.getSelectionModel().getSelectedItems();
@@ -115,9 +97,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
     /**
      * Handles the cancel button action by clearing the selected items
      * and closing the current window.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private void handleCancelButton() {
         selectedItems.clear();
@@ -128,8 +107,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
      * Closes the stage (window) associated with the given button.
      *
      * @param button The button whose stage should be closed.
-     * @author Marvin Tischer
-     * @since 2025-02-07
      */
     private void closeStage(Button button) {
         Scene buttonScene = button.getScene();
@@ -143,9 +120,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
      *
      * @param action The antidote discovery action.
      * @param plague The plague for which the antidote is being researched.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public void initialize(DiscoverAntidoteAction action, Plague plague) {
         this.discoverAntidoteAction = action;
@@ -168,8 +142,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
      * @param handCard The player card to check.
      * @param plague The plague to check for.
      * @return {@code true} if the card is a {@code CityCard} and has the specified plague, otherwise {@code false}.
-     * @author Marvin
-     * @since 2025-02-09
      */
     private boolean isCityCardWithPlague(PlayerCard handCard, Plague plague) {
         return handCard instanceof CityCard cityCard && cityCard.hasPlague(plague);
@@ -177,9 +149,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
 
     /**
      * Sends the action after selecting city cards and disables the antidote button.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public void sendDiscoverAntidoteAction() {
         for (CityCard cityCard : selectedItems) {
@@ -192,9 +161,6 @@ public class SelectCityCardsForAntidoteResearchPresenter extends AbstractPresent
      * Updates the list view with the given city cards.
      *
      * @param handCards The list of city cards that can be selected.
-     *
-     * @author Marvin Tischer
-     * @since 2025-02-05
      */
     public void setHandCards(List<CityCard> handCards) {
         ObservableList<CityCard> listViewItems = this.listView.getItems();

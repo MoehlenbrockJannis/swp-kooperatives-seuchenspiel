@@ -11,9 +11,6 @@ import java.util.stream.Collectors;
 
 /**
  * A message containing all current logged in usernames
- * 
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -27,7 +24,6 @@ public class RetrieveAllOnlineUsersServerMessage extends AbstractServerMessage {
 	 * Constructor
 	 *
 	 * @param users List containing all users currently logged in
-	 * @since 2017-03-17
 	 */
 	public RetrieveAllOnlineUsersServerMessage(final List<User> users){
 		this.users = users.stream()

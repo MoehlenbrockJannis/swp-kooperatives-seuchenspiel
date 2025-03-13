@@ -23,9 +23,6 @@ import java.util.List;
  * has the corresponding city card. It is executable if it is available and if moving a research laboratory
  * is required, the origin field must be set.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 public class BuildResearchLaboratoryAction extends AdvancedAction implements DiscardCardsAction {

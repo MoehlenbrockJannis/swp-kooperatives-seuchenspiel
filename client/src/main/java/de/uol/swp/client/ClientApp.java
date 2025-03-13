@@ -31,13 +31,9 @@ import org.greenrobot.eventbus.Subscribe;
  * This class handles the startup of the application, as well as, incoming login
  * and registration responses and error messages
  *
- * @author Marco Grawunder
  * @see ConnectionListener
  * @see javafx.application.Application
- * @since 2017-03-17
  */
-
-
 public class ClientApp extends Application implements ConnectionListener {
 
 	private static final Logger LOG = LogManager.getLogger(ClientApp.class);
@@ -127,7 +123,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The LoginSuccessfulResponse object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2017-03-17
 	 */
 	@Subscribe
 	public void onLoginSuccessfulResponse(LoginSuccessfulResponse message) {
@@ -146,7 +141,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The UserLoggedOutMessage object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2024-08-29
 	 */
 	@Subscribe
 	public void onLogoutSuccessfulResponse(LogoutServerMessage message) {
@@ -164,7 +158,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The RegistrationExceptionMessage object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2019-09-02
 	 */
 	@Subscribe
 	public void onRegistrationExceptionMessage(RegisterUserExceptionResponse message){
@@ -182,7 +175,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The RegistrationSuccessfulResponse object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2019-09-02
 	 */
 	@Subscribe
 	public void onRegistrationSuccessfulMessage(RegisterUserSuccessResponse message) {
@@ -198,7 +190,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 * Default startup method for javafx applications
 	 *
 	 * @param args Any arguments given when starting the application
-	 * @since 2017-03-17
 	 */
 	public static void main(String[] args) {
 		launch(args);

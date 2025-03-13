@@ -8,9 +8,6 @@ import java.io.Serial;
 
 /**
  * Encapsulates an Exception in a message object
- * 
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)

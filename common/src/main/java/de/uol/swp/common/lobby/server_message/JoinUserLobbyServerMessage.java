@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
  *
  * @see AbstractUserLobbyServerMessage
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-10-08
  */
 @NoArgsConstructor
 public class JoinUserLobbyServerMessage extends AbstractUserLobbyServerMessage {
@@ -19,7 +17,6 @@ public class JoinUserLobbyServerMessage extends AbstractUserLobbyServerMessage {
      *
      * @param lobby lobby
      * @param user user who joined the lobby
-     * @since 2019-10-08
      */
     public JoinUserLobbyServerMessage(Lobby lobby, User user) {
         super(lobby, user);

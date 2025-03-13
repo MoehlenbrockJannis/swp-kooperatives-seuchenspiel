@@ -8,10 +8,8 @@ import lombok.RequiredArgsConstructor;
 /**
  * Provides the currently logged in user stored on {@link ClientApp}
  *
- * @author Tom Weelborg
  * @see ClientApp
  * @see User
- * @since 2024-08-18
  */
 @RequiredArgsConstructor
 public class LoggedInUserProvider implements Provider<User> {
