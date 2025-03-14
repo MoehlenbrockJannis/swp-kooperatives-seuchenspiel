@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Tab closable="false" text="Spielablauf" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="de.uol.swp.client.game.instructions.GameplayTabPresenter">
+    <ScrollPane fitToWidth="true">
+
+        <VBox spacing="10">
+            <TextFlow>
+                <Text styleClass="tab-h1" text="Spielablauf"/>
+            </TextFlow>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <StackPane fx:id="playerCardStackPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Das Spiel ist rundenbasiert. Die Reihenfolge der Spieler wird zufällig festgelegt. Es existieren vier Seuchen, Blau, Gelb, Schwarz und Rot, für die von den Spielern jeweils ein Gegenmittel entdeckt werden muss. Für jede der Seuchen existieren 24 Seuchenwürfel. Außerdem sind insgesamt sechs Forschungslabore verfügbar."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Während jedes Spielzugs werden vom aktuellen Spieler eine Aktionsphase, eine Spielerkartenzugphase und eine Infektionskartenzugphase durchgeführt."/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Aktionsphase"/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Jeder Spieler führt während seines Spielzuges zuerst vier Aktionen aus. Er kann während seines Zuges nur verfügbare Aktionen ausführen. Die verfügbaren Aktionen werden entweder als aktivierte Knöpfe rechts neben den Informationen zu seinem Spieler dargestellt oder als Kontextmenü beim Linksklick auf seine Spielfigur."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Während jedes Spielzugs werden vom aktuellen Spieler eine Aktionsphase, eine Spielerkartenzugphase und eine Infektionskartenzugphase durchgeführt."/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Spielerkartenzugphase"/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Nach dem Ausführen von vier Aktionen muss ein Spieler 2 Karten vom Spieler-Zugstapel ziehen und seiner Hand hinzufügen. Für das Ziehen einer Karte erscheint beim ziehenden Spieler ein Popup."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Falls die gezogene Karte eine Epidemiekarte ist, wird diese nicht der Hand hinzugefügt. Der Spieler zieht keine neue Karte als Ersatz. Stattdessen wird eine Epidemie ausgelöst"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Falls der Spieler keine 2 Karten mehr ziehen kann, ist das Spiel verloren."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Falls der Spieler nach dem Ziehen mehr als 7 Karten auf der Hand hat, muss er eine Karte abwerfen. Die ausgewählte Karte wird auf den Spieler-Ablagestapel abgeworfen. Eine Ereigniskarte wird durch Ablegen nicht ausgespielt."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
+
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <StackPane fx:id="infectionCardStackPane" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Infektionskartenzugphase"/>
+                    </TextFlow>
+
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Nach dem Ziehen der Spielerkarten werden Infektionskarten gezogen. Die Anzahl entspricht der aktuellen Infektionsrate des Infektionszählers. In jeder der abgebildeten Städte wird jeweils ein Seuchenwürfel der Seuche mit der Farbe der Stadt platziert. Falls das Gegenmittel zu einer Seuche bereits entdeckt wurde, werden keine Seuchenwürfel für diese Seuche platziert. Liegen in einer Stadt bereits drei Seuchenwürfel dieser Farbe aus, wird kein weiterer Würfel mehr hinzugefügt. Stattdessen wird ein Ausbruch dieser Farbe ausgelöst."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Ein Ausbruch wird immer dann ausgelöst, wenn ein Spieler in einer Stadt, in der bereits 3 Seuchenwürfel einer Farbe platziert sind, einen 4. Seuchenwürfel dieser Farbe auslegen müsste. In diesem Fall wird in der betroffenen Stadt kein weiterer Seuchenwürfel platziert, aber in allen benachbarten Städten wird je 1 Seuchenwürfel dieser Farbe ausgelegt."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Würde einer dieser neuen Seuchenwürfel dazu führen, dass auch in einer der benachbarten Städte die Obergrenze der Würfel in dieser Farbe überschritten ist, wird ein weiterer Ausbruch ausgelöst. Das wird als Kettenreaktion bezeichnet. Pro Kettenreaktion kann in jeder Stadt nur ein Ausbruch ausgelöst werden."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Bei jedem Ausbruch wird der Ausbruchszähler um eine Stufe erhöht. Erreicht die Zahl der Ausbrüche die Stufe 8 oder sind nicht mehr genügend Seuchenwürfel zur Verfügung, die während eines Ausbruchs platziert werden können, ist das Spiel sofort verloren."/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Nach dem Platzieren aller benötigten Seuchenwürfel werden die Infektionskarten auf den Infektionskartenablagestapel abgeworfen. Danach ist der Spielzug zu Ende und der nächste Spieler ist am Zug."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </ScrollPane>
+</Tab>

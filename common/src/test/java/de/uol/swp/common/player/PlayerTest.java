@@ -10,15 +10,19 @@ import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
+import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.common.util.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,20 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Unit test class for the UserPlayer class.
- * This class contains test methods to verify the functionality and behavior
- * of the UserPlayer class, including equality, hash code consistency, and hand card management.
- * It initializes the test environment by creating instances of UserDTO and UserPlayer
- * before each test.
- * The tests cover the following scenarios:
- * - Equality and hash code consistency of Player instances
- * - Correct behavior of the equals method when comparing different types of objects
- * - Successful addition and removal of cards from a UserPlayer's hand
- *
- * @see Player
- * @since 2024-09-18
- */
 class PlayerTest {
     private String user1Name;
     private String user2Name;
@@ -53,19 +43,6 @@ class PlayerTest {
     private CityCard cityCardField1;
     private CityCard cityCardField2;
 
-    /**
-     * This method is executed before each test case.
-     * It initializes the test environment by creating instances of UserDTO and UserPlayer.
-     * Specifically, it sets up:
-     * - user1 with the name "Ralf", ID "2", and email "Ralf@mail.com"
-     * - user2 with the name "Peter", ID "3", and email "Peter@mail.com"
-     * - player1 and player2 as UserPlayer instances based on user1
-     * - player3 as a UserPlayer instance based on user2
-     * <p>
-     * This setup ensures that each test starts with a consistent and predefined state.
-     *
-     * @since 2024-09-18
-     */
     @BeforeEach
     void setUp() {
         field1 = createField();
@@ -86,7 +63,16 @@ class PlayerTest {
     }
 
     private Field createField() {
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(new Plague("testPlague", new Color(1, 2, 3)));
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         final GameMap map = mock(GameMap.class);
+        when(map.getType())
+                .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
         return new Field(map, mapSlot);
     }
@@ -98,41 +84,19 @@ class PlayerTest {
                 .hasToString(user1Name);
     }
 
-    /**
-     * This test verifies that the equals method correctly
-     * identifies two Player instances as equal
-     * when they are initialized with the same UserDTO instance.
-     * It asserts that player1 and player2 are considered equal.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Should return true if both objects have same name")
     void equalsShouldReturnTrueForEqualPlayers() {
         assertThat(player1).isEqualTo(player2);
     }
 
-    /**
-     * This test verifies that the equals method correctly
-     * identifies two Player instances as not equal
-     * when they are initialized with different UserDTO instances.
-     * It asserts that player1 and player3 are not considered equal.
-     *
-     * @since 2024-09-18
-     */
+
     @Test
     @DisplayName("Should return false if both objects do not have same name")
     void equalsShouldReturnFalseForDifferentPlayers() {
         assertThat(player1).isNotEqualTo(player3);
     }
 
-    /**
-     * This test verifies that the equals method returns false when compared with an object
-     * that is not an instance of Player.
-     * It asserts that player1 does not equal an Object instance that is not a Player.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Should return false if objects are of different types")
     void testEqualsReturnsFalseWhenObjectIsNotPlayer() {
@@ -140,38 +104,18 @@ class PlayerTest {
         assertThat(player1.equals(notAPlayer)).isFalse();
     }
 
-    /**
-     * This test verifies that the hashCode method is consistent with the equals method.
-     * It asserts that player1 and player2, which are considered equal, have the same hash code.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Equal objects should have same hashCode")
     void hashCodeShouldBeConsistentWithEquals() {
         assertThat(player1).hasSameHashCodeAs(player2);
     }
 
-    /**
-     * This test verifies that the hashCode method produces different hash codes
-     * for Player instances that are not considered equal.
-     * It asserts that player1 and player3, which are not equal, have different hash codes.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Unequal objects should not have same hashCode")
     void hashCodeShouldBeDifferentForDifferentPlayers() {
         assertThat(player1).doesNotHaveSameHashCodeAs(player3);
     }
 
-    /**
-     * This test verifies that a hand card is successfully added to a UserPlayer's hand.
-     * It creates a new UserPlayer and a CityCard, adds the card to the player's hand,
-     * and then asserts that the hand contains the added card.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Hand cards should contain given card after call")
     void shouldAddHandCardSuccessfully() {
@@ -183,15 +127,6 @@ class PlayerTest {
         assertThat(this.player1.getHandCards()).contains(card);
     }
 
-    /**
-     * This test verifies that a card can be successfully added to
-     * and then removed from a UserPlayer's hand.
-     * It creates a new UserPlayer and a CityCard,
-     * adds the card to the player's hand, removes it,
-     * and then asserts that the hand no longer contains the card.
-     *
-     * @since 2024-09-18
-     */
     @Test
     @DisplayName("Hand cards should not contain given card after call")
     void shouldAddAndRemoveCardFromHand() {

@@ -1,33 +1,32 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
 import de.uol.swp.common.action.RoleAction;
+import de.uol.swp.common.card.CityCard;
 import de.uol.swp.common.player.Player;
+
+import java.util.List;
 
 /**
  * The {@code NoLimitsSendCardAction} class allows sending a card without restrictions.
  * It extends {@link SendCardAction} and implements {@link RoleAction}.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class NoLimitsSendCardAction extends SendCardAction implements RoleAction {
 
     /**
      * <p>
-     *     {@link NoLimitsSendCardAction} is available as long as the sender has hand cards.
+     *     Returns a {@link List} of hand cards the {@link #getSender()} can send.
+     *     The requirement to determine whether a hand card can be sent is that it has to be a {@link CityCard}.
      * </p>
      *
-     * @return {@code true} if sender has hand cards, {@code false} otherwise
-     * @see Player#hasHandCards()
+     * @return a {@link List} of cards the {@link #getSender()} can send
+     * @see Player#getHandCards()
+     * @see CityCard
      */
     @Override
-    public boolean isAvailable() {
-        return getSender().hasHandCards();
-    }
-
-    @Override
-    public boolean isExecutable() {
-        return isAvailable() && isApproved();
+    protected List<CityCard> getSendableCards() {
+        return getExecutingPlayer().getHandCards().stream()
+                .filter(CityCard.class::isInstance)
+                .map(CityCard.class::cast)
+                .toList();
     }
 }
-

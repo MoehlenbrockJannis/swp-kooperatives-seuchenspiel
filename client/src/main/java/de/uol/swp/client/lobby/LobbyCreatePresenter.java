@@ -3,15 +3,12 @@ package de.uol.swp.client.lobby;
 import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
-import de.uol.swp.client.main.events.ShowMainMenuEvent;
+import de.uol.swp.client.main_menu.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
-import de.uol.swp.common.game.Game;
 import de.uol.swp.common.lobby.response.CreateLobbyResponse;
 import de.uol.swp.common.user.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
@@ -19,20 +16,12 @@ import org.greenrobot.eventbus.Subscribe;
 /**
  * Manages the lobby create window
  *
- * @author Niklas Wrobel
  * @see de.uol.swp.client.AbstractPresenter
- * @since 2024-08-28
  */
 @NoArgsConstructor
 public class LobbyCreatePresenter extends AbstractPresenter {
     @FXML
     private TextField lobbyNameField;
-
-    @FXML
-    private PasswordField lobbyPasswordField;
-
-    @FXML
-    private ComboBox<Integer> maxPlayersComboBox;
 
     @Inject
     private LobbyService lobbyService;
@@ -40,76 +29,54 @@ public class LobbyCreatePresenter extends AbstractPresenter {
     private LoggedInUserProvider loggedInUserProvider;
 
     /**
-     * Initializes the presenter
+     * Handles the create lobby button click event.
+     * Creates a new game lobby with the specified name if fields are valid
+     * and the user is logged in.
      *
-     * Initializes the presenter by setting the range of the player amount combobox
-     * and resetting the max players combobox selection.
-     *
+     * @param event The ActionEvent triggered by the button click
      */
-    public void initialize() {
-        setPlayerAmountRange(Game.MIN_NUMBER_OF_PLAYERS, Game.MAX_NUMBER_OF_PLAYERS);
-        resetMaxPlayersComboBoxSelection();
-    }
-
-    /**
-     * Resets the max players combobox selection to the first item.
-     */
-    private void resetMaxPlayersComboBoxSelection() {
-        maxPlayersComboBox.getSelectionModel().selectFirst();
-    }
-
-    /**
-     * Sets the range of the player amount combobox
-     *
-     * Sets the range of the player amount combobox to the given values.
-     *
-     * @param minNumberOfPlayers The minimum number of players
-     * @param maxNumberOfPlayers The maximum number of players
-     */
-    private void setPlayerAmountRange(int minNumberOfPlayers, int maxNumberOfPlayers) {
-        for (int i = minNumberOfPlayers; i <= maxNumberOfPlayers; i++) {
-            maxPlayersComboBox.getItems().add(i);
-        }
-    }
-
     @FXML
     private void onCreateLobbyButtonClicked(final ActionEvent event) {
         final String lobbyName = lobbyNameField.getText();
-        final int selectedMaxPlayers = maxPlayersComboBox.getValue();
 
         if (lobbyName.isEmpty()) {
-            // TODO: throw exception and show error message
             return;
         }
 
         final User loggedInUser = loggedInUserProvider.get();
         if (loggedInUser == null) {
-            // TODO: throw exception and show error message
             return;
         }
 
         clearInputFields();
-        lobbyService.createNewLobby(lobbyName, loggedInUser, Game.MIN_NUMBER_OF_PLAYERS, selectedMaxPlayers);
+        lobbyService.createNewLobby(lobbyName, loggedInUser);
     }
 
     /**
      * Clears the input fields
-     *
+     * <p>
      * Clears the input fields of the lobby name and password fields.
      *
      */
     private void clearInputFields() {
         lobbyNameField.clear();
-        lobbyPasswordField.clear();
-        resetMaxPlayersComboBoxSelection();
     }
 
+    /**
+     * Handles the cancel button click event by clearing input fields and returning to the main menu.
+     *
+     * @param event The ActionEvent triggered by the button click
+     */
     @FXML
     private void onCancelButtonClicked(final ActionEvent event) {
         clearInputFields();
         backToMainMenu();
     }
 
+    /**
+     * Navigates back to the main menu for the currently logged in user.
+     * Posts a ShowMainMenuEvent to the event bus.
+     */
     private void backToMainMenu() {
         final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
         eventBus.post(showMainMenuEvent);
@@ -117,13 +84,12 @@ public class LobbyCreatePresenter extends AbstractPresenter {
 
     /**
      * Handles LobbyCreatedResponse detected on the EventBus
-     *
+     * <p>
      * If a {@link CreateLobbyResponse} is detected on the EventBus, this method gets
      * called. It posts a {@link ShowLobbyViewEvent} to the EventBus.
      *
      * @param event The LobbyCreatedResponse detected on the EventBus
      * @see CreateLobbyResponse
-     * @since 2024-08-28
      */
     @Subscribe
     public void onLobbyCreatedResponse(final CreateLobbyResponse event) {

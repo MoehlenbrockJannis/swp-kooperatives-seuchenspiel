@@ -11,11 +11,13 @@ import java.util.List;
 
 /**
  * This class represent and realized the direct flight action.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class DirectFlightAction extends MoveAction implements DiscardCardsAction {
+
+    @Override
+    public String toString() {
+        return "Direktflug";
+    }
 
     /**
      * <p>

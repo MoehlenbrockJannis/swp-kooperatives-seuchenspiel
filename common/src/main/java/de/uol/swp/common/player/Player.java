@@ -4,7 +4,6 @@ import de.uol.swp.common.action.Action;
 import de.uol.swp.common.action.GeneralAction;
 import de.uol.swp.common.action.RoleAction;
 import de.uol.swp.common.card.CityCard;
-import de.uol.swp.common.card.OverviewCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.role.RoleCard;
@@ -27,8 +26,6 @@ public abstract class Player implements Serializable, UserContainerEntity {
     @Setter
     private Field currentField;
     private List<PlayerCard> handCards;
-    private Date lastSick;
-    private OverviewCard overviewCard;
 
     /**
      * Constructor for creating a Player instance with the lastSick date.
@@ -217,5 +214,20 @@ public abstract class Player implements Serializable, UserContainerEntity {
             return Set.of();
         }
         return role.getRoleSpecificUnavailableActionClasses();
+    }
+
+    /**
+     * Retrieves the hand card that matches the given player card.
+     *
+     * @param card the player card to find in the hand
+     * @return the matching player card from the hand
+     */
+    @SuppressWarnings("unchecked")
+    public <P extends PlayerCard> P getHandCardForGivenPlayerCard(P card) {
+        PlayerCard playerCard = handCards.get(handCards.indexOf(card));
+        if (playerCard != null) {
+            return (P) playerCard;
+        }
+        throw new NoSuchElementException("No matching card found in hand.");
     }
 }

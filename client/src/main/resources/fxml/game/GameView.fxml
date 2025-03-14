@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.ContextMenu?>
-<?import javafx.scene.control.MenuItem?>
 <GridPane alignment="CENTER" prefHeight="500" prefWidth="1000.0"
           style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/22"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uol.swp.client.game.GamePresenter">
@@ -30,7 +27,7 @@
         <RowConstraints percentHeight="100"/>
         <RowConstraints percentHeight="100"/>
         <RowConstraints percentHeight="100"/>
-        <RowConstraints percentHeight="100"/>
+        <RowConstraints percentHeight="20"/>
         <RowConstraints percentHeight="100"/>
         <RowConstraints percentHeight="100"/>
         <RowConstraints percentHeight="100"/>
@@ -38,16 +35,13 @@
         <RowConstraints percentHeight="100"/>
     </rowConstraints>
     <!-- Column 0 -->
-    <fx:include source="GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
+    <fx:include source="../map/GameMapView.fxml" fx:id="gameMap" style="-fx-background-color: #a6d1f1; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="10" GridPane.rowSpan="7"/>
     <Pane fx:id="settingsPane" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <ImageView fx:id="settingsIcon" preserveRatio="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Image url="@/images/setting-line-icon.png"/>
-        </ImageView>
+        <FontAwesomeIconView fx:id="settingsIcon" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <fx:define>
             <ContextMenu fx:id="settingsContextMenu">
                 <items>
                     <MenuItem fx:id="instructionsMenuItem" text="Spielanleitung" />
-                    <MenuItem fx:id="settingsMenuItem" text="Einstellungen" />
                     <MenuItem fx:id="leaveGameMenuItem" text="Spiel verlassen" />
                 </items>
             </ContextMenu>
@@ -56,15 +50,13 @@
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </GridPane.margin>
     </Pane>
-    <Pane style="-fx-background-color: red; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.rowSpan="3">
-        <Text layoutX="10.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ausbrüche"/>
-    </Pane>
+    <StackPane fx:id="outbreakStackPane"
+               style="-fx-background-color: whitesmoke; -fx-border-width: 10; -fx-border-color: whitesmoke;"
+               GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.rowSpan="3"/>
 
     <!-- Column 1 -->
-    <Pane style="-fx-background-color: blue; -fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7"
-          GridPane.rowSpan="2">
-        <Text layoutX="127.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eigener Spieler"/>
-    </Pane>
+    <StackPane fx:id="ownPlayerContainer" style="-fx-border-width: 0 10 10 0; -fx-border-color: whitesmoke;" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="7" GridPane.rowSpan="2"/>
+
 
     <!-- Column 2 -->
 
@@ -73,61 +65,106 @@
     <!-- Column 4 -->
 
     <!-- Column 5 -->
-    <Pane style="-fx-background-color: slateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
-          GridPane.rowIndex="7">
-        <Text layoutX="100.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Aktionen"/>
-    </Pane>
-    <Pane style="-fx-background-color: darkslateblue; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="5" GridPane.columnSpan="3"
-          GridPane.rowIndex="8">
-        <Text layoutX="72.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Gegenmittelmarker"/>
-    </Pane>
+    <GridPane style="-fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;"
+              GridPane.columnIndex="5" GridPane.columnSpan="3"
+              GridPane.rowIndex="7" hgap="10">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+            <ColumnConstraints percentWidth="100"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="100"/>
+        </rowConstraints>
+        <StackPane GridPane.columnIndex="0">
+            <Button fx:id="researchLaboratoryButton" onAction="#addResearchLaboratoryButtonPressed"
+                    GridPane.columnIndex="0"/>
+        </StackPane>
+
+        <StackPane GridPane.columnIndex="1">
+            <Button fx:id="curePlagueActionButton" onAction="#executeCurePlagueActionButtonPressed"
+                    GridPane.columnIndex="1"/>
+        </StackPane>
+
+        <StackPane GridPane.columnIndex="2">
+            <Button fx:id="shareKnowledgeActionButton" GridPane.columnIndex="2"/>
+        </StackPane>
+
+        <StackPane GridPane.columnIndex="3">
+            <Button fx:id="waiveActionButton" onAction="#addWaiveButtonPressed" GridPane.columnIndex="3"/>
+        </StackPane>
+    </GridPane>
+
+    <GridPane fx:id="buttonContainer"
+              style="-fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;"
+              GridPane.columnIndex="5" GridPane.columnSpan="3" GridPane.rowIndex="8" hgap="10">
+        <rowConstraints>
+            <RowConstraints percentHeight="100"/>
+        </rowConstraints>
+    </GridPane>
 
     <!-- Column 6 -->
-    <Pane style="-fx-background-color: pink; -fx-border-width: 10; -fx-border-color: whitesmoke;" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="0">
-        <Text layoutX="40.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0"
-              text="Anzahl Forschungslabore/Seuchenwürfel"/>
-    </Pane>
-    <Pane opacity="0.3" style="-fx-background-color: black;" GridPane.columnIndex="6" GridPane.columnSpan="4"
-          GridPane.rowIndex="4" GridPane.rowSpan="3">
-        <GridPane.margin>
-            <Insets bottom="10.0" right="10.0" />
-        </GridPane.margin>
-    </Pane>
-    <Pane GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="4" GridPane.rowSpan="3">
-        <Text layoutX="135.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Chat"/>
-        <GridPane.margin>
-            <Insets bottom="10.0" right="10.0" />
-        </GridPane.margin>
-    </Pane>
+    <GridPane fx:id="remainingComponentsPane"
+              style="-fx-border-width: 10; -fx-border-color: whitesmoke; -fx-background-color: #dbdbdb;"
+              GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="0">
+        <rowConstraints>
+            <RowConstraints percentHeight="100" minHeight="0"/>
+        </rowConstraints>
+        <columnConstraints>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="20"/>
+        </columnConstraints>
+    </GridPane>
+
+
+    <StackPane fx:id="chatStackPane" GridPane.columnIndex="6" GridPane.columnSpan="4" GridPane.rowIndex="3" GridPane.rowSpan="4">
+        <AnchorPane fx:id="chatAnchorPane">
+            <fx:include source="../chat/ChatView.fxml" fx:id="chatComponent"
+                        AnchorPane.topAnchor="0.0"
+                        AnchorPane.bottomAnchor="0.0"
+                        AnchorPane.leftAnchor="0.0"
+                        AnchorPane.rightAnchor="0.0"/>
+            <Button fx:id="topRightChatToggleButton" text="Chat ↓"
+                    onAction="#toggleChat"
+                    AnchorPane.topAnchor="25.0"
+                    AnchorPane.rightAnchor="20.0"/>
+            <Button fx:id="bottomRightChatToggleButton" text="Chat ↑"
+                    onAction="#toggleChat"
+                    AnchorPane.bottomAnchor="10.0"
+                    AnchorPane.rightAnchor="10.0"/>
+        </AnchorPane>
+    </StackPane>
 
     <!-- Column 7 -->
 
     <!-- Column 8 -->
-    <Pane fx:id="playerCardStackPane" style="-fx-background-color: teal; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
-        <!--<Text layoutX="27.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spielerkarten"/>-->
-        <fx:include source="CardOverviewComponent.fxml" fx:id="playerCardsOverview"/>
+    <Pane fx:id="playerCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2" GridPane.rowIndex="7">
     </Pane>
-    <Pane fx:id="infectionCardStackPane" style="-fx-background-color: darkolivegreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
+    <Pane fx:id="infectionCardStackPane" style="-fx-background-color: lightgray; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="8" GridPane.columnSpan="2"
           GridPane.rowIndex="8">
-        <fx:include source="CardOverviewComponent.fxml" fx:id="infectionCardsOverview"/>
     </Pane>
+    <StackPane fx:id="infectionMarkerStackPane" style="-fx-background-color: whitesmoke; -fx-border-color: whitesmoke; -fx-border-width: 10;"
+               GridPane.columnIndex="9" GridPane.columnSpan="1" GridPane.rowIndex="4" GridPane.rowSpan="3"/>
 
     <!-- Column 9 -->
 
     <!-- Column 10 -->
-    <Pane style="-fx-background-color: yellowgreen; -fx-border-color: whitesmoke; -fx-border-width: 10 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
-          GridPane.rowIndex="0" GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 2"/>
-    </Pane>
-    <Pane style="-fx-background-color: lime; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2" GridPane.rowIndex="3"
-          GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 3"/>
-    </Pane>
-    <Pane style="-fx-background-color: springgreen; -fx-border-color: whitesmoke; -fx-border-width: 0 10 10 0;" GridPane.columnIndex="10" GridPane.columnSpan="2"
-          GridPane.rowIndex="6" GridPane.rowSpan="3">
-        <Text layoutX="58.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spieler 4"/>
-    </Pane>
-
+    <GridPane fx:id="playerContainer" style="-fx-border-color: whitesmoke; -fx-border-width: 10 10 10 0;" vgap="10" GridPane.columnIndex="10" GridPane.columnSpan="2" GridPane.rowIndex="0" GridPane.rowSpan="9">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="100" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="100" />
+            <RowConstraints percentHeight="100" />
+            <RowConstraints percentHeight="100" />
+        </rowConstraints>
+    </GridPane>
     <!-- Column 11 -->
+
+    <fx:include source="../game/instructions/GameInstructionsView.fxml" fx:id="gameInstructionsGridPane" GridPane.columnSpan="12" GridPane.rowSpan="9" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
 
 </GridPane>

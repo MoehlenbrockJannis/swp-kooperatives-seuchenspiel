@@ -34,6 +34,12 @@ class MapSlotTest {
     }
 
     @Test
+    void testToString() {
+        assertThat(mapSlot)
+                .hasToString(city.getName());
+    }
+
+    @Test
     @DisplayName("Should return true if given plague is equal to specified plague")
     void hasPlague_true() {
         assertThat(mapSlot.hasPlague(plague))

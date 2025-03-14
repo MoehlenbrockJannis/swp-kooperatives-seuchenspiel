@@ -3,9 +3,6 @@ package de.uol.swp.common.player;
 import de.uol.swp.common.user.User;
 import lombok.Getter;
 
-import java.util.Date;
-import java.util.Objects;
-
 /**
  * The UserPlayer class represents a human player in the game, associated with a User account.
  * This class extends the base Player class and links the player's actions and information
@@ -29,9 +26,13 @@ public class UserPlayer extends Player{
      * Retrieves the username of the associated User object.
      *
      * @return the username of the user controlling this player
+     * @implNote null check relevant for object decoding
      */
     @Override
     public String getName() {
+        if(user == null) {
+            return Integer.toHexString(System.identityHashCode(this));
+        }
         return user.getUsername();
     }
 

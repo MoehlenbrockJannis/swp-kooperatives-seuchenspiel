@@ -16,11 +16,9 @@ import java.util.Collection;
  * It contains a List with User objects of every user currently logged in to the
  * server.
  *
- * @author Marco Grawunder
  * @see AbstractResponseMessage
  * @see de.uol.swp.common.user.request.RetrieveAllOnlineUsersRequest
  * @see de.uol.swp.common.user.User
- * @since 2019-08-13
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -30,14 +28,13 @@ public class RetrieveAllOnlineUsersResponse extends AbstractResponseMessage {
 
     /**
      * Constructor
-     *
+     * <p>
      * This constructor generates a new List of the logged in users from the given
      * Collection. The significant difference between the two being that the new
      * List contains copies of the User objects. These copies have their password
      * variable set to an empty String.
      *
      * @param users Collection of all users currently logged in
-     * @since 2019-08-13
      */
     public RetrieveAllOnlineUsersResponse(final Collection<User> users) {
         for (final User user : users) {

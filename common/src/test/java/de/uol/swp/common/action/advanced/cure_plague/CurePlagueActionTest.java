@@ -4,17 +4,22 @@ import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.map.GameMap;
 import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.AIPlayer;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.role.RoleAbility;
+import de.uol.swp.common.role.RoleCard;
 import de.uol.swp.common.util.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +32,10 @@ class CurePlagueActionTest {
     private GameMap map;
     private Plague plague;
     private List<Plague> plagues;
+    private List<Field> infectedFields;
+
+    private RoleCard roleCard;
+    private RoleAbility roleAbility;
 
     @BeforeEach
     void setUp() {
@@ -35,9 +44,18 @@ class CurePlagueActionTest {
         plagues = new ArrayList<>();
         plagues.add(plague);
 
+        final Set<Plague> plagueSet = new HashSet<>();
+        plagueSet.add(plague);
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
+
         map = mock(GameMap.class);
         when(map.getMaxNumberOfPlagueCubesPerField())
                 .thenReturn(3);
+        when(map.getType())
+                .thenReturn(mapType);
         final MapSlot mapSlot = mock(MapSlot.class);
         field = new Field(map, mapSlot);
         when(map.getFields())
@@ -45,6 +63,10 @@ class CurePlagueActionTest {
 
         player = new AIPlayer("t");
         player.setCurrentField(field);
+
+        this.roleAbility = mock(RoleAbility.class);
+        this.roleCard = new RoleCard("", new Color(), roleAbility);
+        player.setRole(roleCard);
 
         final Game game = mock(Game.class);
         when(game.getPlagues())
@@ -56,13 +78,15 @@ class CurePlagueActionTest {
         action.setExecutingPlayer(player);
         action.setGame(game);
         action.setPlague(plague);
+
+        infectedFields = new ArrayList<>();
     }
 
     @Test
     @DisplayName("Should remove one plague cube from current field")
     void removeOnePlagueCube() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), infectedFields);
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         action.removeOnePlagueCube();
 
@@ -73,33 +97,16 @@ class CurePlagueActionTest {
     }
 
     @Test
-    @DisplayName("Should remove all plague cubes from current field")
-    void removeAllPlagueCubes() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
-
-        action.removeAllPlagueCubes();
-
-        assertThat(field.isCurable(plague))
-                .isFalse();
-        verify(action.getGame(), times(2))
-                .addPlagueCube(any());
-    }
-
-    @Test
     @DisplayName("Should return true if there is an antidote marker for specified plague on game")
-    void isRemoveAllPlagueCubesAvailable_true() {
+    void hasAntidoteMarkerForPlague() {
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
-
-        assertThat(action.isRemoveAllPlagueCubesAvailable())
-                .isTrue();
     }
 
     @Test
     @DisplayName("Should return false if there is no antidote marker for specified plague on game")
     void isRemoveAllPlagueCubesAvailable_false() {
-        assertThat(action.isRemoveAllPlagueCubesAvailable())
+        assertThat(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .isFalse();
     }
 
@@ -110,7 +117,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         assertThat(action.isAvailable())
                 .isTrue();
@@ -143,7 +150,7 @@ class CurePlagueActionTest {
 
         plagues.add(plague2);
 
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         assertThat(action.isExecutable())
                 .isTrue();
@@ -166,8 +173,8 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove one plague cube from current field if action is executable and the option to remove all plague cubes is unavailable")
     void execute_oneCube() {
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), infectedFields);
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         action.execute();
 
@@ -180,11 +187,14 @@ class CurePlagueActionTest {
     @Test
     @DisplayName("Should remove all plague cubes from current field if action is executable and the option to remove all plague cubes is available")
     void execute_allCubes() {
+        action.setExecutingPlayer(player);
         when(action.getGame().hasAntidoteMarkerForPlague(plague))
                 .thenReturn(true);
+        when(action.getGame().getCurrentPlayer())
+                .thenReturn(player);
 
-        field.infect(new PlagueCube(plague));
-        field.infect(new PlagueCube(plague));
+        field.infectField(new PlagueCube(plague), infectedFields);
+        field.infectField(new PlagueCube(plague), infectedFields);
 
         action.execute();
 

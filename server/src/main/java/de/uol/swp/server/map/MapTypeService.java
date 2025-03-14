@@ -1,5 +1,6 @@
 package de.uol.swp.server.map;
 
+import com.google.inject.Singleton;
 import de.uol.swp.common.map.request.RetrieveOriginalGameMapTypeRequest;
 import de.uol.swp.common.map.response.RetrieveOriginalGameMapTypeResponse;
 import de.uol.swp.server.AbstractService;
@@ -11,16 +12,14 @@ import org.greenrobot.eventbus.Subscribe;
  * Handles the mapType requests sent by the client
  *
  * @see de.uol.swp.common.map.MapType
- * @author David Scheffler
- * @since 2024-09-23
  */
+@Singleton
 public class MapTypeService extends AbstractService {
 
     /**
      * Constructor
      *
      * @param bus the EvenBus used throughout the server
-     * @since 2024-09-22
      */
     @Inject
     public MapTypeService(EventBus bus) {

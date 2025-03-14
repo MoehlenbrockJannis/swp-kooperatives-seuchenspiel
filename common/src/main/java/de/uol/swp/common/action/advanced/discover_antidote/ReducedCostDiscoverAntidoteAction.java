@@ -9,9 +9,6 @@ import de.uol.swp.common.action.RoleAction;
  * <p>
  * The reduced cost is reflected by requiring fewer discarded cards than a standard {@code DiscoverAntidoteAction}.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class ReducedCostDiscoverAntidoteAction extends DiscoverAntidoteAction implements RoleAction {
 

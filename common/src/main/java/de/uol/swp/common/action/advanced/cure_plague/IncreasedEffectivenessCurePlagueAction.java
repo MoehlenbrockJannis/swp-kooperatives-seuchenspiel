@@ -9,9 +9,6 @@ import de.uol.swp.common.action.RoleAction;
  * <p>
  * This action allows for more efficient plague removal, potentially removing multiple plague cubes.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class IncreasedEffectivenessCurePlagueAction extends CurePlagueAction implements RoleAction {
 

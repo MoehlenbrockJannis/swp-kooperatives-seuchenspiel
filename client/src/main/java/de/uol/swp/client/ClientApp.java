@@ -1,45 +1,39 @@
 package de.uol.swp.client;
 
 
-import java.net.ConnectException;
-
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import de.uol.swp.client.communication.ClientConnection;
+import de.uol.swp.client.communication.ClientConnectionFactory;
+import de.uol.swp.client.communication.ConnectionListener;
+import de.uol.swp.client.di.ClientModule;
 import de.uol.swp.client.di.FXMLLoaderProvider;
-import javafx.fxml.FXMLLoader;
-import lombok.Getter;
+import de.uol.swp.client.user.ClientUserService;
+import de.uol.swp.common.env.EnvReader;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.response.LoginSuccessfulResponse;
+import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
+import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
 import de.uol.swp.common.user.server_message.LogoutServerMessage;
+import io.netty.channel.Channel;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import de.uol.swp.client.di.ClientModule;
-import de.uol.swp.client.user.ClientUserService;
-import de.uol.swp.common.Configuration;
-import de.uol.swp.common.user.User;
-import de.uol.swp.common.user.response.RegisterUserExceptionResponse;
-import de.uol.swp.common.user.response.LoginSuccessfulResponse;
-import de.uol.swp.common.user.response.RegisterUserSuccessResponse;
-import io.netty.channel.Channel;
-import javafx.application.Application;
-import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.List;
-
 /**
  * The application class of the client
- *
+ * <p>
  * This class handles the startup of the application, as well as, incoming login
  * and registration responses and error messages
  *
- * @author Marco Grawunder
- * @see de.uol.swp.client.ConnectionListener
+ * @see ConnectionListener
  * @see javafx.application.Application
- * @since 2017-03-17
  */
-
-
 public class ClientApp extends Application implements ConnectionListener {
 
 	private static final Logger LOG = LogManager.getLogger(ClientApp.class);
@@ -56,38 +50,12 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	private EventBus eventBus;
 
+	private EnvReader envReader;
+
 	private SceneManager sceneManager;
-
-	// -----------------------------------------------------
-	// Java FX Methods
-	// ----------------------------------------------------
-
-	@Override
-	public void init() {
-		Parameters p = getParameters();
-		List<String> args = p.getRaw();
-
-		if (args.size() != 2) {
-			host = "localhost";
-			port = Configuration.getDefaultPort();
-			LOG.info("Usage: {} host port", ClientConnection.class.getSimpleName());
-			LOG.info("Using default port {} {}", port, host);
-		} else {
-			host = args.get(0);
-			port = Integer.parseInt(args.get(1));
-		}
-
-		// do not establish connection here
-		// if connection is established in this stage, no GUI is shown and
-		// exceptions are only visible in console!
-	}
-
 
 	@Override
 	public void start(Stage primaryStage) {
-
-        // Client app is created by java, so injection must
-        // be handled here manually
 		Injector injector = Guice.createInjector(new ClientModule(this));
 
 		AbstractPresenter.setFxmlLoaderProvider(new FXMLLoaderProvider() {
@@ -97,27 +65,26 @@ public class ClientApp extends Application implements ConnectionListener {
 			}
 		});
 
-        // get user service from guice, is needed for logout
         this.userService = injector.getInstance(ClientUserService.class);
 
-        // get event bus from guice
 		eventBus = injector.getInstance(EventBus.class);
-		// Register this class for de.uol.swp.client.events (e.g. for exceptions)
 		eventBus.register(this);
 
-		// Client app is created by java, so injection must
-		// be handled here manually
+		envReader = injector.getInstance(EnvReader.class);
+		host = envReader.readString("HOST");
+		port = envReader.readInt("PORT");
+		LOG.info("Using default port {} {}", port, host);
+
 		SceneManagerFactory sceneManagerFactory = injector.getInstance(SceneManagerFactory.class);
 		this.sceneManager = sceneManagerFactory.create(primaryStage);
 
 		ClientConnectionFactory connectionFactory = injector.getInstance(ClientConnectionFactory.class);
 		clientConnection = connectionFactory.create(host, port);
 		clientConnection.addConnectionListener(this);
-		// JavaFX Thread should not be blocked to long!
 		Thread t = new Thread(() -> {
 			try {
 				clientConnection.start();
-			} catch (InterruptedException | ConnectException e) {
+			} catch (InterruptedException e) {
 				exceptionOccurred(e.getMessage());
 				Thread.currentThread().interrupt();
 			}
@@ -138,8 +105,6 @@ public class ClientApp extends Application implements ConnectionListener {
 			user = null;
 		}
 		eventBus.unregister(this);
-		// Important: Close connection so connection thread can terminate
-		// else client application will not stop
 		LOG.trace("Trying to shutting down client ...");
 		if (clientConnection != null) {
 			clientConnection.close();
@@ -149,7 +114,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful login
-	 *
+	 * <p>
 	 * If an LoginSuccessfulResponse object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the main menu and sets
 	 * this clients user to the user found in the object. If the loglevel is set
@@ -158,7 +123,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The LoginSuccessfulResponse object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2017-03-17
 	 */
 	@Subscribe
 	public void onLoginSuccessfulResponse(LoginSuccessfulResponse message) {
@@ -169,7 +133,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful logout
-	 *
+	 * <p>
 	 * If an UserLoggedOutMessage object is detected on the EventBus this
 	 * method is called. If the loglevel is set to DEBUG or higher "user
      * logged out successfully " and the username of the logged out user
@@ -177,7 +141,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The UserLoggedOutMessage object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2024-08-29
 	 */
 	@Subscribe
 	public void onLogoutSuccessfulResponse(LogoutServerMessage message) {
@@ -187,7 +150,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles unsuccessful registrations
-	 *
+	 * <p>
 	 * If an RegistrationExceptionMessage object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the sever error alert.
 	 * If the loglevel is set to Error or higher "Registration error " and the
@@ -195,7 +158,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The RegistrationExceptionMessage object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2019-09-02
 	 */
 	@Subscribe
 	public void onRegistrationExceptionMessage(RegisterUserExceptionResponse message){
@@ -205,7 +167,7 @@ public class ClientApp extends Application implements ConnectionListener {
 
 	/**
 	 * Handles successful registrations
-	 *
+	 * <p>
 	 * If an RegistrationSuccessfulResponse object is detected on the EventBus this
 	 * method is called. It tells the SceneManager to show the login window. If
 	 * the loglevel is set to INFO or higher "Registration Successful." is written
@@ -213,7 +175,6 @@ public class ClientApp extends Application implements ConnectionListener {
 	 *
 	 * @param message The RegistrationSuccessfulResponse object detected on the EventBus
 	 * @see de.uol.swp.client.SceneManager
-	 * @since 2019-09-02
 	 */
 	@Subscribe
 	public void onRegistrationSuccessfulMessage(RegisterUserSuccessResponse message) {
@@ -225,16 +186,10 @@ public class ClientApp extends Application implements ConnectionListener {
 	public void exceptionOccurred(String e) {
 		sceneManager.showServerError(e);
 	}
-
-	// -----------------------------------------------------
-	// JavFX Help method
-	// -----------------------------------------------------
-
 	/**
 	 * Default startup method for javafx applications
 	 *
 	 * @param args Any arguments given when starting the application
-	 * @since 2017-03-17
 	 */
 	public static void main(String[] args) {
 		launch(args);

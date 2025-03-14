@@ -10,9 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 /**
  * This class receives all existing roles from the backend in the set when a ‘RolerenderAssignmentRequest’ request is executed.
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-07
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)

@@ -1,40 +1,70 @@
 package de.uol.swp.server.chat;
 
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.server.chat.store.ChatStore;
+import jakarta.inject.Inject;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Manages chat functionalities, such as adding messages, retrieving messages, and managing lobby-specific chats.
+ * <p>
+ * The {@code ChatManagement} class provides a high-level interface for handling chat-related operations.
+ * It interacts with the {@link ChatStore} to store and retrieve chat messages, including both global and lobby-specific messages.
+ * </p>
+ */
 @Getter
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class ChatManagement {
 
-    private final List<String> chatMessages = new ArrayList<>();
-    private final Map<Lobby, List<String>> lobbyChatMessages = new HashMap<>();
+    private final ChatStore chatStore;
 
+    /**
+     * Adds a global chat message to the chat store.
+     *
+     * @param chatMessage The chat message to be added.
+     */
     public void addChatMessage(String chatMessage) {
-        chatMessages.add(chatMessage);
+        this.chatStore.addChatMessage(chatMessage);
     }
 
-    private void checkLobbyName(final Lobby lobby) {
-        lobbyChatMessages.computeIfAbsent(lobby, name -> new ArrayList<>());
-    }
-
+    /**
+     * Adds a chat message to a specific lobby's chat store.
+     *
+     * @param lobby       The {@link Lobby} where the message should be added.
+     * @param chatMessage The chat message to be added.
+     */
     public void addLobbyChatMessage(Lobby lobby, String chatMessage) {
-        checkLobbyName(lobby);
-        lobbyChatMessages.get(lobby).add(chatMessage);
+        this.chatStore.addLobbyChatMessage(lobby, chatMessage);
     }
 
+    /**
+     * Retrieves all chat messages for a specific lobby.
+     *
+     * @param lobby The {@link Lobby} for which to retrieve chat messages.
+     * @return A list of chat messages for the specified lobby.
+     */
     public List<String> getLobbyChatMessages(Lobby lobby) {
-        checkLobbyName(lobby);
-        return lobbyChatMessages.get(lobby);
+        return this.chatStore.getLobbyChatMessages(lobby);
     }
 
-    public void removeLobbyChatMessages(Lobby lobby){
-        checkLobbyName(lobby);
-        this.lobbyChatMessages.remove(lobby);
+    /**
+     * Removes all chat messages associated with a specific lobby.
+     *
+     * @param lobby The {@link Lobby} whose messages should be removed.
+     */
+    public void removeLobbyChatMessages(Lobby lobby) {
+        this.chatStore.removeLobbyChatMessages(lobby);
     }
 
+    /**
+     * Retrieves all global chat messages from the chat store.
+     *
+     * @return A list of all global chat messages.
+     */
+    public List<String> getChatMessages() {
+        return this.chatStore.getChatMessages();
+    }
 }

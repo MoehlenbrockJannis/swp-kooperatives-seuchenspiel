@@ -9,8 +9,6 @@ import de.uol.swp.common.player.Player;
  * of the kick action, including the lobby from which the user was removed
  * and the user who was kicked. It is used to communicate the kick action
  * to other components in the system.
- *
- * @since 2024-09-22
  */
 public class KickPlayerLobbyServerMessage extends AbstractPlayerLobbyServerMessage {
 
@@ -22,7 +20,6 @@ public class KickPlayerLobbyServerMessage extends AbstractPlayerLobbyServerMessa
      *
      * @param lobby The lobby from which the user was kicked.
      * @param player The player who was kicked from the lobby.
-     * @since 2024-09-22
      */
     public KickPlayerLobbyServerMessage(Lobby lobby, Player player) {
         super(lobby, player);

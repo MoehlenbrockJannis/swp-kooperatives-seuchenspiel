@@ -10,8 +10,6 @@ import java.util.Optional;
  * Base class of all messages. Basic handling of session information
  *
  * @see de.uol.swp.common.message.Message
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 @EqualsAndHashCode
 @Setter

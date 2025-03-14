@@ -4,7 +4,6 @@ import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.role.request.RetrieveAllRolesRequest;
 import de.uol.swp.common.role.request.RoleAssignmentRequest;
 import de.uol.swp.common.user.User;
 import org.greenrobot.eventbus.EventBus;
@@ -34,13 +33,7 @@ class RoleServiceTest extends EventBusBasedTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         roleService = new RoleService(eventBusMock);
-        when(lobbyPresenter.getLobby()).thenReturn(lobby);}
-
-    @DisplayName("A request to fill the ComboBox is sent to the server")
-    @Test
-    void testRetrieveAllRolesRequest() {
-        roleService.sendRetrieveAllRolesRequest(lobby);
-        verify(eventBusMock).post(any(RetrieveAllRolesRequest.class));
+        when(lobbyPresenter.getLobby()).thenReturn(lobby);
     }
 
     @DisplayName("A request to assign a role to a user is sent to the server.")

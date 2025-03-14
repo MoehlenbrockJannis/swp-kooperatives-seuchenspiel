@@ -1,14 +1,14 @@
 package de.uol.swp.common.card;
 
-import de.uol.swp.common.map.City;
-import de.uol.swp.common.map.Field;
-import de.uol.swp.common.map.GameMap;
-import de.uol.swp.common.map.MapSlot;
+import de.uol.swp.common.map.*;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.util.Color;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,13 +21,22 @@ class CityCardTest {
     private MapSlot mapSlot;
     private City city;
     private Plague plague;
+    private Set<Plague> plagueSet;
 
     @BeforeEach
     void setUp() {
         city = new City("Bielefeld", "Existiert nicht");
         plague = new Plague("Ruhrpott", new Color(1, 2, 3));
 
+        plagueSet = new HashSet<>();
+        plagueSet.add(plague);
+
+        final MapType mapType = mock(MapType.class);
+        when(mapType.getUniquePlagues())
+                .thenReturn(plagueSet);
         map = mock(GameMap.class);
+        when(map.getType())
+                .thenReturn(mapType);
         mapSlot = mock(MapSlot.class);
         when(mapSlot.getCity())
                 .thenReturn(city);
@@ -91,7 +100,12 @@ class CityCardTest {
     @DisplayName("Should return false if given object does not have same associated field")
     void testEquals_false() {
         final City newCity = new City("Hamburg", "");
+        final MapType newMapType = mock(MapType.class);
+        when(newMapType.getUniquePlagues())
+                .thenReturn(plagueSet);
         final GameMap newMap = mock(GameMap.class);
+        when(newMap.getType())
+                .thenReturn(newMapType);
         final MapSlot newMapSlot = mock(MapSlot.class);
         when(newMapSlot.getCity())
                 .thenReturn(newCity);
@@ -133,7 +147,12 @@ class CityCardTest {
     @Test
     @DisplayName("Should return false if given field is not equal to associated field")
     void hasField_false() {
+        final MapType newMapType = mock(MapType.class);
+        when(newMapType.getUniquePlagues())
+                .thenReturn(plagueSet);
         final GameMap newMap = mock(GameMap.class);
+        when(newMap.getType())
+                .thenReturn(newMapType);
         final MapSlot newMapSlot = mock(MapSlot.class);
         final Field otherField = new Field(newMap, newMapSlot);
 

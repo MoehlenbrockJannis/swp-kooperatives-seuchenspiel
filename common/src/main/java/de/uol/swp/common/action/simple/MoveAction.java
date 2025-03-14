@@ -1,5 +1,6 @@
 package de.uol.swp.common.action.simple;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.Field;
 import de.uol.swp.common.player.Player;
 import lombok.Getter;
@@ -10,9 +11,6 @@ import java.util.List;
 /**
  * The {@code MoveAction} class serves as a base class for actions that involve moving to a target field.
  * It extends {@link SimpleAction} and provides methods to manage the target field and available movement options.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter
@@ -59,6 +57,12 @@ public abstract class MoveAction extends SimpleAction {
 
         final Player player = getMovedPlayer();
         player.setCurrentField(targetField);
+    }
+
+    @Override
+    public void initWithGame(final Game game) {
+        super.initWithGame(game);
+        this.targetField = game.findField(this.targetField).orElseThrow();
     }
 
     /**

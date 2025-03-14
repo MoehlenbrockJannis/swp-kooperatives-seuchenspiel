@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Tab closable="false" text="Aktionen" xmlns:fx="http://javafx.com/fxml/1"
+     fx:controller="de.uol.swp.client.game.instructions.ActionsTabPresenter">
+    <ScrollPane fitToWidth="true">
+
+        <VBox spacing="10">
+            <TextFlow>
+                <Text styleClass="tab-h1" text="Einfache Aktionen"/>
+            </TextFlow>
+
+            <GridPane fx:id="simpleActionGridPane" hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Auto (oder Fähre)"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Die Aktion Auto (oder Fähre) ist eine Bewegungsaktion, durch die ein Spieler seine Spielfigur in eine zu seinem aktuellen Standort benachbarte Stadt bewegen kann. Städte sind benachbart, wenn sie durch eine graue Linie miteinander verbunden sind (siehe Unterunterabschnitt 6.1.1). Die Verbindung von zwei Städten kann auch links oder rechts über das Spielbrett hinaus erfolgen."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Direktflug"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Die Aktion Direktflug ist eine Bewegungsaktion, durch die ein Spieler seine Spielfigur in eine Stadt bewegen kann, die auf einer Karte in seiner Hand abgebildet ist. Dafür muss er diese Karte auf den Spieler-Ablagestapel abwerfen. Der Abwurf passiert beim Klicken auf eine hervorgehobene Stadt automatisch, nachdem diese Aktion im Kontextmenü ausgewählt wurde."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="2" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Charterflug"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Die Aktion Charterflug ist eine Bewegungsaktion, durch die ein Spieler seine Spielfigur in eine beliebige Stadt bewegen kann, sofern er die Karte seines aktuellen Standortes besitzt und auf den Spieler-Ablagestapel abwirft. Wenn diese Aktion im Kontextmenü ausgewählt wird, wird die Karte des aktuellen Standortes automatisch abgeworfen, sobald eine hervorgehobene Stadt ausgewählt wurde."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="3" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Zubringerflug"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Die Aktion Zubringerflug ist eine Bewegungsaktion, durch die ein Spieler seine Spielfigur in eine Stadt mit einem Forschungslabor bewegen kann, wenn auf seinem aktuellen Standort ebenfalls ein Forschungslabor errichtet ist."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Verzicht"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Ein Spieler kann auf seine Aktionen durch die Aktion Verzicht verzichten. Seine noch verfügbaren Aktionen werden durch diese Aktion auf 0 reduziert. Er kann diese Aktion nach keiner, einer, zwei oder drei ausgeführten Aktionen ausführen, um die Ausführung weiterer Aktionen in diesem Spielzug zu überspringen."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
+
+            <TextFlow>
+                <Text styleClass="tab-h1" text="Besondere Aktionen"/>
+            </TextFlow>
+
+            <GridPane fx:id="advancedActionGridPane" hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Forschungslabor errichten"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Durch die Aktion Forschungslabor errichten kann auf dem aktuellen Standort ein Forschungslabor errichtet werden, indem die zum aktuellen Standort gehörende Karte auf den Spieler-Ablagestapel abgeworfen wird. Der Abwurf passiert beim Ausführen der Aktion automatisch. Falls bereits alle Forschungslabore auf dem Spielbrett platziert wurden, kann eines verschoben werden. Die noch übrigen Forschungslabore sind oben rechts auf dem Spielbrett sichtbar. Wenn eine Verschiebung notwendig ist, blinken alle Forschungslabore kurz auf. Der Spieler kann dann eins der Forschungslabore per Linksklick auswählen. Dieses wird daraufhin zum aktuellen Standort verschoben."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Gegenmittel entdecken"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text='Durch die Aktion Gegenmittel entdecken kann ein Spieler das Gegenmittel zu einer Seuche entdecken. Dafür muss er 5 Spielerkarten mit der zu der Seuche gehörenden Farbe von seiner Hand auf den Spieler-Ablagestapel abwerfen. Die Spielfigur des Spielers muss in einer Stadt mit einem Forschungslabor sein, um diese Aktion auszuführen. Wenn ein Gegenmittel entdeckt wurde, erscheint ein grüner Haken über dem zu der Aktion zum Heilen der Seuche gehörenden Knopf. Sobald alle vier Gegenmittel entdeckt wurden, ist das Spiel gewonnen. Wenn ein Knopf nicht mehr ausgegraut ist, kann ein Linksklick auf diesen ausgeführt werden. Dadurch wird ein Dialog geöffnet. Einem Spieler werden in dem Dialog nur die Karten mit der Farbe der Seuche angezeigt, für die das Gegenmittel entdeckt werden soll. Ein Spieler kann durch das gleichzeitige Drücken von Shift und Linksklick weitere Karten zur Auswahl hinzufügen oder diese aus der Auswahl entfernen. Mit "Bestätigen" kann die Aktion ausgeführt und das Gegenmittel entdeckt werden. Durch den Knopf "Abbrechen" wird das Ausführen der Aktion abgebrochen. Dadurch wird keine Aktion verbraucht.'/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="2" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Seuche behandeln"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Durch die Aktion Seuche behandeln kann ein Seuchenwürfel vom aktuellen Standort entfernt werden. Der Seuchenwürfel ist nach dem Entfernen wieder zum Platzieren verfügbar. Wenn das Gegenmittel für die Seuche bereits entdeckt wurde, werden mit einer Aktion alle Seuchenwürfel dieser Farbe vom aktuellen Standort entfernt. Die Aktion wird durch den zweiten Knopf in der oberen Reihe der Aktionsknöpfe ausgelöst. Durch einen Linksklick auf den Knopf wird eine Animation auf den Seuchenwürfeln am aktuellen Standort ausgelöst und diese fangen an zu pulsieren. Diese pulsieren, bis der Spieler sie anklickt und damit die Aktion ausführt. Dadurch wird ein Seuchenwürfel entfernt."/>
+                    </TextFlow>
+                </VBox>
+
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="3" spacing="10">
+                    <TextFlow>
+                        <Text styleClass="tab-h2" text="Wissen teilen"/>
+                    </TextFlow>
+                    <TextFlow>
+                        <Text styleClass="tab-text"
+                              text="Durch die Aktion Wissen teilen können Spieler Karten transferieren. Dabei kann ein Spieler entweder eine seiner Handkarten an einen anderen Spieler übergeben oder eine Handkarte von einem anderen Spieler erhalten. Die Spielfiguren beider Spieler müssen an demselben Standort sein. Die transferierte Handkarte darf nur die Spielerkarte sein, auf der der Standort der Spielfiguren abgebildet ist. Falls ein Spieler nach einem Transfer mehr als 7 Handkarten hat, muss er Karten abwerfen. Wenn auf den Knopf gedrückt wird, wird ein Dialog geöffnet, in dem der Spieler die zu transferierende Karte auswählen muss. Der andere am Transfer beteiligte Spieler muss den Transfer bestätigen. Dafür wird ein ähnlicher Dialog wie der für das Bewegen einer anderen Spielfigur."/>
+                    </TextFlow>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+    </ScrollPane>
+</Tab>

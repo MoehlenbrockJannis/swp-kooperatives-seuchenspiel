@@ -10,18 +10,16 @@ import java.util.List;
  * This class is useful for monitoring and managing the infection status in a game scenario.
  *
  * @see LevelableMarker
- * @since 2024-10-01
  */
 public class InfectionMarker extends LevelableMarker{
 
     /**
      * Constructor for the InfectionMarker.
-     *
+     * <p>
      * Initializes the InfectionMarker with a list of level values, representing
      * different stages or levels of infection.
      *
      * @param levelValues A list of integers representing the infection levels.
-     * @since 2024-10-01
      */
     public InfectionMarker(List<Integer> levelValues) {
         super(levelValues);

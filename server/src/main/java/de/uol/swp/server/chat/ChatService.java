@@ -1,18 +1,28 @@
 package de.uol.swp.server.chat;
 
+import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
+import de.uol.swp.common.chat.request.SendChatMessageRequest;
+import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.common.chat.server_message.RetrieveAllChatMessagesServerMessage;
 import de.uol.swp.common.chat.server_message.RetrieveAllUserLobbyChatMessagesServerMessage;
-import de.uol.swp.common.chat.request.SendChatMessageRequest;
-import de.uol.swp.common.chat.request.RetrieveAllChatMessagesRequest;
-import de.uol.swp.common.chat.request.SendUserLobbyChatMessageRequest;
 import de.uol.swp.server.AbstractService;
+import de.uol.swp.server.chat.message.SystemLobbyMessageServerInternalMessage;
 import de.uol.swp.server.lobby.message.LobbyDroppedServerInternalMessage;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
 import java.time.LocalTime;
 
+/**
+ * Service class responsible for managing chat-related functionality.
+ * <p>
+ * The {@code ChatService} listens to chat-related messages on the {@link EventBus}, processes them,
+ * and interacts with the {@link ChatManagement} class to store or retrieve chat messages. It also handles
+ * lobby-specific chat operations and keeps track of system messages in lobbies.
+ * </p>
+ */
 @Singleton
 public class ChatService extends AbstractService {
 
@@ -31,7 +41,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles ChatRequests found on the EventBus
-     *
+     * <p>
      * If a SendChatMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
@@ -47,7 +57,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles LobbyChatRequests found on the EventBus
-     *
+     * <p>
      * If a SendLobbyChatMessage is detected on the EventBus, this method is called.
      * It prints the chat message to the console.
      *
@@ -80,7 +90,7 @@ public class ChatService extends AbstractService {
 
     /**
      * Handles RetrieveChatRequests found on the EventBus
-     *
+     * <p>
      * If a RetrieveAllChatMessagesRequest is detected on the EventBus, this method is called.
      * It sends a RetrieveAllChatMessagesServerMessage or a LobbyChatRetrieveAllMessagesMassage with all chat messages to the EventBus.
      *
@@ -99,5 +109,23 @@ public class ChatService extends AbstractService {
             response.initWithMessage(msg);
             post(response);
         }
+    }
+
+    /**
+     * Handles SystemLobbyMessageServerInternalMessages found on the EventBus
+     * <p>
+     * If a SystemLobbyMessageServerInternalMessage is detected on the EventBus, this method is called.
+     * It prints the chat message to the console.
+     *
+     * @param msg The SystemLobbyMessageServerInternalMessage found on the EventBus
+     */
+    @Subscribe
+    public void onRetrieveSystemLobbyMessageServerInternalMessage(SystemLobbyMessageServerInternalMessage msg) {
+        chatManagement.addLobbyChatMessage(msg.getLobby(), getChatMessage(LocalTime.now().withNano(0), "System", msg.getMessage()));
+
+        RetrieveAllUserLobbyChatMessagesServerMessage response = new RetrieveAllUserLobbyChatMessagesServerMessage(chatManagement.getLobbyChatMessages(msg.getLobby()));
+        response.setLobby(msg.getLobby());
+        response.initWithMessage(msg);
+        post(response);
     }
 }

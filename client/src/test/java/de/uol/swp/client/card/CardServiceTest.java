@@ -3,16 +3,19 @@ package de.uol.swp.client.card;
 import de.uol.swp.client.EventBusBasedTest;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
+import de.uol.swp.common.card.event_card.EventCard;
 import de.uol.swp.common.card.request.DiscardInfectionCardRequest;
 import de.uol.swp.common.card.request.DiscardPlayerCardRequest;
 import de.uol.swp.common.card.request.DrawInfectionCardRequest;
 import de.uol.swp.common.card.request.DrawPlayerCardRequest;
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.triggerable.request.TriggerableRequest;
 import org.greenrobot.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -35,7 +38,7 @@ public class CardServiceTest extends EventBusBasedTest {
         cardService.sendDrawPlayerCardRequest(game, player);
         waitForLock();
 
-        assertTrue(event instanceof DrawPlayerCardRequest);
+        assertInstanceOf(DrawPlayerCardRequest.class, event);
 
         final DrawPlayerCardRequest drawPlayerCardRequest = (DrawPlayerCardRequest) event;
         assertEquals(drawPlayerCardRequest.getGame(), game);
@@ -47,7 +50,7 @@ public class CardServiceTest extends EventBusBasedTest {
 
     @Test
     @DisplayName("Send Discard Player Card Request and verify the event")
-    void sendDiscardPlayerCardRequest() throws InterruptedException {
+    void sendDiscardPlayerCardRequest_noEventCard() throws InterruptedException {
         Game game = mock(Game.class);
         Player player = mock(Player.class);
         PlayerCard playerCard = mock(PlayerCard.class);
@@ -108,6 +111,11 @@ public class CardServiceTest extends EventBusBasedTest {
     }
 
     @Subscribe
+    public void onEvent(TriggerableRequest triggerableRequest) {
+        handleEvent(triggerableRequest);
+    }
+
+    @Subscribe
     public void onEvent(DrawInfectionCardRequest drawInfectionCardRequest) {
         handleEvent(drawInfectionCardRequest);
     }
@@ -116,6 +124,4 @@ public class CardServiceTest extends EventBusBasedTest {
     public void onEvent(DiscardInfectionCardRequest discardInfectionCardRequest) {
         handleEvent(discardInfectionCardRequest);
     }
-
-
 }

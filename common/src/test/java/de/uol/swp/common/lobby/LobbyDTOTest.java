@@ -11,14 +11,8 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Test Class for the UserDTO
- *
- * @author Marco Grawunder
- * @since 2019-10-08
- */
 class LobbyDTOTest {
 
     private static final User defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
@@ -39,20 +33,22 @@ class LobbyDTOTest {
 
     @BeforeEach
     void setup() {
-        this.lobby = new LobbyDTO("test", defaultUser, 2, 4);
+        this.lobby = new LobbyDTO("test", defaultUser);
+        this.lobby.setId(1234);
     }
 
     @Test
     @DisplayName("Lobbys should be equal if names are equal")
     void equalsTest_equal() {
-        final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next(), 2, 4);
+        final Lobby equalLobby = new LobbyDTO(lobby.getName(), users.iterator().next());
+        equalLobby.setId(1234);
         assertThat(lobby).isEqualTo(equalLobby);
     }
 
     @Test
     @DisplayName("Lobbys should not be equal if names are different")
     void equalsTest_notEqualLobby() {
-        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next(), 2, 4);
+        final Lobby notEqualLobby = new LobbyDTO("foo bar", users.iterator().next());
         assertThat(lobby).isNotEqualTo(notEqualLobby);
     }
 
@@ -66,17 +62,10 @@ class LobbyDTOTest {
     @Test
     @DisplayName("Hashcode should consist of a hashcode of the lobby's name")
     void hashCodeTest() {
-        final int hashcode = Objects.hashCode("test");
+        final int hashcode = Objects.hashCode(1234);
         assertThat(lobby.hashCode()).isEqualTo(hashcode);
     }
 
-    /**
-     * This test check whether a lobby is created correctly
-     *
-     * If the variables are not set correctly the test fails
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Lobby should be created correctly")
     void createLobbyTest() {
@@ -89,14 +78,6 @@ class LobbyDTOTest {
         assertThat(lobby.getStatus()).isEqualTo(LobbyStatus.OPEN);
     }
 
-    /**
-     * This test check whether a user can join a lobby
-     *
-     * The test fails if the size of the user list of the lobby does not get bigger
-     * or a user who joined is not in the list.
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Users should be able to join the lobby")
     void joinUserLobbyTest() {
@@ -115,14 +96,6 @@ class LobbyDTOTest {
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
-    /**
-     * This test check whether a user can leave a lobby
-     *
-     * The test fails if the size of the user list of the lobby does not get smaller
-     * or the user who left is still in the list.
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Users should be able to leave the lobby")
     void leaveUserLobbyTest() {
@@ -137,14 +110,6 @@ class LobbyDTOTest {
         assertThat(lobby.getPlayers()).hasSameSizeAs(lobby.getUsers());
     }
 
-    /**
-     * Test to check if the owner can leave the Lobby correctly
-     *
-     * This test fails if the owner field is not updated if the owner leaves the
-     * lobby or if he still is in the user list of the lobby.
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Owner should be able to leave the lobby and a new owner should be assigned")
     void removeOwnerFromLobbyTest() {
@@ -156,14 +121,6 @@ class LobbyDTOTest {
         assertThat(users).anyMatch(user -> user.equals(lobby.getOwner()));
     }
 
-    /**
-     * This checks if the owner of a lobby can be updated and if he has have joined
-     * the lobby
-     *
-     * This test fails if the owner cannot be updated or does not have to be joined
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Owner should be updatable to a user in the lobby")
     void updateOwnerTest() {
@@ -175,13 +132,6 @@ class LobbyDTOTest {
         assertThrows(IllegalArgumentException.class, () -> lobby.updateOwner(notInLobbyUser));
     }
 
-    /**
-     * This test check whether a lobby can be empty
-     *
-     * If the leaveUser function does not throw an Exception the test fails
-     *
-     * @since 2019-10-08
-     */
     @Test
     @DisplayName("Lobby should not be allowed to be empty")
     void assureNonEmptyLobbyTest() {
@@ -230,13 +180,6 @@ class LobbyDTOTest {
         assertThat(lobby.getPlayerForUser(users.iterator().next())).isNull();
     }
 
-    /**
-     * This test checks if the status of a lobby is determined correctly
-     *
-     * The test fails if the status is not OPEN when the lobby is created
-     * or if the status is not FULL when the lobby is full
-     *
-     */
     @Test
     @DisplayName("Lobby status should be determined correctly")
     void determineLobbyStatusTest() {

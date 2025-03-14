@@ -8,6 +8,13 @@ import lombok.Getter;
 
 import java.time.LocalTime;
 
+/**
+ * Request message to send a chat message to a chat system.
+ * <p>
+ * This request contains the sender's user information, the chat message text, and the timestamp
+ * representing when the message was sent.
+ * </p>
+ */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Getter

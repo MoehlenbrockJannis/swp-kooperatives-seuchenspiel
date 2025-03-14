@@ -12,9 +12,6 @@ import org.apache.logging.log4j.Logger;
  *
  * An Object of this class is used in the start methods of de.uol.swp.client.ClientConnection
  * and de.uol.swp.server.communication.Server
- *
- * @author Marco Grawunder
- * @since 2019-08-13
  */
 public class MyObjectDecoder extends ObjectDecoder {
 
@@ -24,7 +21,6 @@ public class MyObjectDecoder extends ObjectDecoder {
      * Constructor
      *
      * @param classResolver the ClassResolver the decoder should use
-     * @since 2019-08-13
      */
     public MyObjectDecoder(ClassResolver classResolver) {
         super(classResolver);

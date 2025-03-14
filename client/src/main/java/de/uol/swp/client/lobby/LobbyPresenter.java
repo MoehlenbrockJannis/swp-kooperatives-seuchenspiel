@@ -9,6 +9,7 @@ import de.uol.swp.client.role.RoleService;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.client.user.UserContainerEntityListPresenter;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.game.server_message.CreateGameServerMessage;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.server_message.*;
@@ -42,9 +43,8 @@ import java.util.*;
 /**
  * Manages the lobby window
  *
- * @author Niklas Wrobel
  * @see de.uol.swp.client.AbstractPresenter
- * @since 2024-08-28
+ *
  */
 @NoArgsConstructor
 @Getter
@@ -71,6 +71,7 @@ public class LobbyPresenter extends AbstractPresenter {
     private ObservableList<RoleCard> availableRoles;
     @Inject
     private RoleService roleService;
+
     private RoleCard selectedRole;
     @FXML
     private ChatPresenter chatController;
@@ -84,20 +85,26 @@ public class LobbyPresenter extends AbstractPresenter {
 
     private int botCounter = 0;
     private List<String> botNames = new ArrayList<>();
+    private GameDifficulty selectedDifficulty;
+
+    @FXML
+    private ComboBox<GameDifficulty> difficultyComboBox;
 
     public void initialize(final Lobby lobby) {
         this.lobby = lobby;
+        this.selectedDifficulty = GameDifficulty.getDefault();
 
         updateStartGameButton();
         setTitle(lobby.getName());
         initializeComboBox();
+        initializeDifficultyComboBox();
 
         chatController.setLobby(lobby);
 
         userContainerEntityListController.setTitle("Mitspieler");
         userContainerEntityListController.setRightClickFunctionToListCells(this::showPlayerListCellContextMenu);
         updatePlayerList();
-        disableAddAIButtonForNonOwners();
+        disableControlsForNonOwners();
         lobbyService.getOriginalGameMapType();
         lobbyService.getPlagues();
     }
@@ -115,7 +122,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * @see #clearEventBus()
      * @see LobbyService#leaveLobby(Lobby, Player)
      * @see WindowEvent
-     * @since 2024-09-13
      */
     @Override
     protected void onCloseStageEvent(final WindowEvent event) {
@@ -130,7 +136,33 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     private void initializeComboBox() {
         roleComboBox.getSelectionModel().selectedItemProperty().addListener((a, b, c) -> selectRole());
+        roleComboBox.setButtonCell(createRoleComboBoxButtonCell());
+
+        Player player = lobby.getPlayerForUser(loggedInUserProvider.get());
+        if (player != null && player.getRole() != null) {
+            roleComboBox.setPromptText(player.getRole().getName());
+        }
         roleService.sendRetrieveAllRolesRequest(lobby);
+    }
+
+    /**
+     * Creates a custom button cell for the role combo box that properly displays
+     * either the selected role or the prompt text when no role is selected.
+     *
+     * @return A ListCell configured to display the role name or prompt text
+     */
+    private ListCell<RoleCard> createRoleComboBoxButtonCell() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(RoleCard roleCard, boolean isEmpty) {
+                super.updateItem(roleCard, isEmpty);
+                if (isEmpty) {
+                    setText(roleComboBox.getPromptText());
+                } else {
+                    setText(roleCard.getName());
+                }
+            }
+        };
     }
 
     /**
@@ -141,7 +173,7 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllRolesResponse(RetrieveAllRolesResponse message) {
-        if (lobby.getName().equals(message.getLobby().getName())) {
+        if (lobby.equals(message.getLobby())) {
             Platform.runLater(() -> {
                 Set<RoleCard> roles = message.getRoleCardSet();
                 availableRoles = FXCollections.observableArrayList(roles);
@@ -157,14 +189,16 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRetrieveAllAvailableRolesServerMessage(RetrieveAllAvailableRolesServerMessage message) {
-        Platform.runLater(() -> {
-            Set<RoleCard> roles = message.getRoleCards();
-            availableRoles = FXCollections.observableArrayList(roles);
-            roleComboBox.setItems(availableRoles);
+        if(lobby.equals(message.getLobby())) {
+            Platform.runLater(() -> {
+                Set<RoleCard> roles = message.getRoleCards();
+                availableRoles.removeIf(roleCard -> !roleCard.equals(selectedRole));
+                availableRoles.addAll(roles);
 
-            final Runnable executable = () -> this.lobby = message.getLobby();
-            executeOnlyIfMessageIsForThisLobby(message, executable);
-        });
+                final Runnable executable = () -> this.lobby = message.getLobby();
+                executeOnlyIfMessageIsForThisLobby(message, executable);
+            });
+        }
     }
 
     /**
@@ -187,15 +221,21 @@ public class LobbyPresenter extends AbstractPresenter {
      */
     @Subscribe
     public void onRoleAssignedResponse(RoleAssignmentResponse roleAssignedMessage) {
-        Platform.runLater(() -> {
-            if (roleAssignedMessage.isRoleAssigned()) {
-                roleComboBox.getSelectionModel().clearSelection();
-                roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName()); //TODO Der Titel der Combobx bleibt noch leer.
-            }
-        });
+        if(lobby.equals(roleAssignedMessage.getLobby())) {
+            Platform.runLater(() -> {
+                if (roleAssignedMessage.isRoleAssigned()) {
+                    roleComboBox.setPromptText(roleAssignedMessage.getRoleCard().getName());
+                }
+            });
+        }
     }
 
-
+    /**
+     * Sets the window title and lobby name label with the provided lobby name.
+     * Updates UI elements on the JavaFX application thread.
+     *
+     * @param lobbyName The name of the lobby to display in the title
+     */
     private void setTitle(final String lobbyName) {
         Platform.runLater(() -> {
             final String title = "Lobby: " + lobbyName;
@@ -204,6 +244,11 @@ public class LobbyPresenter extends AbstractPresenter {
         });
     }
 
+    /**
+     * Handles the leave lobby button click event by closing the current stage.
+     *
+     * @param event The ActionEvent triggered by the button click
+     */
     @FXML
     private void onLeaveLobbyButtonClicked(final ActionEvent event) {
         closeStage();
@@ -211,14 +256,13 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Handles the event when the add AI button is clicked in the lobby.
-     *
+     * <p>
      * This method adds an AI player (bot) to the lobby if the current number of players
      * has not reached the lobby's maximum player limit. It checks whether the lobby is full,
      * and if so, displays an information alert indicating that no more players can be added.
      * Otherwise, it creates a new bot player and adds it to the lobby.
      *
      * @param event The action event triggered by clicking the "Add AI" button.
-     * @since 2024-10-06
      */
     @FXML
     private void onAddAIButtonClicked(final ActionEvent event) {
@@ -232,27 +276,28 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
     /**
-     * Disables the "Add AI" button for users who are not the lobby owner.
-     *
-     * @since 2024-09-23
+     * Disables controls for users who are not the lobby owner.
+     * <p>
+     * This method checks if the currently logged-in user is the owner of the lobby.
+     * If the user is not the owner, it disables the "Add AI" button and the difficulty combo box.
+     * </p>
      */
-    private void disableAddAIButtonForNonOwners() {
+    private void disableControlsForNonOwners() {
         User currentUser = loggedInUserProvider.get();
         User lobbyOwner = this.lobby.getOwner();
+        boolean isOwner = lobbyOwner.equals(currentUser);
 
-        if(!currentUser.equals(lobbyOwner)) {
-            addAIButton.setDisable(true);
-        }
+        addAIButton.setDisable(!isOwner);
+        difficultyComboBox.setDisable(!isOwner);
     }
 
     /**
      * Checks whether the lobby has reached its maximum player limit.
-     *
+     * <p>
      * This method compares the current number of players in the lobby to the maximum allowed
      * number of players.
      *
      * @return true if the lobby has reached or exceeded the maximum number of players, false otherwise.
-     * @since 2024-10-06
      */
     private boolean isLobbyFull() {
         return lobby.getMaxPlayers() <= lobby.getPlayers().size();
@@ -260,12 +305,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Displays an information alert indicating that the lobby has reached the maximum number of players.
-     *
+     * <p>
      * This method is called when a player attempts to join a lobby that is already full.
      * It triggers an alert dialog with a message informing the user that the maximum number
      * of players has been reached and no additional players can be added to the lobby.
      *
-     * @since 2024-10-06
      */
     private void showMaxPlayersAlert() {
         showInformationAlert("Maximale Anzahl an Spielern erreicht");
@@ -273,12 +317,11 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Creates a new AI player (bot) for the lobby.
-     *
+     * <p>
      * It is used to add non-human players (bots) to the lobby. The bot's name
      * is generated using the {@link #generateBotName()} method to ensure uniqueness.
      *
      * @return A new instance of {@link AIPlayer} with a generated name.
-     * @since 2024-10-06
      */
     private Player createBotPlayer() {
         return new AIPlayer(generateBotName());
@@ -288,7 +331,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Generates a unique name for an AI player (bot).
      *
      * @return A unique bot name as a {@link String}.
-     * @since 2024-10-06
      */
     private String generateBotName() {
         for (int i = 1; i <= botCounter; i++) {
@@ -307,7 +349,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param botNumber The number used to create the bot's name.
      * @return The generated name for the bot.
-     * @since 2024-10-09
      */
     private String createBotName(int botNumber) {
         return "Bot" + botNumber;
@@ -319,7 +360,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param botName The name of the bot to be added to the collection.
      * @return The name of the added bot.
-     * @since 2024-10-09
      */
     private String addAndReturnBotName(String botName) {
         botNames.add(botName);
@@ -327,11 +367,19 @@ public class LobbyPresenter extends AbstractPresenter {
     }
 
 
+    /**
+     *
+     * Executes the given runnable if the message is intended for this lobby.
+     * @param lobbyMessage The message pertaining to the lobby.
+     * @param executable The action to execute if the message matches the lobby.
+     *
+     */
     private void executeOnlyIfMessageIsForThisLobby(final AbstractLobbyServerMessage lobbyMessage, final Runnable executable) {
         if (lobby.equals(lobbyMessage.getLobby())) {
             executable.run();
             updateStartGameButton();
             updatePlayerList();
+            disableControlsForNonOwners();
         }
     }
 
@@ -367,7 +415,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param kickUserServerMessage The message containing information about the user kicked
      *                              from the lobby.
      * @see KickPlayerLobbyServerMessage
-     * @since 2024-09-23
      */
     @Subscribe
     public void onLobbyKickUserServerMessage(final KickPlayerLobbyServerMessage kickUserServerMessage) {
@@ -381,6 +428,9 @@ public class LobbyPresenter extends AbstractPresenter {
         executeOnlyIfMessageIsForThisLobby(kickUserServerMessage, executable);
     }
 
+    /**
+     * Updated the start game Button
+     */
     private void updateStartGameButton() {
         startGameButton.setDisable(!lobby.getOwner().equals(loggedInUserProvider.get()) || lobby.getPlayers().size() < lobby.getMinPlayers());
     }
@@ -393,7 +443,7 @@ public class LobbyPresenter extends AbstractPresenter {
     @FXML
     private void onStartGameButtonClicked(final ActionEvent event) {
         if (selectedMapType != null && plagueList != null) {
-            gameService.createGame(lobby, selectedMapType, plagueList);
+            gameService.createGame(lobby, selectedMapType, plagueList, selectedDifficulty);
         }
     }
 
@@ -403,8 +453,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param response The response with the mapType based on the original game
      * @see RetrieveOriginalGameMapTypeResponse
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     @Subscribe
     public void onRetrieveOriginalGameMapTypeResponse(RetrieveOriginalGameMapTypeResponse response) {
@@ -416,8 +464,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param response The response with the plague list
      * @see RetrieveOriginalGameMapTypeResponse
-     * @author David Scheffler
-     * @since 2024-09-23
      */
     @Subscribe
     public void onRetrieveAllPlaguesResponse(RetrieveAllPlaguesResponse response) {
@@ -434,10 +480,7 @@ public class LobbyPresenter extends AbstractPresenter {
         final Game game = event.getGame();
         final Lobby gameLobby = game.getLobby();
 
-        final String gameLobbyName = gameLobby.getName();
-        final String currentLobbyName = lobby.getName();
-
-        if(gameLobbyName.equals(currentLobbyName)) {
+        if(gameLobby.equals(lobby)) {
             loadGameScene(game);
         }
     }
@@ -482,7 +525,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * method for the selected user player.
      *
      * @param listCell The list cell for which the context menu is being created.
-     * @since 2024-09-23
      */
     private void showPlayerListCellContextMenu(final ListCell<UserContainerEntity> listCell) {
         User currentUser = loggedInUserProvider.get();
@@ -504,7 +546,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param listCellItem The user container entity representing the player to manage.
      * @return The constructed ContextMenu with available options.
-     * @since 2024-10-09
      */
     private ContextMenu createContextMenu(UserContainerEntity listCellItem) {
         ContextMenu contextMenu = new ContextMenu();
@@ -522,7 +563,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * If it is, it initiates the confirmation process to kick the player.
      *
      * @param listCellItem The user container entity representing the player to be kicked.
-     * @since 2024-10-09
      */
     private void handleKickPlayer(UserContainerEntity listCellItem) {
         if (listCellItem instanceof Player player) {
@@ -539,7 +579,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * @param lobbyOwner    The user who owns the lobby.
      * @param listCellItem  The user container entity representing the item in the context menu.
      * @return true if the context menu is not allowed; false otherwise.
-     * @since 2024-10-09
      */
     private boolean isContextMenuNotAllowed(User currentUser, User lobbyOwner, UserContainerEntity listCellItem) {
         return !currentUser.equals(lobbyOwner) || listCellItem.containsUser(lobbyOwner);
@@ -553,7 +592,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * an informational alert is displayed to inform them that the operation has been aborted.
      *
      * @param player The player to be kicked from the lobby.
-     * @since 2024-10-09
      */
     private void handleKickPlayerConfirmation(Player player) {
         Alert confirmationAlert = createConfirmationKickPlayerAlert();
@@ -565,7 +603,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Creates a confirmation alert for kicking a player from the lobby.
      *
      * @return The configured confirmation alert.
-     * @since 2024-10-09
      */
     private Alert createConfirmationKickPlayerAlert() {
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -580,7 +617,6 @@ public class LobbyPresenter extends AbstractPresenter {
      *
      * @param response The response from the confirmation dialog.
      * @param player The player to be kicked from the lobby.
-     * @since 2024-10-09
      */
     private void handleKickPlayerResponse(ButtonType response, Player player) {
         if (response == ButtonType.OK) {
@@ -596,7 +632,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * they are an AI player.
      *
      * @param player The player to be kicked from the lobby.
-     * @since 2024-10-09
      */
     private void kickPlayer(Player player) {
         this.lobbyService.kickPlayer(this.lobby, player);
@@ -609,7 +644,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * Removes a bot player name from the list of active bots in the lobby.
      *
      * @param bot The AIPlayer instance to be removed from the lobby.
-     * @since 2024-09-23
      */
     private void removeBotName(Player bot) {
         if (bot instanceof AIPlayer) {
@@ -622,8 +656,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Checks if the bot names list is empty and resets the bot counter if necessary.
-     *
-     * @since 2024-10-09
      */
     private void checkAndResetBotCounter() {
         if (botNames.isEmpty()) {
@@ -633,8 +665,6 @@ public class LobbyPresenter extends AbstractPresenter {
 
     /**
      * Resets the bot counter to zero.
-     *
-     * @since 2024-10-09
      */
     private void resetBotCounter() {
         this.botCounter = 0;
@@ -647,7 +677,6 @@ public class LobbyPresenter extends AbstractPresenter {
      * It waits for the user to close the alert before returning control to the calling method.
      *
      * @param message The message to be displayed in the alert dialog.
-     * @since 2024-09-23
      */
     private void showInformationAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -657,4 +686,63 @@ public class LobbyPresenter extends AbstractPresenter {
         alert.showAndWait();
     }
 
+    /**
+     * Initializes the difficulty combo box with game difficulty options
+     * and sets the default value and action handler.
+     */
+    private void initializeDifficultyComboBox() {
+        difficultyComboBox.setItems(FXCollections.observableArrayList(GameDifficulty.values()));
+        difficultyComboBox.setValue(GameDifficulty.getDefault());
+        difficultyComboBox.setOnAction(event -> handleDifficultyChange());
+    }
+
+    /**
+     * Handles changes to the difficulty selection and updates the lobby if the difficulty change is valid.
+     */
+    private void handleDifficultyChange() {
+        GameDifficulty newDifficulty = difficultyComboBox.getValue();
+        if (shouldUpdateDifficulty(newDifficulty)) {
+            selectedDifficulty = newDifficulty;
+            lobbyService.updateDifficulty(lobby, newDifficulty);
+        }
+    }
+
+    /**
+     *
+     * Determines whether the difficulty should be updated based on the new difficulty.
+     * @param newDifficulty The new difficulty setting.
+     * @return true if the new difficulty is valid and different from the current selection; false otherwise.
+     */
+    private boolean shouldUpdateDifficulty(GameDifficulty newDifficulty) {
+        return newDifficulty != null && !newDifficulty.equals(selectedDifficulty);
+    }
+
+    /**
+     * Handles the server message when difficulty is updated in the lobby.
+     * Updates the UI to reflect the new difficulty setting for all clients.
+     *
+     * @param message the message containing the updated difficulty information
+     */
+    @Subscribe
+    public void onDifficultyUpdateServerMessage(DifficultyUpdateServerMessage message) {
+        if (lobby.equals(message.getLobby())) {
+            GameDifficulty newDifficulty = message.getDifficulty();
+            updateDifficultyComboBox(newDifficulty);
+        }
+    }
+
+    /**
+     * Updates the difficulty combo box with the new difficulty setting.
+     * Ensures the update happens on the JavaFX Application Thread.
+     *
+     * @param newDifficulty the new difficulty setting to be displayed
+     */
+    private void updateDifficultyComboBox(GameDifficulty newDifficulty) {
+        Platform.runLater(() -> {
+            if (shouldUpdateDifficulty(newDifficulty)) {
+                difficultyComboBox.setValue(newDifficulty);
+                selectedDifficulty = newDifficulty;
+            }
+        });
+    }
 }

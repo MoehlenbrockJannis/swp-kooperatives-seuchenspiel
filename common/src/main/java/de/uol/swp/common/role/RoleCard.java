@@ -14,9 +14,6 @@ import java.util.Set;
 
 /**
  * This class represent a RoleCard
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-06
  */
 @Getter
 @Setter
@@ -25,7 +22,6 @@ public class RoleCard extends Card {
 
     private String name;
     private Color color;
-    //private Image image;
     private RoleAbility ability;
 
     @Override
@@ -56,11 +52,18 @@ public class RoleCard extends Card {
      *     Delegates to {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)} of {@link #ability}.
      * </p>
      *
+     * <p>
+     *     Returns given {@link Action} {@link Class} if {@link #ability} is {@code null}.
+     * </p>
+     *
      * @param actionClass {@link Action} {@link Class} to pass to {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)}
      * @return result of {@link RoleAbility#getRoleSpecificActionClassOrDefault(Class)} called with given {@code actionClass}
      * @see RoleAbility#getRoleSpecificActionClassOrDefault(Class)
      */
     public Class<? extends Action> getRoleSpecificActionClassOrDefault(final Class<? extends Action> actionClass) {
+        if (ability == null) {
+            return actionClass;
+        }
         return ability.getRoleSpecificActionClassOrDefault(actionClass);
     }
 
@@ -73,10 +76,17 @@ public class RoleCard extends Card {
      *     Delegates to {@link RoleAbility#getRoleSpecificAdditionallyAvailableActionClasses()} of {@link #ability}.
      * </p>
      *
+     * <p>
+     *     Returns empty {@link Set} if {@link #ability} is not set.
+     * </p>
+     *
      * @return unmodifiable {@link Set} of all available {@link RoleAction} classes the associated role can execute
      * @see RoleAbility#getRoleSpecificAdditionallyAvailableActionClasses()
      */
     public Set<Class<? extends RoleAction>> getRoleSpecificAdditionallyAvailableActionClasses() {
+        if (ability == null) {
+            return Set.of();
+        }
         return ability.getRoleSpecificAdditionallyAvailableActionClasses();
     }
 
@@ -89,10 +99,17 @@ public class RoleCard extends Card {
      *     Delegates to {@link RoleAbility#getRoleSpecificUnavailableActionClasses()} of {@link #ability}.
      * </p>
      *
+     * <p>
+     *     Returns empty {@link Set} if {@link #ability} is not set.
+     * </p>
+     *
      * @return unmodifiable {@link Set} of all unavailable {@link GeneralAction} classes the associated role cannot execute
      * @see RoleAbility#getRoleSpecificUnavailableActionClasses()
      */
     public Set<Class<? extends GeneralAction>> getRoleSpecificUnavailableActionClasses() {
+        if (ability == null) {
+            return Set.of();
+        }
         return ability.getRoleSpecificUnavailableActionClasses();
     }
 }

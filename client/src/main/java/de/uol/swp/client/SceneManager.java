@@ -3,20 +3,20 @@ package de.uol.swp.client;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
-import de.uol.swp.client.auth.LoginPresenter;
-import de.uol.swp.client.auth.events.ShowLoginViewEvent;
 import de.uol.swp.client.lobby.LobbyCreatePresenter;
 import de.uol.swp.client.lobby.LobbyOverviewPresenter;
 import de.uol.swp.client.lobby.LobbyPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
-import de.uol.swp.client.main.MainMenuPresenter;
-import de.uol.swp.client.main.events.ShowMainMenuEvent;
-import de.uol.swp.client.register.RegistrationPresenter;
-import de.uol.swp.client.register.event.RegistrationCanceledEvent;
-import de.uol.swp.client.register.event.RegistrationErrorEvent;
-import de.uol.swp.client.register.event.ShowRegistrationViewEvent;
+import de.uol.swp.client.main_menu.MainMenuPresenter;
+import de.uol.swp.client.main_menu.events.ShowMainMenuEvent;
+import de.uol.swp.client.user.LoginPresenter;
+import de.uol.swp.client.user.RegistrationPresenter;
+import de.uol.swp.client.user.event.RegistrationCanceledEvent;
+import de.uol.swp.client.user.event.RegistrationErrorEvent;
+import de.uol.swp.client.user.event.ShowLoginViewEvent;
+import de.uol.swp.client.user.event.ShowRegistrationViewEvent;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.response.JoinUserUserAlreadyInLobbyLobbyResponse;
 import de.uol.swp.common.role.response.RoleUnavailableResponse;
@@ -35,12 +35,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Class that manages which window/scene is currently shown
- *
- * @author Marco Grawunder
- * @since 2019-09-03
  */
 public class SceneManager {
 
@@ -73,8 +71,8 @@ public class SceneManager {
         eventBus.register(this);
         this.primaryStage = primaryStage;
         this.loaderProvider = loaderProvider;
-        this.iconImage = new Image(getClass().getResourceAsStream(ICON_IMAGE_PATH));
-        this.errorIconImage = new Image(getClass().getResourceAsStream(ERROR_ICON_IMAGE_PATH));
+        this.iconImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(ICON_IMAGE_PATH)));
+        this.errorIconImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(ERROR_ICON_IMAGE_PATH)));
         primaryStage.getIcons().add(iconImage);
     }
 
@@ -88,8 +86,7 @@ public class SceneManager {
      * </p>
      *
      * @param event The ShowMainMenuEvent detected on the EventBus
-     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
-     * @since 2024-08-24
+     * @see de.uol.swp.client.main_menu.events.ShowMainMenuEvent
      */
     @Subscribe
     public void onShowMainMenuEvent(final ShowMainMenuEvent event){
@@ -98,14 +95,13 @@ public class SceneManager {
 
     /**
      * Handles ShowRegistrationViewEvent detected on the EventBus
-     *
+     * <p>
      * If a ShowRegistrationViewEvent is detected on the EventBus, this method gets
      * called. It calls a method to switch the current screen to the registration
      * screen.
      *
      * @param event The ShowRegistrationViewEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.ShowRegistrationViewEvent
-     * @since 2019-09-03
+     * @see ShowRegistrationViewEvent
      */
     @Subscribe
     public void onShowRegistrationViewEvent(ShowRegistrationViewEvent event){
@@ -114,13 +110,12 @@ public class SceneManager {
 
     /**
      * Handles ShowLoginViewEvent detected on the EventBus
-     *
+     * <p>
      * If a ShowLoginViewEvent is detected on the EventBus, this method gets
      * called. It calls a method to switch the current screen to the login screen.
      *
      * @param event The ShowLoginViewEvent detected on the EventBus
-     * @see de.uol.swp.client.auth.events.ShowLoginViewEvent
-     * @since 2019-09-03
+     * @see ShowLoginViewEvent
      */
     @Subscribe
     public void onShowLoginViewEvent(ShowLoginViewEvent event){
@@ -129,13 +124,12 @@ public class SceneManager {
 
     /**
      * Handles ShowLobbyCreateViewEvent detected on the EventBus
-     *
+     * <p>
      * If a ShowLobbyCreateViewEvent is detected on the EventBus, this method gets
      * called. It calls a method to switch the current screen to the lobby create screen.
      *
      * @param event The ShowLobbyCreateViewEvent detected on the EventBus
      * @see ShowLobbyCreateViewEvent
-     * @since 2024-08-28
      */
     @Subscribe
     public void onShowLobbyCreateViewEvent(final ShowLobbyCreateViewEvent event) {
@@ -144,28 +138,26 @@ public class SceneManager {
 
     /**
      * Handles RegistrationCanceledEvent detected on the EventBus
-     *
+     * <p>
      * If a RegistrationCanceledEvent is detected on the EventBus, this method gets
      * called. It calls a method to show the screen shown before registration.
      *
      * @param event The RegistrationCanceledEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationCanceledEvent
-     * @since 2019-09-03
+     * @see RegistrationCanceledEvent
      */
     @Subscribe
     public void onRegistrationCanceledEvent(RegistrationCanceledEvent event){
-        showScene(lastScene, lastTitle);
+        showScene(loginPresenter, lastTitle);
     }
 
     /**
      * Handles RegistrationErrorEvent detected on the EventBus
-     *
+     * <p>
      * If a RegistrationErrorEvent is detected on the EventBus, this method gets
      * called. It shows the error message of the event in a error alert.
      *
      * @param event The RegistrationErrorEvent detected on the EventBus
-     * @see de.uol.swp.client.register.event.RegistrationErrorEvent
-     * @since 2019-09-03
+     * @see RegistrationErrorEvent
      */
     @Subscribe
     public void onRegistrationErrorEvent(RegistrationErrorEvent event) {
@@ -182,7 +174,6 @@ public class SceneManager {
      *
      * @param event The ShowLobbyOverviewViewEvent detected on the EventBus
      * @see de.uol.swp.client.lobby.events.ShowLobbyOverviewViewEvent
-     * @since 2024-08-23
      */
     @Subscribe
     public void onShowLobbyOverviewEvent(final ShowLobbyOverviewViewEvent event) {
@@ -199,7 +190,6 @@ public class SceneManager {
      *
      * @param event The JoinUserUserAlreadyInLobbyLobbyResponse detected on the EventBus
      * @see JoinUserUserAlreadyInLobbyLobbyResponse
-     * @since 2024-08-29
      */
     @Subscribe
     public void onLobbyJoinUserUserAlreadyInLobbyResponse(final JoinUserUserAlreadyInLobbyLobbyResponse event) {
@@ -208,13 +198,12 @@ public class SceneManager {
 
     /**
      * Handles ShowLobbyViewEvent detected on the EventBus
-     *
+     * <p>
      * If a {@link ShowLobbyViewEvent} is detected on the EventBus, this method gets
      * called. It opens a new lobby window for the created lobby.
      *
      * @param event The ShowLobbyViewEvent detected on the EventBus
      * @see ShowLobbyViewEvent
-     * @since 2024-08-28
      */
     @Subscribe
     public void onShowLobbyViewEvent(final ShowLobbyViewEvent event) {
@@ -226,7 +215,6 @@ public class SceneManager {
      *
      * @param message The type of error to be shown
      * @param e       The error message
-     * @since 2019-09-03
      */
     public void showError(String message, String e) {
         Platform.runLater(() -> {
@@ -247,7 +235,6 @@ public class SceneManager {
      * Shows a server error message inside an error alert
      *
      * @param e The error message
-     * @since 2019-09-03
      */
     public void showServerError(String e) {
         showError("" , e);
@@ -257,7 +244,6 @@ public class SceneManager {
      * Shows an error message inside an error alert
      *
      * @param e The error message
-     * @since 2019-09-03
      */
     public void showError(String e) {
         showError("" , e);
@@ -265,71 +251,67 @@ public class SceneManager {
 
     /**
      * Switches the current scene and title to the given ones
-     *
+     * <p>
      * The current scene and title are saved in the lastScene and lastTitle variables,
      * before the new scene and title are set and shown.
      *
-     * @param scene New scene to show
+     * @param presenter Presenter of the new scene to show
      * @param title New window title
-     * @since 2019-09-03
      */
-    private void showScene(final Scene scene, final String title) {
+    private void showScene(final AbstractPresenter presenter, final String title) {
         this.lastScene = currentScene;
         this.lastTitle = primaryStage.getTitle();
-        this.currentScene = scene;
+        this.currentScene = presenter.getScene();
         Platform.runLater(() -> {
             primaryStage.setTitle(title);
-            primaryStage.setScene(scene);
+            primaryStage.setScene(presenter.getScene());
+            presenter.setStage(primaryStage);
             primaryStage.show();
         });
     }
 
     /**
      * Shows the main menu
-     *
+     * <p>
      * Switches the current Scene to the mainScene and sets the title of
      * the window to "Welcome " and the username of the current user
      *
-     * @since 2019-09-03
      */
     public void showMainScreen(User currentUser) {
-        showScene(mainMenuPresenter.getScene(), "Welcome " + currentUser.getUsername());
+        showScene(mainMenuPresenter, "Welcome " + currentUser.getUsername());
     }
 
     /**
      * Shows the login screen
-     *
+     * <p>
      * Switches the current Scene to the loginScene and sets the title of
      * the window to "Login"
      *
-     * @since 2019-09-03
      */
     public void showLoginScreen() {
-        showScene(loginPresenter.getScene(),"Login");
+        showScene(loginPresenter,"Login");
     }
 
     /**
      * Shows the registration screen
-     *
+     * <p>
      * Switches the current Scene to the registrationScene and sets the title of
      * the window to "Registration"
      *
-     * @since 2019-09-03
      */
     public void showRegistrationScreen() {
-        showScene(registrationPresenter.getScene(),"Registrierung");
+        showScene(registrationPresenter,"Registrierung");
     }
 
     /**
      * Shows the lobby create screen
-     *
+     * <p>
      * Switches the current Scene to the {@link #lobbyCreatePresenter} screen and sets the title of
      * the window to "Lobby erstellen"
      *
-     * @since 2024-08-28
      */
     public void showLobbyCreateScreen() {
-        showScene(lobbyCreatePresenter.getScene(),"Lobby erstellen");
+        showScene(lobbyCreatePresenter,"Lobby erstellen");
     }
 
     /**
@@ -339,10 +321,9 @@ public class SceneManager {
      * Switches the current Scene to the lobbyOverviewScene and sets the title of the window
      * </p>
      *
-     * @since 2024-08-23
      */
     public void showLobbyOverviewScreen() {
-        showScene(lobbyOverviewPresenter.getScene(), "Lobby-Übersicht");
+        showScene(lobbyOverviewPresenter, "Lobby-Übersicht");
     }
 
     /**
@@ -353,7 +334,6 @@ public class SceneManager {
      * </p>
      *
      * @param lobby Lobby to show window for
-     * @since 2024-08-28
      */
     public void showLobbyScreen(final Lobby lobby) {
         try {
@@ -361,7 +341,7 @@ public class SceneManager {
             lobbyPresenter.openInNewWindow(iconImage);
             lobbyPresenter.initialize(lobby);
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 

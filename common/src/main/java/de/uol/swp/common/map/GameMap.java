@@ -1,16 +1,22 @@
 package de.uol.swp.common.map;
 
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.map.exception.FieldOfCityNotFoundException;
 import de.uol.swp.common.map.exception.StartingFieldNotFoundException;
 import de.uol.swp.common.marker.AntidoteMarker;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.plague.PlagueCube;
+import de.uol.swp.common.plague.exception.NoPlagueCubesFoundException;
 import de.uol.swp.common.player.Player;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * Instantiation of a map defined by {@link MapType}
@@ -22,15 +28,17 @@ import java.util.List;
  * @see Field
  * @see Game
  * @see MapType
- * @author Tom Weelborg
- * @since 2024-09-02
  */
+@EqualsAndHashCode
 public class GameMap implements Serializable {
     private Game game;
     @Getter
     private MapType type;
+    @EqualsAndHashCode.Exclude
     @Getter
     private List<Field> fields;
+    @Setter
+    private transient BiConsumer<Game, Field> outbreakCallback;
 
     /**
      * Constructor
@@ -57,21 +65,7 @@ public class GameMap implements Serializable {
         final List<MapSlot> mapSlots = type.getMap();
         for (final MapSlot mapSlot : mapSlots) {
             final Field field = new Field(this, mapSlot);
-            checkForStartingCityField(field);
             this.fields.add(field);
-        }
-    }
-
-    /**
-     * Checks if the given {@link Field} is the starting field of the game and adds all players to the field if it is
-     *
-     * @param field Field to check
-     */
-    private void checkForStartingCityField(Field field) {
-        if (field.getCity() == type.getStartingCity()) {
-            List<Player> playersInTurnOrder = game.getPlayersInTurnOrder();
-            List<Player> playersOnField = field.getPlayersOnField();
-            playersOnField.addAll(playersInTurnOrder);
         }
     }
 
@@ -115,39 +109,86 @@ public class GameMap implements Serializable {
     }
 
     /**
-     * Starts an outbreak on the given {@link Field}
+     * Adds given {@link PlagueCube} back to {@link #game}
      *
+     * @param plagueCube {@link PlagueCube} to add to {@link #game}
+     */
+    public void addPlagueCube(final PlagueCube plagueCube) {
+        game.addPlagueCube(plagueCube);
+    }
+
+    /**
+     * Starts an outbreak chain on the given field with the specified plague.
+     * This is the entry point for outbreak handling.
+     *
+     * @param field Field where the outbreak starts
+     * @param plague Type of plague causing the outbreak
+     * @param infectedFields List to track all fields that get infected during this outbreak chain
+     */
+    public void startOutbreak(final Field field, final Plague plague, List<Field> infectedFields) {
+        List<Field> fieldsWithOutbreak = new ArrayList<>();
+        startOutbreakRecursive(field, plague, infectedFields, fieldsWithOutbreak);
+    }
+
+    /**
+     * Recursively handles the outbreak chain, tracking both infected and outbreak fields.
+     * Prevents infinite loops by ensuring each field only outbreaks once per chain.
+     *
+     * @param field Current field experiencing an outbreak
+     * @param plague Type of plague causing the outbreak
+     * @param infectedFields Tracks all fields that get infected during this outbreak chain
+     * @param fieldsWithOutbreak Tracks fields that have already had an outbreak to prevent cycles
+     */
+    private void startOutbreakRecursive(Field field, Plague plague, List<Field> infectedFields, List<Field> fieldsWithOutbreak) {
+        if (fieldsWithOutbreak.contains(field)) {
+            return;
+        }
+
+        if (game.getOutbreakMarker().isAtMaximumLevel()) {
+            return;
+        }
+
+        if (outbreakCallback != null) {
+            outbreakCallback.accept(game, field);
+        }
+
+        fieldsWithOutbreak.add(field);
+        infectedFields.add(field);
+
+        game.startOutbreak();
+
+        if (game.isGameLost()) {
+            return;
+        }
+
+        List<Field> neighborFields = getNeighborFields(field);
+        processNeighborFieldsForOutbreak(neighborFields, plague, infectedFields, fieldsWithOutbreak);
+    }
+
+    /**
+     * Processes the neighboring fields of a field during an outbreak, infecting them if possible or handling recursive outbreaks.
      * <p>
-     *     Calls the {@link Game} method to start an outbreak.
-     *     Infects all neighboring fields with a {@link PlagueCube} of the associated {@link Plague}.
-     *     Handles outbreaks on neighboring fields.
-     *     Prevents the same field from breaking out more than once.
+     * For each neighboring field, this method checks if the field can be infected with the given plague. If infectable,
+     * the field is infected with a plague cube. If the field cannot be infected and is not already in the list of
+     * ongoing outbreaks, a recursive outbreak is started. If there are no plague cubes available, the processing stops.
      * </p>
      *
-     * @param field Field of the outbreak
-     * @param plague Outbreaking plague
-     * @see Field
-     * @see Game#startOutbreak()
-     * @see Plague
-     * @see PlagueCube
+     * @param neighborFields    The list of neighboring fields to process.
+     * @param plague            The plague spreading during the outbreak.
+     * @param infectedFields    The list of fields that have already been infected.
+     * @param fieldsWithOutbreak The list of fields where outbreaks are already occurring.
      */
-    public void startOutbreak(final Field field, final Plague plague) {
-        final List<Field> outbreakingFields = new ArrayList<>();
-        outbreakingFields.add(field);
-
-        for (int i = 0; i < outbreakingFields.size(); i++) {
-            final Field outbreakingField = outbreakingFields.get(i);
-
-            game.startOutbreak();
-
-            final List<Field> neighborFields = getNeighborFieldsExcludingFields(outbreakingField, outbreakingFields);
-            for (final Field neighborField : neighborFields) {
-                if (!neighborField.isInfectable(plague)) {
-                    outbreakingFields.add(neighborField);
-                } else {
-                    final PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
-                    neighborField.infect(plagueCube);
+    private void processNeighborFieldsForOutbreak(List<Field> neighborFields, Plague plague, List<Field> infectedFields, List<Field> fieldsWithOutbreak) {
+        for (Field neighborField : neighborFields) {
+            try {
+                if (neighborField.isInfectable(plague)) {
+                    PlagueCube plagueCube = game.getPlagueCubeOfPlague(plague);
+                    neighborField.infectField(plagueCube, infectedFields);
+                } else if (!fieldsWithOutbreak.contains(neighborField)) {
+                    startOutbreakRecursive(neighborField, plague, infectedFields, fieldsWithOutbreak);
                 }
+            } catch (NoPlagueCubesFoundException e) {
+                return;
             }
         }
     }
@@ -215,5 +256,34 @@ public class GameMap implements Serializable {
 
         plague.exterminate();
         return true;
+    }
+
+    /**
+     * Returns the {@link Field} of the {@link GameMap} that has the given {@link City} in its {@link MapSlot}
+     *
+     * @param city the {@link City} to get the associated {@link Field} for
+     * @return the {@link Field} associated with the given {@link City}
+     * @throws FieldOfCityNotFoundException {@link Field} for given {@link City} has not been found
+     */
+    public Field getFieldOfCity(City city){
+        for (Field field : fields) {
+            if (field.hasCity(city)) {
+                return field;
+            }
+        }
+        throw new FieldOfCityNotFoundException(city.getName());
+    }
+
+    /**
+     * Returns a {@link List} of all players on given {@link Field}.
+     *
+     * @param field {@link Field} for which the players are searched
+     * @return {@link List} of all players on given {@link Field}
+     * @see Game#getPlayersInTurnOrder()
+     */
+    public List<Player> getPlayersOnField(final Field field) {
+        return this.game.getPlayersInTurnOrder().stream()
+                .filter(player -> Objects.equals(player.getCurrentField(), field))
+                .toList();
     }
 }

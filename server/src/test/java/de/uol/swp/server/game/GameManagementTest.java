@@ -3,10 +3,20 @@ package de.uol.swp.server.game;
 import de.uol.swp.common.card.InfectionCard;
 import de.uol.swp.common.card.PlayerCard;
 import de.uol.swp.common.game.Game;
+import de.uol.swp.common.game.GameDifficulty;
+import de.uol.swp.common.game.GameEndReason;
+import de.uol.swp.common.game.turn.PlayerTurn;
 import de.uol.swp.common.lobby.Lobby;
+import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.map.MapType;
 import de.uol.swp.common.plague.Plague;
 import de.uol.swp.common.player.Player;
+import de.uol.swp.common.player.UserPlayer;
+import de.uol.swp.common.user.User;
+import de.uol.swp.common.user.UserDTO;
+import de.uol.swp.server.game.store.GameStore;
+import de.uol.swp.server.game.store.MainMemoryBasedGameStore;
+import de.uol.swp.server.game.turn.PlayerTurnManagement;
 import de.uol.swp.server.lobby.LobbyManagement;
 import de.uol.swp.server.role.RoleManagement;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,78 +26,99 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import static de.uol.swp.server.util.TestUtils.createMapType;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class GameManagementTest {
+public class GameManagementTest {
     private GameManagement gameManagement;
     private LobbyManagement lobbyManagement;
+    private PlayerTurnManagement playerTurnManagement;
     private RoleManagement roleManagement;
+    private GameStore gameStore;
     private Lobby mockLobby;
-    private MapType mockMapType;
+    private MapType mapType;
     private List<Plague> mockPlagues;
     private Game mockGame;
     private Player mockPlayer;
+    private Player mockPlayer2;
     private PlayerCard mockPlayerCard;
     private InfectionCard mockInfectionCard;
+    private GameDifficulty difficulty;
 
     @BeforeEach
     void setUp() {
         lobbyManagement = mock(LobbyManagement.class);
+        playerTurnManagement = mock(PlayerTurnManagement.class);
         roleManagement = mock(RoleManagement.class);
+        gameStore = mock(MainMemoryBasedGameStore.class);
 
-        gameManagement = new GameManagement();
+        gameManagement = new GameManagement(gameStore);
         gameManagement.setLobbyManagement(lobbyManagement);
+        gameManagement.setPlayerTurnManagement(playerTurnManagement);
         gameManagement.setRoleManagement(roleManagement);
 
         mockLobby = mock(Lobby.class);
-        mockMapType = mock(MapType.class);
+        mapType = createMapType();
         mockPlagues = new ArrayList<>();
         mockGame = mock(Game.class);
         mockPlayer = mock(Player.class);
+        mockPlayer2 = mock(Player.class);
         mockPlayerCard = mock(PlayerCard.class);
         mockInfectionCard = mock(InfectionCard.class);
+        mockLobby.addPlayer(mockPlayer);
+        mockLobby.addPlayer(mockPlayer2);
+        difficulty = GameDifficulty.getDefault();
     }
 
     @Test
     @DisplayName("Test creating a game")
     void testCreateGame() {
-        when(mockLobby.getPlayers()).thenReturn(Set.of(mockPlayer));
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        final PlayerTurn playerTurn = mock(PlayerTurn.class);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
+
+        Lobby lobby = new LobbyDTO("lobby", user1);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
+        when(playerTurnManagement.createPlayerTurn(any()))
+                .thenReturn(playerTurn);
+
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
+
         assertThat(game).isNotNull();
-        assertThat(game.getLobby()).isEqualTo(mockLobby);
+        assertThat(game.getLobby()).isEqualTo(lobby);
         assertThat(game.getMap()).isNotNull();
         assertThat(game.getPlagues()).isEqualTo(mockPlagues);
-        assertThat(game.getPlayersInTurnOrder()).isEqualTo(List.of(mockPlayer));
+        assertThat(game.getPlayersInTurnOrder()).contains(player1, player2);
+        assertThat(game.getCurrentTurn())
+                .isEqualTo(playerTurn);
     }
 
     @Test
     @DisplayName("Test adding a game")
     void testAddGame() {
         gameManagement.addGame(mockGame);
+
+        when(gameManagement.getGame(mockGame)).thenReturn(Optional.of(mockGame));
+
         assertThat(gameManagement.getGame(mockGame)).contains(mockGame);
-    }
-
-    @Test
-    @DisplayName("Test generating unique game ID does not collide with existing IDs")
-    void generateUniqueGameId_doesNotCollideWithExistingIds() {
-        Game existingGame = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
-        gameManagement.addGame(existingGame);
-
-        for (int i = 0; i < 1000; i++) {
-            int id = gameManagement.generateUniqueGameId();
-            assertThat(id).isNotEqualTo(123456);
-        }
     }
 
     @Test
     @DisplayName("Test getting a game returns the game if found")
     void getGame_returnsGameIfFound() {
-        Game game = new Game( mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game( mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
         gameManagement.addGame(game);
+
+        when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
+
         Optional<Game> retrievedGame = gameManagement.getGame(game);
         assertThat(retrievedGame).contains(game);
     }
@@ -95,7 +126,8 @@ class GameManagementTest {
     @Test
     @DisplayName("Test getting a game returns empty optional if game not found")
     void getGame_returnsEmptyOptionalIfGameNotFound() {
-        Game game = new Game(mockLobby, mockMapType, List.of(mockPlayer), mockPlagues);
+        Game game = new Game(mockLobby, mapType, List.of(mockPlayer, mockPlayer2), mockPlagues, difficulty);
+        game.setId(123456);
         gameManagement.addGame(game);
         Optional<Game> retrievedGame = gameManagement.getGame(mockGame);
         assertThat(retrievedGame).isEmpty();
@@ -104,9 +136,19 @@ class GameManagementTest {
     @Test
     @DisplayName("Test updating an existing game")
     void updateGame_updatesExistingGame() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
+
+        Lobby lobby = new LobbyDTO("lobby", user1);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
+        Game game = gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
         gameManagement.addGame(game);
-        PlayerCard playerCard = gameManagement.drawPlayerCard(game);
+
+        when(gameManagement.getGame(game)).thenReturn(Optional.of(game));
 
         gameManagement.updateGame(game);
         Game updatedGame = gameManagement.getGame(game).orElseThrow();
@@ -114,56 +156,93 @@ class GameManagementTest {
     }
 
     @Test
-    @DisplayName("Test drawing a player card")
-    void drawPlayerCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        PlayerCard playerCard = gameManagement.drawPlayerCard(game);
-        assertThat(playerCard).isNotNull();
+    @DisplayName("Draw a player card from the player draw stack")
+    void drawPlayerCardTest() {
+        Game game = createGame();
+        PlayerCard testPlayerCard = gameManagement.drawPlayerCard(game);
+
+        assertThat(testPlayerCard).isNotNull().isInstanceOf(PlayerCard.class);
     }
 
     @Test
-    @DisplayName("Test discarding a player card")
-    void discardPlayerCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        gameManagement.discardPlayerCard(game, mockPlayerCard);
-        assertThat(game.getPlayerDiscardStack()).contains(mockPlayerCard);
+    @DisplayName("Remove a game from the list of managed games")
+    void removeGameTest() {
+        Game game = createGame();
+        gameManagement.removeGame(game);
+
+        assertThat(gameManagement.getGame(game)).isEmpty();
     }
 
     @Test
-    @DisplayName("Test drawing an infection card from the top")
-    void drawInfectionCard_fromTheTop() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        Optional<Game> optionalGame = gameManagement.getGame(game);
-        optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
-        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheTop(optionalGame.get());
+    @DisplayName("Determines that the game is won")
+    void determineGameEndReasonWonTest() {
+        Game game = createGame();
+        game.setGameWon(true);
 
-        assertThat(infectionCard).isNotNull();
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.ALL_ANTIDOTES_DISCOVERED);
     }
 
     @Test
-    @DisplayName("Test drawing an infection card from the bottom")
-    void drawInfectionCard_fromTheBottom() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        Optional<Game> optionalGame = gameManagement.getGame(game);
-        optionalGame.get().getInfectionDrawStack().push(mockInfectionCard);
-        optionalGame.get().getInfectionDrawStack().push(mock(InfectionCard.class));
-        InfectionCard infectionCard = gameManagement.drawInfectionCardFromTheBottom(optionalGame.get());
+    @DisplayName("Determines that the game has empty draw stack")
+    void determineGameEndReasonEmptyStackTest() {
+        Game game = createGame();
+        game.getPlayerDrawStack().clear();
 
-        assertThat(infectionCard).isNotNull();
-        assertThat(infectionCard).isEqualTo(mockInfectionCard);
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.NO_PLAYER_CARDS_LEFT);
     }
 
     @Test
-    @DisplayName("Test discarding an infection card")
-    void discardInfectionCard() {
-        Game game = gameManagement.createGame(mockLobby, mockMapType, mockPlagues);
-        gameManagement.addGame(game);
-        gameManagement.discardInfectionCard(game, mockInfectionCard);
-        assertThat(game.getInfectionDiscardStack()).contains(mockInfectionCard);
+    @DisplayName("Determines that the game has max outbreaks")
+    void determineGameEndReasonMaxOutbreaksTest() {
+        Game game = createGame();
+        while (!game.getOutbreakMarker().isAtMaximumLevel()) {
+            game.startOutbreak();
+        }
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.MAX_OUTBREAKS_REACHED);
     }
 
+    @Test
+    @DisplayName("Determines that the game has no plague cubes")
+    void determineGameEndReasonNoPlagueCubesTest() {
+        Game game = createGame();
+        game.getPlagueCubes().clear();
+
+        GameEndReason result = gameManagement.determineGameEndReason(game);
+        assertThat(result).isEqualTo(GameEndReason.NO_PLAGUE_CUBES_LEFT);
+    }
+
+    private Game createGame() {
+        final PlayerTurn playerTurn = mock(PlayerTurn.class);
+        User user1 = new UserDTO("user", "pass", "");
+        User user2 = new UserDTO("user2", "pass2", "user2");
+        Player player1 = new UserPlayer(user1);
+        Player player2 = new UserPlayer(user2);
+
+        Lobby lobby = new LobbyDTO("lobby", user1);
+        lobby.addPlayer(player1);
+        lobby.addPlayer(player2);
+
+        when(playerTurnManagement.createPlayerTurn(any()))
+                .thenReturn(playerTurn);
+
+        return gameManagement.createGame(lobby, mapType, mockPlagues, difficulty);
+    }
+
+    @Test
+    @DisplayName("Should return all games in gameStore")
+    void findAllGames() {
+        final List<Game> expected = new ArrayList<>();
+
+        when(gameStore.getAllGames())
+                .thenReturn(expected);
+
+        final List<Game> actual = this.gameManagement.findAllGames();
+
+        assertThat(expected)
+                .containsExactlyInAnyOrderElementsOf(actual);
+    }
 }

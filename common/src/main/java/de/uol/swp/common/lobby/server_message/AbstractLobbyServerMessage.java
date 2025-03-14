@@ -1,7 +1,7 @@
 package de.uol.swp.common.lobby.server_message;
 
 import de.uol.swp.common.lobby.Lobby;
-import de.uol.swp.common.message.server.AbstractServerMessage;
+import de.uol.swp.common.message.server_message.AbstractServerMessage;
 import lombok.*;
 
 /**
@@ -16,7 +16,6 @@ import lombok.*;
  *
  * @see AbstractServerMessage
  * @see de.uol.swp.common.lobby.Lobby
- * @since 2024-10-06
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter

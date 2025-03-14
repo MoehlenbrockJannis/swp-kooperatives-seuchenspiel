@@ -4,9 +4,11 @@ import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import de.uol.swp.server.lobby.store.LobbyStore;
+import de.uol.swp.server.lobby.store.MainMemoryBasedLobbyStore;
+import de.uol.swp.server.user.AuthenticationService;
+import de.uol.swp.server.user.UserManagement;
+import de.uol.swp.server.user.store.MainMemoryBasedUserStore;
 import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,26 +18,30 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("UnstableApiUsage")
 @DisplayName("LobbyManagement Test")
 public class LobbyManagementTest {
 
     static final UserDTO firstOwner = new UserDTO("Marco", "Marco", "Marco@Grawunder.com");
-    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+    static final LobbyDTO lobby = new LobbyDTO("TestLobby", firstOwner);
 
     final EventBus bus = EventBus.getDefault();
     final UserManagement userManagement = new UserManagement(new MainMemoryBasedUserStore());
     final AuthenticationService authService = new AuthenticationService(bus, userManagement);
     LobbyManagement lobbyManagement;
+    private LobbyStore lobbyStore;
 
     @BeforeEach
     void setUp() {
-        lobbyManagement = new LobbyManagement();
+        this.lobbyStore = mock(MainMemoryBasedLobbyStore.class);
+        lobbyManagement = new LobbyManagement(lobbyStore);
+        lobby.setId(123);
     }
 
     LobbyManagement getDefaultManagement() {
-        LobbyManagement management = new LobbyManagement();
+        LobbyManagement management = new LobbyManagement(lobbyStore);
         management.createLobby(lobby);
         return management;
     }
@@ -76,13 +82,17 @@ public class LobbyManagementTest {
     @DisplayName("Get all lobbies")
     void getAllLobbiesTest() {
         final List<Lobby> lobbies = List.of(
-                new LobbyDTO("1", new UserDTO("Test", "", ""), 2, 4),
-                new LobbyDTO("2", new UserDTO("Tom", "", ""), 2, 4)
+                new LobbyDTO("1", new UserDTO("Test", "", "")),
+                new LobbyDTO("2", new UserDTO("Tom", "", ""))
         );
 
         lobbies.forEach(lobbyManagement::createLobby);
 
+        when(lobbyManagement.getAllLobbies()).thenReturn(lobbies);
+
         final List<Lobby> lobbiesInLobbyManagement = lobbyManagement.getAllLobbies();
+
+
 
         assertEquals(lobbies.size(), lobbiesInLobbyManagement.size());
         for (int i = 0; i < lobbiesInLobbyManagement.size(); i++) {
@@ -95,20 +105,25 @@ public class LobbyManagementTest {
     @DisplayName("Update lobby")
     void updateLobbyTest() {
         lobbyManagement.createLobby(lobby);
-        LobbyDTO updatedLobby = new LobbyDTO("TestLobby", firstOwner, 3, 5);
+        LobbyDTO updatedLobby = new LobbyDTO("TestLobby", firstOwner);
+        updatedLobby.setId(123);
 
         lobbyManagement.updateLobby(updatedLobby);
 
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(updatedLobby));
+
         Optional<Lobby> result = lobbyManagement.getLobby(lobby);
         assertTrue(result.isPresent());
-        assertEquals(3, result.get().getMinPlayers());
-        assertEquals(5, result.get().getMaxPlayers());
+        assertEquals(2, result.get().getMinPlayers());
+        assertEquals(4, result.get().getMaxPlayers());
     }
 
     @Test
     @DisplayName("Update lobby status")
     void updateLobbyStatusTest() {
         lobbyManagement.createLobby(lobby);
+
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(lobby));
 
         lobbyManagement.updateLobbyStatus(lobby, LobbyStatus.RUNNING);
 
@@ -120,7 +135,9 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Drop non-existent lobby")
     void dropNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
+
+        doThrow(IllegalArgumentException.class).when(lobbyStore).removeLobby(nonExistentLobby);
 
         assertThrows(IllegalArgumentException.class, () -> lobbyManagement.dropLobby(nonExistentLobby));
     }
@@ -128,19 +145,23 @@ public class LobbyManagementTest {
     @Test
     @DisplayName("Update non-existent lobby")
     void updateNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
 
-        lobbyManagement.updateLobby(nonExistentLobby);
+        doThrow(IllegalArgumentException.class).when(lobbyStore).updateLobby(nonExistentLobby);
 
-        assertTrue(lobbyManagement.getLobby(nonExistentLobby).isPresent());
+        assertThrowsExactly(IllegalArgumentException.class, () -> lobbyManagement.updateLobby(nonExistentLobby));
+
     }
 
     @Test
     @DisplayName("Create lobby with empty name")
     void createLobbyWithEmptyNameTest() {
-        LobbyDTO emptyNameLobby = new LobbyDTO("", firstOwner, 2, 4);
+        LobbyDTO emptyNameLobby = new LobbyDTO("", firstOwner);
+        emptyNameLobby.setId(1234);
 
         assertDoesNotThrow(() -> lobbyManagement.createLobby(emptyNameLobby));
+
+        when(lobbyStore.getLobby(emptyNameLobby.getId())).thenReturn(Optional.of(emptyNameLobby));
         assertTrue(lobbyManagement.getLobby(emptyNameLobby).isPresent());
     }
 
@@ -149,17 +170,18 @@ public class LobbyManagementTest {
     void createDuplicateLobbyTest() {
         lobbyManagement.createLobby(lobby);
 
+        doThrow(IllegalArgumentException.class).when(lobbyStore).addLobby(lobby);
+
         assertThrows(IllegalArgumentException.class, () -> lobbyManagement.createLobby(lobby));
     }
 
     @Test
     @DisplayName("Update lobby status for non-existent lobby")
     void updateLobbyStatusForNonExistentLobbyTest() {
-        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner, 2, 4);
+        LobbyDTO nonExistentLobby = new LobbyDTO("NonExistent", firstOwner);
 
-        NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> lobbyManagement.updateLobbyStatus(nonExistentLobby, LobbyStatus.RUNNING));
+        assertThrows(IllegalArgumentException.class, () -> lobbyManagement.updateLobbyStatus(nonExistentLobby, LobbyStatus.RUNNING));
 
-        assertTrue(lobbyManagement.getLobby(nonExistentLobby).isEmpty());
+
     }
 }

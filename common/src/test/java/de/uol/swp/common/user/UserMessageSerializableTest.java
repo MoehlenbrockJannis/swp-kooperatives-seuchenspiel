@@ -44,7 +44,7 @@ class UserMessageSerializableTest {
                 LoginSuccessfulResponse.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LoginRequest("name", "pass"),
                 LoginRequest.class));
-        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LogoutRequest(), LogoutRequest.class));
+        assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new LogoutRequest(new UserDTO("", "", "")), LogoutRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RegisterUserRequest(defaultUser),
                 RegisterUserRequest.class));
         assertTrue(SerializationTestHelper.checkSerializableAndDeserializable(new RetrieveAllOnlineUsersRequest(),

@@ -8,7 +8,6 @@ import de.uol.swp.server.plague.Plagues;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A utility class that provides a MapType instance based on the original Pandemic game.
@@ -16,16 +15,11 @@ import java.util.Set;
  * @see MapType
  * @see MapSlot
  * @see City
- * @author David Scheffler
- * @since 2024-09-22
  */
 public final class OriginalGameMapType {
 
     /**
      * Private constructor to prevent instantiation
-     *
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     private OriginalGameMapType() {
     }
@@ -35,11 +29,9 @@ public final class OriginalGameMapType {
      *
      * @return The MapType based on the original game
      * @see MapType
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     public static MapType getMapType() {
-        return new MapType(createMapSlotList(), Cities.ATLANTA);
+        return new MapType("Weltkarte", createMapSlotList(), Cities.ATLANTA);
     }
 
     /**
@@ -47,8 +39,6 @@ public final class OriginalGameMapType {
      *
      * @return A List of MapSlots including all cities from the original game
      * @see MapSlot
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     private static List<MapSlot> createMapSlotList() {
         List<MapSlot> mapSlotList = new ArrayList<>();
@@ -348,15 +338,4 @@ public final class OriginalGameMapType {
         return mapSlotList;
     }
 
-    /**
-     * Returns a set of all available MapSlots.
-     *
-     * @return a set containing all {@link MapSlot} objects
-     * @see MapSlot
-     * @author David Scheffler
-     * @since 2024-09-22
-     */
-    public Set<MapSlot> getAllMapSlots() {
-        return Set.copyOf(createMapSlotList());
-    }
 }

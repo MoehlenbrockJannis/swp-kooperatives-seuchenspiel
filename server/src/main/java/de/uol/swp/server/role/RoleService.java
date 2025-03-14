@@ -1,6 +1,7 @@
 package de.uol.swp.server.role;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.message.response.ResponseMessage;
 import de.uol.swp.common.player.Player;
@@ -35,10 +36,8 @@ import java.util.stream.Collectors;
  * - Checking role availability
  * - Updating the lobby about available roles when a user leaves
  * - Rendering roles in a ComboBox on the client-side
- *
- * @author Jannis Moehlenbrock
- * @since 2024-09-06
  */
+@Singleton
 public class RoleService extends AbstractService {
 
     private final LobbyManagement lobbyManagement;
@@ -52,7 +51,6 @@ public class RoleService extends AbstractService {
      * @param lobbyManagement the {@link LobbyManagement} for managing lobbies
      * @param lobbyService    the {@link LobbyService} for managing lobby-related communications
      * @param roleManagement  the {@link RoleManagement} for handling role-related logic
-     * @since 2019-10-08
      */
     @Inject
     public RoleService(EventBus bus, LobbyManagement lobbyManagement, LobbyService lobbyService, RoleManagement roleManagement) {
@@ -90,11 +88,11 @@ public class RoleService extends AbstractService {
 
             message = new RoleAvailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), true, lobby);
         } else {
             message = new RoleUnavailableResponse();
 
-            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false);
+            roleAssignedMessage = new RoleAssignmentResponse(roleAssignmentRequest.getRoleCard(), false, lobby);
         }
 
         roleAssignedMessage.initWithMessage(roleAssignmentRequest);
@@ -109,7 +107,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Checks if a specific role card is available for assignment in a given lobby.
-     *
+     * <p>
      * This method iterates through all players in the lobby to determine if the
      * specified role card is already assigned to any player. The role is considered
      * available if no player currently holds it.
@@ -158,7 +156,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Retrieves the set of available role cards in a given lobby.
-     *
+     * <p>
      * This method determines which role cards are still available for assignment
      * by comparing all existing roles with those already assigned to players in the lobby.
      *
@@ -180,7 +178,7 @@ public class RoleService extends AbstractService {
 
     /**
      * Handles the event when a user leaves a lobby, updating available roles.
-     *
+     * <p>
      * This method is triggered by a UserLeaveLobbyServerInternalMessage event.
      * It responds by sending updated available roles information to all clients in the affected lobby.
      *

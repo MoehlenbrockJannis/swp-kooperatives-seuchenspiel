@@ -21,12 +21,14 @@ class RoleCardTest {
     private String name;
     private Color color;
     private RoleAbility ability;
+    private int requiredCardsForDiscoveringAntidote;
 
     @BeforeEach
     void setUp() {
         name = "elor";
         color = new Color(255, 254, 253);
         ability = mock(RoleAbility.class);
+        requiredCardsForDiscoveringAntidote = 5;
 
         roleCard = new RoleCard(name, color, ability);
     }
@@ -81,7 +83,7 @@ class RoleCardTest {
 
     @Test
     @DisplayName("Should return the result of getRoleSpecificActionClassOrDefault() method on associated ability")
-    void getRoleSpecificActionClassOrDefault() {
+    void getRoleSpecificActionClassOrDefault_withAbility() {
         final Class<? extends Action> input = Action.class;
         final Class<? extends Action> output = RoleAction.class;
 
@@ -93,8 +95,19 @@ class RoleCardTest {
     }
 
     @Test
+    @DisplayName("Should return the same class object if there is no ability")
+    void getRoleSpecificActionClassOrDefault_withoutAbility() {
+        final Class<? extends Action> input = Action.class;
+
+        roleCard.setAbility(null);
+
+        assertThat(roleCard.getRoleSpecificActionClassOrDefault(input))
+                .isEqualTo(input);
+    }
+
+    @Test
     @DisplayName("Should return the result of getRoleSpecificAdditionallyAvailableActionClasses() method on associated ability")
-    void getRoleSpecificAdditionallyAvailableActionClasses() {
+    void getRoleSpecificAdditionallyAvailableActionClasses_withAbility() {
         final Set<Class<? extends RoleAction>> output = Set.of(
                 RoleAction.class
         );
@@ -107,14 +120,36 @@ class RoleCardTest {
     }
 
     @Test
+    @DisplayName("Should return empty set if there is no ability")
+    void getRoleSpecificAdditionallyAvailableActionClasses_withoutAbility() {
+        final Set<Class<? extends RoleAction>> output = Set.of();
+
+        roleCard.setAbility(null);
+
+        assertThat(roleCard.getRoleSpecificAdditionallyAvailableActionClasses())
+                .isEqualTo(output);
+    }
+
+    @Test
     @DisplayName("Should return the result of getRoleSpecificUnavailableActionClasses() method on associated ability")
-    void getRoleSpecificUnavailableActionClasses() {
+    void getRoleSpecificUnavailableActionClasses_withAbility() {
         final Set<Class<? extends GeneralAction>> output = Set.of(
                 GeneralAction.class
         );
 
         when(ability.getRoleSpecificUnavailableActionClasses())
                 .thenReturn(output);
+
+        assertThat(roleCard.getRoleSpecificUnavailableActionClasses())
+                .isEqualTo(output);
+    }
+
+    @Test
+    @DisplayName("Should return empty set if there is no ability")
+    void getRoleSpecificUnavailableActionClasses_withoutAbility() {
+        final Set<Class<? extends GeneralAction>> output = Set.of();
+
+        roleCard.setAbility(null);
 
         assertThat(roleCard.getRoleSpecificUnavailableActionClasses())
                 .isEqualTo(output);

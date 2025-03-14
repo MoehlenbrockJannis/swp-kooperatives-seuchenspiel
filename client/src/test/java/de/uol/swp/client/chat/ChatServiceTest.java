@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 public class ChatServiceTest extends EventBusBasedTest {
 
     final User defaultUser = new UserDTO("Marco", "test", "marco@test.de");
-    final Lobby defaultLobby = new LobbyDTO("TestLobby", defaultUser, 2, 4);
+    final Lobby defaultLobby = new LobbyDTO("TestLobby", defaultUser);
 
     /**
      * Sends a chat request

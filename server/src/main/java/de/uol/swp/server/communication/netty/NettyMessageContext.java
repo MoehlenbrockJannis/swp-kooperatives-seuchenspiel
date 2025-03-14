@@ -2,7 +2,7 @@ package de.uol.swp.server.communication.netty;
 
 import de.uol.swp.common.message.MessageContext;
 import de.uol.swp.common.message.response.ResponseMessage;
-import de.uol.swp.common.message.server.ServerMessage;
+import de.uol.swp.common.message.server_message.ServerMessage;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Objects;
@@ -11,8 +11,6 @@ import java.util.Objects;
  * This class is used to encapsulate a netty channel handler context
  *
  * @see de.uol.swp.common.message.MessageContext
- * @author Marco Grawunder
- * @since 2019-11-20
  */
 class NettyMessageContext implements MessageContext {
 
@@ -22,7 +20,6 @@ class NettyMessageContext implements MessageContext {
      * Constructor
      *
      * @param ctx the ChannelHandlerContext encapsulated by this
-     * @since 2019-11-20
      */
     public NettyMessageContext(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -33,7 +30,6 @@ class NettyMessageContext implements MessageContext {
      *
      * @return the ChannelHandlerContext
      * @see io.netty.channel.ChannelHandlerContext
-     * @since 2019-11-20
      */
     ChannelHandlerContext getCtx() {
         return ctx;

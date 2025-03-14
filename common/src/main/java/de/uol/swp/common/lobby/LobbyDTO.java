@@ -1,5 +1,6 @@
 package de.uol.swp.common.lobby;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
 import de.uol.swp.common.user.User;
@@ -8,7 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,13 +23,13 @@ import java.util.stream.Collectors;
  * the server and clients. It contains information about the Name of the lobby,
  * who owns the lobby and who joined the lobby.
  * </p>
- *
- * @author Marco Grawunder
- * @since 2019-10-08
  */
 
 @ToString
 public class LobbyDTO implements Lobby {
+    @Getter
+    @Setter
+    private int id;
     @Getter
     private final String name;
     @Getter
@@ -33,10 +37,6 @@ public class LobbyDTO implements Lobby {
     private Set<Player> players = new HashSet<>();
     @Setter
     private LobbyStatus status;
-    @Getter
-    private int minPlayers;
-    @Getter
-    private int maxPlayers;
 
     /**
      * Constructor
@@ -44,39 +44,43 @@ public class LobbyDTO implements Lobby {
      * @param name    The name the lobby should have
      * @param creator The user who created the lobby and therefore shall be the
      *                owner
-     * @param minPlayers The minimum number of players that can join the lobby
-     * @param maxPlayers The maximum number of players that can join the lobby
-     * @since 2019-10-08
      */
-    public LobbyDTO(String name, User creator, int minPlayers, int maxPlayers) {
+    public LobbyDTO(String name, User creator) {
         this.name = name;
         this.owner = creator;
         joinUser(creator);
         this.status = LobbyStatus.OPEN;
-        this.minPlayers = minPlayers;
-        this.maxPlayers = maxPlayers;
     }
 
     public LobbyDTO(Lobby lobby) {
+        this.id = lobby.getId();
         this.name = lobby.getName();
         this.owner = lobby.getOwner();
         this.status = lobby.getStatus();
-        this.minPlayers = lobby.getMinPlayers();
-        this.maxPlayers = lobby.getMaxPlayers();
         this.players = lobby.getPlayers();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        return Game.MAX_NUMBER_OF_PLAYERS;
+    }
+
+    @Override
+    public int getMinPlayers() {
+        return Game.MIN_NUMBER_OF_PLAYERS;
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Lobby lobby) {
-            return name.equals(lobby.getName());
+            return id == lobby.getId();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hashCode(id);
     }
 
     @Override
@@ -96,6 +100,11 @@ public class LobbyDTO implements Lobby {
         }
     }
 
+    /**
+     * Updates the owner of the lobby if the owner is leaving.
+     *
+     * @param leavingUser The user who is leaving.
+     */
     private void updateOwnerIfLeavingUserIsOwner(UserContainerEntity leavingUser) {
         if (leavingUser.containsUser(this.owner)) {
             updateOwner(getUsers().iterator().next());
@@ -163,11 +172,17 @@ public class LobbyDTO implements Lobby {
         return status;
     }
 
+    /**
+     * Determines the current status of the lobby based on the number of players and existing state.
+     */
     private void determineLobbyStatus() {
+        if (status.equals(LobbyStatus.OVER)) {
+            return;
+        }
         final Set<Player> players = getPlayers();
-        if (players.size() < this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        if (players.size() < getMaxPlayers() && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.OPEN;
-        } else if (players.size() == this.maxPlayers && !status.equals(LobbyStatus.RUNNING)) {
+        } else if (players.size() == getMaxPlayers() && !status.equals(LobbyStatus.RUNNING)) {
             status = LobbyStatus.FULL;
         } else {
             status = LobbyStatus.RUNNING;

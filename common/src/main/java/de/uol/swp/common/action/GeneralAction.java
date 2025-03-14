@@ -2,7 +2,8 @@ package de.uol.swp.common.action;
 
 import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The {@code GeneralAction} class serves as a base class for actions that can be executed by a player
@@ -11,13 +12,9 @@ import lombok.*;
  * <p>
  * Subclasses should extend this class to define specific actions.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 @Setter
-@ToString
 public abstract class GeneralAction implements Action {
 
     /**
@@ -30,6 +27,11 @@ public abstract class GeneralAction implements Action {
      */
     private Game game;
 
+    @Override
+    public void initWithGame(final Game game) {
+        this.game = game;
+        this.executingPlayer = game.findPlayer(this.executingPlayer).orElseThrow();
+    }
 }
 
 

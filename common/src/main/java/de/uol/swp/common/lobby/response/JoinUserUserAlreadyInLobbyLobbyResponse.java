@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
  * @see AbstractResponseMessage
  * @see de.uol.swp.common.lobby.Lobby
  * @see de.uol.swp.common.user.User
- * @author Tom Weelborg
- * @since 2024-08-29
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

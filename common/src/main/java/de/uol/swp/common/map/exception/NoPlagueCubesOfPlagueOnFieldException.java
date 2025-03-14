@@ -10,8 +10,6 @@ import de.uol.swp.common.plague.PlagueCube;
  * @see Field
  * @see Plague
  * @see PlagueCube
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 public class NoPlagueCubesOfPlagueOnFieldException extends RuntimeException {
     public NoPlagueCubesOfPlagueOnFieldException(final String plagueName, final String fieldName) {

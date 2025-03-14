@@ -7,6 +7,13 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Factory class responsible for creating, copying, and managing {@link Action} instances.
+ * <p>
+ * The {@code ActionFactory} provides utility methods to dynamically retrieve, instantiate,
+ * and manipulate subclasses of {@link Action}, including filtering and handling exceptions during creation.
+ * </p>
+ */
 public class ActionFactory {
     /**
      * {@link Reflections} object for the package {@link Action} is in
@@ -162,5 +169,26 @@ public class ActionFactory {
         } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * <p>
+     *     Creates an instance of the same {@link Action} {@link Class} of the passed {@code action}.
+     *     Populates the {@code game} and {@code executingPlayer} fields of the {@link Action}
+     *     by calling the setter methods on the copy with the value of the getter methods of the passed {@code action}.
+     * </p>
+     *
+     * @param action the {@link Action} to copy
+     * @return a copy of the passed {@code action} with the same field values
+     * @param <T> the {@link Class} of the passed {@code action}
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Action> T copyAction(final T action) {
+        final Class<T> clazz = (Class<T>) action.getClass();
+
+        final T copy = createAction(clazz);
+        copy.setGame(action.getGame());
+        copy.setExecutingPlayer(action.getExecutingPlayer());
+        return copy;
     }
 }

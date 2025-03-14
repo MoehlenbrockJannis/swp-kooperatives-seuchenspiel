@@ -1,0 +1,64 @@
+.game-chat-component.chat-component {
+    -fx-transition: opacity 0.3s;
+}
+
+.game-chat-component.chat-component Label {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+.game-chat-component.chat-component ListView,
+.game-chat-component.chat-component TextField,
+.game-chat-component.chat-component Button {
+    -fx-opacity: 0.7;
+    -fx-transition: all 0.3s;
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+}
+
+.game-chat-component.chat-component:hover ListView,
+.game-chat-component.chat-component:hover TextField,
+.game-chat-component.chat-component:hover Button {
+    -fx-opacity: 0.95;
+    -fx-background-color: rgb(255, 255, 255);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0);
+}
+
+.game-chat-component.chat-component ListView .list-cell {
+    -fx-background-color: transparent;
+}
+
+.game-chat-component.chat-component ListView .list-cell:filled:selected,
+.game-chat-component.chat-component ListView .list-cell:filled:selected:hover {
+    -fx-background-color: #c0c0c0;
+}
+
+.game-chat-component.chat-component ListView .list-cell:filled:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.game-chat-component.chat-component HBox {
+    -fx-spacing: 10;
+    -fx-alignment: CENTER;
+    -fx-fill-height: true;
+    -fx-pref-width: 100%;
+    -fx-max-width: infinity;
+}
+
+.game-chat-component.chat-component TextField {
+    -fx-border-color: #d3d3d3;
+    -fx-border-width: 1;
+    -fx-pref-width: 100%;
+    -fx-max-width: infinity;
+}
+
+.game-chat-component.chat-component Button {
+    -fx-text-fill: #333333;
+    -fx-border-color: #d3d3d3;
+    -fx-border-width: 1;
+    -fx-pref-width: 80px;
+    -fx-min-width: 80px;
+}
+
+.game-chat-component.chat-component Button:hover {
+    -fx-background-color: #e0e0e0;
+}

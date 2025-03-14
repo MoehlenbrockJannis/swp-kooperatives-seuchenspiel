@@ -8,21 +8,32 @@ import java.util.Set;
 
 /**
  * Interface to unify lobby objects
- *
+ * <p>
  * This is an Interface to allow for multiple types of lobby objects since it is
  * possible that not every client has to have every information of the lobby.
  *
- * @author Marco Grawunder
  * @see LobbyDTO
- * @since 2019-10-08
  */
 public interface Lobby extends Serializable {
+
+    /**
+     * Getter for the lobby's ID
+     *
+     * @return The ID of the lobby
+     */
+    int getId();
+
+    /**
+     * Setter for the lobby's ID
+     *
+     * @param id The new ID of the lobby
+     */
+    void setId(int id);
 
     /**
      * Getter for the lobby's name
      *
      * @return A String containing the name of the lobby
-     * @since 2019-10-08
      */
     String getName();
 
@@ -30,7 +41,6 @@ public interface Lobby extends Serializable {
      * Changes the owner of the lobby
      *
      * @param user The user who should be the new owner
-     * @since 2019-10-08
      */
     void updateOwner(User user);
 
@@ -38,7 +48,6 @@ public interface Lobby extends Serializable {
      * Getter for the current owner of the lobby
      *
      * @return A User object containing the owner of the lobby
-     * @since 2019-10-08
      */
     User getOwner();
 
@@ -46,15 +55,13 @@ public interface Lobby extends Serializable {
      * Adds a new user to the lobby
      *
      * @param user The new user to add to the lobby
-     * @since 2019-10-08
      */
     void joinUser(User user);
 
     /**
-     * Removes an user from the lobby
+     * Removes a user from the lobby
      *
      * @param user The user to remove from the lobby
-     * @since 2019-10-08
      */
     void leaveUser(User user);
 
@@ -62,7 +69,6 @@ public interface Lobby extends Serializable {
      * Getter for all users in the lobby
      *
      * @return A Set containing all user in this lobby
-     * @since 2019-10-08
      */
     Set<User> getUsers();
 
@@ -71,7 +77,6 @@ public interface Lobby extends Serializable {
      *
      * @param user The user to check
      * @return true if user is in lobby, false otherwise
-     * @since 2024-08-29
      */
     boolean containsUser(User user);
 
@@ -79,7 +84,6 @@ public interface Lobby extends Serializable {
      * Getter for all players in the lobby
      *
      * @return A Set containing all players in this lobby
-     * @since 2024-09-13
      */
     Set<Player> getPlayers();
 
@@ -87,7 +91,6 @@ public interface Lobby extends Serializable {
      * Adds a new Player to the player Set
      *
      * @param player The new player to add to the player Set
-     * @since 2024-09-13
      */
     void addPlayer(Player player);
 
@@ -95,7 +98,6 @@ public interface Lobby extends Serializable {
      * Removes a player from the lobby
      *
      * @param player The player to remove from the lobby
-     * @since 2019-10-08
      */
     void removePlayer(Player player);
 
@@ -104,7 +106,6 @@ public interface Lobby extends Serializable {
      * Returns null if there's no player for the user
      *
      * @param user user of the returned {@link de.uol.swp.common.player.UserPlayer}
-     * @since 2019-10-08
      */
     Player getPlayerForUser(User user);
 

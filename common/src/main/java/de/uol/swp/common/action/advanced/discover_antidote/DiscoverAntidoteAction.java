@@ -21,9 +21,6 @@ import java.util.List;
  * <p>
  * The action requires a certain number of cards to be discarded, which is tracked and managed through the methods in this class.
  * </p>
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 @Getter
 public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCardsAction {
@@ -36,7 +33,7 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
     /**
      * The list of {@link CityCard}s that have been discarded so far.
      */
-    private final List<CityCard> discardedCards;
+    private List<CityCard> discardedCards;
 
     @Setter
     private Plague plague;
@@ -53,6 +50,11 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
     protected DiscoverAntidoteAction(int requiredAmountOfDiscardedCards) {
         this.requiredAmountOfDiscardedCards = requiredAmountOfDiscardedCards;
         this.discardedCards = new ArrayList<>();
+    }
+
+    @Override
+    public String toString() {
+        return "Gegenmittel entdecken";
     }
 
     /**
@@ -105,12 +107,34 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
             return false;
         }
 
-        final List<PlayerCard> handCards = player.getHandCards();
-        return getGame().getPlagues().stream()
-                .anyMatch(p -> !getGame().hasAntidoteMarkerForPlague(p) && handCards.stream()
-                        .filter(card -> card instanceof CityCard cityCard && cityCard.hasPlague(p))
-                        .count() >= requiredAmountOfDiscardedCards
-                );
+        return !getAvailablePlagues().isEmpty();
+    }
+
+    /**
+     * This method returns a list of plagues that are currently available based on the number of
+     * discardable cards required to activate a plague.
+     *
+     * @return A list of plagues that are available.
+     */
+    public List<Plague> getAvailablePlagues() {
+        List<Plague> plaguesFromGame = getGame().getPlagues();
+        return plaguesFromGame.stream()
+                .filter(plague -> getDiscardableCardsForPlague(plague).size() >= requiredAmountOfDiscardedCards)
+                .toList();
+    }
+
+    /**
+     * This method returns a list of CityCard objects that can be discarded to activate a specific plague.
+     *
+     * @param plague The plague for which the discardable cards are being retrieved.
+     * @return A list of CityCards that can be discarded for the given plague.
+     */
+    public List<CityCard> getDiscardableCardsForPlague(final Plague plague) {
+        List<PlayerCard> handCardsFromExecutingPlayer = getExecutingPlayer().getHandCards();
+        return handCardsFromExecutingPlayer.stream()
+                .filter(card -> card instanceof CityCard cityCard && cityCard.hasPlague(plague))
+                .map(CityCard.class::cast)
+                .toList();
     }
 
     /**
@@ -155,5 +179,22 @@ public class DiscoverAntidoteAction extends AdvancedAction implements DiscardCar
         }
 
         getGame().addAntidoteMarker(new AntidoteMarker(plague));
+    }
+
+    @Override
+    public void initWithGame(Game game) {
+        super.initWithGame(game);
+        this.discardedCards = getUpdatedDiscardedCards();
+    }
+
+    /**
+     * Retrieves the updated list of discarded cards by mapping them to the corresponding hand cards of the executing player.
+     *
+     * @return A list of updated CityCards representing the discarded cards in the executing player's hand.
+     */
+    private List<CityCard> getUpdatedDiscardedCards() {
+        return discardedCards.stream()
+                .map(card -> getExecutingPlayer().getHandCardForGivenPlayerCard(card))
+                .toList();
     }
 }

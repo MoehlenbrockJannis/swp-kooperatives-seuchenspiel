@@ -1,5 +1,6 @@
 package de.uol.swp.server.lobby;
 
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -7,16 +8,25 @@ import de.uol.swp.common.lobby.request.*;
 import de.uol.swp.common.lobby.server_message.JoinUserLobbyServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.player.UserPlayer;
+import de.uol.swp.common.user.User;
 import de.uol.swp.common.user.UserDTO;
-import de.uol.swp.server.usermanagement.AuthenticationService;
-import de.uol.swp.server.usermanagement.UserManagement;
-import de.uol.swp.server.usermanagement.store.MainMemoryBasedUserStore;
+import de.uol.swp.common.user.request.LogoutRequest;
+import de.uol.swp.server.lobby.store.LobbyStore;
+import de.uol.swp.server.lobby.store.MainMemoryBasedLobbyStore;
+import de.uol.swp.server.user.AuthenticationService;
+import de.uol.swp.server.user.UserManagement;
+import de.uol.swp.server.user.store.MainMemoryBasedUserStore;
+import de.uol.swp.server.user.store.UserStore;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.EventBusException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -33,6 +43,8 @@ class LobbyServiceTest {
     private AuthenticationService authService;
     private LobbyManagement lobbyManagement;
     private LobbyService lobbyService;
+    private LobbyStore lobbyStore;
+    private UserStore userStore;
 
     @BeforeEach
     void setUp() {
@@ -40,15 +52,18 @@ class LobbyServiceTest {
         this.secondOwner = new UserDTO("Marco2", "Marco2", "Marco2@Grawunder.com");
         this.secondOwnerAsPlayer = new UserPlayer(this.secondOwner);
         this.firstOwnerAsPlayer = new UserPlayer(this.firstOwner);
-        this.lobby = new LobbyDTO("TestLobby", firstOwner, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", firstOwner);
+        this.lobby.setId(123);
         this.bus = EventBus.builder()
                 .logNoSubscriberMessages(false)
                 .sendNoSubscriberEvent(false)
                 .throwSubscriberException(true)
                 .build();
-        this.userManagement = new UserManagement(new MainMemoryBasedUserStore());
+        this.userStore = mock(MainMemoryBasedUserStore.class);
+        this.lobbyStore = mock(MainMemoryBasedLobbyStore.class);
+        this.userManagement = new UserManagement(userStore);
         this.authService = mock(AuthenticationService.class);
-        this.lobbyManagement = spy(new LobbyManagement());
+        this.lobbyManagement = spy(new LobbyManagement(lobbyStore));
         this.lobbyService = new LobbyService(lobbyManagement, authService, bus);
         lobbyManagement.getAllLobbies().forEach(lobbyManagement::dropLobby);
     }
@@ -70,10 +85,15 @@ class LobbyServiceTest {
         final CreateUserLobbyRequest request = new CreateUserLobbyRequest(lobby, firstOwner);
         final CreateUserLobbyRequest request2 = new CreateUserLobbyRequest(lobby, secondOwner);
 
+        when(lobbyStore.getLobby(lobby.getId())).thenReturn(Optional.of(lobby));
+
         bus.post(request);
+
+        doThrow(IllegalArgumentException.class).when(lobbyStore).addLobby(lobby);
 
         Exception e = assertThrows(EventBusException.class, () -> bus.post(request2));
         assertInstanceOf(IllegalArgumentException.class, e.getCause());
+
 
         assertNotNull(lobbyManagement.getLobby(lobby));
         lobbyManagement.getLobby(lobby).ifPresent(l -> assertNotEquals(secondOwner, l.getOwner()));
@@ -141,9 +161,15 @@ class LobbyServiceTest {
     @DisplayName("Update lobby status")
     void onLobbyUpdateStatusRequestTest() {
         lobbyManagement.createLobby(lobby);
+
+        when(lobbyManagement.getLobby(lobby)).thenReturn(Optional.of(lobby));
+
+        doNothing().when(lobbyManagement).updateLobbyStatus(lobby, LobbyStatus.RUNNING);
+
         final UpdateLobbyStatusRequest request = new UpdateLobbyStatusRequest(lobby, LobbyStatus.RUNNING);
 
         bus.post(request);
+
 
         verify(lobbyManagement).updateLobbyStatus(lobby, LobbyStatus.RUNNING);
     }
@@ -186,7 +212,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("User joins non-existent lobby")
     void lobbyJoinUserNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final JoinUserLobbyRequest request = new JoinUserLobbyRequest(nonExistentLobby, secondOwner);
 
         bus.post(request);
@@ -198,8 +224,10 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Last user leaves lobby")
     void lobbyLeaveUserLastUserTest() {
-        Lobby singleUserLobby = new LobbyDTO("SingleUserLobby", firstOwner, 1, 4);
+        Lobby singleUserLobby = new LobbyDTO("SingleUserLobby", firstOwner);
         lobbyManagement.createLobby(singleUserLobby);
+
+        when(lobbyManagement.getLobby(singleUserLobby)).thenReturn(Optional.of(singleUserLobby));
 
         LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(singleUserLobby, firstOwnerAsPlayer);
 
@@ -213,7 +241,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("User leaves non-existent lobby")
     void lobbyLeaveUserNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final LeavePlayerLobbyRequest request = new LeavePlayerLobbyRequest(nonExistentLobby, firstOwnerAsPlayer);
 
         bus.post(request);
@@ -225,7 +253,7 @@ class LobbyServiceTest {
     @Test
     @DisplayName("Update status of non-existent lobby")
     void onLobbyUpdateStatusRequestNonExistentLobbyTest() {
-        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner, 2, 4);
+        final Lobby nonExistentLobby = new LobbyDTO("NonExistentLobby", firstOwner);
         final UpdateLobbyStatusRequest request = new UpdateLobbyStatusRequest(nonExistentLobby, LobbyStatus.RUNNING);
 
         bus.post(request);
@@ -242,5 +270,48 @@ class LobbyServiceTest {
         assertDoesNotThrow(() -> lobbyService.sendToAllInLobby(null, message));
 
         verify(message, never()).setReceiver(any());
+    }
+
+    @Test
+    @DisplayName("Update difficulty in lobby")
+    void onDifficultyUpdateRequestTest() {
+        lobbyManagement.createLobby(lobby);
+        final GameDifficulty newDifficulty = GameDifficulty.HARD;
+        final DifficultyUpdateRequest request = new DifficultyUpdateRequest(lobby, newDifficulty);
+
+        when(lobbyManagement.getLobby(lobby)).thenReturn(Optional.of(lobby));
+
+        bus.post(request);
+
+        verify(lobbyManagement, times(1)).getLobby(lobby);
+        verify(authService, times(1)).getSessions((lobby.getUsers()));
+    }
+
+    @Test
+    @DisplayName("Should leave lobbies with the user")
+    void onLogoutRequest() {
+        assertThat(lobby.getUsers())
+                .contains(firstOwner);
+
+        final User tempUser = new UserDTO("user", "", "");
+
+        lobby.setId(1);
+        lobby.joinUser(tempUser);
+
+        final Lobby secondLobby = new LobbyDTO("second", secondOwner);
+        secondLobby.setId(2);
+        secondLobby.joinUser(tempUser);
+
+        final List<Lobby> lobbies = List.of(lobby, secondLobby);
+        when(lobbyStore.getAllLobbies())
+                .thenReturn(lobbies);
+        when(lobbyStore.getLobby(anyInt()))
+                .thenAnswer(invocationOnMock -> lobbies.stream().filter(l -> invocationOnMock.getArgument(0).equals(l.getId())).findFirst());
+
+        final LogoutRequest logoutRequest = new LogoutRequest(firstOwner);
+        bus.post(logoutRequest);
+
+        assertThat(lobby.getUsers())
+                .doesNotContain(firstOwner);
     }
 }

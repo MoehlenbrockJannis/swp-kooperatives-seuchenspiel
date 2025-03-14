@@ -10,21 +10,16 @@ import java.util.Set;
  * A utility class that defines all plague types.
  *
  * @see Plague
- * @author David Scheffler
- * @since 2024-09-22
  */
 @Getter
 public final class Plagues {
-    public static final Plague BLUE_PLAGUE = new Plague("Blau", new Color(0, 0, 255));
-    public static final Plague BLACK_PLAGUE = new Plague("Schwarz", new Color(0, 0, 0));
-    public static final Plague RED_PLAGUE = new Plague("Rot", new Color(255, 0, 0));
-    public static final Plague YELLOW_PLAGUE = new Plague("Gelb", new Color(255, 255, 0));
+    public static final Plague BLUE_PLAGUE = new Plague("Blau", new Color(40, 138, 204));
+    public static final Plague BLACK_PLAGUE = new Plague("Schwarz", new Color(89, 91, 97));
+    public static final Plague RED_PLAGUE = new Plague("Rot", new Color(255, 46, 23));
+    public static final Plague YELLOW_PLAGUE = new Plague("Gelb", new Color(255, 235, 61));
 
     /**
      * Private constructor to prevent instantiation
-     *
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     private Plagues() {
     }
@@ -34,8 +29,6 @@ public final class Plagues {
      *
      * @return a set containing all {@link Plague} objects
      * @see Plague
-     * @author David Scheffler
-     * @since 2024-09-22
      */
     public static Set<Plague> getAllPlagues() {
         return Set.of(

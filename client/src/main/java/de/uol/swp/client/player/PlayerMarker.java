@@ -1,25 +1,22 @@
 package de.uol.swp.client.player;
 
-import de.uol.swp.client.game.GameMapPresenter;
+import de.uol.swp.client.marker.HighlightableMarker;
 import de.uol.swp.client.user.LoggedInUserProvider;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
-import de.uol.swp.common.user.User;
-import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
-
-import java.util.Objects;
+import lombok.Getter;
 
 /**
- * Represents the player marker on the game map
+ * Represents the player marker
  *
- * @author Silas van Thiel
- * @see GameMapPresenter
- * @since 2024-09-28
+ * @see PlayerMarkerPresenter
  */
-public class PlayerMarker extends Group {
+@Getter
+public class PlayerMarker extends HighlightableMarker {
 
     private static final double DEFAULT_HEAD_RADIUS = 10.0;
     private static final double DEFAULT_BODY_TOP_X = 10.0;
@@ -28,105 +25,45 @@ public class PlayerMarker extends Group {
     private static final double DEFAULT_BODY_BOTTOM_RIGHT_X = 20.0;
     private static final double DEFAULT_BODY_BOTTOM_Y = 20.0;
 
-    private double headRadius;
-    private double bodyTopX;
-    private double bodyTopY;
-    private double bodyBottomLeftX;
-    private double bodyBottomRightX;
-    private double bodyBottomY;
+    private final double headRadius;
+    private final double bodyTopX;
+    private final double bodyTopY;
+    private final double bodyBottomLeftX;
+    private final double bodyBottomRightX;
+    private final double bodyBottomY;
 
     private final Color playerColor;
     private final LoggedInUserProvider loggedInUserProvider;
+    @Getter
     private final Player player;
+    private final Game game;
 
     private Circle head;
     private Polygon body;
 
-    /**
-     * Constructor
-     */
-    public PlayerMarker(Color playerColor, double playerSize, LoggedInUserProvider loggedInUserProvider, Player player) {
+    public PlayerMarker(Color playerColor, double playerSize, LoggedInUserProvider loggedInUserProvider, Player player, Game game) {
         this.playerColor = playerColor;
         this.loggedInUserProvider = loggedInUserProvider;
+        this.game = game;
         this.player = player;
-        initializeSizes(playerSize);
-        initializeShapes();
-        initializeMouseEvents();
-        alignBodyToHead();
-        addToGroup(body, head);
-    }
 
-    /**
-     * Initializes the mouse events of the player marker
-     */
-    private void initializeMouseEvents() {
-        initializeHoverEvents();
-        initializeClickEvent();
-    }
-
-    /**
-     * Initializes the click event of the player marker
-     */
-    private void initializeHoverEvents() {
-        this.setOnMouseEntered(event -> {
-            if (isEventTriggeredByBoundPlayer()) {
-                this.setOpacity(0.5);
-            }
-        });
-
-        this.setOnMouseExited(event -> {
-            if (isEventTriggeredByBoundPlayer()) {
-                this.setOpacity(1.0);
-            }
-        });
-    }
-
-    /**
-     * Initializes the click event of the player marker
-     */
-    private void initializeClickEvent() {
-        this.setOnMouseClicked(event -> {
-            if (isEventTriggeredByBoundPlayer()) {
-                handleMarkerClick();
-            }
-        });
-    }
-
-    /**
-     * Handles the click event of the player marker
-     */
-    private void handleMarkerClick() {
-        // TODO implement marker click logic
-    }
-
-    /**
-     * @return True if the event is triggered by the player bound to the player marker
-     */
-    private boolean isEventTriggeredByBoundPlayer() {
-        User user = loggedInUserProvider.get();
-        return Objects.equals(user.getUsername(), player.getName());
-    }
-
-    /**
-     * Initializes the shapes of the player marker
-     */
-    private void initializeShapes() {
-        createHead();
-        createBody();
-    }
-
-    /**
-     * Calculates the size of the player marker
-     *
-     * @param playerSize The size of the player marker
-     */
-    private void initializeSizes(double playerSize) {
         this.headRadius = DEFAULT_HEAD_RADIUS * playerSize;
         this.bodyTopX = DEFAULT_BODY_TOP_X * playerSize;
         this.bodyTopY = DEFAULT_BODY_TOP_Y * playerSize;
         this.bodyBottomLeftX = DEFAULT_BODY_BOTTOM_LEFT_X * playerSize;
         this.bodyBottomRightX = DEFAULT_BODY_BOTTOM_RIGHT_X * playerSize;
         this.bodyBottomY = DEFAULT_BODY_BOTTOM_Y * playerSize;
+
+        initializeShapes();
+        alignBodyToHead();
+        addToGroup(body, head);
+    }
+    /**
+     * Initializes the shapes of the player marker
+     */
+    private void initializeShapes() {
+        createHead();
+        createBody();
     }
 
     /**
@@ -142,11 +79,9 @@ public class PlayerMarker extends Group {
      * Aligns the body to the head
      */
     private void alignBodyToHead() {
-        this.head.setLayoutX(headRadius);
-        this.head.setLayoutY(headRadius);
+        this.head.setLayoutY(-headRadius);
 
-        this.body.setLayoutX(0);
-        this.body.setLayoutY(2 * headRadius);
+        this.body.setLayoutX(-getWidth() / 2);
     }
 
     /**
@@ -194,5 +129,4 @@ public class PlayerMarker extends Group {
     public double getWidth() {
         return Math.abs(bodyBottomLeftX) + Math.abs(bodyBottomRightX);
     }
-
 }

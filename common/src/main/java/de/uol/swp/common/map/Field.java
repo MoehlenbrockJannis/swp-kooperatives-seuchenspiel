@@ -1,5 +1,6 @@
 package de.uol.swp.common.map;
 
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.map.exception.NoPlagueCubesOfPlagueOnFieldException;
 import de.uol.swp.common.map.exception.ResearchLaboratoryAlreadyBuiltOnFieldException;
 import de.uol.swp.common.map.research_laboratory.ResearchLaboratory;
@@ -8,6 +9,7 @@ import de.uol.swp.common.plague.PlagueCube;
 import de.uol.swp.common.player.Player;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,18 +30,18 @@ import java.util.Map;
  * @see Plague
  * @see PlagueCube
  * @see ResearchLaboratory
- * @author Tom Weelborg
- * @since 2024-09-02
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Field implements Serializable {
+    @EqualsAndHashCode.Include
     private GameMap map;
+    @EqualsAndHashCode.Include
     @Getter
     private MapSlot mapSlot;
     private ResearchLaboratory researchLaboratory;
-    private Map<Plague, List<PlagueCube>> plagueCubes;
     @Getter
-    private List<Player> playersOnField;
+    @Setter
+    private Map<Plague, List<PlagueCube>> plagueCubes;
 
     /**
      * Constructor
@@ -51,7 +53,23 @@ public class Field implements Serializable {
         this.map = map;
         this.mapSlot = mapSlot;
         this.plagueCubes = new HashMap<>();
-        this.playersOnField = new ArrayList<>();
+
+        initPlagueCubes();
+    }
+
+    @Override
+    public String toString() {
+        return mapSlot.toString();
+    }
+
+    /**
+     * Initializes plagueCubes Map
+     */
+    private void initPlagueCubes() {
+        for (Plague plague : map.getType().getUniquePlagues()) {
+            List<PlagueCube> plagueList = new ArrayList<>();
+            plagueCubes.put(plague, plagueList);
+        }
     }
 
     /**
@@ -95,36 +113,32 @@ public class Field implements Serializable {
     }
 
     /**
-     * Infects this field with the default plague as specified by the {@link #mapSlot}
-     *
-     * <p>
-     *     To get a {@link PlagueCube} of the default {@link Plague}, a method of the {@link #map} is called.
-     * </p>
-     *
-     * @see #getPlague()
-     * @see #infect(PlagueCube)
-     * @see GameMap#getPlagueCubeOfPlague(Plague) 
+     * Infects this field with its default plague type.
+     * Creates a new list to track infected fields.
      */
-    public void infect() {
+    public void infectField() {
         final PlagueCube plagueCube = map.getPlagueCubeOfPlague(getPlague());
-        infect(plagueCube);
+        final List<Field> infectedFields = new ArrayList<>();
+        infectField(plagueCube, infectedFields);
     }
 
+
     /**
-     * Infects this field with the given plagueCube by adding it to {@link #plagueCubes} if it is infectable.
-     * Otherwise, it will call the {@link #map} to start an outbreak.
+     * Attempts to infect this field with the given plague cube.
+     * If the field cannot be infected (already has maximum cubes), triggers an outbreak instead.
      *
-     * @see #getPlague() 
-     * @see #isInfectable(Plague)
-     * @see GameMap#startOutbreak(Field, Plague)
+     * @param plagueCube The plague cube to add to this field
+     * @param infectedFields List tracking all fields that get infected in this infection chain
      */
-    public void infect(final PlagueCube plagueCube) {
+    public void infectField(final PlagueCube plagueCube, List<Field> infectedFields) {
         final Plague plague = plagueCube.getPlague();
         if (isInfectable(plague)) {
             final List<PlagueCube> plagueCubeList = plagueCubes.get(plague);
             plagueCubeList.add(plagueCube);
+            infectedFields.add(this);
         } else {
-            map.startOutbreak(this, plague);
+            map.addPlagueCube(plagueCube);
+            map.startOutbreak(this, plague, infectedFields);
         }
     }
 
@@ -256,6 +270,16 @@ public class Field implements Serializable {
     }
 
     /**
+     * Returns whether this field has represents the given {@link City} or not
+     *
+     * @param city the {@link City} to check equality with {@link City} on {@link #mapSlot} for
+     * @return {@code true} if given {@link City} is equal to {@link City} on {@link #mapSlot}, {@code false} otherwise
+     */
+    public boolean hasCity(City city) {
+        return this.getCity().equals(city);
+    }
+
+    /**
      * Returns a {@link List} of all fields neighboring this {@link Field}
      *
      * @return {@link List} of fields neighboring this {@link Field}
@@ -263,5 +287,108 @@ public class Field implements Serializable {
      */
     public List<Field> getNeighborFields() {
         return map.getNeighborFields(this);
+    }
+
+    /**
+     * Returns a {@link List} of all players on this field.
+     *
+     * @return {@link List} of all players on this field
+     * @see GameMap#getPlayersOnField(Field)
+     * @see Player#getCurrentField()
+     */
+    public List<Player> getPlayersOnField() {
+        return this.map.getPlayersOnField(this);
+    }
+
+    /**
+     * Returns {@link List} of all {@link PlagueCube} of the given Plague found on the field
+     *
+     * @param plague the {@link Plague} used to return the associated {@link PlagueCube} List
+     * @return {@link List} of all {@link PlagueCube} of the given Plague
+     */
+    public List<PlagueCube> getPlagueCubesOfPlague(Plague plague){
+        return plagueCubes.get(plague);
+    }
+
+    /**
+     * Counts the amount of foreign {@link Plague} types found on the field
+     *
+     * @return number of foreign plagueCube types found on the field
+     */
+    public int getNumberOfForeignPlagueCubeTypes(){
+        int numberOfForeignPlagueTypes = 0;
+        Plague associatedPlague = this.getPlague();
+
+        for (Map.Entry<Plague, List<PlagueCube>> entry : plagueCubes.entrySet()) {
+            List<PlagueCube> plagueCubeList = entry.getValue();
+
+            if (!entry.getKey().equals(associatedPlague) && plagueCubeList != null && !plagueCubeList.isEmpty()) {
+                numberOfForeignPlagueTypes++;
+            }
+        }
+
+        return numberOfForeignPlagueTypes;
+    }
+
+    /**
+     * Returns the number of {@link PlagueCube} for each {@link Plague} found on the field
+     *
+     * @return {@link Map} of {@link Plague} and {@link Integer} for the amount of {@link PlagueCube} for each {@link Plague}
+     */
+    public Map<Plague, Integer> getPlagueCubeAmounts() {
+        Map<Plague, Integer> plagueCubeAmounts = new HashMap<>();
+
+        for (Map.Entry<Plague, List<PlagueCube>> entry : plagueCubes.entrySet()) {
+            plagueCubeAmounts.put(entry.getKey(), entry.getValue().size());
+        }
+        return plagueCubeAmounts;
+    }
+    /**
+     * Removes plague cubes of the specified type and returns them to the game's supply.
+     * If player is a doctor with an antidote marker, cures the plague globally across all fields.
+     * Otherwise, removes plague cubes only from the current field.
+     *
+     * @param plague The type of plague to cure
+     * @param currentField The field where the cure action was initiated
+     * @param game The game instance
+     */
+    public void removeAllPlagueCubes(Plague plague, Field currentField, Game game) {
+        removeAllPlagueCubes(plague, currentField, game, false);
+    }
+
+    public void removeAllPlagueCubes(Plague plague, Field currentField, Game game, boolean isGlobalCure) {
+        if (isGlobalCure) {
+            cureAllFieldsOfPlague(plague, game);
+        } else {
+            cureFieldOfPlague(currentField, plague, game);
+        }
+    }
+
+    /**
+     * Cures all instances of the specified plague across all fields on the map.
+     * Used for the doctor's special ability with antidote marker.
+     *
+     * @param plague The type of plague to cure globally
+     * @param game The game instance containing the map and plague cube supply
+     */
+    private void cureAllFieldsOfPlague(Plague plague, Game game) {
+        game.getMap().getFields().forEach(field ->
+                cureFieldOfPlague(field, plague, game)
+        );
+    }
+
+    /**
+     * Cures all plague cubes of the specified type from a single field.
+     * Returns all cured plague cubes to the game's supply.
+     *
+     * @param field The field to cure plague cubes from
+     * @param plague The type of plague to cure
+     * @param game The game instance to return plague cubes to
+     */
+    private void cureFieldOfPlague(Field field, Plague plague, Game game) {
+        while (field.isCurable(plague)) {
+            PlagueCube curedCube = field.cure(plague);
+            game.addPlagueCube(curedCube);
+        }
     }
 }

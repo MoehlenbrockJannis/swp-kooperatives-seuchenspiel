@@ -7,6 +7,13 @@ import lombok.RequiredArgsConstructor;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Represents a plague in the game.
+ * <p>
+ * A plague is defined by its name, color, and whether it has been exterminated.
+ * Each plague is treated as unique and is compared based on its name.
+ * </p>
+ */
 @Getter
 @RequiredArgsConstructor
 public class Plague implements Serializable {

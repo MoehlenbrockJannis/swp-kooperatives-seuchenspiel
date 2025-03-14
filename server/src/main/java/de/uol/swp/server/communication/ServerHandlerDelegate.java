@@ -8,8 +8,6 @@ import de.uol.swp.common.message.request.RequestMessage;
  * the handling of connections and messages
  *
  * @see de.uol.swp.server.communication.netty.NettyServerHandler
- * @author Marco Grawunder
- * @since 2017-03-17
  */
 
 interface ServerHandlerDelegate {
@@ -18,7 +16,6 @@ interface ServerHandlerDelegate {
 	 * Is called when a new client connects
 	 *
      * @param ctx The MessageContext for this client
-	 * @since 2017-03-17
 	 */
     void newClientConnected(MessageContext ctx);
 
@@ -26,7 +23,6 @@ interface ServerHandlerDelegate {
 	 * Is called when a client disconnects
 	 *
      * @param ctx The MessageContext for this client
-	 * @since 2017-03-17
 	 */
     void clientDisconnected(MessageContext ctx);
 	
@@ -35,7 +31,6 @@ interface ServerHandlerDelegate {
 	 * and can be processed
 	 *
 	 * @param msg The message send from the client
-	 * @since 2017-03-17
 	 */
     void process(RequestMessage msg);
 

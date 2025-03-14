@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<GridPane xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="de.uol.swp.client.game.RemainingComponentsPresenter">
+    <rowConstraints>
+        <RowConstraints percentHeight="50" minHeight="0"/>
+        <RowConstraints percentHeight="50" minHeight="0"/>
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="100" minWidth="0"/>
+    </columnConstraints>
+    <StackPane GridPane.rowIndex="0" minWidth="0" minHeight="0" fx:id="componentSymbolPane"/>
+    <Text GridPane.rowIndex="1" fx:id="numberOfComponentsText" textAlignment="CENTER" GridPane.halignment="CENTER" style="-fx-font-weight: bold"/>
+</GridPane>

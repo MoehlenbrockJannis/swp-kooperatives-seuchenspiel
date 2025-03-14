@@ -26,7 +26,7 @@ class LobbyMessageSerializableTest {
     void setUp() {
         this.defaultUser = new UserDTO("marco", "marco", "marco@grawunder.de");
         this.defaultPlayer = new UserPlayer(defaultUser);
-        this.lobby = new LobbyDTO("TestLobby", defaultUser, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", defaultUser);
     }
 
     @Test

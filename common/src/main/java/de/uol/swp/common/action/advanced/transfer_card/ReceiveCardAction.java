@@ -1,83 +1,72 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
-import de.uol.swp.common.action.Action;
 import de.uol.swp.common.card.CityCard;
+import de.uol.swp.common.game.Game;
 import de.uol.swp.common.player.Player;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * The {@code ReceiveCardAction} class represents an action where a player receives a card from another player.
  * It extends {@link ShareKnowledgeAction} and provides a method to retrieve the corresponding {@link SendCardAction}
  * of the opponent who is sending the card.
- *
- *  @author Jannis Moehlenbrock
- *  @since 2024-09-17
  */
 public class ReceiveCardAction extends ShareKnowledgeAction {
 
-    /**
-     * <p>
-     *     A {@link ReceiveCardAction} is available if
-     *      either
-     *       the sender has {@link NoLimitsSendCardAction} as an {@link Action} and
-     *       he has hand cards
-     *      or
-     *       the criteria set out by {@link ShareKnowledgeAction#isAvailable()} are met.
-     * </p>
-     *
-     * @return {@code true} if sender has {@link NoLimitsSendCardAction} and hand cards or result of {@link ShareKnowledgeAction#isAvailable()}
-     * @see #getSendCardActionOfOpponent()
-     * @see Player#hasHandCards()
-     * @see ShareKnowledgeAction#isAvailable()
-     */
     @Override
-    public boolean isAvailable() {
-        return getSendCardActionOfOpponent().equals(NoLimitsSendCardAction.class) ?
-                getSender().hasHandCards() :
-                super.isAvailable();
-    }
-
-    /**
-     * <p>
-     *     A {@link ReceiveCardAction} is executable if
-     *      either
-     *       the sender has {@link NoLimitsSendCardAction} as an {@link Action} and
-     *       the criteria set out by {@link #isAvailable()} and {@link #isApproved()} are met
-     *      or
-     *       the criteria set by {@link ShareKnowledgeAction#isExecutable()} are met.
-     * </p>
-     *
-     * @return {@code true} if sender has {@link NoLimitsSendCardAction} and {@link #isAvailable()} and {@link #isApproved()} are met or result of {@link ShareKnowledgeAction#isExecutable()}
-     * @see #getSendCardActionOfOpponent()
-     * @see #isAvailable()
-     * @see #isApproved()
-     * @see ShareKnowledgeAction#isExecutable()
-     */
-    @Override
-    public boolean isExecutable() {
-        return getSendCardActionOfOpponent().equals(NoLimitsSendCardAction.class) ?
-                isAvailable() && isApproved() :
-                super.isExecutable();
+    public String toString() {
+        return super.toString() + " (Karte erhalten)";
     }
 
     @Override
-    protected Player getSender() {
+    public Player getSender() {
         return getTargetPlayer();
     }
 
     @Override
-    protected Player getReceiver() {
+    public Player getReceiver() {
         return getExecutingPlayer();
     }
 
     /**
+     * {@inheritDoc}
+     *
      * <p>
-     *     Returns the {@link Class} object of the class that the sending {@link Player} would use to send a {@link CityCard}.
+     *     All sendable cards of any {@link Player} that a transfer is possible with can be received.
+     * </p>
+     * 
+     * @see #getPlayersWithPossibilityOfTransfer()
+     * @see #getSendableCardsOfPlayer(Player)
+     */
+    @Override
+    public Map<Player, List<CityCard>> getTargetPlayersWithAvailableCardsAssociation() {
+        final List<Player> possibleTargets = getPlayersWithPossibilityOfTransfer();
+        return possibleTargets.stream()
+                .map(player -> new Object() {
+                    final Player p = player;
+                    final List<CityCard> sendableCards = getSendableCardsOfPlayer(p);
+                })
+                .filter(o -> !o.sendableCards.isEmpty())
+                .collect(Collectors.toMap(o -> o.p, o -> o.sendableCards));
+    }
+
+    /**
+     * <p>
+     *     Returns a {@link List} of hand cards the given {@code player} can send.
+     *     The content of the {@link List} is determined by the {@link SendCardAction} of the given {@code player}.
      * </p>
      *
-     * @return the {@link SendCardAction} class for the sending opponent
+     * @param player the {@link Player} to get sendable cards of
+     * @return {@link List} of cards the given {@code player} can send
+     * @see #getSendCardActionClass(Player)
+     * @see #createShareKnowledgeAction(Class, Player, Game)
+     * @see SendCardAction#getSendableCards()
      */
-    @SuppressWarnings("unchecked")
-    public Class<? extends SendCardAction> getSendCardActionOfOpponent() {
-        return (Class<? extends SendCardAction>) getSender().getRoleSpecificActionClassOrDefault(SendCardAction.class);
+    protected List<CityCard> getSendableCardsOfPlayer(final Player player) {
+        final Class<? extends SendCardAction> sendCardActionClass = getSendCardActionClass(player);
+        final SendCardAction sendCardAction = createShareKnowledgeAction(sendCardActionClass, player, getGame());
+        return sendCardAction.getSendableCards();
     }
 }

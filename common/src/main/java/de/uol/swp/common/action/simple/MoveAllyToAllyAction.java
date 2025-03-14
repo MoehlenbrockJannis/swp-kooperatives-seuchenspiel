@@ -9,6 +9,13 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Action representing the movement of one ally to another ally in the game.
+ * <p>
+ * This action primarily deals with manipulating players' positions based on
+ * defined rules and conditions provided in the game.
+ * </p>
+ */
 @Getter
 @Setter
 public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
@@ -17,10 +24,15 @@ public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
     @Setter(AccessLevel.NONE)
     private boolean isApproved;
 
+    @Override
+    public String toString() {
+        return "Spieler zu Spieler bewegen";
+    }
+
     /**
      * <p>
      *     Sets the given {@link Player} as {@link #targetAlly}.
-     *     Also sets the {@link #targetField} as the given {@link Player}'s current {@link Field}.
+     *     Also sets the targetField as the given {@link Player}'s current {@link Field}.
      * </p>
      *
      * @param targetAlly The target {@link Player} to set
@@ -28,6 +40,15 @@ public class MoveAllyToAllyAction extends MoveAction implements MoveAllyAction {
     public void setTargetAlly(final Player targetAlly) {
         this.targetAlly = targetAlly;
         setTargetField(targetAlly.getCurrentField());
+    }
+
+    @Override
+    public void initWithGame(final Game game) {
+        super.initWithGame(game);
+        this.movedAlly = game.findPlayer(this.movedAlly).orElseThrow();
+        if (this.targetAlly != null) {
+            this.targetAlly = game.findPlayer(this.targetAlly).orElseThrow();
+        }
     }
 
     @Override

@@ -6,22 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Test for the user logged out message
- *
- * @see LogoutServerMessage
- * @since 2023-05-14
- */
 class LogoutServerMessageTest {
 
-    /**
-     * Test for the creation of UserLoggedOutMessages
-     *
-     * This test checks if the username of the UserLoggedOutMessage gets
-     * set correctly during the creation of a new message
-     *
-     * @since 2023-05-14
-     */
     @Test
     void createUserLoggedOutMessage() {
         final User user = new UserDTO("Test", "", "");

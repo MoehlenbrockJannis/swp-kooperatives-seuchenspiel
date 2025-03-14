@@ -1,22 +1,16 @@
 package de.uol.swp.common.action.advanced.transfer_card;
 
-import de.uol.swp.common.action.RoleAction;
-import de.uol.swp.common.role.RoleAbility;
-import de.uol.swp.common.role.RoleCard;
-import de.uol.swp.common.util.Color;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SendCardActionTest extends ShareKnowledgeActionTest {
-    private static class ReceiveCardActionDummy extends ReceiveCardAction implements RoleAction {}
-
     @Getter
     private SendCardAction action;
 
@@ -30,6 +24,30 @@ class SendCardActionTest extends ShareKnowledgeActionTest {
         }
 
         super.setUp();
+    }
+
+    @Test
+    @DisplayName("Should return a valid approval request message")
+    @Override
+    protected void getApprovalRequestMessage() {
+        assertThat(action.getApprovalRequestMessage())
+                .isEqualTo(player1Name + " möchte " + player2Name + " die Karte " + fieldName + " vermachen.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid approved message")
+    @Override
+    protected void getApprovedMessage() {
+        assertThat(action.getApprovedMessage())
+                .isEqualTo(player2Name + " hat angenommen. " + player1Name + " hat " + player2Name + " die Karte " + fieldName + " vermacht.");
+    }
+
+    @Test
+    @DisplayName("Should return a valid rejected message")
+    @Override
+    protected void getRejectedMessage() {
+        assertThat(action.getRejectedMessage())
+                .isEqualTo(player2Name + " hat abgelehnt. " + player1Name + " hat " + player2Name + " die Karte " + fieldName + " nicht vermacht.");
     }
 
     @Test
@@ -49,37 +67,40 @@ class SendCardActionTest extends ShareKnowledgeActionTest {
     }
 
     @Test
-    @DisplayName("Should return the replaced ReceiveCardAction class object if the receiver has a custom action")
-    void getReceiveCardActionOfOpponent_replaced() {
-        final Class<ReceiveCardActionDummy> replacement = ReceiveCardActionDummy.class;
-        final Class<ReceiveCardAction> receiveCardAction = ReceiveCardAction.class;
-        final RoleAbility ability = new RoleAbility(
-                Map.of(
-                        receiveCardAction, replacement
-                ),
-                new ArrayList<>(),
-                new ArrayList<>()
-        );
-        final RoleCard role = new RoleCard("", new Color(), ability);
-        targetPlayer.setRole(role);
+    @DisplayName("Should return the correct player to cards association")
+    @Override
+    protected void getTargetPlayersWithAvailableCardsAssociation() {
+        getTargetPlayersWithAvailableCardsAssociation_noSendableCards();
 
-        assertThat(action.getReceiveCardActionOfOpponent())
-                .isEqualTo(replacement);
+        getTargetPlayersWithAvailableCardsAssociation_sendableCards();
+    }
+
+    private void getTargetPlayersWithAvailableCardsAssociation_noSendableCards() {
+        setUp();
+
+        assertThat(action.getTargetPlayersWithAvailableCardsAssociation())
+                .isEmpty();
+    }
+
+    private void getTargetPlayersWithAvailableCardsAssociation_sendableCards() {
+        setUp();
+
+        action.getSender().addHandCard(transferredCard);
+        executingPlayer.setCurrentField(transferredCardField);
+        targetPlayer.setCurrentField(transferredCardField);
+
+        assertThat(action.getTargetPlayersWithAvailableCardsAssociation())
+                .isEqualTo(Map.of(targetPlayer, List.of(transferredCard)));
     }
 
     @Test
-    @DisplayName("Should return the default ReceiveCardAction class object if the receiver does not have a custom action")
-    void getReceiveCardActionOfOpponent_notReplaced() {
-        final Class<ReceiveCardAction> receiveCardAction = ReceiveCardAction.class;
-        final RoleAbility ability = new RoleAbility(
-                Map.of(),
-                new ArrayList<>(),
-                new ArrayList<>()
-        );
-        final RoleCard role = new RoleCard("", new Color(), ability);
-        targetPlayer.setRole(role);
+    @DisplayName("Should return a list of sendable cards with same field of the players")
+    void getSendableCards() {
+        action.getSender().addHandCard(transferredCard);
+        executingPlayer.setCurrentField(transferredCardField);
+        targetPlayer.setCurrentField(transferredCardField);
 
-        assertThat(action.getReceiveCardActionOfOpponent())
-                .isEqualTo(receiveCardAction);
+        assertThat(action.getSendableCards())
+                .contains(transferredCard);
     }
 }

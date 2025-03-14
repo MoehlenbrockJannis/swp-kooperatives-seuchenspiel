@@ -7,9 +7,6 @@ import de.uol.swp.common.message.Message;
  * a specific client request
  *
  * @see de.uol.swp.common.message.Message
- * @author Marco Grawunder
- * @since 2019-08-07
  */
-
 public interface ResponseMessage extends Message {
 }

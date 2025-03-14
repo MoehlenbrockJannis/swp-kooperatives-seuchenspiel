@@ -8,8 +8,6 @@ import de.uol.swp.common.user.User;
  *
  * @see AbstractUserLobbyRequest
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-10-08
  */
 public class JoinUserLobbyRequest extends AbstractUserLobbyRequest {
     /**
@@ -17,7 +15,6 @@ public class JoinUserLobbyRequest extends AbstractUserLobbyRequest {
      *
      * @param lobby lobby
      * @param user user who wants to join the lobby
-     * @since 2019-10-08
      */
     public JoinUserLobbyRequest(Lobby lobby, User user) {
         super(lobby, user);

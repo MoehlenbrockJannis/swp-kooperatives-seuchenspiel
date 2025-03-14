@@ -4,15 +4,19 @@ import com.google.inject.Inject;
 import de.uol.swp.client.AbstractPresenter;
 import de.uol.swp.client.lobby.events.ShowLobbyCreateViewEvent;
 import de.uol.swp.client.lobby.events.ShowLobbyViewEvent;
-import de.uol.swp.client.main.events.ShowMainMenuEvent;
+import de.uol.swp.client.main_menu.events.ShowMainMenuEvent;
 import de.uol.swp.client.user.LoggedInUserProvider;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyStatus;
 import de.uol.swp.common.lobby.response.JoinUserLobbyResponse;
+import de.uol.swp.common.lobby.response.LobbyIsFullResponse;
+import de.uol.swp.common.lobby.response.LobbyNotJoinableResponse;
 import de.uol.swp.common.lobby.response.RetrieveAllLobbiesResponse;
 import de.uol.swp.common.lobby.server_message.RetrieveAllLobbiesServerMessage;
 import de.uol.swp.common.player.Player;
 import de.uol.swp.common.user.User;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -21,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 import lombok.NoArgsConstructor;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -30,9 +35,7 @@ import java.util.Set;
 /**
  * Manages the lobbyOverview window
  *
- * @author Tom Weelborg
  * @see de.uol.swp.client.AbstractPresenter
- * @since 2024-08-23
  */
 @NoArgsConstructor
 public class LobbyOverviewPresenter extends AbstractPresenter {
@@ -41,6 +44,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     @Inject
     private LobbyService lobbyService;
     private ObservableList<Lobby> lobbies;
+    private Timeline autoRefreshTimer;
 
     @FXML
     private TableView<Lobby> lobbiesTable;
@@ -63,7 +67,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *     After that it loads all lobbies using the {@link #lobbyService}.
      * </p>
      *
-     * @since 2024-08-24
      */
     @FXML
     public void initialize() {
@@ -91,7 +94,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *                           <br>
      *                           <small>Must be between 0.0 and 1.0 (both inclusive), where 1.0 represents 100%.</small>
      *
-     * @since 2024-08-24
      */
     public void setColumnWidths(final double nameColumnWidth, final double ownerColumnWidth, final double membersColumnWidth, final double lobbyStatusColumnWidth) {
         nameColumn.prefWidthProperty().bind(lobbiesTable.widthProperty().multiply(nameColumnWidth));
@@ -104,7 +106,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * Sets a CellValueFactory to the {@link #nameColumn} to display the name of each lobby.
      *
      * @see de.uol.swp.common.lobby.Lobby
-     * @since 2024-08-24
      */
     private void initializeNameColumnValueFactory() {
         nameColumn.setCellValueFactory(lobby -> new SimpleStringProperty(lobby.getValue().getName()));
@@ -115,7 +116,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.user.User
-     * @since 2024-08-24
      */
     private void initializeOwnerColumnValueFactory() {
         ownerColumn.setCellValueFactory(lobby -> new SimpleStringProperty(lobby.getValue().getOwner().getUsername()));
@@ -127,7 +127,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.common.user.User
-     * @since 2024-08-24
      */
     private void initializeMembersColumnValueFactory() {
         membersColumn.setCellFactory(column -> new TableCell<>() {
@@ -169,7 +168,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @see de.uol.swp.common.lobby.Lobby
      * @see de.uol.swp.client.lobby.LobbyOverviewPresenter#onLobbyRowClicked(Lobby)
-     * @since 2024-08-25
      */
     private void initializeRowFactory() {
         lobbiesTable.setRowFactory(tableView -> {
@@ -197,11 +195,11 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * @param retrieveAllLobbiesResponse The LobbyFindLobbiesResponse found on the EventBus
      * @see RetrieveAllLobbiesResponse
      * @see #setLobbyList(List)
-     * @since 2024-08-24
      */
     @Subscribe
     public void onLobbyFindLobbiesResponse(final RetrieveAllLobbiesResponse retrieveAllLobbiesResponse) {
         setLobbyList(retrieveAllLobbiesResponse.getLobbies());
+        startAutoRefreshTimer();
     }
 
     /**
@@ -213,7 +211,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * </p>
      *
      * @param lobbyList List of all lobbies that should be displayed in the {@link #lobbiesTable}
-     * @since 2024-08-24
      */
     public void setLobbyList(final List<Lobby> lobbyList) {
         Platform.runLater(() -> {
@@ -237,14 +234,11 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * It posts a ShowMainMenuEvent to the EventBus.
      * </p>
      *
-     * @param event The ActionEvent generated by pressing the back to menu button
-     * @see de.uol.swp.client.main.events.ShowMainMenuEvent
-     * @since 2024-08-24
+     * @see de.uol.swp.client.main_menu.events.ShowMainMenuEvent
      */
     @FXML
-    private void onBackToMainMenuButtonPressed(final ActionEvent event) {
-        final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
-        eventBus.post(showMainMenuEvent);
+    private void onBackToMainMenuButtonPressed() {
+        backToMainMenu();
     }
 
     /**
@@ -256,7 +250,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @param event The ActionEvent generated by pressing the refresh button
      * @see LobbyService#findLobbies()
-     * @since 2024-08-27
      */
     @FXML
     private void onRefreshButtonPressed(final ActionEvent event) {
@@ -267,12 +260,12 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * Method called when the create lobby button is pressed
      *
      * @param event The ActionEvent generated by pressing the create lobby button
-     * @since 2024-08-27
      */
     @FXML
     private void onCreateLobbyButtonPressed(final ActionEvent event) {
         final ShowLobbyCreateViewEvent showLobbyCreateViewEvent = new ShowLobbyCreateViewEvent();
         eventBus.post(showLobbyCreateViewEvent);
+        resetExistingTimer();
     }
 
     /**
@@ -286,19 +279,14 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      * @see LobbyService#joinLobby(Lobby, User)
      */
     private void onLobbyRowClicked(final Lobby lobby) {
-        LobbyStatus clickedLobbyStatus = lobby.getStatus();
-        if (clickedLobbyStatus.equals(LobbyStatus.OPEN)) {
-            lobbyService.joinLobby(lobby, loggedInUserProvider.get());
-        } else {
-            showLobbyJoinAlert(clickedLobbyStatus);
-        }
+        lobbyService.findLobbies();
+        lobbyService.joinLobby(lobby, loggedInUserProvider.get());
     }
 
     /**
      * Shows an alert when a user tries to join a lobby that is not open based on the lobby status
      *
      * @param clickedLobbyStatus The status of the lobby the user tried to join
-     * @since 2024-09-22
      */
     private void showLobbyJoinAlert(LobbyStatus clickedLobbyStatus) {
         String statusText = clickedLobbyStatus.getStatus();
@@ -319,7 +307,6 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
      *
      * @param joinUserLobbyResponse The JoinUserLobbyResponse detected on the EventBus
      * @see JoinUserLobbyResponse
-     * @since 2024-08-29
      */
     @Subscribe
     public void onLobbyJoinUserResponse(final JoinUserLobbyResponse joinUserLobbyResponse) {
@@ -327,6 +314,7 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
 
         final ShowLobbyViewEvent showLobbyViewEvent = new ShowLobbyViewEvent(joinUserLobbyResponse.getLobby());
         eventBus.post(showLobbyViewEvent);
+        backToMainMenu();
     }
 
     /**
@@ -344,5 +332,72 @@ public class LobbyOverviewPresenter extends AbstractPresenter {
     @Subscribe
     public void onLobbyStatusUpdatedResponse(final RetrieveAllLobbiesServerMessage message) {
         setLobbyList(message.getLobbies());
+    }
+
+    /**
+     * Navigates back to the main menu after resetting any active timers.
+     * Posts a ShowMainMenuEvent to the event bus for the currently logged in user.
+     */
+    private void backToMainMenu() {
+        resetExistingTimer();
+        final ShowMainMenuEvent showMainMenuEvent = new ShowMainMenuEvent(loggedInUserProvider.get());
+        eventBus.post(showMainMenuEvent);
+    }
+
+    /**
+     * Handles LobbyIsFullResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyIsFullResponse} is detected on the EventBus, this method gets
+     * called. It shows an alert to the user indicating that the lobby they tried to join is full.
+     * </p>
+     *
+     * @param response The LobbyIsFullResponse detected on the EventBus
+     * @see LobbyIsFullResponse
+     * @see #showLobbyJoinAlert(LobbyStatus)
+     */
+    @Subscribe
+    public void onLobbyIsFullResponse(LobbyIsFullResponse response) {
+        Platform.runLater(() -> showLobbyJoinAlert(LobbyStatus.FULL));
+    }
+
+    /**
+     * Handles LobbyNotJoinableResponse detected on the EventBus
+     *
+     * <p>
+     * If a {@link LobbyNotJoinableResponse} is detected on the EventBus, this method gets
+     * called. It shows an alert to the user indicating that the lobby they tried to join
+     * is not joinable with the specific status from the response.
+     * </p>
+     *
+     * @param response The LobbyNotJoinableResponse detected on the EventBus
+     * @see LobbyNotJoinableResponse
+     * @see #showLobbyJoinAlert(LobbyStatus)
+     */
+    @Subscribe
+    public void onLobbyNotJoinableResponse(LobbyNotJoinableResponse response) {
+        Platform.runLater(() -> showLobbyJoinAlert(response.getStatus()));
+    }
+
+    /**
+     * Stops and nullifies the auto-refresh timer for the lobby list
+     */
+    private void resetExistingTimer() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+            autoRefreshTimer = null;
+        }
+    }
+
+    /**
+     * Creates and starts a new auto-refresh timer for the lobby list
+     */
+    private void startAutoRefreshTimer() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+        }
+        autoRefreshTimer = new Timeline(new KeyFrame(Duration.seconds(10), event -> lobbyService.findLobbies()));
+        autoRefreshTimer.setCycleCount(Timeline.INDEFINITE);
+        autoRefreshTimer.play();
     }
 }

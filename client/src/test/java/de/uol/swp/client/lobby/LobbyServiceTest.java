@@ -1,6 +1,7 @@
 package de.uol.swp.client.lobby;
 
 import de.uol.swp.client.EventBusBasedTest;
+import de.uol.swp.common.game.GameDifficulty;
 import de.uol.swp.common.lobby.Lobby;
 import de.uol.swp.common.lobby.LobbyDTO;
 import de.uol.swp.common.lobby.LobbyStatus;
@@ -16,7 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @DisplayName("LobbyService Test")
 public class LobbyServiceTest extends EventBusBasedTest {
@@ -30,14 +32,14 @@ public class LobbyServiceTest extends EventBusBasedTest {
     void setUp() {
         this.lobbyService = new LobbyService(getBus());
         this.user = new UserDTO("testo", "", "");
-        this.lobby = new LobbyDTO("TestLobby", user, 2, 4);
+        this.lobby = new LobbyDTO("TestLobby", user);
         this.defaultPlayer = new UserPlayer(this.user);
     }
 
     @Test
     @DisplayName("Create new lobby")
     void createNewLobby() throws InterruptedException {
-        lobbyService.createNewLobby(lobby.getName(), user, 2, 4);
+        lobbyService.createNewLobby(lobby.getName(), user);
 
         waitForLock();
 
@@ -107,7 +109,7 @@ public class LobbyServiceTest extends EventBusBasedTest {
 
         waitForLock();
 
-        assertTrue(event instanceof KickPlayerLobbyRequest);
+        assertInstanceOf(KickPlayerLobbyRequest.class, event);
 
         final KickPlayerLobbyRequest kickUserRequest = (KickPlayerLobbyRequest) event;
         assertEquals(kickUserRequest.getLobby(), lobby);
@@ -145,6 +147,20 @@ public class LobbyServiceTest extends EventBusBasedTest {
         waitForLock();
 
         assertInstanceOf(RetrieveAllPlaguesRequest.class, event);
+    }
+
+    @Test
+    @DisplayName("Update lobby difficulty")
+    void updateDifficulty() throws InterruptedException {
+        lobbyService.updateDifficulty(lobby, GameDifficulty.HARD);
+
+        waitForLock();
+
+        assertInstanceOf(DifficultyUpdateRequest.class, event);
+
+        final DifficultyUpdateRequest difficultyUpdateRequest = (DifficultyUpdateRequest) event;
+        assertEquals(difficultyUpdateRequest.getLobby(), lobby);
+        assertEquals(GameDifficulty.HARD, difficultyUpdateRequest.getDifficulty());
     }
 
     @Subscribe
@@ -190,5 +206,10 @@ public class LobbyServiceTest extends EventBusBasedTest {
     @Subscribe
     public void onEvent(final RetrieveAllPlaguesRequest retrieveAllPlaguesRequest) {
         handleEvent(retrieveAllPlaguesRequest);
+    }
+
+    @Subscribe
+    public void onEvent(final DifficultyUpdateRequest difficultyUpdateRequest) {
+        handleEvent(difficultyUpdateRequest);
     }
 }

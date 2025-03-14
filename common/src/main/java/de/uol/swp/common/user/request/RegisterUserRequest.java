@@ -10,8 +10,6 @@ import lombok.Getter;
  * Request to register a new user
  *
  * @see de.uol.swp.common.user.User
- * @author Marco Grawunder
- * @since 2019-09-02
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)

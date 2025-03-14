@@ -2,6 +2,7 @@ package de.uol.swp.common.map;
 
 import de.uol.swp.common.plague.Plague;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -18,10 +19,9 @@ import java.util.List;
  * @see City
  * @see MapType
  * @see Plague
- * @author Tom Weelborg
- * @since 2024-09-02
  */
 @AllArgsConstructor
+@EqualsAndHashCode
 @Getter
 public class MapSlot implements Serializable {
     private City city;
@@ -29,6 +29,11 @@ public class MapSlot implements Serializable {
     private Plague plague;
     private int xCoordinate;
     private int yCoordinate;
+
+    @Override
+    public String toString() {
+        return city.getName();
+    }
 
     /**
      * <p>

@@ -5,9 +5,7 @@ import de.uol.swp.common.map.City;
 /**
  * A utility class that defines all cities of the game.
  *
- * @author David Scheffler
  * @see City
- * @since 2024-09-21
  */
 public final class Cities {
     public static final City SAN_FRANCISCO = new City("San Francisco", "Eine Stadt an der Westküste der USA.");
@@ -61,9 +59,6 @@ public final class Cities {
 
     /**
      * Private constructor to prevent instantiation
-     *
-     * @author David Scheffler
-     * @since 2024-09-21
      */
     private Cities() {
 
