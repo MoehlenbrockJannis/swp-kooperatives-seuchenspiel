@@ -26,6 +26,8 @@ import io.netty.channel.ChannelHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Optional;
+
 /**
  * This class handles the startup of the server, as well as, the creation of default
  * users while the MainMemoryBasedUserStore is still in use.
@@ -56,7 +58,7 @@ class ServerApp {
 		if (port < 0){
 			port = Configuration.getDefaultPort();
 		}
-		LOG.info("Starting Server on port {}",port);
+		LOG.info("Starting Server on port {}", Optional.of(port));
 
 		Injector injector = Guice.createInjector(new ServerModule());
 		createServices(injector);
