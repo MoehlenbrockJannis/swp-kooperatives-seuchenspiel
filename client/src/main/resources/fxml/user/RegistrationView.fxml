@@ -91,7 +91,7 @@
                 </Button>
             </children>
         </GridPane>
-        <Label alignment="CENTER" text="PANDEMIE" GridPane.halignment="CENTER">
+        <Label alignment="CENTER" text="Kooperatives Seuchenspiel" GridPane.halignment="CENTER">
             <font>
                 <Font size="51.0" />
             </font>
