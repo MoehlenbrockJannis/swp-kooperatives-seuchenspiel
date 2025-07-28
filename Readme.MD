@@ -2,6 +2,26 @@
 
 Pandemie ist eine digitale Umsetzung des bekannten Brettspiels, entwickelt im Rahmen eines Softwareprojekts an der IBS Oldenburg. Dieses Open-Source-Projekt besteht aus einem Java-Backend (Server) und einem Java-Client (Frontend). Die Anwendung kann lokal oder in Docker-Containern betrieben werden. Dieses Projekt steht in keiner Verbindung zu Z-Man Games/Asmodee und dient ausschließlich zu Lernzwecken. Auch sind die Regeln nicht 1 zu 1 umgesetzt. 
 
+## Abweichungen von den Originalregeln („Pandemic“/„Pandemie“)
+
+Im Vergleich zum originalen Brettspiel gibt es im hier umgesetzten Spiel folgende Änderungen und Abweichungen:
+
+- **Bestimmung des Startspielers:**  
+  Im Original beginnt die Person, die zuletzt krank war.  
+  → In der digitalen Version wird der Startspieler zufällig bestimmt.
+
+- **Zuordnung der Rollen:**  
+  Im Original werden Rollenkarten gezogen und zufällig verteilt.  
+  → In dieser Umsetzung kann jede*r Spieler*in die gewünschte Rolle in der Lobby selbst wählen. Wurde keine Rolle gewählt, erfolgt eine zufällige Zuweisung.
+
+- **Übersichtskarten und Anleitung:**  
+  Im Original dienen Übersichtskarten nur der Erklärung möglicher Aktionen.  
+  → Die Umsetzung enthält eine umfassende, digitale Anleitung, die über die Aktionsübersicht hinaus auch alle Komponenten, Rollen und den Spielablauf erläutert.
+
+- **Seuchen-Ausrottung nach Gegenmittel:**  
+  Im Original können nach Entwicklung eines Gegenmittels weiterhin Seuchenwürfel der entsprechenden Farbe verteilt werden, solange die Krankheit nicht komplett ausgerottet ist.  
+  → In der Software werden keine Seuchenwürfel mehr platziert, nachdem das Gegenmittel für eine Farbe entdeckt wurde (Vereinfachung der Regeln).
+
 ## Voraussetzungen
 
 - [Java 17 oder höher](https://adoptopenjdk.net/)
