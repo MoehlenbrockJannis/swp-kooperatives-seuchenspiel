@@ -1,6 +1,6 @@
 # Pandemie
 
-Pandemie ist eine digitale Umsetzung des bekannten Brettspiels, entwickelt im Rahmen eines Softwareprojekts an der IBS Oldenburg. Dieses Open-Source-Projekt besteht aus einem Java-Backend (Server) und einem Java-Client (Frontend). Die Anwendung kann lokal oder in Docker-Containern betrieben werden.
+Pandemie ist eine digitale Umsetzung des bekannten Brettspiels, entwickelt im Rahmen eines Softwareprojekts an der IBS Oldenburg. Dieses Open-Source-Projekt besteht aus einem Java-Backend (Server) und einem Java-Client (Frontend). Die Anwendung kann lokal oder in Docker-Containern betrieben werden. Dieses Projekt steht in keiner Verbindung zu Z-Man Games/Asmodee und dient ausschließlich zu Lernzwecken. Auch sind die Regeln nicht 1 zu 1 umgesetzt. 
 
 ## Voraussetzungen
 
