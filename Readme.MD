@@ -77,12 +77,4 @@ docker run -p 8899:8899 -d <image-tag>
 
 Ersetze `<image-tag>` durch den Namen deines erstellten Images.
 
-## Mitmachen
-
-Beiträge, Bugreports und Feature-Requests sind willkommen! Erstelle dazu gerne ein Issue oder einen Pull Request.
-
-## Lizenz
-
-Dieses Projekt steht unter der **MIT-Lizenz**.
-
 **Hinweis: Dies ist eine freie, nicht-kommerzielle Umsetzung des Spiels „Pandemie" zu Lernzwecken.**
