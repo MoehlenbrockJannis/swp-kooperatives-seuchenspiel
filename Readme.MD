@@ -1,6 +1,9 @@
-# Pandemie
+**Kooperatives Seuchenspiel** ist eine digitale Eigenentwicklung, die sich lose am bekannten Brettspiel „Pandemie“ orientiert. Das Spiel wurde im Rahmen eines Softwareprojekts an der IBS Oldenburg entwickelt und besteht aus einem Java-Backend (Server) sowie einem Java-Client (Frontend). Die Anwendung ist sowohl lokal als auch in Docker-Containern ausführbar.
 
-Pandemie ist eine digitale Umsetzung des bekannten Brettspiels, entwickelt im Rahmen eines Softwareprojekts an der IBS Oldenburg. Dieses Open-Source-Projekt besteht aus einem Java-Backend (Server) und einem Java-Client (Frontend). Die Anwendung kann lokal oder in Docker-Containern betrieben werden. Dieses Projekt steht in keiner Verbindung zu Z-Man Games/Asmodee und dient ausschließlich zu Lernzwecken. Auch sind die Regeln nicht 1 zu 1 umgesetzt. 
+> **Hinweis:**  
+> Dieses Open-Source-Projekt steht in keinerlei Verbindung zu Z-Man Games, Asmodee oder den offiziellen Machern von „Pandemie“.  
+> Es dient ausschließlich zu Lern- und Demonstrationszwecken.  
+> Sowohl Regelwerk als auch grafische Elemente wurden eigenständig umgesetzt und weichen teils deutlich vom Original ab.
 
 ## Abweichungen von den Originalregeln („Pandemic“/„Pandemie“)
 
@@ -96,5 +99,3 @@ docker run -p 8899:8899 -d <image-tag>
 ```
 
 Ersetze `<image-tag>` durch den Namen deines erstellten Images.
-
-**Hinweis: Dies ist eine freie, nicht-kommerzielle Umsetzung des Spiels „Pandemie" zu Lernzwecken.**
