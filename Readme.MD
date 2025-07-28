@@ -77,6 +77,26 @@ Konfiguriere eigene "Run Configurations", um Server und Client bequem zu starten
 1. Menü **Run** → **Edit Configurations...**
 2. Mit "+" eine neue **JAR Application**-Konfiguration anlegen (Pfad zum jeweiligen JAR angeben)
 3. Optional: Maven-Builds als "Before launch"-Aktion hinzufügen
+4. Die .env-Dateien im Server und Client müssen existieren. Wenn du lokal spielen möchtest, kannst du die Variablen einfach mit Dummy-Werten belegen oder leer lassen.
+
+**Client .env:**
+```
+HOST=localhost
+PORT=8899
+
+```
+
+**Server .env:**
+```
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_TYPE=mariadb
+TIMEOUT_MS=250
+DB_NAME=testdatenbank
+DB_USER=testuser
+DB_PASSWORD=testpass
+
+```
 
 ## Konfiguration
 
@@ -97,5 +117,3 @@ mvn clean package
 ```bash
 docker run -p 8899:8899 -d <image-tag>
 ```
-
-Ersetze `<image-tag>` durch den Namen deines erstellten Images.
