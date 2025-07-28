@@ -1,137 +1,88 @@
-# SWP Basissystem
+# Pandemie
 
-Der folgende Code sollte als Basis für das Software Projekt verwendet werden.
+Pandemie ist eine digitale Umsetzung des bekannten Brettspiels, entwickelt im Rahmen eines Softwareprojekts an der IBS Oldenburg. Dieses Open-Source-Projekt besteht aus einem Java-Backend (Server) und einem Java-Client (Frontend). Die Anwendung kann lokal oder in Docker-Containern betrieben werden.
 
+## Voraussetzungen
 
-## Setup - Maven
+- [Java 17 oder höher](https://adoptopenjdk.net/)
+- [Maven](https://maven.apache.org/)
+- (Optional) [Docker](https://www.docker.com/)
 
-Das Projekt kann mit Maven gebaut werden.
-Dafür müssen Java und Maven im Path des Systems hinterlegt sein.
+## Projektstruktur
 
-### Common
+- **server/** – Enthält das Backend
+- **client/** – Enthält das Frontend
 
-Auf der Hauptebene zunächst folgenden Befehl in einem Terminal aufrufen, um die Dependencies aus der [pom-Datei](pom.xml) zu aktualisieren:
+## Build & Start
 
-<pre>
-    <code>
-        mvn clean install
-    </code>
-</pre>
+### Client (Frontend)
 
-
-### Server
-
-Um den Server zu bauen:
-<pre>
-    <code>
-        cd server
-        mvn clean package
-    </code>
-</pre>
-
-Der Server ist dann unter target zu finden und kann z.B. wie folgt aufgerufen werden:
-
-<pre>
-    <code>
-        cd target
-        java -jar server-1.0.0-jar-with-dependencies.jar
-    </code>
-</pre>
-
-
-### Client
-
-Um den Client zu bauen:
-<pre>
-    <code>
-        cd client
-        mvn clean package
-    </code>
-</pre>
-
-Der Client ist dann unter target zu finden und kann z.B. wie folgt aufgerufen werden:
-
-<pre>
-    <code>
-        cd target
-        java -jar client-1.0-SNAPSHOT-jar-with-dependencies.jar
-    </code>
-</pre>
-
-
-### Intellij
-
-Zum Starten in Intellij können Run Configurations erstellt werden.
-Um in das Menü zum Hinzufügen zu gelangen, müssen folgende Aktionen durchgeführt werden:
-1. Links neben dem Startknopf auf "Run" drücken.
-2. "Edit Configurations..." auswählen.
-3. +-Knopf ("Add New Configuration") drücken
-
-Ein Compound aus folgenden Komponenten kann erstellt werden:
-1. JAR Application "Start Backend":
-   - Path to JAR: "C:\Path\to\SWP\server\target\server-1.0.0-jar-with-dependencies.jar"
-   - Before launch:
-     1. Maven "Base [clean,install]":
-        - Run: "clean install"
-        - Working directory: "C:\Path\to\SWP"
-     2. Maven "Backend [clean,package]":
-        - Run: "clean package"
-        - Working directory: "C:\Path\to\SWP\server"
-2. JAR Application "Start Frontend":
-   - Path to JAR: "C:\Path\to\SWP\client\target\client-1.0-SNAPSHOT-jar-with-dependencies.jar"
-   - Before launch:
-     1. Maven "Frontend [clean,package]":
-         - Run: "clean package"
-         - Working directory: "C:\Path\to\SWP\client"
-## Setup - Datenbank
-
-Die Datenbank ist dauerhaft über eine Azure-VM erreichbar.
-
-- Im Projekt befindet sich eine `.env.example` Datei, dies muss kopiert werden und in `.env` umbenannt werden.
-- In der müssen die dort angegebenen Variablen mit den entsprechenden Werten gefüllt werden.
-## Setup - Docker
-
-Der Server kann in einem Docker-Container gestartet werden. Das dazu notwendige Image kann über Maven gebaut werden.
-
-### Voraussetzungen
-
-1. Docker muss lokal installiert sein. Eine Anleitung dazu findet sich [hier](https://docs.docker.com/get-docker/).
-
-### Erstellung
-
-#### Lokal
-
-Um das Docker-Image zu erstellen, muss folgender Befehl ausgeführt werden:
-```shell
-mvn clean package 
-```
-Soll ein Docker-Image für den Raspberry Pi erstellt werden, muss folgender Befehl ausgeführt werden:
-```shell
-mvn clean package -D image.tag.value=git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server -D platform.value=linux/arm64
+**Bauen:**
+```bash
+cd client
+mvn clean package
 ```
 
-#### Mit push in die GitLab-Registry
+Das erzeugte JAR liegt unter `client/target`.
 
-Soll das Docker-Image erstellt werden und in die GitLab-Registry hochgeladen werden, muss folgender Befehl ausgeführt werden:
-```shell
-docker login git.swp-ibs.de:5050
+**Starten:**
+```bash
+cd client/target
+java -jar client-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
-Daraufhin wird nach Benutzername und Passwort von GitLab gefragt. Anschließend kann das Image erstellt und gepusht werden:
-```shell
-mvn clean install 
-```
-Auch hier kann ein Docker-Image für den Raspberry Pi erstellt und gepusht werden:
-```shell
-mvn clean install -D image.tag.value=git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server -D platform.value=linux/arm64
-```
-### Starten
 
-Um den Server in einem Docker-Container zu starten, muss folgender Befehl ausgeführt werden:
-```shell
-docker run -p 8899:8899 -d <tag>
+### Server (Backend)
+
+**Bauen:**
+```bash
+cd server
+mvn clean package
 ```
-- Tag PC / Server = git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/server:\<Versions-Nr>
-- Tag Pi = git.swp-ibs.de:5050/swp/2024/gb/pandemie-swp/arm/server:\<Versions-Nr>
 
+Das erzeugte JAR liegt unter `server/target`.
 
-Weitere Hinweise finden sich im Wiki https://confluence.swl.informatik.uni-oldenburg.de/display/SWP/Vorlesungsvideos
+**Starten:**
+```bash
+cd server/target
+java -jar server-1.0.0-jar-with-dependencies.jar
+```
+
+## Nutzung mit IntelliJ IDEA
+
+Konfiguriere eigene "Run Configurations", um Server und Client bequem zu starten:
+
+1. Menü **Run** → **Edit Configurations...**
+2. Mit "+" eine neue **JAR Application**-Konfiguration anlegen (Pfad zum jeweiligen JAR angeben)
+3. Optional: Maven-Builds als "Before launch"-Aktion hinzufügen
+
+## Konfiguration
+
+- Im Projekt befindet sich eine `.env.example`-Datei
+- Kopiere diese als `.env` und trage dort die erforderlichen Variablen ein
+
+## Docker-Nutzung
+
+### Server mit Docker bauen und starten
+
+**Image bauen:**
+```bash
+cd server
+mvn clean package
+```
+
+**Container starten:**
+```bash
+docker run -p 8899:8899 -d <image-tag>
+```
+
+Ersetze `<image-tag>` durch den Namen deines erstellten Images.
+
+## Mitmachen
+
+Beiträge, Bugreports und Feature-Requests sind willkommen! Erstelle dazu gerne ein Issue oder einen Pull Request.
+
+## Lizenz
+
+Dieses Projekt steht unter der **MIT-Lizenz**.
+
+**Hinweis: Dies ist eine freie, nicht-kommerzielle Umsetzung des Spiels „Pandemie" zu Lernzwecken.**
